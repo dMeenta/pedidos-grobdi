@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\pedidos\Motorizado;
 
+use App\Events\PedidosNotification;
 use App\Http\Controllers\Controller;
 use App\Models\Pedidos;
 use App\Models\User;
@@ -43,7 +44,14 @@ class PedidosMotoController extends Controller
         $pedidos->detailMotorizado = $request->detailMotorizado;
         $pedidos->user_id = Auth::user()->id;
         $pedidos->save();
-          
+        // dd($pedidos);
+        // Dispatch the event with the post data
+        event(new PedidosNotification([
+            'orderId' => $pedidos->orderId,
+            'estado_entrega' => $pedidos->deliveryStatus,
+            'detalles_motorizado' => $pedidos->detailMotorizado,
+            'nombre_usuario' => Auth::user()->name
+        ]));
         return redirect()->route('pedidosmotorizado.index')
                         ->with('success','Pedido modificado exitosamente');
     }

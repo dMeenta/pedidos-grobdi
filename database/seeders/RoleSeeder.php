@@ -15,7 +15,8 @@ class RoleSeeder extends Seeder
             ['name'=>'counter','description'=>'rol de counter'],
             ['name'=>'contabilidad','description'=>'rol de contabilidad'],
             ['name'=>'laboratorio','description'=>'rol de laboratorio'],
-            ['name'=>'motorizado','description'=>'rol de motorizado']
+            ['name'=>'motorizado','description'=>'rol de motorizado'],
+            ['name'=>'visitador','description'=>'rol de visitador medico'],
             ];
             
             foreach ($roles as $role) {

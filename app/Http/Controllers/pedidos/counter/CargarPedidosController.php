@@ -30,7 +30,7 @@ class CargarPedidosController extends Controller
         }
         $pedidos = Pedidos::whereDate('deliveryDate', $dia)->orderBy('nroOrder','asc')
         ->get();
-        return view('pedidos.counter.cargar_pedido.index', compact('pedidos'))->with('i',0);
+        return view('pedidos.counter.cargar_pedido.index', compact('pedidos'));
     }
 
     /**
@@ -135,6 +135,7 @@ class CargarPedidosController extends Controller
         // dd(request()->all());
         $imageName = time().'.'.$request->voucher->extension();
         $request->voucher->move(public_path('images/voucher_pedidos'), $imageName);
+        
         $pedidos = Pedidos::find($id);
         // $pedidos->name = $request->name;
         $pedidos->paymentStatus = $request->paymentStatus;
@@ -142,8 +143,19 @@ class CargarPedidosController extends Controller
         $pedidos->operationNumber = $request->operationNumber;
         $pedidos->voucher = 'images/voucher_pedidos/'.$imageName;
         $pedidos->save();
-        return redirect()->route('cargarpedidos.index')
-        ->with('success','Pedido modificado exitosamente');
+        return back()->with('success','Pedido modificado exitosamente');
+    }
+    public function cargarImagenReceta(Request $request, $id){
+        $request->validate([
+            'receta' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+        
+        $imageNameReceta = time().'.'.$request->receta->extension();
+        $request->receta->move(public_path('images/receta_pedidos'), $imageNameReceta);
+        $pedidos = Pedidos::find($id);
+        $pedidos->receta = 'images/receta_pedidos/'.$imageNameReceta;
+        $pedidos->save();
+        return back()->with('success','Receta cargada exitosamente');
     }
     public function destroy(string $id)
     {

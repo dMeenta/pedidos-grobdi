@@ -303,7 +303,7 @@
             // Navbar items:
             // [
             //     'type' => 'navbar-search',
-            //     'text' => 'search',
+            //     'text' => 'Buscar',
             //     'topnav_right' => true,
             // ],
             [
@@ -312,10 +312,10 @@
             ],
     
             // Sidebar items:
-            // [
-            //     'type' => 'sidebar-menu-search',
-            //     'text' => 'search',
-            // ],
+            [
+                'type' => 'sidebar-menu-search',
+                'text' => 'Buscar',
+            ],
             // [
             //     'text' => 'blog',
             //     'url' => 'admin/blog',
@@ -328,28 +328,41 @@
             //     'label' => 10,
             //     'label_color' => 'success',
             // ],
-            ['header' => 'Counter',
-            'can' => 'counter'],
-                [
-                    'text' => 'Cargar pedidos',
-                    'url' => 'cargarpedidos',
-                    'icon' => 'fas fa-fw fa-user',
-                    'can' => 'counter',
+
+            
+            //Vista Counter
+            [
+                'header' => 'Counter',
+                'can' => 'counter'
+            ],
+            [
+                'text' => 'Pedidos',
+                'icon' => 'fas fa-fw fa-share',
+                'submenu' => [
+                    [
+                        'text' => 'Cargar pedidos',
+                        'url' => 'cargarpedidos',
+                        'icon' => 'fas fa-fw fa-upload',
+                        'can' => 'counter',
+                    ],
+                    [
+                        'text' => 'Historial pedidos',
+                        'url' => 'historialpedidos',
+                        'icon' => 'fas fa-fw fa-history',
+                        'can' => 'counter'
+                    ],
+                    [
+                        'text' => 'Asignar Pedidos',
+                        'url' => 'asignarpedidos',
+                        'icon' => 'fas fa-fw fa-user',
+                        'can' => 'counter'
+                    ],
                 ],
-                [
-                    'text' => 'Historial pedidos',
-                    'url' => 'historialpedidos',
-                    'icon' => 'fas fa-fw fa-user',
-                    'can' => 'counter'
-                ],
-                [
-                    'text' => 'Asignar Pedidos',
-                    'url' => 'asignarpedidos',
-                    'icon' => 'fas fa-fw fa-user',
-                    'can' => 'counter'
-                ],
-            ['header' => 'Laboratorio',
-            'can' => 'laboratorio'],
+            ],
+            [
+                'header' => 'Laboratorio',
+                'can' => 'laboratorio'
+            ],
                 [
                     'text' => 'pedidos',
                     'url' => 'pedidoslaboratorio',
@@ -357,7 +370,7 @@
                     'can' => 'laboratorio'
                 ],
             ['header' => 'Contabilidad',
-            'can' => 'contabilidad'],
+                'can' => 'contabilidad'],
                 [
                     'text' => 'pedidos',
                     'url' => 'pedidoscontabilidad',
@@ -372,13 +385,43 @@
                     'icon' => 'fas fa-fw fa-user',
                     'can' => 'motorizados'
                 ],
-            ['header' => 'Ajustes',
-            'can' => 'usuarios'],
+            [
+                'header' => 'Ajustes',
+                'can' => 'usuarios'
+            ],
                 [
                     'text' => 'usuarios',
                     'url' => 'usuarios',
                     'icon' => 'fas fa-fw fa-user',
                     'can' => 'usuarios'
+                ],
+            [
+                'header' => 'Visitadoras Medicas',
+                'can' => 'visitador'
+            ],
+                [
+                    'text' => 'mantenimiento',
+                    'icon' => 'fas fa-fw fa-wrench',
+                    'submenu' => [
+                        [
+                            'text' => 'Centro de Salud',
+                            'url' => 'centrosalud',
+                            'icon' => 'fas fa-fw fa-h-square',
+                            'can' => 'visitador',
+                        ],
+                        [
+                            'text' => 'Especialidad',
+                            'url' => 'especialidad',
+                            'icon' => 'fas fa-fw fa-medkit',
+                            'can' => 'visitador',
+                        ],
+                        [
+                            'text' => 'doctor',
+                            'url' => 'doctor',
+                            'icon' => 'fas fa-fw fa-user-md',
+                            'can' => 'visitador',
+                        ],
+                    ],
                 ],
             // [
             //     'text' => 'warning',
@@ -395,6 +438,7 @@
             //     'url' => 'admin/settings',
             //     'icon' => 'fas fa-fw fa-lock',
             // ],
+
             // [
             //     'text' => 'multilevel',
             //     'icon' => 'fas fa-fw fa-share',
@@ -433,7 +477,6 @@
             //         ],
             //     ],
             // ],
-            
         ],
     
         /*

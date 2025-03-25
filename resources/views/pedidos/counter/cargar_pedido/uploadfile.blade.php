@@ -13,7 +13,7 @@
   <div class="card-body">
   
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-        <a class="btn btn-primary btn-sm" href="{{ url()->previous() }}"><i class="fa fa-arrow-left"></i> Atrás</a>
+        <a class="btn btn-primary btn-sm" href="{{ route('cargarpedidos.index', ['fecha' => $pedido->deliveryDate]) }}"><i class="fa fa-arrow-left"></i> Atrás</a>
     </div>
   
     <form action="{{ route('cargarpedidos.cargarImagen',$pedido->id) }}" method="POST" enctype="multipart/form-data">
@@ -27,7 +27,7 @@
             @endif
 
             <div class="col-xs-4 col-sm-4 col-md-4">
-                <label for="inputvoucher" class="form-label"><strong>Imagen:</strong></label>
+                <label for="inputvoucher" class="form-label"><strong>Imagen del voucher de pago:</strong></label>
                 <input 
                     type="file" 
                     name="voucher" 
@@ -77,9 +77,46 @@
                 @enderror
             </div>
         </div>
+        <br>
         <button type="submit" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> Actualizar</button>
     </form>
-  
+        <br>
+    <form action="{{ route('cargarpedidos.cargarImagenReceta',$pedido->id) }}" method="POST" enctype="multipart/form-data">
+    @csrf
+    @method('PUT')
+        <div class="row">
+            @if ($pedido->receta)
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                    <img src="{{ asset($pedido->receta) }}" alt="{{ $pedido->orderId }} width="400" height="300"">
+                </div>
+            @endif
+            <div class="col-xs-4 col-sm-4 col-md-4">
+                <label for="inputreceta" class="form-label"><strong>Imagen de la receta:</strong></label>
+                <input 
+                    type="file" 
+                    name="receta" 
+                    value="{{ $pedido->receta }}"
+                    class="form-control @error('voucher') is-invalid @enderror" 
+                    id="inputreceta">
+                @error('receta')
+                    <div class="form-text text-danger">{{ $message }}</div>
+                @enderror
+            </div>
+        </div>
+        <br>
+        <button type="submit" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> Actualizar Imagen de la receta</button>
+    </form>
+    @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+        
+    @endif
+    @if(session('danger'))
+        <div class="alert alert-danger">
+            {{ session('danger') }}
+        </div>
+    @endif
   </div>
 </div>
 

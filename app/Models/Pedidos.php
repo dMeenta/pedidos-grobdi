@@ -25,6 +25,7 @@ class Pedidos extends Model
         'user_id',
         'zone_id',
         'voucher',
+        'receta',
     ];
     public function user()
     {
@@ -36,6 +37,6 @@ class Pedidos extends Model
     }
     public function detailpedidos()
     {
-        return $this->hasMany(DetailPedidos::class); // Un post tiene muchos comentarios
+        return $this->hasMany(DetailPedidos::class);
     }
 }

@@ -14,7 +14,7 @@
     <form action="{{ route('pedidosmotorizado.index') }}" method="GET">
         <div class="row">
             <div class="col-xs-1 col-sm-1 col-md-1">
-                <label for="fecha_inicio">Fecha:</label>
+                <label for="fecha">Fecha:</label>
             </div>
             <div class="col-xs-2 col-sm-2 col-md-2">
                 <input class="form-control" type="date" name="fecha" id="fecha" required>
@@ -22,12 +22,19 @@
             <div class="col-xs-3 col-sm-3 col-md-3">
                 <button type="submit" class="btn btn-outline-primary"><i class="fa fa-search"></i> Buscar</button>
             </div>
+            <div class="col-xs-3 col-sm-3 col-md-3">
+                <select class="form-select" aria-label="Default select example" id="filter" onchange="filterTable()">
+                    <option selected disabled>Selecciona un turno</option>
+                    <option value="Mañana">Mañana</option>
+                    <option value="Tarde">Tarde</option>
+                </select>
+            </div>
         </div>
         @error('message')
             <p style="color: red;">{{ $message }}</p>
         @enderror
     </form>
-    <table class="table table-striped table-hover">
+    <table class="table table-striped table-hover" id="tablaPedidos">
         <thead>
             <tr>
                 <th>Nro</th>
@@ -79,5 +86,31 @@
 @stop
 
 @section('js')
-    <script> console.log("Hi, I'm using the Laravel-AdminLTE package!"); </script>
+<script>
+    function filterTable() {
+        var filter = document.getElementById('filter').value.toLowerCase();  // Obtener el valor del select
+        var table = document.getElementById('tablaPedidos');
+        var rows = table.getElementsByTagName('tr');
+
+        // Recorremos todas las filas de la tabla
+        for (var i = 1; i < rows.length; i++) {  // Comenzamos en 1 para saltarnos la fila de encabezado
+            var cells = rows[i].getElementsByTagName('td');
+            var match = false;
+
+            // Recorremos todas las celdas de cada fila (en este caso solo la segunda columna 'name' se filtra)
+            if (cells[6]) {  // La columna de 'name' es la segunda columna (índice 1)
+                if (cells[6].innerText.toLowerCase().indexOf(filter) > -1) {
+                    match = true;
+                }
+            }
+
+            // Si encuentra una coincidencia, mostramos la fila, si no la ocultamos
+            if (match || filter === "") {
+                rows[i].style.display = '';
+            } else {
+                rows[i].style.display = 'none';
+            }
+        }
+    }
+</script>
 @stop

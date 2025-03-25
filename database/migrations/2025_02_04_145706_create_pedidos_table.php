@@ -31,6 +31,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); 
             $table->foreignId('zone_id')->constrained(); 
             $table->string('voucher')->nullable();
+            $table->string('receta')->nullable();
             $table->string('operationNumber')->nullable();
             $table->string('paymentMethod')->nullable();
             $table->string('detailMotorizado')->nullable();

@@ -26,8 +26,7 @@ class HistorialPedidosController extends Controller
             $pedidos = Pedidos::orderBy('created_at','asc')->latest()->paginate(25);
 
         }
-        return view('pedidos.counter.historial_pedido.index', compact('pedidos'))
-            ->with('i', (request()->input('page', 1) - 1) * 25);
+        return view('pedidos.counter.historial_pedido.index', compact('pedidos'));
     }
     public function show($pedido){
         $pedido = Pedidos::find($pedido);

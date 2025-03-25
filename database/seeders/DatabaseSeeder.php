@@ -23,7 +23,18 @@ class DatabaseSeeder extends Seeder
             'active'=> 1,
             'role_id' => 1,
         ]);
+        User::factory()->create([
+            'name' => 'visitadora sur',
+            'email' => 'visitadora.sur@grobdi.com',
+            'password'=> bcrypt('12345678'),
+            'active'=> 1,
+            'role_id' => 6,
+        ]);
         $this->call(ZoneSeeder::class);
         $this->call(ModuleSeeder::class);
+        $this->call(DepartamentosSeeder::class);
+        $this->call(ProvinciaSeeder::class);
+        $this->call(DistritoSeeder::class);
+        $this->call(DaySeeder::class);
     }
 }

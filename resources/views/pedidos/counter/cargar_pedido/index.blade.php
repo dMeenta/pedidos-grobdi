@@ -51,6 +51,7 @@
                 <th>Est. Entrega</th>
                 <th width="200px">distrito</th>
                 <th width="200px">Voucher</th>
+                <th width="200px">Receta</th>
                 <th width="200px">Zona</th>
                 <th width="220px">Opciones</th>
             </tr>
@@ -63,7 +64,7 @@
                     <td>{{ $arr["customerName"] }}</td>
                     <td>{{ $arr["doctorName"] }}</td>
                     <td>{{ $arr["paymentStatus"] }}</td>
-                    @if($arr->user->role->name == 'motorizado' || $arr["paymentStatus"] === "Reprogramado")
+                    @if($arr->user->role->name == 'motorizado' && $arr["paymentStatus"] === "Reprogramado")
                         <td class="table-danger">{{ $arr["deliveryStatus"] }}</td>
                     @else
                         <td>{{ $arr["deliveryStatus"] }}</td>
@@ -71,6 +72,13 @@
                     <td>{{ $arr["district"] }}</td>
                     <td>
                         @if ( $arr["voucher"] == 0)
+                            <span class="badge rounded-pill bg-danger">Sin imagen</span>
+                        @else
+                            <span class="badge rounded-pill bg-success">Imagen</span>
+                        @endif
+                    </td>
+                    <td>
+                        @if ( $arr["receta"] == 0)
                             <span class="badge rounded-pill bg-danger">Sin imagen</span>
                         @else
                             <span class="badge rounded-pill bg-success">Imagen</span>

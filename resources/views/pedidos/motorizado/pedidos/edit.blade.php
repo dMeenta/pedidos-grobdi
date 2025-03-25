@@ -39,8 +39,8 @@
                     class="form-control @error('detailMotorizado') is-invalid @enderror" 
                     style="height:150px" 
                     id="inputDetail"
-                    name="detailMotorizado" 
-                    placeholder="ingresar observaciones o detalles"></textarea>
+                    name="detailMotorizado"
+                    placeholder="ingresar observaciones o detalles">{{ $pedido->detailMotorizado }}</textarea>
                 @error('detailMotorizado')
                     <p style="color: red;">{{ $message }}</p>
                 @enderror

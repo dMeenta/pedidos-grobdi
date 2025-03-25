@@ -8,7 +8,7 @@
 
 @section('content')
 <div class="card mt-5">
-    <h2 class="card-header">Actualizar Pedido</h2>
+    <h2 class="card-header">Cargar Pedido</h2>
     <div class="card-body">
         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
             <a class="btn btn-primary btn-sm" href="{{ url()->previous() }}"><i class="fa fa-arrow-left"></i> Atrás</a>
