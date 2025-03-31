@@ -63,7 +63,9 @@
                                     @method('PUT')
                                     <input type="datetime-local" name="fecha_hora_entrega" class="form-control"
                                         value="{{ old('fecha_hora_entrega', $muestra->fecha_hora_entrega ? \Carbon\Carbon::parse($muestra->fecha_hora_entrega)->format('Y-m-d\TH:i') : '') }}"
-                                        onchange="document.getElementById('fecha_form_{{ $muestra->id }}').submit();">
+                                        onchange="document.getElementById('fecha_form_{{ $muestra->id }}').submit();"
+                                        id="fecha_{{ $muestra->id }}"
+                                        min="{{ \Carbon\Carbon::now()->format('Y-m-d\TH:i') }}">
                                 </form>
                             </td>
                         </tr>
@@ -149,14 +151,19 @@
                 });
             }
 
-            // Función para manejar el cambio en checkboxes de coordinadora
             function setupCoordinadoraCheckboxChange() {
                 $('.aprobado-coordinadora').off('change').on('change', function() {
-                    var id = $(this).data('id');
-                    var value = $(this).is(':checked') ? 1 : 0;
-                    actualizarAprobacion(id, 'aprobado_coordinadora', value);
+                    // Si ya está marcado, no permitir desmarcarlo
+                    if ($(this).is(':checked')) {
+                        var id = $(this).data('id');
+                        var value = 1;
+                        actualizarAprobacion(id, 'aprobado_coordinadora', value);
+                    } else {
+                        // Si intenta desmarcar, restaurarlo a marcado
+                        $(this).prop('checked', true);
+                    }
                 });
-            }
+}
 
             // Configuración de Pusher
             Pusher.logToConsole = true;

@@ -37,7 +37,7 @@ class MuestrasController extends Controller
         $request->validate([
             'nombre_muestra' => 'required|string|max:255',
             'clasificacion_id' => 'required|exists:clasificaciones,id',
-            'cantidad_de_muestra' => 'required|numeric',
+            'cantidad_de_muestra' => 'required|numeric|min:1',
             'observacion' => 'nullable|string',
             'tipo_muestra' => 'required|in:frasco original,frasco muestra',
         ]);
@@ -82,7 +82,7 @@ class MuestrasController extends Controller
         $request->validate([
             'nombre_muestra' => 'required|string|max:255',
             'clasificacion_id' => 'required|exists:clasificaciones,id',
-            'cantidad_de_muestra' => 'required|numeric',
+            'cantidad_de_muestra' => 'required|numeric|min:1',
             'observacion' => 'nullable|string',
             'tipo_muestra' => 'required|in:frasco original,frasco muestra',
         ]);

@@ -66,9 +66,8 @@ class coordinadoraController extends Controller
     {
         // Buscar la muestra en la base de datos
         $muestra = Muestras::find($id);
-        // Validar la entrada para asegurarse de que la fecha y hora sean válidas
         $validated = $request->validate([
-            'fecha_hora_entrega' => 'required|date',
+            'fecha_hora_entrega' => 'required|date|after_or_equal:' . \Carbon\Carbon::now()->format('Y-m-d\TH:i'),
         ]);
 
         // Usar DB para actualizar solo el campo fecha_hora_entrega sin modificar los timestamps
