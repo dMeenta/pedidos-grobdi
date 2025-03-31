@@ -15,6 +15,10 @@ class Zone extends Model
     {
         return $this->hasMany(Pedidos::class); 
     }
+    public function listas()
+    {
+        return $this->hasMany(Lista::class); 
+    }
     public function users()
     {
         return $this->belongsToMany(User::class, 'user_zones'); 

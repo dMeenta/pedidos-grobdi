@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\rutas\enrutamiento;
 
 use App\Http\Controllers\Controller;
-use App\Models\Distritos;
+use App\Models\Distrito;
+use App\Models\Lista;
 use App\Models\Zone;
 use Illuminate\Http\Request;
 
@@ -14,7 +15,8 @@ class ListaController extends Controller
      */
     public function index()
     {
-        //
+        $listas = Lista::all();
+        return view('rutas.lista.index',compact('listas'));
     }
 
     /**
@@ -23,7 +25,7 @@ class ListaController extends Controller
     public function create()
     {
         $zonas = Zone::all();
-        // $distritos = Distritos::distritos();
+        $distritos = Distrito::select('id','name')->where('provincia_id',128)->orWhere('provincia_id',67)->get();
         return view('rutas.lista.create',compact('zonas','distritos'));
     }
 
@@ -32,7 +34,17 @@ class ListaController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required',
+            'zone_id' => 'required',
+        ]);
+        $lista = new Lista();
+        $lista->name = $request->name;
+        $lista->zone_id = $request->zone_id;
+        $lista->save();
+
+        $lista->distritos()->sync($request->distritos);
+        return redirect()->route('lista.index')->with('success','La lista fue creada correctamente');
     }
 
     /**
@@ -48,15 +60,30 @@ class ListaController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $lista = Lista::find($id);
+        $zonas = Zone::all();
+        $distritos = Distrito::select('id','name')->where('provincia_id',128)->orWhere('provincia_id',67)->get();
+
+        return view('rutas.lista.edit',compact('lista','distritos','zonas'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $lista =  Lista::find($id);
+        $request->validate([
+            'name' => 'required',
+            'zone_id' => 'required',
+        ]);
+        $lista->update([
+            'name' => $request->name,
+            'zone_id' => $request->zone_id
+        ]);
+
+        $lista->distritos()->sync($request->distritos);
+        return redirect()->route('lista.index');
     }
 
     /**

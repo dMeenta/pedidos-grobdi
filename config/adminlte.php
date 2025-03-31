@@ -423,6 +423,24 @@
                         ],
                     ],
                 ],
+                [
+                    'text' => 'Enrutamiento',
+                    'icon' => 'fas fa-list-alt',
+                    'submenu' => [
+                        [
+                            'text' => 'Listas',
+                            'url' => 'lista',
+                            'icon' => 'fas fa-list',
+                            'can' => 'visitador',
+                        ],
+                        [
+                            'text' => 'Enrutamiento',
+                            'url' => 'enrutamiento',
+                            'icon' => 'fas fa-calendar',
+                            'can' => 'visitador',
+                        ],
+                    ],
+                ],
             // [
             //     'text' => 'warning',
             //     'icon_color' => 'yellow',

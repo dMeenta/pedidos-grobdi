@@ -108,6 +108,15 @@ class DoctorController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $doctor = Doctor::find($id);
+        if($doctor->state == 1){
+            $doctor->state = 0;
+            $msj = "inhabilitado";
+        }else{
+            $doctor->state = 1;
+            $msj = "habilitado";
+        }
+        $doctor->save();
+        return redirect()->route('doctor.index')->with('success','doctor '.$msj.' correctamente');
     }
 }
