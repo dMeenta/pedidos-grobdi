@@ -36,5 +36,7 @@ class DatabaseSeeder extends Seeder
         $this->call(ProvinciaSeeder::class);
         $this->call(DistritoSeeder::class);
         $this->call(DaySeeder::class);
+        $this->call(UnidadesYClasificacionesSeeder::class);
+
     }
 }
