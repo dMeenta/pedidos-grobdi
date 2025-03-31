@@ -24,6 +24,7 @@
                         <th scope="col">Observaciones</th>
                         <th scope="col">Fecha/hora Recibida</th>
                         <th scope="col">Estado</th>
+                        <th scope="col">Fecha/hora Entrega</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -55,6 +56,15 @@
                                 <span class="badge" style="background-color: {{ $muestra->estado == 'Pendiente' ? 'red' : 'green' }}; color: white; padding: 5px;">
                                     {{ $muestra->estado }}
                                 </span>
+                            </td>
+                            <td>
+                                <form action="{{ route('muestras.actualizarFechaEntrega', $muestra->id) }}" method="POST" id="fecha_form_{{ $muestra->id }}">
+                                    @csrf
+                                    @method('PUT')
+                                    <input type="datetime-local" name="fecha_hora_entrega" class="form-control"
+                                        value="{{ old('fecha_hora_entrega', $muestra->fecha_hora_entrega ? \Carbon\Carbon::parse($muestra->fecha_hora_entrega)->format('Y-m-d\TH:i') : '') }}"
+                                        onchange="document.getElementById('fecha_form_{{ $muestra->id }}').submit();">
+                                </form>
                             </td>
                         </tr>
                     @endforeach
