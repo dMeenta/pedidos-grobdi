@@ -83,7 +83,7 @@ hr {
 
 #table_muestras th:nth-child(2), 
 #table_muestras td:nth-child(2) {
-    width: 10%; /* Nombre de la Muestra */
+    width: 17%; /* Nombre de la Muestra */
 }
 
 #table_muestras th:nth-child(3), 
@@ -132,6 +132,10 @@ hr {
     width: 9%; /* acciones */
 }
 
+#table_muestras th:nth-child(12), 
+#table_muestras td:nth-child(12) {
+    width: 15%; /* fecha entrega */
+}
 
 table td.observaciones {
     max-width: 100px; /*  ancho máximo para la columna de observaciones */

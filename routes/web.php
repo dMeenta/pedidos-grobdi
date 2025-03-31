@@ -112,7 +112,7 @@ Route::put('/muestras/{id}/actualizar-precio', [jefe_proyectosController::class,
 //Aprobaciones
 Route::get('/Coordinadora', [coordinadoraController::class, 'aprobacionCoordinadora'])->name('muestras.aprobacion.coordinadora');
 Route::put('/muestras/{id}/actualizar-aprobacion', [coordinadoraController::class, 'actualizarAprobacion'])->name('muestras.actualizarAprobacion');
-
+Route::put('/muestras/{id}/actualizar-fecha', [coordinadoraController::class, 'actualizarFechaEntrega'])->name('muestras.actualizarFechaEntrega');
 
 //Jcomercial
 Route::get('/jefe-comercial', [JcomercialController::class, 'confirmar'])->name('muestras.confirmar');
