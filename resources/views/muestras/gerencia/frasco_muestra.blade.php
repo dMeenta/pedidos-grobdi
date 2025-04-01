@@ -13,9 +13,10 @@
             <h1>Reporte de Muestras - Frasco Muestra</h1>
             
             <div class="btn-container">
-                <form method="get" action="{{ route('muestras.exportarPDF') }}">
-                    <button type="submit" class="btn-exportar">Exportar a PDF</button>
-                </form>
+            <a href="{{ route('muestras.exportarPDF', ['mes' => $mesSeleccionado]) }}" class="btn btn-exportar">
+                <i class="fas fa-file-pdf mr-2"></i> Exportar a PDF
+            </a>
+                
 
                 <!-- Filtro de Mes -->
                 <form class="form-graf" method="get" action="{{ route('muestras.reporte.frasco-muestra') }}">
@@ -152,6 +153,9 @@
                 min-width: 140px;
             }
 
+            .btn-exportar i {
+                margin-right: 5px;
+            }
             .btn-exportar {
                 background-color: var(--primary);
                 color: var(--text-light);

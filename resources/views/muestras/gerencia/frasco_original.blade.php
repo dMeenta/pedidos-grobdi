@@ -12,10 +12,9 @@
             <h1>Reporte - Frasco Original</h1>
             
             <div class="btn-container">
-                <form method="get" action="{{ route('muestras.frasco.original.pdf', ['mes' => $mesSeleccionado]) }}">
-                    <button type="submit" class="btn-exportar">Exportar a PDF</button>
-                </form>
-
+            <a href="{{ route('muestras.frasco.original.pdf', ['mes' => $mesSeleccionado]) }}" class="btn btn-exportar">
+    <i class="fas fa-file-pdf"></i> Exportar a PDF
+</a>
                 <form class="form-graf" method="get" action="{{ route('muestras.reporte.frasco-original') }}">
                     <label for="mes">Seleccionar mes:</label>
                     <input type="month" name="mes" id="mes" value="{{ $mesSeleccionado }}">
@@ -131,7 +130,9 @@
                 justify-content: center;
                 margin-bottom: 25px;
             }
-
+            .btn-exportar i {
+                margin-right: 5px;
+            }
             .btn-exportar, .btn-filtrar {
                 padding: 12px 20px;
                 border: none;
