@@ -177,6 +177,7 @@ class gerenciaController extends Controller
 }
     public function exportarPDFFrascoOriginal(Request $request)
     {
+        // dd($request->all());
         $mesSeleccionado = $request->get('mes', Carbon::now()->format('Y-m'));
         $muestras = Muestras::where('tipo_muestra', 'Frasco Original')
                             ->whereMonth('created_at', Carbon::parse($mesSeleccionado)->month)
@@ -202,7 +203,7 @@ class gerenciaController extends Controller
             $totalCantidad += $cantidad;
             $totalPrecio += $precioTotal;
         }
-    
+        // dd($request->all());
         $pdf = PDF::loadView('muestras.gerencia.pdf_original', compact('muestrasData', 'mesSeleccionado', 'totalCantidad', 'totalPrecio'));
         
         // Opciones para mejorar la visualización en PDF

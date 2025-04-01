@@ -41,6 +41,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('visitador', function (User $user) {
             return $user->role->name === 'visitador';
         });
+        Gate::define('jefe-operaciones', function (User $user) {
+            return $user->role->name === 'jefe-operaciones';
+        });
         Paginator::useBootstrapFive();
     }
 }

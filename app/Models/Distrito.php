@@ -14,5 +14,9 @@ class Distrito extends Model
     {
         return $this->hasMany(Doctor::class); 
     }
+    public function listas()
+    {
+        return $this->belongsToMany(Lista::class, 'lista_distrito'); 
+    }
     public $timestamps = false;
 }

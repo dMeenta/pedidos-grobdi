@@ -9,7 +9,7 @@ use App\Models\Zone;
 use App\Models\Distritos_zonas;
 use Carbon\Carbon;
 use DateTime;
-
+use Illuminate\Support\Facades\Auth;
 class PedidosController extends Controller
 {
     public function index(Request $request)
@@ -168,7 +168,7 @@ class PedidosController extends Controller
                 $pedido->deliveryStatus = $ac["delivery_status"];
                 $zone_id = Distritos_zonas::zonificar(substr($pedido->district,4,-1) );
                 $pedido->zone_id = $zone_id;
-                $pedido->user_id = auth()->user()->id;
+                $pedido->user_id = Auth::user()->id;
                 $pedido->save();
                 $acu_creado++;
             }
@@ -218,7 +218,7 @@ class PedidosController extends Controller
             }
         }
         $pedidos->zone_id = $request->zone_id;
-        $pedidos->user_id = auth()->user()->id;
+        $pedidos->user_id = Auth::user()->id;
         $pedidos->save();
         return redirect()->route('cargarpedidos.index',$fecha)
                         ->with('success','Pedido modificado exitosamente');
