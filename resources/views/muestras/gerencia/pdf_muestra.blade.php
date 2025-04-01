@@ -108,11 +108,6 @@
     </style>
 </head>
 <body>
-    <!-- Opcional: Logo de la empresa -->
-    <!-- <div class="logo">
-        <img src="{{ asset('ruta/a/tu/logo.png') }}" alt="Logo">
-    </div> -->
-
     <div class="fecha-generacion">
         Generado el: {{ now()->format('d/m/Y H:i') }}
     </div>
