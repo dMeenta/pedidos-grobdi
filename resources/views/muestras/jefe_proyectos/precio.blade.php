@@ -84,7 +84,7 @@
             checkMissingPrices();
         });
 
-        // Pusher configuration
+        // iniciar Pusher 
         function initPusher() {
             Pusher.logToConsole = true;
             const pusher = new Pusher('260bec4d6a6754941503', { cluster: 'us2' });
@@ -94,12 +94,12 @@
             channel.bind('muestra.actualizada', handleUpdatedSample);
         }
 
-        // Event handlers
+        // Eventhandlers espera medio segundo para ejecutar el cambio de precio
         function attachEventHandlers() {
             $(document).on('change', '.precio-input', debounce(handlePriceChange, 500));
         }
 
-        // Price change handler
+        // manejar el cambio de precio
         function handlePriceChange() {
             const $input = $(this);
             const id = $input.data('id');
@@ -122,7 +122,7 @@
             });
         }
 
-        // Sample events
+        // evento muestra creada
         function handleNewSample(data) {
             refreshTable(() => {
                 const muestra = data.muestra;
@@ -136,7 +136,7 @@
                 );
             });
         }
-
+        // muestra actualizada
         function handleUpdatedSample(data) {
             refreshTable(() => {
                 const muestra = data.muestra;
@@ -155,7 +155,7 @@
             });
         }
 
-        // Table refresh
+        // refresca la tabla
         function refreshTable(callback) {
             $.get(window.location.href, (data) => {
                 $('#table_muestras').html($(data).find('#table_muestras').html());
@@ -163,7 +163,7 @@
             });
         }
 
-        // Notifications
+        // Notificatioes almacenamiento
         function addNotification(type, title, message) {
             const notifications = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
             const notificationId = `${type}-${title}-${message}`;
@@ -176,7 +176,7 @@
             
             displayNotifications();
         }
-
+        //visualiza las notificaciones
         function displayNotifications() {
             toastr.clear();
             JSON.parse(localStorage.getItem(STORAGE_KEY) || []).forEach(notification => {
@@ -201,7 +201,7 @@
             displayNotifications();
         }
 
-        // Price validation
+        // validacion de precios faltantes
         function checkMissingPrices() {
             const missing = $('.precio-input').filter((_, el) => !$(el).val() || parseFloat($(el).val()) <= 0).length;
             
@@ -216,7 +216,7 @@
             }
         }
 
-        // Helpers
+        // Debounce, ´para evitar múltiples llamadas
         function debounce(func, delay) {
             return function() {
                 clearTimeout(debounceTimer);
