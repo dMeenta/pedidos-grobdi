@@ -9,7 +9,7 @@
 @section('content')
     <div class="container">
         <div class="cont-report">
-            <h1>Reporte de Muestras - Frasco Original</h1>
+            <h1>Reporte - Frasco Original</h1>
             
             <div class="btn-container">
                 <form method="get" action="{{ route('muestras.frasco.original.pdf', ['mes' => $mesSeleccionado]) }}">
