@@ -466,9 +466,23 @@
                     'icon' => 'fas fa-fw fa-user',
                     'can' => 'jefe-operaciones'
                 ],
-                //sidebar de Visitadoras
+                //Coordinador de Lineas
                 [
-                    'header' => 'Gerencia General',
+                    'text' => 'Coordinador de lineas',
+                    'url' => 'Coordinadora',
+                    'icon' => 'fas fa-fw fa-user',
+                    'can' => 'coordinador-lineas'
+                ],
+                //Jefe comercial
+                [
+                    'text' => 'Jefe Comercial',
+                    'url' => 'jefe-comercial',
+                    'icon' => 'fas fa-fw fa-user',
+                    'can' => 'jefe-comercial'
+                ],
+                //sidebar de gerencia General
+                [
+                    'header' => 'Reportes',
                     'can' => 'gerencia-general'
                 ],
                     [
@@ -476,22 +490,22 @@
                         'icon' => 'fas fa-fw fa-wrench',
                         'submenu' => [
                             [
-                                'text' => 'Reporte Frasco',
-                                'url' => 'centrosalud',
+                                'text' => 'clasificaciones',
+                                'url' => 'reporte',
                                 'icon' => 'fas fa-fw fa-h-square',
-                                'can' => 'visitador',
+                                'can' => 'gerencia-general',
                             ],
                             [
-                                'text' => 'Especialidad',
-                                'url' => 'especialidad',
+                                'text' => 'Frasco Original',
+                                'url' => 'reporte/frasco-muestra',
                                 'icon' => 'fas fa-fw fa-medkit',
-                                'can' => 'visitador',
+                                'can' => 'gerencia-general',
                             ],
                             [
-                                'text' => 'doctor',
-                                'url' => 'doctor',
+                                'text' => 'Frasco Muestra',
+                                'url' => 'reporte/frasco-original',
                                 'icon' => 'fas fa-fw fa-user-md',
-                                'can' => 'visitador',
+                                'can' => 'gerencia-general',
                             ],
                         ],
                     ],

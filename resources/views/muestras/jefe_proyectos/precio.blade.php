@@ -91,7 +91,7 @@
                     var id = $(this).data('id');
                     var precio = parseFloat($(this).val()); // Asegúrate de convertir el precio a número
                     var cantidad = parseFloat($(this).closest('tr').find('td:nth-child(6)').text()); // Obtiene la cantidad y conviértela a número
-
+z
                     $.ajax({
                         url: '/muestras/' + id + '/actualizar-precio',
                         type: 'PUT',

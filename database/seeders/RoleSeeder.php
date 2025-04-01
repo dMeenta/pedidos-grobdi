@@ -21,10 +21,10 @@ class RoleSeeder extends Seeder
             ['name'=>'jefe-comercial','description'=>'rol de jefe comercial'],
             ['name'=>'coordinador-lineas','description'=>'rol de coordinador de lineas'],
             ['name'=>'gerencia-general','description'=>'rol de gerencia general'],
-            ];
+        ];
             
             foreach ($roles as $role) {
-            Role::create($role);
+                Role::create($role);
             }
     }
 }

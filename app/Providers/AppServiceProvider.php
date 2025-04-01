@@ -44,6 +44,15 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('jefe-operaciones', function (User $user) {
             return $user->role->name === 'jefe-operaciones';
         });
+        Gate::define('gerencia-general', function (User $user) {
+            return $user->role->name === 'gerencia-general';
+        });
+        Gate::define('coordinador-lineas', function (User $user) {
+            return $user->role->name === 'coordinador-lineas';
+        });
+        Gate::define('jefe-comercial', function (User $user) {
+            return $user->role->name === 'jefe-comercial';
+        });
         Paginator::useBootstrapFive();
     }
 }

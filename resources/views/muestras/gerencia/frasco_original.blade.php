@@ -13,8 +13,8 @@
             
             <div class="btn-container">
             <a href="{{ route('muestras.frasco.original.pdf', ['mes' => $mesSeleccionado]) }}" class="btn btn-exportar">
-    <i class="fas fa-file-pdf"></i> Exportar a PDF
-</a>
+                <i class="fas fa-file-pdf"></i> Exportar a PDF
+            </a>
                 <form class="form-graf" method="get" action="{{ route('muestras.reporte.frasco-original') }}">
                     <label for="mes">Seleccionar mes:</label>
                     <input type="month" name="mes" id="mes" value="{{ $mesSeleccionado }}">

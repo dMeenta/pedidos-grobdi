@@ -133,7 +133,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'gerencia.general@grobdi.com',
             'password'=> bcrypt('12345678'),
             'active'=> 1,
-            'role_id' => 9,
+            'role_id' => 10,
         ]);
         $this->call(ZoneSeeder::class);
         $this->call(ModuleSeeder::class);
