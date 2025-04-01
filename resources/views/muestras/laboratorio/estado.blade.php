@@ -12,7 +12,7 @@
             | Laboratorio - Muestras
         @endsection
 
-        <h1 class="text-center"> Estado de las Muestras<hr></h1>
+        <h1 class="text-center"> Estado de las Muestras<br></h1>
          <!-- búsqueda por nombre de la muestra -->
          <div class="mb-3">
             <input type="text" id="buscar_muestra" class="form-control" placeholder="Escribe el nombre">
@@ -65,7 +65,7 @@
                             <td>
                                 <select name="estado" 
                                         onchange="actualizarEstado({{ $muestra->id }}, this.value)" 
-                                        class="form-select">
+                                        class="custom-select">
                                     <option selected value="Pendiente" {{ $muestra->estado == 'Pendiente' ? 'selected' : '' }}>Pendiente</option>
                                     <option value="Elaborado" {{ $muestra->estado == 'Elaborado' ? 'selected' : '' }}>Elaborado</option>
                                 </select>   
@@ -102,7 +102,6 @@
     @stop
 
 @section('css')
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="{{ asset('css/muestras/labora.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">

@@ -330,7 +330,7 @@
             // ],
 
             
-            //Vista Counter
+            //sidebar Counter
             [
                 'header' => 'Counter',
                 'can' => 'counter'
@@ -369,6 +369,12 @@
                     'icon' => 'fas fa-fw fa-user',
                     'can' => 'laboratorio'
                 ],
+                [
+                    'text' => 'Muestras',
+                    'url' => 'laboratorio',
+                    'icon' => 'fas fa-fw fa-user',
+                    'can' => 'laboratorio'
+                ],
             ['header' => 'Contabilidad',
                 'can' => 'contabilidad'],
                 [
@@ -395,8 +401,10 @@
                     'icon' => 'fas fa-fw fa-user',
                     'can' => 'usuarios'
                 ],
+
+            //sidebar de Visitadoras
             [
-                'header' => 'Visitadoras Medicas',
+                'header' => 'Rutas',
                 'can' => 'visitador'
             ],
                 [
@@ -441,6 +449,52 @@
                         ],
                     ],
                 ],
+                [
+                    'header' => 'Muestras',
+                    'can' => 'visitador'
+                ],
+                    [
+                        'text' => 'Muestras',
+                        'url' => 'muestras',
+                        'icon' => 'fas fa-fw fa-user',
+                        'can' => 'visitador'
+                    ],
+                //Jefe de Operaciones
+                [
+                    'text' => 'Muestras',
+                    'url' => 'jefe-operaciones',
+                    'icon' => 'fas fa-fw fa-user',
+                    'can' => 'jefe-operaciones'
+                ],
+                //sidebar de Visitadoras
+                [
+                    'header' => 'Gerencia General',
+                    'can' => 'gerencia-general'
+                ],
+                    [
+                        'text' => 'Muestras',
+                        'icon' => 'fas fa-fw fa-wrench',
+                        'submenu' => [
+                            [
+                                'text' => 'Reporte Frasco',
+                                'url' => 'centrosalud',
+                                'icon' => 'fas fa-fw fa-h-square',
+                                'can' => 'visitador',
+                            ],
+                            [
+                                'text' => 'Especialidad',
+                                'url' => 'especialidad',
+                                'icon' => 'fas fa-fw fa-medkit',
+                                'can' => 'visitador',
+                            ],
+                            [
+                                'text' => 'doctor',
+                                'url' => 'doctor',
+                                'icon' => 'fas fa-fw fa-user-md',
+                                'can' => 'visitador',
+                            ],
+                        ],
+                    ],
             // [
             //     'text' => 'warning',
             //     'icon_color' => 'yellow',

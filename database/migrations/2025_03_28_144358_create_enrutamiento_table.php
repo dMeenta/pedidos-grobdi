@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('enrutamiento', function (Blueprint $table) {
             $table->id();
             $table->date('fecha');
-            $table->foreignId('zone_id')->constrained('zone')->cascadeOnDelete();
+            $table->foreignId('zone_id')->constrained('zones')->cascadeOnDelete();
             $table->timestamps();
         });
     }

@@ -20,8 +20,8 @@ return new class extends Migration
             $table->string('estado', 50)->nullable(); // Estado del producto
             $table->enum('tipo_muestra', ['Frasco Original', 'Frasco Muestra'])->nullable(); // Tipo de muestra (valores corregidos)
             $table->foreignId('clasificacion_id')->nullable()->constrained('clasificaciones')->onDelete('set null'); // Relación con clasificaciones
-            $table->foreignId('created_by')->constrained('users')->onDelete('set null'); // Relación con clasificaciones
-            $table->foreignId('updated_by')->constrained('users')->onDelete('set null'); // Relación con clasificaciones
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null'); // Relación con clasificaciones
+            $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null'); // Relación con clasificaciones
             $table->timestamp('fecha_hora_entrega')->nullable(); // Fecha y hora de entrega
             $table->boolean('aprobado_jefe_comercial')->default(false); // Aprobación jefe comercial
             $table->boolean('aprobado_coordinadora')->default(false); // Aprobación Ángela

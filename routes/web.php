@@ -54,7 +54,7 @@ Route::put('/usuarios/changepass/{fecha}', UsuariosController::class .'@changepa
     ->name('usuarios.changepass')
     ->middleware(['checkRole:admin']);
 
-Route::resource('pedidoslaboratorio', PedidoslabController::class)->middleware(['checkRole:laboratorio']);
+
 
 Route::get('/pedidoslaboratorio/{fecha}/downloadWord', PedidoslabController::class .'@downloadWord')
     ->name('pedidoslaboratorio.downloadWord')
@@ -75,6 +75,9 @@ Route::middleware(['checkRole:visitador'])->group(function () {
     Route::resource('especialidad', EspecialidadController::class);
     Route::resource('doctor', DoctorController::class);
     Route::resource('lista', ListaController::class);
+    //=============================Muestras - Modulo
+    // Ruta principal que muestra todas las muestras
+    Route::resource('muestras', MuestrasController::class);
 });
 
 
@@ -90,23 +93,24 @@ Route::get('/distritoslimacallao', UbigeoController::class .'@ObtenerDistritosLi
 //     Route::resource('pedidoscontabilidad', PedidosContaController::class);
 // });
 
-//=============================Muestras - Modulo
-// Ruta principal que muestra todas las muestras
-Route::resource('muestras', MuestrasController::class);
+
 
 //laboratorio======================
-Route::get('/laboratorio', [laboratorioController::class, 'estado'])->name('muestras.estado');
-Route::put('/laboratorio/{id}/actualizar-estado', [laboratorioController::class, 'actualizarEstado'])
-    ->name('muestras.actualizarEstado');
-Route::get('/laboratorio/{id}', [laboratorioController::class, 'showLab'])->name('muestras.showLab');
-Route::put('/laboratorio/{id}/actualizar-fecha', [laboratorioController::class, 'actualizarFechaEntrega'])->name('muestras.actualizarFechaEntrega');
-Route::get('/get-unidades/{clasificacionId}', [MuestrasController::class, 'getUnidadesPorClasificacion']);
-
+Route::middleware(['checkRole:laboratorio'])->group(function () {
+    Route::resource('pedidoslaboratorio', PedidoslabController::class);
+    Route::get('/laboratorio', [laboratorioController::class, 'estado'])->name('muestras.estado');
+    Route::put('/laboratorio/{id}/actualizar-estado', [laboratorioController::class, 'actualizarEstado'])
+        ->name('muestras.actualizarEstado');
+    Route::get('/laboratorio/{id}', [laboratorioController::class, 'showLab'])->name('muestras.showLab');
+    Route::put('/laboratorio/{id}/actualizar-fecha', [laboratorioController::class, 'actualizarFechaEntrega'])->name('muestras.actualizarFechaEntrega');
+    Route::get('/get-unidades/{clasificacionId}', [MuestrasController::class, 'getUnidadesPorClasificacion']);
+});
 // Ruta para actualizar el precio de una muestra
 // Ruta para la gestión de precios en la vista de jefe de proyectos
-Route::get('/jefe-operaciones', [jefe_proyectosController::class, 'precio'])->name('muestras.precio');
-Route::put('/muestras/{id}/actualizar-precio', [jefe_proyectosController::class, 'actualizarPrecio'])->name('muestras.actualizarPrecio');
-
+Route::middleware(['checkRole:jefe-operaciones'])->group(function () {
+    Route::get('/jefe-operaciones', [jefe_proyectosController::class, 'precio'])->name('muestras.precio');
+    Route::put('/muestras/{id}/actualizar-precio', [jefe_proyectosController::class, 'actualizarPrecio'])->name('muestras.actualizarPrecio');
+});
 
 //coordinadora 
 //Aprobaciones
