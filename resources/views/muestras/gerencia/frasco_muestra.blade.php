@@ -10,7 +10,7 @@
 @section('content')
 <div class="container">
         <div class="cont-report">
-            <h1>Reporte de Muestras - Frasco Muestra</h1>
+            <h1>Reporte - Frasco Muestra</h1>
             
             <div class="btn-container">
             <a href="{{ route('muestras.exportarPDF', ['mes' => $mesSeleccionado]) }}" class="btn btn-exportar">

@@ -86,7 +86,6 @@
 </head>
 <body>
     <div class="mes-reporte">Reporte del mes: {{ \Carbon\Carbon::parse($mesSeleccionado)->format('m/Y') }}</div>
-    
     <h3>Reporte Frasco Original</h3>
     <table>
         <thead> 
