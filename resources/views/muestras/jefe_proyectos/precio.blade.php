@@ -108,8 +108,9 @@
             // var link = `/muestras/${id}/actualizar-precio`;
             $.ajax({
                 url: `{{ url('muestras') }}/${id}/actualizar-precio`,
-                type: 'PUT',
+                type: 'POST',
                 data: {
+                    _method: "PUT"
                     _token: '{{ csrf_token() }}',
                     precio: precio
                 },

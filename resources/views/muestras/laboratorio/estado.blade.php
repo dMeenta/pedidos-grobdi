@@ -117,9 +117,10 @@
                            // Función para enviar la actualización
                            function actualizarEstado(id, nuevoEstado) {
                     $.ajax({
-                        url: `/laboratorio/${id}/actualizar-estado`,
-                        type: 'PUT',
+                        url:`{{ url('laboratorio') }}/${id}/actualizar-estado`,
+                        type: "POST",
                         data: {
+                            _method: "PUT"
                             _token: '{{ csrf_token() }}',
                             estado: nuevoEstado
                         },
@@ -228,22 +229,23 @@
             // Función para adjuntar los manejadores de eventos
             function attachEventHandlers() {
                 // Función para enviar la actualización
-            function actualizarEstado(id, nuevoEstado) {
-                $.ajax({
-                    url: `/laboratorio/${id}/actualizar-estado`,
-                    type: 'PUT',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        estado: nuevoEstado
-                    },
-                    success: function() {
-                        // No necesitamos hacer nada aquí porque el evento se encargará
-                    },
-                    error: function(xhr) {
-                        toastr.error('Error: ' + (xhr.responseJSON?.message || 'Error desconocido'));
-                    }
-                });
-            }
+                function actualizarEstado(id, nuevoEstado) {
+                    $.ajax({
+                        url:`{{ url('laboratorio') }}/${id}/actualizar-estado`,
+                        type: "POST",
+                        data: {
+                            _method: "PUT"
+                            _token: '{{ csrf_token() }}',
+                            estado: nuevoEstado
+                        },
+                        success: function() {
+                            // No necesitamos hacer nada aquí porque el evento se encargará
+                        },
+                        error: function(xhr) {
+                            toastr.error('Error: ' + (xhr.responseJSON?.message || 'Error desconocido'));
+                        }
+                    });
+                }
                a1();
                a2();
                a3();
