@@ -72,34 +72,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-<<<<<<< HEAD
-          function precio(){
-            $(document).ready(function() {
-                $('.precio-input').on('change', function() {
-                    var id = $(this).data('id');
-                    var precio = parseFloat($(this).val()); // Asegúrate de convertir el precio a número
-                    var cantidad = parseFloat($(this).closest('tr').find('td:nth-child(6)').text()); // Obtiene la cantidad y conviértela a número
-z
-                    $.ajax({
-                        url: '/muestras/' + id + '/actualizar-precio',
-                        type: 'PUT',
-                        data: {
-                            _token: '{{ csrf_token() }}',
-                            precio: precio
-                        },
-                        success: function(response) {
-                            $('#success-message').removeClass('d-none').text(response.message).fadeIn();
-                            var total = (precio * cantidad).toFixed(2); // Calcula el precio total y lo formatea con 3 decimales
-                            $('#total_' + id).text(total); // Actualiza el precio total
-                            setTimeout(function() {
-                                $('#success-message').fadeOut();
-                            }, 3000);
-                        },
-                        error: function(xhr) {
-                            $('#error-message').removeClass('d-none').text('Error al actualizar el precio').fadeIn();
-                        }
-                    });
-=======
         const MAX_NOTIFICATIONS = 4;
         const STORAGE_KEY = 'persistentNotificationsQueue';
         let debounceTimer;
@@ -133,9 +105,9 @@ z
             const id = $input.data('id');
             const precio = parseFloat($input.val()) || 0;
             const cantidad = parseFloat($input.closest('tr').find('td:nth-child(6)').text());
-            
+            // var link = `/muestras/${id}/actualizar-precio`;
             $.ajax({
-                url: `/muestras/${id}/actualizar-precio`,
+                url: `{{ url('muestras') }}/${id}/actualizar-precio`,
                 type: 'PUT',
                 data: {
                     _token: '{{ csrf_token() }}',
@@ -215,7 +187,6 @@ z
                     positionClass: 'toast-top-right',
                     enableHtml: true,
                     onHidden: () => removeNotification(notification.id)
->>>>>>> 187934c44c25b8abfa71ea29bc6248ac78a37d32
                 });
             });
         }
