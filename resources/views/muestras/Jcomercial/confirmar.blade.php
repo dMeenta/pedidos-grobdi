@@ -104,9 +104,10 @@
 
                     if ($(this).hasClass("aprobacion-jefe")) {
                         $.ajax({
-                            url: "/muestras/" + id + "/actualizar-aprobacion",
-                            type: "PUT",
+                            url:`{{ url('muestras') }}/${id}/actualizar-aprobacion`,
+                            type: "POST",
                             data: { 
+                                _method: "PUT",
                                 _token: "{{ csrf_token() }}", 
                                 field: "aprobado_jefe_comercial", 
                                 value: value 

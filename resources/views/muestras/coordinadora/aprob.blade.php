@@ -93,9 +93,10 @@
             // Función para manejar la aprobación de coordinadora
             function actualizarAprobacion(id, field, value) {
                 $.ajax({
-                    url: '/muestras/' + id + '/actualizar-aprobacion',
-                    type: 'PUT',
+                    url: `{{ url('muestras') }}/${id}/actualizar-aprobacion`,
+                    type: "POST",
                     data: {
+                        _method: "PUT",
                         _token: '{{ csrf_token() }}',
                         field: field,
                         value: value

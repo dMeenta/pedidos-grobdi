@@ -107,9 +107,10 @@
             const cantidad = parseFloat($input.closest('tr').find('td:nth-child(6)').text());
             
             $.ajax({
-                url: `/muestras/${id}/actualizar-precio`,
-                type: 'PUT',
+                url: `{{ url('muestras') }}/${id}/actualizar-precio`,
+                type: 'POST',
                 data: {
+                    _method: "PUT"
                     _token: '{{ csrf_token() }}',
                     precio: precio
                 },
