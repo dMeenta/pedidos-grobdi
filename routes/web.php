@@ -26,6 +26,7 @@ use App\Http\Controllers\muestras\JcomercialController;
 use App\Http\Controllers\muestras\jefe_proyectosController;
 use App\Http\Controllers\muestras\laboratorioController;
 use App\Http\Controllers\muestras\MuestrasController;
+use App\Http\Controllers\rutas\enrutamiento\EnrutamientoController;
 
 // use App\Http\Middleware\RoleMiddleware;
 
@@ -36,7 +37,7 @@ Auth::routes();
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-Route::middleware(['checkRole:counter'])->group(function () {
+Route::middleware(['checkRole:counter,admin'])->group(function () {
     
     // Route::resource('cargarpedidos', PedidosController::class);
     Route::resource('cargarpedidos', CargarPedidosController::class);
@@ -60,21 +61,26 @@ Route::get('/pedidoslaboratorio/{fecha}/downloadWord', PedidoslabController::cla
     ->name('pedidoslaboratorio.downloadWord')
     ->middleware(['checkRole:laboratorio,counter']);
 
-Route::resource('pedidoscontabilidad', PedidosContaController::class)->middleware(['checkRole:contabilidad']);
+Route::resource('pedidoscontabilidad', PedidosContaController::class)->middleware(['checkRole:contabilidad,admin']);
 Route::get('/pedidoscontabilidad/downloadExcel/{fechainicio}/{fechafin}', PedidosContaController::class .'@downloadExcel')
     ->name('pedidoscontabilidad.downloadExcel')
-    ->middleware(['checkRole:contabilidad']);
+    ->middleware(['checkRole:contabilidad,admin']);
 
     
-Route::resource('pedidosmotorizado', PedidosMotoController::class)->middleware(['checkRole:motorizado']);
+Route::resource('pedidosmotorizado', PedidosMotoController::class)->middleware(['checkRole:motorizado,admin']);
 
-Route::middleware(['checkRole:visitador'])->group(function () {
+Route::middleware(['checkRole:visitador,admin'])->group(function () {
 
     Route::resource('centrosalud', CentroSaludController::class);
     Route::get('centrosaludbuscar', CentroSaludController::class.'@buscar');
     Route::resource('especialidad', EspecialidadController::class);
     Route::resource('doctor', DoctorController::class);
+    Route::post('/doctor/cargadata', [DoctorController::class, 'cargadata'])->name('doctor.cargadata');
     Route::resource('lista', ListaController::class);
+    Route::get('/enrutamiento', [EnrutamientoController::class, 'index'])->name('enrutamiento.index');
+    Route::post('/enrutamiento/store', [EnrutamientoController::class, 'store'])->name('enrutamiento.store');
+    Route::post('/enrutamientolista/store', [EnrutamientoController::class, 'Enrutamientolistastore'])->name('enrutamientolista.store');
+    Route::get('/enrutamiento/{id}', [EnrutamientoController::class, 'agregarLista'])->name('enrutamiento.agregarlista');
     //=============================Muestras - Modulo
     // Ruta principal que muestra todas las muestras
     Route::resource('muestras', MuestrasController::class);
@@ -96,7 +102,7 @@ Route::get('/distritoslimacallao', UbigeoController::class .'@ObtenerDistritosLi
 
 
 //laboratorio======================
-Route::middleware(['checkRole:laboratorio'])->group(function () {
+Route::middleware(['checkRole:laboratorio,admin'])->group(function () {
     Route::resource('pedidoslaboratorio', PedidoslabController::class);
     Route::get('/laboratorio', [laboratorioController::class, 'estado'])->name('muestras.estado');
     Route::put('/laboratorio/{id}/actualizar-estado', [laboratorioController::class, 'actualizarEstado'])
@@ -107,7 +113,7 @@ Route::middleware(['checkRole:laboratorio'])->group(function () {
 });
 // Ruta para actualizar el precio de una muestra
 // Ruta para la gestión de precios en la vista de jefe de proyectos
-Route::middleware(['checkRole:jefe-operaciones'])->group(function () {
+Route::middleware(['checkRole:jefe-operaciones,admin'])->group(function () {
     Route::get('/jefe-operaciones', [jefe_proyectosController::class, 'precio'])->name('muestras.precio');
     Route::put('/muestras/{id}/actualizar-precio', [jefe_proyectosController::class, 'actualizarPrecio'])->name('muestras.actualizarPrecio');
 });
@@ -115,19 +121,19 @@ Route::middleware(['checkRole:jefe-operaciones'])->group(function () {
 //coordinadora 
 //Aprobaciones
 
-Route::middleware(['checkRole:coordinador-lineas'])->group(function () {
+Route::middleware(['checkRole:coordinador-lineas,admin'])->group(function () {
     Route::get('/Coordinadora', [coordinadoraController::class, 'aprobacionCoordinadora'])->name('muestras.aprobacion.coordinadora');
     Route::put('/muestras/{id}/actualizar-fecha', [coordinadoraController::class, 'actualizarFechaEntrega'])->name('muestras.actualizarFechaEntrega');
 });
 
-Route::put('/muestras/{id}/actualizar-aprobacion', [coordinadoraController::class, 'actualizarAprobacion'])->name('muestras.actualizarAprobacion')->middleware(['checkRole:jefe-comercial,coordinador-lineas']);
+Route::put('/muestras/{id}/actualizar-aprobacion', [coordinadoraController::class, 'actualizarAprobacion'])->name('muestras.actualizarAprobacion')->middleware(['checkRole:jefe-comercial,coordinador-lineas,admin']);
 
 //Jcomercial
-Route::get('/jefe-comercial', [JcomercialController::class, 'confirmar'])->name('muestras.confirmar')->middleware(['checkRole:jefe-comercial']);
+Route::get('/jefe-comercial', [JcomercialController::class, 'confirmar'])->name('muestras.confirmar')->middleware(['checkRole:jefe-comercial,adnin']);
 
 
 //GERENCIACONTROLLER
-Route::middleware(['checkRole:gerencia-general'])->group(function () {
+Route::middleware(['checkRole:gerencia-general,admin'])->group(function () {
     //Reporte gerencia - Clasificaciones
     Route::get('/reporte', [gerenciaController::class, 'mostrarReporte'])->name('muestras.reporte');
     //Reporte Gerencia frasco original

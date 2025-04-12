@@ -12,6 +12,9 @@ class Doctor extends Model
         'especialidad_id',
         'name_secretariat',
     ];
+    public const TIPOMEDICO = [
+        'Comprador','Prescriptor','En Proceso'
+    ];
     public function days()
     {
         return $this->belongsToMany(day::class, 'doctor_day');

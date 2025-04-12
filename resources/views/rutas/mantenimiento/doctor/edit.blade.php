@@ -24,7 +24,7 @@
                 <input 
                     type="text" 
                     name="name" 
-                    value=""
+                    value="{{ $doctor->name }}"
                     class="form-control @error('name') is-invalid @enderror" 
                     id="inputName" 
                     placeholder="Ingresar el nombre del doctor">
@@ -37,7 +37,7 @@
                 <input 
                     type="text" 
                     name="lastname" 
-                    value=""
+                    value="{{ $doctor->lastname }}"
                     class="form-control @error('lastname') is-invalid @enderror" 
                     id="lastname" 
                     placeholder="Ingresar apellidos del doctor">
@@ -63,7 +63,7 @@
                 <input 
                     type="cmp" 
                     name="cmp" 
-                    value="{{ old('cmp') }}"
+                    value="{{ $doctor->CMP }}"
                     class="form-control @error('cmp') is-invalid @enderror" 
                     id="cmp" 
                     placeholder="Ingresar el nro de CMP del dosctor"

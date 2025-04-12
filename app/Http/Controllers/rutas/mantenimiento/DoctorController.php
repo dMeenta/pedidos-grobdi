@@ -4,6 +4,7 @@ namespace App\Http\Controllers\rutas\mantenimiento;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\rutas\DoctorStoreRequest;
+use App\Imports\DoctoresImport;
 use App\Models\Day;
 use App\Models\Distrito;
 use App\Models\Distritos;
@@ -11,6 +12,7 @@ use App\Models\Doctor;
 use App\Models\Especialidad;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class DoctorController extends Controller
 {
@@ -19,16 +21,19 @@ class DoctorController extends Controller
      */
     public function index(Request $request)
     {
+        $ordenarPor = $request->get('sort_by', 'name'); // campo por defecto
+        $direccion = $request->get('direction', 'asc'); // dirección por defecto
+
         $search = $request->input('search');  
         if ($search) {
             $doctores = Doctor::where('name', 'like', '%' . $search . '%')
                                 ->orWhere('lastname', 'like', '%' . $search . '%')
-                                ->paginate(25);  // Paginación, 25 por página
+                                ->orderBy($ordenarPor, $direccion)->paginate(20);  // Paginación, 20 por página
         } else {
-            $doctores = Doctor::paginate(25);
+            $doctores = Doctor::orderBy($ordenarPor, $direccion)->paginate(20);
         }
         $days = Day::all();
-        return view('rutas.mantenimiento.doctor.index',compact('doctores','days'));
+        return view('rutas.mantenimiento.doctor.index',compact('doctores','days', 'ordenarPor', 'direccion'));
     }
 
     /**
@@ -91,8 +96,12 @@ class DoctorController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit(string $id)
-    {
-        //
+    {   
+        $doctor = Doctor::find($id);
+        $distritos = Distrito::select('id','name')->where('provincia_id',128)->orWhere('provincia_id',67)->get();
+        $especialidades = Especialidad::all();
+        $dias = Day::all();
+        return view("rutas.mantenimiento.doctor.edit",compact('distritos','especialidades','dias', 'doctor'));
     }
 
     /**
@@ -118,5 +127,18 @@ class DoctorController extends Controller
         }
         $doctor->save();
         return redirect()->route('doctor.index')->with('success','doctor '.$msj.' correctamente');
+    }
+    public function cargadata(Request $request){
+        // Validate the uploaded file
+        $request->validate([
+            'archivo' => 'required|mimes:xls,xlsx',
+        ]);
+        // Get the uploaded file
+        $file = $request->file('archivo');
+
+        // Process the Excel file
+        $doctoresImport = new DoctoresImport;
+        $excel = Excel::import($doctoresImport, $file);
+        return redirect()->back()->with($doctoresImport->key, $doctoresImport->data);
     }
 }

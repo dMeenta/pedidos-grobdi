@@ -391,20 +391,21 @@
                     'icon' => 'fas fa-fw fa-user',
                     'can' => 'motorizados'
                 ],
+            //SISTEMAS
             [
                 'header' => 'Ajustes',
-                'can' => 'usuarios'
+                'can' => 'sistemas'
             ],
                 [
                     'text' => 'usuarios',
                     'url' => 'usuarios',
                     'icon' => 'fas fa-fw fa-user',
-                    'can' => 'usuarios'
+                    'can' => 'sistemas'
                 ],
 
             //sidebar de Visitadoras
             [
-                'header' => 'Rutas',
+                'header' => 'Visitador Medico',
                 'can' => 'visitador'
             ],
                 [
@@ -450,16 +451,16 @@
                     ],
                 ],
                 [
-                    'header' => 'Muestras',
+                    'text' => 'Muestras',
+                    'url' => 'muestras',
+                    'icon' => 'fas fa-fw fa-user',
                     'can' => 'visitador'
                 ],
-                    [
-                        'text' => 'Muestras',
-                        'url' => 'muestras',
-                        'icon' => 'fas fa-fw fa-user',
-                        'can' => 'visitador'
-                    ],
                 //Jefe de Operaciones
+            [
+                'header' => 'Jefe de Operaciones',
+                'can' => 'jefe-operaciones'
+            ],
                 [
                     'text' => 'Muestras',
                     'url' => 'jefe-operaciones',
@@ -467,15 +468,23 @@
                     'can' => 'jefe-operaciones'
                 ],
                 //Coordinador de Lineas
+            [
+                'header' => 'Coordinador de Lineas',
+                'can' => 'coordinador-lineas'
+            ],
                 [
-                    'text' => 'Coordinador de lineas',
+                    'text' => 'Muestras',
                     'url' => 'Coordinadora',
                     'icon' => 'fas fa-fw fa-user',
                     'can' => 'coordinador-lineas'
                 ],
                 //Jefe comercial
+            [
+                'header' => 'Jefe Comercial',
+                'can' => 'jefe-comercial'
+            ],
                 [
-                    'text' => 'Jefe Comercial',
+                    'text' => 'Muestras',
                     'url' => 'jefe-comercial',
                     'icon' => 'fas fa-fw fa-user',
                     'can' => 'jefe-comercial'

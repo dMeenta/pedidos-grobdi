@@ -47,6 +47,6 @@ class AsignacionSemanal extends Controller
         }
         // dd($semanas);
         // Pasamos los días y las semanas a la vista
-        return view('rutas.enrutamiento.index', compact('semanas'));
+        return view('rutas.enrutamiento.index2', compact('semanas'));
     }
 }

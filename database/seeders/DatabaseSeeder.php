@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\EstadoVisita;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -142,6 +143,7 @@ class DatabaseSeeder extends Seeder
         $this->call(DistritoSeeder::class);
         $this->call(DaySeeder::class);
         $this->call(UnidadesYClasificacionesSeeder::class);
+        $this->call(EstadoVisitaSeeder::class);
 
     }
 }

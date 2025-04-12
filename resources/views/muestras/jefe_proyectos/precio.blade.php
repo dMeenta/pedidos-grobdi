@@ -110,7 +110,7 @@
                 url: `{{ url('muestras') }}/${id}/actualizar-precio`,
                 type: 'POST',
                 data: {
-                    _method: "PUT"
+                    _method: "PUT",
                     _token: '{{ csrf_token() }}',
                     precio: precio
                 },
