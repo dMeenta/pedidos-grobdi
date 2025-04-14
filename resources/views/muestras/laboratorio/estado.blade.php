@@ -120,7 +120,7 @@
                         url:`{{ url('laboratorio') }}/${id}/actualizar-estado`,
                         type: "POST",
                         data: {
-                            _method: "PUT"
+                            _method: "PUT",
                             _token: '{{ csrf_token() }}',
                             estado: nuevoEstado
                         },
@@ -234,7 +234,7 @@
                         url:`{{ url('laboratorio') }}/${id}/actualizar-estado`,
                         type: "POST",
                         data: {
-                            _method: "PUT"
+                            _method: "PUT",
                             _token: '{{ csrf_token() }}',
                             estado: nuevoEstado
                         },
