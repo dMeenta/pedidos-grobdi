@@ -99,6 +99,7 @@ class gerenciaController extends Controller
                'cantidad' => $muestra->cantidad_de_muestra,
                'precio_unidad' => $muestra->precio,
                'precio_total' => $montoTotal,
+               'creator' => $muestra->creator,
            ];
            $totalCantidad += $muestra->cantidad_de_muestra;
            $totalPrecio += $montoTotal;
@@ -132,6 +133,7 @@ class gerenciaController extends Controller
             'cantidad' => $cantidad,
             'precio_unidad' => $precioUnidad,
             'precio_total' => $precioTotal,
+            'creator' => $muestra->creator,
         ];
         $totalCantidad += $cantidad;
         $totalPrecio += $precioTotal;
@@ -163,6 +165,7 @@ class gerenciaController extends Controller
             'cantidad' => $cantidad,
             'precio_unidad' => $precioUnidad,
             'precio_total' => $precioTotal,
+            'creator' => $muestra->creator,
         ];
 
         $totalCantidad += $cantidad;
@@ -196,6 +199,7 @@ class gerenciaController extends Controller
                 'cantidad' => $cantidad,
                 'precio_unidad' => $precioUnidad,
                 'precio_total' => $precioTotal,
+                'creator' => $muestra->creator,
             ];
     
             $totalCantidad += $cantidad;

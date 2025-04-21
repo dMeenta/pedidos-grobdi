@@ -33,6 +33,8 @@
                         <th scope="col">Fecha/hora Recibida</th>
                         <th scope="col">Estado</th> 
                         <th scope="col">Acciones</th>
+                        <th scope="col">Creado por</th>
+                        <th scope="col">Doctor</th>
                         <th scope="col">Fecha/hora Entrega</th>
                         <th scope="col">Ver Muestras</th>
                     </tr>
@@ -76,6 +78,8 @@
                                     {{ $muestra->estado }}
                                 </span>
                             </td>
+                            <td>{{ $muestra->creator ? $muestra->creator->name : 'Desconocido' }}</td>
+                            <td>{{ $muestra->name_doctor }}</td>
                             <td>
                                 @if($muestra->fecha_hora_entrega)
                                     {{ \Carbon\Carbon::parse($muestra->fecha_hora_entrega)->format('Y-m-d') }} <br>

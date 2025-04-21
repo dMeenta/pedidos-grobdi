@@ -94,6 +94,7 @@
                 <th>Cantidad</th>
                 <th>Precio Unitario</th>
                 <th>Precio Total</th>
+                <th>Creado por</th>
             </tr>
         </thead>
         <tbody>
@@ -103,6 +104,7 @@
                     <td>{{ $data['cantidad'] }}</td>
                     <td>S/ {{ number_format($data['precio_unidad'], 2) }}</td>
                     <td>S/ {{ number_format($data['precio_total'], 2) }}</td>
+                    <td>{{ $data['creator'] ? $data['creator']->name : 'Desconocido' }}</td>
                 </tr>
             @endforeach
         </tbody>

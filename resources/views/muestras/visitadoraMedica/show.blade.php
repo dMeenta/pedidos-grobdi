@@ -55,7 +55,10 @@
                     <span class="text-muted">Observaciones:</span>
                     <strong class="text-end">{{ $muestra->observacion ?? 'Sin observaciones' }}</strong>
                 </li>
-                
+                <li class="list-group-item d-flex justify-content-between align-items-center"> 
+                    <span class="text-muted">Nombre del Doctor:</span>
+                    <strong class="text-end">{{ $muestra->name_doctor ?? 'No disponible' }}</strong>
+                </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center"> 
                     <span class="text-muted">Fecha de registro:</span>
                     <strong class="text-end">{{ $muestra->created_at->format('d/m/Y H:i') }}</strong>
