@@ -394,13 +394,13 @@
             //SISTEMAS
             [
                 'header' => 'Ajustes',
-                'can' => 'sistemas'
+                'can' => 'jefe-operaciones'
             ],
                 [
                     'text' => 'usuarios',
                     'url' => 'usuarios',
                     'icon' => 'fas fa-fw fa-user',
-                    'can' => 'sistemas'
+                    'can' => 'jefe-operaciones'
                 ],
 
             //sidebar de Visitadoras

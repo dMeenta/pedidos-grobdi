@@ -3,12 +3,16 @@
 namespace App\Http\Controllers\rutas\enrutamiento;
 
 use App\Http\Controllers\Controller;
+use App\Models\Doctor;
 use App\Models\Enrutamiento;
 use App\Models\EnrutamientoLista;
 use App\Models\Lista;
+use App\Models\VisitaDoctor;
 use App\Models\Zone;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class EnrutamientoController extends Controller
 {
@@ -66,8 +70,28 @@ class EnrutamientoController extends Controller
             'fechas' => 'required',
             'lista_id' => 'required'
         ]);
+        
+        $lista = Lista::find($request->lista_id);
+        $arrayDoctor = [];
+        foreach($lista->distritos as $distrito){
+            $doctores = Doctor::where('distrito_id',$distrito->id)->get();
+            foreach ($doctores as $doctor) {
+                if($doctor->days){
+                    $turnos = [];
+                    foreach($doctor->days as $dias){
+                        $dia = $dias->name;
+                        $turno = $dias->pivot->turno;
+                        array_push($turnos,['dia'=>$dia,'turno'=>$turno]);
+                    }
+                }
+                array_push($arrayDoctor,['id'=>$doctor->id,'turno'=>$turnos]);
+            }
+        }
+
         $rango = $request->input('fechas');
         $fechas = explode(" to ", $rango);
+
+
         $enrutamiento_lista = new EnrutamientoLista();
         $enrutamiento_lista->fecha_inicio = $fechas[0];
         $enrutamiento_lista->fecha_fin = $fechas[1];
@@ -75,7 +99,50 @@ class EnrutamientoController extends Controller
         $enrutamiento_lista->enrutamiento_id = $request->enrutamiento_id;
         $enrutamiento_lista->save();
 
+        $startDate = Carbon::parse($fechas[0]);
+        $endDate = Carbon::parse($fechas[1]);
+        $period = CarbonPeriod::create($startDate, $endDate);
+
+        foreach ($arrayDoctor as $doc) {
+            $visita_doctor = new VisitaDoctor();
+            $visita_doctor->doctor_id = $doc['id'];
+            $visita_doctor->created_by = Auth::user()->id;
+            $visita_doctor->updated_by = Auth::user()->id;
+            $visita_doctor->enrutamientolista_id = $enrutamiento_lista->id;
+            if($doc['turno']){
+                foreach ($period as $date) {
+                    foreach($doc['turno'] as $turno){
+                        $nombredia = $date->translatedFormat('l');
+                        $fecha_visita = $date->translatedFormat('Y-m-d');
+                        if($nombredia == $turno['dia']){
+                            $visita_doctor->fecha = $fecha_visita;
+                            $visita_doctor->estado_visita_id = 2;
+                            break;
+                        }
+                    }
+                    
+                }
+            }else{
+                $visita_doctor->estado_visita_id = 1;
+            }
+            $visita_doctor->save();
+        }
+        
+
         return redirect()->route('enrutamiento.agregarlista',$request->enrutamiento_id);
         // dd($request->all());
+    }
+    public function DoctoresLista(Request $request,$id){
+        $doctores = VisitaDoctor::where('enrutamientolista_id',$id)->get();
+        $enruta = VisitaDoctor::where('enrutamientolista_id',$id)->first();
+        $id = $enruta->enrutamientolista->enrutamiento->id;
+        return view('rutas.enrutamiento.doctoreslista',compact('doctores','id'));
+    }
+    public function DoctoresListaUpdate(Request $request,$id){
+        $visita_doctor = VisitaDoctor::find($id);
+        $visita_doctor->fecha = $request->fecha;
+        $visita_doctor->estado_visita_id = $visita_doctor->estado_visita_id == 3 ? 5 :2;
+        $visita_doctor->save();
+        return back()->with('success','Pedido modificado exitosamente');
     }
 }

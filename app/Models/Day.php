@@ -10,6 +10,7 @@ class Day extends Model
     public $timestamps = false;
     public function doctors()
     {
-        return $this->belongsToMany(Doctor::class, 'doctor_day');
+        return $this->belongsToMany(Doctor::class, 'doctor_day')
+                    ->withPivot('turno');
     }
 }

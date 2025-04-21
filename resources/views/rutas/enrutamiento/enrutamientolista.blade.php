@@ -34,6 +34,7 @@
                     <th>Fecha</th>
                     <th>lista</th>
                     <th>Distritos</th>
+                    <th>Doctores</th>
                 </tr>
             </thead>
 
@@ -47,6 +48,9 @@
                             {{ $distrito->name }}
                             <br>
                         @endforeach
+                    </td>
+                    <td>
+                        <a class="btn btn-primary btn-sm" href="{{ route('enrutamientolista.doctores',$ruta_lista->id) }}"><i class=" fa fa-eye"></i> Ver lista</a>
                     </td>
                 </tr>
             @empty

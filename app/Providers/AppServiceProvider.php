@@ -27,9 +27,6 @@ class AppServiceProvider extends ServiceProvider
                 return true;
             }
         });
-        Gate::define('usuarios', function (User $user) {
-            return $user->role->name === 'admin';
-        });
         Gate::define('motorizados', function (User $user) {
             return $user->role->name === 'motorizado';
         });
@@ -46,7 +43,10 @@ class AppServiceProvider extends ServiceProvider
             return $user->role->name === 'visitador';
         });
         Gate::define('jefe-operaciones', function (User $user) {
-            return $user->role->name === 'jefe-operaciones';
+             if($user->role->name === 'jefe-operaciones'){
+                 return true;
+
+             }
         });
         Gate::define('gerencia-general', function (User $user) {
             return $user->role->name === 'gerencia-general';

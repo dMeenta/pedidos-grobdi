@@ -27,7 +27,7 @@
             </div>
             <div class="form-group">
                 <label for="name">Zona</label>
-                <select class="form-control" name="zone_id">
+                <select class="form-control @error('zone_id') is-invalid @enderror" name="zone_id" >
                     <option selected disabled>Seleccione una zona</option>
                     @foreach ($zonas as $zona)
                         <option value="{{ $zona->id }}">{{ $zona->name }}</option>

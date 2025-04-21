@@ -53,8 +53,6 @@
                         <th>Distrito</th>
                         <th>Tipo Medico</th>
                         <th>Usuario</th>
-                        <th>Hijos</th>
-                        <th>modificar</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -71,12 +69,9 @@
                         <td>{{ $doctor->distrito? $doctor->distrito->name:"" }}</td>
                         <td>{{ $doctor->tipo_medico }}</td>
                         <td>{{ $doctor->user->name }}</td>
-                        <td>{{ $doctor->songs == 1 ? 'Si': 'No'}}</td>
-                        <td>
-                            <a class="btn btn-primary btn-sm" href="{{ route('doctor.edit',$doctor->id) }}"><i class="fa-solid fa-pen-to-square"></i> Actualizar</a>
-                        </td>
                         <td>
                             <form action="{{ route('doctor.destroy',$doctor->id) }}" method="POST">
+                                <a class="btn btn-primary btn-sm" href="{{ route('doctor.edit',$doctor->id) }}"><i class="fa-solid fa-pen-to-square"></i> Actualizar</a>
                                 @csrf
                                 @method('DELETE')
                                 @if($doctor->state == 1)

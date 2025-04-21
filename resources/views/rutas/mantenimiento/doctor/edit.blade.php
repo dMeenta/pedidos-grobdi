@@ -8,16 +8,16 @@
 
 @section('content')
 <div class="card mt-2">
-  <h2 class="card-header">Registrar Doctor</h2>
+  <h2 class="card-header">Editar Doctor</h2>
   <div class="card-body">
   
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
         <a class="btn btn-primary btn-sm" href="{{ route('doctor.index') }}"><i class="fa fa-arrow-left"></i> Atrás</a>
     </div>
   
-    <form action="{{ route('doctor.store') }}" method="POST">
+    <form action="{{ route('doctor.update',$doctor->id) }}" method="POST">
         @csrf
-  
+    1   @method('PUT')
         <div class="row">
             <div class="col-xs-6 col-sm-6 col-md-6">
                 <label for="inputName" class="form-label"><strong>Nombres:</strong></label>
@@ -50,7 +50,7 @@
                 <input 
                     type="text" 
                     name="phone" 
-                    value="{{ old('phone') }}"
+                    value="{{ $doctor->phone }}"
                     class="form-control @error('phone') is-invalid @enderror" 
                     id="phone" 
                     placeholder="Ingresar el número de telefono del doctor">
@@ -77,7 +77,7 @@
                 <select class="form-select @error('distrito_id') is-invalid @enderror" aria-label="distrito_id" name="distrito_id" >
                     <option selected disabled>Seleccione el distrito</option>
                     @foreach ($distritos as $distrito)
-                        <option value="{{ $distrito->id }}">{{ $distrito->name }}</option>
+                        <option value="{{ $distrito->id }}" {{ $doctor->distrito_id == $distrito->id ? 'selected' : '' }}>{{ $distrito->name}}</option>
                     @endforeach
                 </select>
                 @error('distrito_id')
@@ -89,7 +89,7 @@
                 <select class="form-select @error('especialidad_id') is-invalid @enderror" aria-label="selecciona un especialidad" name="especialidad_id">
                     <option selected disabled>Seleccione una especialidad</option>
                     @foreach ($especialidades as $especialidad)
-                        <option value="{{ $especialidad->id }}">{{ $especialidad->name }}</option>
+                        <option value="{{ $especialidad->id }}" {{ $doctor->especialidad_id == $especialidad->id ?'selected':'' }}>{{ $especialidad->name }}</option>
                     @endforeach
                 </select>
                 @error('especialidad_id')
@@ -101,7 +101,7 @@
                 <input 
                     type="date" 
                     name="birthdate" 
-                    value="{{ old('birthdate') }}"
+                    value="{{ $doctor->birthdate }}"
                     class="form-control @error('birthdate') is-invalid @enderror" 
                     id="birthdate" 
                     placeholder="Ingresar su fecha de nacimiento">
@@ -112,9 +112,9 @@
             <div class="col-xs-4 col-sm-4 col-md-4">
                 <label for="categoria" class="form-label"><strong>Categoría Médico:</strong></label>
                 <select class="form-select" aria-label="categoria" name="categoria_medico">
-                    <option selected disabled>Seleccione</option>
-                    <option value="empresa">Empresa</option>
-                    <option value="visitador">Visitador</option>
+                    <option disabled>Seleccione</option>
+                    <option value="Empresa" {{ $doctor->categoria_medico == 'Empresa' ? 'selected' : '' }}>Empresa</option>
+                    <option value="Visitador" {{ $doctor->categoria_medico == 'Visitador' ? 'selected' : '' }}>Visitador</option>
                 </select>
             </div>
             <div class="col-xs-4 col-sm-4 col-md-4">
@@ -122,7 +122,7 @@
                 <select class="form-select" aria-label="tipo_medico" name="tipo_medico">
                     <option selected disabled>Seleccione</option>
                     @foreach ( App\Models\Doctor::TIPOMEDICO as $tipo_medico)
-                    <option value="{{ $tipo_medico }}" {{ old('tipo_medico') == $tipo_medico ? 'selected' : '' }}>{{$tipo_medico}}</option>
+                    <option value="{{ $tipo_medico }}" {{ $doctor->tipo_medico == $tipo_medico ? 'selected' : '' }}>{{$tipo_medico}}</option>
                     
                     @endforeach
                 </select>
@@ -131,16 +131,16 @@
                 <label for="tipo_medico" class="form-label"><strong>¿Asignado a consultorio?</strong></label>
                 <select class="form-select" aria-label="asignado_consultorio" name="asignado_consultorio">
                     <option selected disabled>Seleccione</option>
-                    <option value="0">No</option>
-                    <option value="1">Si</option>
+                    <option value="0" {{ $doctor->asignado_consultorio == 0 ? 'selected': '' }}>No</option>
+                    <option value="1" {{ $doctor->asignado_consultorio == 1 ? 'selected': '' }}>Si</option>
                 </select>
             </div>
             <div class="col-xs-4 col-sm-4 col-md-4">
                 <label for="hijos" class="form-label"><strong>¿Padre?</strong></label>
                 <select class="form-select" aria-label="hijos" name="songs">
-                    <option selected disabled>Seleccione</option>
-                    <option value="0">No</option>
-                    <option value="1">Si</option>
+                    <option disabled>Seleccione</option>
+                    <option value="0" {{ $doctor->songs == 0 ? 'selected': '' }}>No</option>
+                    <option value="1" {{ $doctor->songs == 1 ? 'selected': '' }}>Si</option>
                 </select>
             </div>
             <div class="col-xs-6 col-sm-6 col-md-6">
@@ -150,6 +150,7 @@
                 name="centrosalud_name" 
                 placeholder="Buscar centro de salud..." 
                 autocomplete="off" 
+                value="{{ $doctor->centrosalud->name }}"
                 class="form-control @error('centrosalud_id') is-invalid @enderror">
                 <input type="hidden" id="centrosalud_id" name="centrosalud_id">
                 <ul id="suggestions" style="display: none;"></ul>
@@ -161,7 +162,14 @@
                 <label for="tipo_medico" class="form-label"><strong>Días disponible:</strong></label>
                 @foreach ($dias as $dia)
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="{{ $dia->id }}" id="dia_{{ $dia->id }}" name="dias[]">
+                        <input 
+                            class="form-check-input" 
+                            type="checkbox" 
+                            value="{{ $dia->id }}" 
+                            id="dia_{{ $dia->id }}" 
+                            name="dias[]"
+                            {{ in_array($dia->id, $array_diasselect) ? 'checked' : '' }}
+                        >
                         <label class="form-check-label" for="dia_{{ $dia->id }}">
                             {{ $dia->name }}
                         </label>
@@ -169,8 +177,7 @@
                     <div id="turno_{{ $dia->id }}" class="turno-container" style="display: none;">
                         <label for="turno_{{ $dia->id }}">Selecciona el turno:</label>
                         <select name="turno_{{ $dia->id }}" id="turno_{{ $dia->id }}">
-                            <option value="" selected disabled>Seleccione</option>
-                            <option value="0">Turno Mañana</option>
+                            <option value="0" selected>Turno Mañana</option>
                             <option value="1">Turno Tarde</option>
                         </select>
                     </div>
@@ -183,7 +190,7 @@
                 <input 
                     type="text" 
                     name="name_secretariat" 
-                    value=""
+                    value="{{ $doctor->name_secretariat }}"
                     class="form-control @error('name_secretariat') is-invalid @enderror" 
                     id="name_secretariat" 
                     placeholder="Ingresar el nombre de la secretaria">
@@ -196,7 +203,7 @@
                 <input 
                     type="text" 
                     name="phone_secretariat" 
-                    value=""
+                    value="{{ $doctor->phone_secretariat }}"
                     class="form-control @error('phone_secretariat') is-invalid @enderror" 
                     id="phone_secretariat" 
                     placeholder="Ingresar el número de telefono de la secretaria">
@@ -209,7 +216,7 @@
                 <input 
                     type="text" 
                     name="observations" 
-                    value=""
+                    value="{{ $doctor->observations }}"
                     class="form-control @error('observations') is-invalid @enderror" 
                     id="observaciones" 
                     placeholder="Ingresar las observaciones">
@@ -245,7 +252,7 @@
                 turnoContainer.show();  // Muestra el combobox para ese día
             } else {
                 turnoContainer.hide();  // Oculta el combobox para ese día
-                $('#turno_' + diaId + ' select').val('');  // Resetea el valor del combobox
+                $('#turno_' + diaId + ' select').val('0');  // Resetea el valor del combobox
             }
         });
     });

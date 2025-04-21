@@ -16,4 +16,8 @@ class EnrutamientoLista extends Model
     {
         return $this->belongsTo(Enrutamiento::class);
     }
+    public function visita_doctor()
+    {
+        return $this->hasMany(VisitaDoctor::class);
+    }
 }

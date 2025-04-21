@@ -87,9 +87,11 @@ class DoctoresImport implements ToCollection, WithStartRow
                     $doctor->name_secretariat = $value[7];
                     $doctor->observations = $value[8];
                     $namedistrict = explode("-",$value[11]);
-                    $distrito = Distrito::where('name',$namedistrict[0])->first();
-                    if($distrito){
-                        $doctor->distrito_id = $distrito->id;
+                    $distrito = Distrito::where('provincia_id',128)->orWhere('provincia_id',67)->get();
+                    foreach ($distrito as $distric) {
+                        if($distric->name == $namedistrict[0]){
+                            $doctor->distrito_id = $distric->id;
+                        }
                     }
                     !$value[15]? $categoria = "Visitador":$categoria= $value[15];
                     $doctor->categoria_medico = $categoria;

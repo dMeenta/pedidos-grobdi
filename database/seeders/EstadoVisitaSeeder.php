@@ -15,9 +15,9 @@ class EstadoVisitaSeeder extends Seeder
     {
         $esta_visitas = [
             ['name'=>'No asignado'],
-            ['name'=>'visitado'],
-            ['name'=>'No visitado'],
             ['name'=>'Asignado'],
+            ['name'=>'No visitado'],
+            ['name'=>'visitado'],
             ['name'=>'Repogramado'],
             ];
             

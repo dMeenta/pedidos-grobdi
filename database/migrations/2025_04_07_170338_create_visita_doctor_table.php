@@ -13,9 +13,11 @@ return new class extends Migration
     {
         Schema::create('visita_doctor', function (Blueprint $table) {
             $table->id();
+            $table->date('fecha')->nullable();
             $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
             $table->foreignId('updated_by')->constrained('users')->cascadeOnDelete();
             $table->foreignId('doctor_id')->constrained('doctor')->cascadeOnDelete();
+            $table->foreignId('enrutamientolista_id')->constrained('enrutamiento_lista')->cascadeOnDelete();
             $table->foreignId('estado_visita_id')->constrained('estado_visita')->cascadeOnDelete();
             $table->string('observaciones_visita')->nullable();
             $table->timestamps();

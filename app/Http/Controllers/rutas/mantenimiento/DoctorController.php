@@ -98,10 +98,14 @@ class DoctorController extends Controller
     public function edit(string $id)
     {   
         $doctor = Doctor::find($id);
+        $array_diasselect = [];
+        foreach($doctor->days as $diasselec){
+            array_push($array_diasselect, $diasselec->id);
+        }
         $distritos = Distrito::select('id','name')->where('provincia_id',128)->orWhere('provincia_id',67)->get();
         $especialidades = Especialidad::all();
         $dias = Day::all();
-        return view("rutas.mantenimiento.doctor.edit",compact('distritos','especialidades','dias', 'doctor'));
+        return view("rutas.mantenimiento.doctor.edit",compact('distritos','especialidades','dias', 'doctor','array_diasselect'));
     }
 
     /**
@@ -109,7 +113,37 @@ class DoctorController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $doctor = Doctor::find($id);
+        $doctor->name = $request->name;
+        $doctor->lastname = $request->lastname;
+        $doctor->phone = $request->phone;
+        $doctor->CMP = $request->cmp;
+        $doctor->distrito_id = $request->distrito_id;
+        if($request->centrosalud_id){
+            $doctor->centrosalud_id = $request->centrosalud_id;
+        }
+        $doctor->especialidad_id = $request->especialidad_id;
+        $doctor->birthdate =  date('Y-m-d' , strtotime($request->birthdate));
+        $doctor->categoria_medico = $request->categoria_medico;
+        $doctor->tipo_medico = $request->tipo_medico;
+        $doctor->asignado_consultorio = $request->asignado_consultorio;
+        $doctor->songs = $request->songs;
+        $doctor->name_secretariat = $request->name_secretariat;
+        $doctor->phone_secretariat = $request->phone_secretariat;
+        $doctor->observations = $request->observations;
+        $doctor->user_id = Auth::user()->id;
+        $doctor->save();
+
+        $doctor->days()->detach();
+        // Crear un arreglo con los turnos seleccionados para cada día
+        $diasSeleccionados = $request->input('dias');
+        $doctorday = [];
+        foreach ($diasSeleccionados as $dia) {
+            array_push($doctorday, ['doctor_id' => $doctor->id,'day_id' => $dia,'turno'=> $request->input("turno_$dia")]) ;
+            // dd($doctor_day);
+        }
+        $doctor->days()->attach($doctorday);
+        return redirect()->route('doctor.index');
     }
 
     /**
