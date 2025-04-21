@@ -3,11 +3,12 @@
 @section('title', 'Jefe Operaciones')
 
 @section('content_header')
-    <h1>Estado de las Muestras</h1>
+<h1></h1>
 @stop
 
 @section('content')
     <div class="container">
+    <h1 class="text-center">Estado de las Muestras<hr></h1>
         <div class="table-responsive">
             <table class="table table-hover" id="table_muestras">
                 <thead>
@@ -54,6 +55,7 @@
                     @endforeach
                 </tbody>
             </table>
+            {!!$muestras->appends(request()->except('page'))->links()!!}
         </div>
         
         <div id="success-message" class="alert alert-success d-none mt-3"></div>

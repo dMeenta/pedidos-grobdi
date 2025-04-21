@@ -51,6 +51,9 @@
                         @endforeach
                     </tbody>
                 </table>
+                <div class="pagination-container">
+                    {!! $muestras->appends(request()->except('page'))->links() !!}
+                </div>
             </div>
 
             <!-- Tabla de Totales -->

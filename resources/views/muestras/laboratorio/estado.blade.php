@@ -101,6 +101,7 @@
                     @endforeach
                 </tbody>
             </table>
+            {!!$muestras->appends(request()->except('page'))->links()!!}
         </div>
     </div>
     @stop
