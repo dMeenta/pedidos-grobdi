@@ -22,6 +22,8 @@
                         <th scope="col" class="th-small">Aprobado por <br> Jefe Comercial</th>
                         <th scope="col" class="th-small">Aprobado por<br> Coordinadora</th>
                         <th scope="col">Observaciones</th>
+                        <th>Creado por</th>
+                        <th>Doctor</th>
                         <th scope="col">Fecha/hora Recibida</th>
                         <th scope="col">Estado</th>
                         <th scope="col">Fecha/hora Entrega</th>
@@ -49,6 +51,8 @@
                                 <input type="checkbox" class="aprobado-coordinadora" data-id="{{ $muestra->id }}" {{ $muestra->aprobado_coordinadora ? 'checked' : '' }} {{ !$muestra->aprobado_jefe_comercial ? 'disabled' : '' }}>
                             </td>
                             <td class="observaciones">{{ $muestra->observacion }}</td>
+                            <td>{{ $muestra->creator ? $muestra->creator->name : 'Desconocido' }}</td>
+                            <td>{{ $muestra->name_doctor }}</td>
                             <td>{{ $muestra->updated_at ? $muestra->updated_at->format('Y-m-d') : $muestra->created_at->format('Y-m-d') }} <br>
                             {{ $muestra->updated_at ? $muestra->updated_at->format('H:i:s') : $muestra->created_at->format('H:i:s') }}
                             </td>
@@ -79,7 +83,7 @@
     @section('css')
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-    <link rel="stylesheet" href="{{ asset('css/muestras/aprobacion.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/muestras/labora.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
 @stop
 

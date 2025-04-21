@@ -78,6 +78,15 @@
             <strong>{{ $muestra->observacion }}</strong>
         </li>
 
+        <li class="list-group-item"> 
+            Doctor: &nbsp; &nbsp; 
+            <strong>{{ $muestra->name_doctor }}</strong>
+        </li>
+
+        <li class="list-group-item"> 
+            Creado por: &nbsp; &nbsp; 
+            <strong>{{ $muestra->creator ? $muestra->creator->name : 'Desconocido' }}</strong>
+        </li>
         <!-- Estado -->
         <li class="list-group-item">
             Estado: &nbsp; &nbsp;

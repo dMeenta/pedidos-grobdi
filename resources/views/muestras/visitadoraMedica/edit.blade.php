@@ -49,6 +49,11 @@
             </div>
 
 
+            <div class="mb-3">
+                <label for="name_doctor" class="form-label">Nombre del doctor</label>
+                <input type="text" id="name_doctor" name="name_doctor" class="form-control" value="{{ $muestra->name_doctor }}" required />
+            </div>
+            
     <!-- Campo para el tipo de muestra (select) -->
     <div class="mb-3">
         <label class="form-label">Tipo de Muestra</label>

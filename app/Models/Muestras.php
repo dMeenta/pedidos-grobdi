@@ -23,7 +23,9 @@ class Muestras extends Model
         'fecha_hora_entrega',
         'tipo_muestra',
         'aprobado_jefe_comercial',
-        'aprobado_coordinadora'
+        'aprobado_coordinadora',
+        'name_doctor',
+        'created_by',
     ];
 
     // Relación con Clasificacion
@@ -36,5 +38,9 @@ class Muestras extends Model
     public function getUnidadDeMedidaAttribute()
     {
         return $this->clasificacion ? $this->clasificacion->unidadMedida : null;
+    }
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

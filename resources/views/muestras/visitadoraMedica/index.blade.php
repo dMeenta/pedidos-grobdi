@@ -29,6 +29,8 @@
                         <th scope="col">Tipo de Muestra</th>
                         <th scope="col">Cantidad</th>
                         <th scope="col">Observaciones</th>
+                        <th scope="col">Doctor</th>
+                        <th scope="col">Creado por</th>
                         <th scope="col">Fecha/hora<br>Registrada</th>
                         <th scope="col">Acciones</th>
                     </tr>
@@ -49,6 +51,8 @@
                             <td>{{ ucfirst($muestra->tipo_muestra) ?? 'No asignado' }}</td>
                             <td>{{ $muestra->cantidad_de_muestra }}</td>
                             <td class="observaciones">{{ $muestra->observacion }}</td>
+                            <td>{{ $muestra->name_doctor }}</td>
+                            <td>{{ $muestra->creator ? $muestra->creator->name : 'Desconocido' }}</td>
                             <td>
                                 {{ $muestra->updated_at ? $muestra->updated_at->format('Y-m-d') : $muestra->created_at->format('Y-m-d') }}<br>
                                 {{ $muestra->updated_at ? $muestra->updated_at->format('H:i:s') : $muestra->created_at->format('H:i:s') }}

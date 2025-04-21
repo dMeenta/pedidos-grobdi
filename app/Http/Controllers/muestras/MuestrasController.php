@@ -37,21 +37,27 @@ class MuestrasController extends Controller
         $request->validate([
             'nombre_muestra' => 'required|string|max:255',
             'clasificacion_id' => 'required|exists:clasificaciones,id',
-            'cantidad_de_muestra' => 'required|numeric|min:1',
+            'cantidad_de_muestra' => 'required|numeric|min:1|max:10000',
             'observacion' => 'nullable|string',
             'tipo_muestra' => 'required|in:frasco original,frasco muestra',
+            'name_doctor' => 'nullable|string|max:50',
         ]);
     
-        $muestra = Muestras::create($request->only([
-            'nombre_muestra',
-            'clasificacion_id',
-            'cantidad_de_muestra',
-            'observacion',
-            'tipo_muestra'
-        ]));
+       
+            // Intentamos crear la muestra
+            $muestra = Muestras::create([
+                'nombre_muestra' => $request->nombre_muestra,
+                'clasificacion_id' => $request->clasificacion_id,
+                'cantidad_de_muestra' => $request->cantidad_de_muestra,
+                'observacion' => $request->observacion,
+                'tipo_muestra' => $request->tipo_muestra,
+                'name_doctor' => $request->name_doctor,
+                'created_by' => auth()->id(),
+            ]);
     
-        event(new MuestraCreada($muestra));
-        return redirect()->route('muestras.index')->with('success', 'Muestra registrada exitosamente.');
+            event(new MuestraCreada($muestra));
+    
+            return redirect()->route('muestras.index')->with('success', 'Muestra registrada exitosamente.');
     }
 
     public function show($id)
@@ -82,7 +88,7 @@ class MuestrasController extends Controller
         $request->validate([
             'nombre_muestra' => 'required|string|max:255',
             'clasificacion_id' => 'required|exists:clasificaciones,id',
-            'cantidad_de_muestra' => 'required|numeric|min:1',
+            'cantidad_de_muestra' => 'required|numeric|min:1|max:10000',
             'observacion' => 'nullable|string',
             'tipo_muestra' => 'required|in:frasco original,frasco muestra',
         ]);

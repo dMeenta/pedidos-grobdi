@@ -50,7 +50,12 @@
                     <option value="frasco muestra">Frasco Muestra</option>
                 </select>
             </div>
-        
+
+            <div class="mb-3">
+                <label for="name_doctor" class="form-label">Nombre del doctor</label>
+                <input type="text" id="name_doctor" name="name_doctor" class="form-control" value="{{ old('name_doctor') }}" required />
+            </div>
+
             <!-- Campo para la cantidad de muestras -->
             <div class="mb-3">
                 <label class="form-label">Cantidad de Muestras</label>
