@@ -13,10 +13,7 @@
         @endsection
 
         <h1 class="text-center"> Estado de las Muestras<br></h1>
-         <!-- búsqueda por nombre de la muestra -->
-         <div class="mb-3">
-            <input type="text" id="buscar_muestra" class="form-control" placeholder="Escribe el nombre">
-        </div>
+        
         <div class="table-responsive">
             <table class="table table-hover" id="table_muestras">
                 <thead>
@@ -101,7 +98,7 @@
                     @endforeach
                 </tbody>
             </table>
-            {!! $muestras->appends(request()->except('page'))->links() !!}
+            {!!$muestras->appends(request()->except('page'))->links()!!}
         </div>
     </div>
     @stop
@@ -137,19 +134,7 @@
                         }
                     });
                 }
-                function a1(){
-                        // Función para filtrar las muestras por las primeras 5 letras del nombre
-                    $(document).ready(function() {
-                        $('#buscar_muestra').on('keyup', function() {
-                            var query = $(this).val().toLowerCase();
-                            $('#table_muestras tbody tr').filter(function() {
-                                var nombre = $(this).find('td:eq(1)').text().toLowerCase();
-                                // Compara las primeras 5 letras del nombre de la muestra
-                                $(this).toggle(nombre.startsWith(query));
-                            });
-                        });
-                    });
-                }
+                
                 function a2(){
                         //touch para celulares
                     $('.aprobado_coordinadora, .aprobacion-jefe').on('click touchstart', function(e) {
@@ -251,7 +236,7 @@
                         }
                     });
                 }
-               a1();
+              
                a2();
                a3();
             }
@@ -336,12 +321,11 @@
                 
                 setTimeout(function() {
                     var lastRow = $('#table_muestras tbody tr').last();
-                    var nuevaFilaIndex = lastRow.length > 0 ? parseInt(lastRow.find('td:first').text()) : 1;
-                    
+
                     manageNotificationQueue(
                         'success', 
-                        'Nueva Muestra Creada', 
-                        `<strong>Muestra #${nuevaFilaIndex}</strong><br>Nombre: <strong>${muestra.nombre_muestra}</strong><br><small><strong>Fecha de creación:</strong> ${muestra.fecha_creacion}</small>`
+                        '<strong>Nueva Muestra Creada</strong>', 
+                        `Nombre: <strong>${muestra.nombre_muestra}</strong><br><small><strong>Fecha de creación:</strong> ${muestra.fecha_creacion}</small>`
                     );
                 }, 500);
             });
@@ -355,13 +339,13 @@
                 setTimeout(function() {
                     var row = $('#muestra_' + muestra.id);
                     if (row.length > 0) {
-                        var index = $('#table_muestras tbody tr').index(row) + 1;
+                        
                         var fechaActualizacion = new Date(muestra.fecha_actualizacion).toLocaleString();
                         
                         manageNotificationQueue(
                             'info', 
-                            'Muestra Actualizada', 
-                            `<strong>Muestra #${index}</strong><br>Nombre: <strong>${muestra.nombre_muestra}</strong><br><small><strong>Fecha de creación: </strong>${fechaActualizacion}</small>`
+                            '<strong>Muestra Actualizada</strong>', 
+                            `Nombre: <strong>${muestra.nombre_muestra}</strong><br><small><strong>Fecha de creación: </strong>${fechaActualizacion}</small>`
                         );
                     }
                 }, 500);

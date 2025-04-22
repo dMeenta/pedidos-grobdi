@@ -3,11 +3,12 @@
 @section('title', 'Jefe Operaciones')
 
 @section('content_header')
-    <h1>Estado de las Muestras</h1>
+<h1></h1>
 @stop
 
 @section('content')
     <div class="container">
+    <h1 class="text-center">Estado de las Muestras<hr></h1>
         <div class="table-responsive">
             <table class="table table-hover" id="table_muestras">
                 <thead>
@@ -54,6 +55,7 @@
                     @endforeach
                 </tbody>
             </table>
+            {!!$muestras->appends(request()->except('page'))->links()!!}
         </div>
         
         <div id="success-message" class="alert alert-success d-none mt-3"></div>
@@ -132,12 +134,11 @@
             refreshTable(() => {
                 const muestra = data.muestra;
                 const lastRow = $('#table_muestras tbody tr').last();
-                const index = lastRow.length ? parseInt(lastRow.find('td:first').text()) : 1;
                 
                 addNotification(
                     'success', 
-                    'Nueva Muestra Creada', 
-                    `<strong>Muestra #${index}</strong><br>Nombre: <strong>${muestra.nombre_muestra}</strong><br><small><strong>Fecha:</strong> ${muestra.fecha_creacion}</small>`
+                    '<strong>Nueva Muestra Creada</strong>', 
+                    `Nombre: <strong>${muestra.nombre_muestra}</strong><br><small><strong>Fecha:</strong> ${muestra.fecha_creacion}</small>`
                 );
             });
         }
@@ -148,13 +149,13 @@
                 const row = $(`#muestra_${muestra.id}`);
                 
                 if (row.length) {
-                    const index = $('#table_muestras tbody tr').index(row) + 1;
+                    
                     const fecha = new Date(muestra.fecha_actualizacion).toLocaleString();
                     
                     addNotification(
                         'info', 
-                        'Muestra Actualizada', 
-                        `<strong>Muestra #${index}</strong><br>Nombre: <strong>${muestra.nombre_muestra}</strong><br><small><strong>Fecha:</strong> ${fecha}</small>`
+                        '<strong>Muestra Actualizada</strong>', 
+                        `Nombre: <strong>${muestra.nombre_muestra}</strong><br><small><strong>Fecha:</strong> ${fecha}</small>`
                     );
                 }
             });

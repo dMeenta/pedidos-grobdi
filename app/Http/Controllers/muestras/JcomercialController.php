@@ -16,7 +16,7 @@ class JcomercialController extends Controller
     
     public function confirmar()
     {
-        $muestras = Muestras::with(['clasificacion.unidadMedida'])->get();
+        $muestras = Muestras::with(['clasificacion.unidadMedida'])->paginate(10);
         return view('muestras.Jcomercial.confirmar', compact('muestras'));
         
     }

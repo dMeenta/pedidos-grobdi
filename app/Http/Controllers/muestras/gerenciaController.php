@@ -85,7 +85,7 @@ class gerenciaController extends Controller
        $muestras = Muestras::where('tipo_muestra', 'Frasco Original')
            ->whereMonth('created_at', Carbon::parse($mesSeleccionado)->month)
            ->whereYear('created_at', Carbon::parse($mesSeleccionado)->year)
-           ->get();
+           ->paginate(10);
 
        // Crear los datos para la tabla
        $muestrasData = [];
@@ -104,7 +104,7 @@ class gerenciaController extends Controller
            $totalCantidad += $muestra->cantidad_de_muestra;
            $totalPrecio += $montoTotal;
        }
-        return view('muestras.gerencia.frasco_original', compact('muestrasData', 'mesSeleccionado', 'totalCantidad', 'totalPrecio'));
+        return view('muestras.gerencia.frasco_original', compact('muestrasData', 'mesSeleccionado', 'totalCantidad', 'totalPrecio', 'muestras'));
     }
 
     //Método para el reporte frasco Muestra
@@ -116,7 +116,7 @@ class gerenciaController extends Controller
         $muestras = Muestras::where('tipo_muestra', 'Frasco Muestra')
                         ->whereMonth('created_at', Carbon::parse($mesSeleccionado)->month)
                         ->whereYear('created_at', Carbon::parse($mesSeleccionado)->year)
-                        ->get();
+                        ->paginate(10);
         $muestrasData = [];
         $totalCantidad = 0;
         $totalPrecio = 0;
@@ -138,7 +138,7 @@ class gerenciaController extends Controller
         $totalCantidad += $cantidad;
         $totalPrecio += $precioTotal;
         }
-        return view('muestras.gerencia.frasco_muestra', compact('muestrasData', 'mesSeleccionado', 'totalCantidad', 'totalPrecio'));
+        return view('muestras.gerencia.frasco_muestra', compact('muestrasData', 'mesSeleccionado', 'totalCantidad', 'totalPrecio', 'muestras'));
     }
 
     //===================Imprimir reporte-frascoMuestra
