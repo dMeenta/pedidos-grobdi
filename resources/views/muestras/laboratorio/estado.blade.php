@@ -13,10 +13,7 @@
         @endsection
 
         <h1 class="text-center"> Estado de las Muestras<br></h1>
-         <!-- búsqueda por nombre de la muestra -->
-         <div class="mb-3">
-            <input type="text" id="buscar_muestra" class="form-control" placeholder="Escribe el nombre">
-        </div>
+        
         <div class="table-responsive">
             <table class="table table-hover" id="table_muestras">
                 <thead>
@@ -137,19 +134,7 @@
                         }
                     });
                 }
-                function a1(){
-                        // Función para filtrar las muestras por las primeras 5 letras del nombre
-                    $(document).ready(function() {
-                        $('#buscar_muestra').on('keyup', function() {
-                            var query = $(this).val().toLowerCase();
-                            $('#table_muestras tbody tr').filter(function() {
-                                var nombre = $(this).find('td:eq(1)').text().toLowerCase();
-                                // Compara las primeras 5 letras del nombre de la muestra
-                                $(this).toggle(nombre.startsWith(query));
-                            });
-                        });
-                    });
-                }
+                
                 function a2(){
                         //touch para celulares
                     $('.aprobado_coordinadora, .aprobacion-jefe').on('click touchstart', function(e) {
@@ -251,7 +236,7 @@
                         }
                     });
                 }
-               a1();
+              
                a2();
                a3();
             }
