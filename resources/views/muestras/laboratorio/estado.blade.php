@@ -321,12 +321,11 @@
                 
                 setTimeout(function() {
                     var lastRow = $('#table_muestras tbody tr').last();
-                    var nuevaFilaIndex = lastRow.length > 0 ? parseInt(lastRow.find('td:first').text()) : 1;
-                    
+
                     manageNotificationQueue(
                         'success', 
-                        'Nueva Muestra Creada', 
-                        `<strong>Muestra #${nuevaFilaIndex}</strong><br>Nombre: <strong>${muestra.nombre_muestra}</strong><br><small><strong>Fecha de creación:</strong> ${muestra.fecha_creacion}</small>`
+                        '<strong>Nueva Muestra Creada</strong>', 
+                        `Nombre: <strong>${muestra.nombre_muestra}</strong><br><small><strong>Fecha de creación:</strong> ${muestra.fecha_creacion}</small>`
                     );
                 }, 500);
             });
@@ -340,13 +339,13 @@
                 setTimeout(function() {
                     var row = $('#muestra_' + muestra.id);
                     if (row.length > 0) {
-                        var index = $('#table_muestras tbody tr').index(row) + 1;
+                        
                         var fechaActualizacion = new Date(muestra.fecha_actualizacion).toLocaleString();
                         
                         manageNotificationQueue(
                             'info', 
-                            'Muestra Actualizada', 
-                            `<strong>Muestra #${index}</strong><br>Nombre: <strong>${muestra.nombre_muestra}</strong><br><small><strong>Fecha de creación: </strong>${fechaActualizacion}</small>`
+                            '<strong>Muestra Actualizada</strong>', 
+                            `Nombre: <strong>${muestra.nombre_muestra}</strong><br><small><strong>Fecha de creación: </strong>${fechaActualizacion}</small>`
                         );
                     }
                 }, 500);
