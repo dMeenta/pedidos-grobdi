@@ -101,7 +101,7 @@
         // iniciar Pusher 
         function initPusher() {
             Pusher.logToConsole = true;
-            const pusher = new Pusher('260bec4d6a6754941503', { cluster: 'us2' });
+            const pusher = new Pusher('e4c5eef429639dfca470', { cluster: 'us2' });
             const channel = pusher.subscribe('muestras');
             
             channel.bind('muestra.creada', handleNewSample);
