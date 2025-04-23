@@ -27,11 +27,11 @@
             </div>
             @if(request()->get('fecha'))
                 <div class="col-xs-2 col-sm-2 col-md-2">
-                    <a class="btn btn-outline-primary btn-sm" href="{{ route('pedidoslaboratorio.downloadWord',request()->get('fecha')) }}"><i class="fa fa-file-word"></i> Descargar Word</a>
+                    <a class="btn btn-outline-primary btn-sm" href="{{ route('pedidoslaboratorio.downloadWord',['fecha'=>request()->get('fecha'),'turno' => 'vacio']) }}"><i class="fa fa-file-word"></i> Descargar Word</a>
                 </div>
             @else
                 <div class="col-xs-2 col-sm-2 col-md-2">
-                    <a class="btn btn-outline-primary btn-sm" href="{{ route('pedidoslaboratorio.downloadWord',date('Y-m-d')) }}"><i class="fa fa-file-word"></i> Descargar Word</a>
+                    <a class="btn btn-outline-primary btn-sm" href="{{ route('pedidoslaboratorio.downloadWord',['fecha'=>date('Y-m-d'),'turno' => 'vacio']) }}"><i class="fa fa-file-word"></i> Descargar Word</a>
                 </div>
             @endif
         </div>
@@ -44,10 +44,32 @@
         <thead>
             <tr>
                 <th>Nro</th>
-                <th>Id Pedido</th>
-                <th>Cliente</th>
-                <th>Doctor</th>
+                <th>
+                    <a href="{{ route('cargarpedidos.index', ['sort_by' => 'nroOrder', 'direction' => $ordenarPor == 'nroOrder' && $direccion == 'asc' ? 'desc' : 'asc']) }}">
+                        Id Pedido 
+                        @if ($ordenarPor == 'nroOrder')
+                            {{ $direccion == 'asc' ? '↑' : '↓' }}
+                        @endif
+                    </a>
+                </th>
+                <th>
+                    <a href="{{ route('cargarpedidos.index', ['sort_by' => 'customerName', 'direction' => $ordenarPor == 'customerName' && $direccion == 'asc' ? 'desc' : 'asc']) }}">
+                        Cliente
+                        @if ($ordenarPor == 'customerName')
+                            {{ $direccion == 'asc' ? '↑' : '↓' }}
+                        @endif
+                    </a>
+                </th>
+                <th>
+                    <a href="{{ route('cargarpedidos.index', ['sort_by' => 'doctorName', 'direction' => $ordenarPor == 'doctorName' && $direccion == 'asc' ? 'desc' : 'asc']) }}">
+                        Doctor
+                        @if ($ordenarPor == 'doctorName')
+                            {{ $direccion == 'asc' ? '↑' : '↓' }}
+                        @endif
+                    </a>
+                </th>
                 <th>Est. Pago</th>
+                <th>Turno</th>
                 <th>Est. Entrega</th>
                 <th width="200px">distrito</th>
                 <th width="200px">Voucher</th>
@@ -64,6 +86,17 @@
                     <td>{{ $arr["customerName"] }}</td>
                     <td>{{ $arr["doctorName"] }}</td>
                     <td>{{ $arr["paymentStatus"] }}</td>
+                    <form action="{{ route('cargarpedidos.actualizarTurno',$arr->id) }}" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <td>
+                        <select class="form-select form-select-sm" aria-label=".form-select-sm"  name="turno" id="turno" onchange="this.form.submit()">
+                            <option disabled>Cambiar turno</option>
+                            <option value=0 {{ $arr->turno ===  0  ? 'selected' : '' }}>Mañana</option>
+                            <option value=1 {{ $arr->turno ===  1  ? 'selected' : '' }}>Tarde</option>
+                        </select>
+                    </td>
+                    </form>
                     @if($arr->user->role->name == 'motorizado' && $arr["paymentStatus"] === "Reprogramado")
                         <td class="table-danger">{{ $arr["deliveryStatus"] }}</td>
                     @else

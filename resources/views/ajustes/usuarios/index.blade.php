@@ -7,13 +7,12 @@
 @stop
 
 @section('content')
-<div class="card mt-5">
+<div class="card mt-2">
     <h2 class="card-header">Usuarios</h2>
-    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-        <a class="btn btn-success btn-sm" href="{{ route('usuarios.create') }}"> <i class="fa fa-plus"></i> Crear Usuario</a>
-    </div>
-    <br>
     <div class="card-body">
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <a class="btn btn-success btn-sm" href="{{ route('usuarios.create') }}"> <i class="fa fa-plus"></i> Crear Usuario</a>
+        </div>
         <!-- <form action="{{ route('usuarios.index') }}" method="GET">
             <div class="row">
                 <div class="col-xs-3 col-sm-3 col-md-3">
@@ -83,7 +82,6 @@
   
         </table>
         
-
     </div>
 </div> 
 @stop

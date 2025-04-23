@@ -27,6 +27,7 @@ use App\Http\Controllers\muestras\jefe_proyectosController;
 use App\Http\Controllers\muestras\laboratorioController;
 use App\Http\Controllers\muestras\MuestrasController;
 use App\Http\Controllers\rutas\enrutamiento\EnrutamientoController;
+use App\Http\Controllers\rutas\visita\VisitaDoctorController;
 
 // use App\Http\Middleware\RoleMiddleware;
 
@@ -45,7 +46,7 @@ Route::middleware(['checkRole:counter,admin'])->group(function () {
     Route::get('/cargarpedidos/{pedido}/uploadfile', CargarPedidosController::class .'@uploadfile')->name('cargarpedidos.uploadfile');
     Route::put('/cargarpedidos/cargarImagen/{post}', CargarPedidosController::class .'@cargarImagen')->name('cargarpedidos.cargarImagen');
     Route::put('/cargarpedidos/cargarImagenReceta/{post}', CargarPedidosController::class .'@cargarImagenReceta')->name('cargarpedidos.cargarImagenReceta');
-    
+    Route::put('/cargarpedidos/actualizarTurno/{id}',CargarPedidosController::class.'@actualizarTurno')->name('cargarpedidos.actualizarTurno');
     Route::resource('/historialpedidos', HistorialPedidosController::class);
     Route::resource('asignarpedidos', AsignarPedidoController::class);
 });
@@ -57,9 +58,9 @@ Route::put('/usuarios/changepass/{fecha}', UsuariosController::class .'@changepa
 
 
 
-Route::get('/pedidoslaboratorio/{fecha}/downloadWord', PedidoslabController::class .'@downloadWord')
+Route::get('/pedidoslaboratorio/{fecha}/downloadWord/{turno}', PedidoslabController::class .'@downloadWord')
     ->name('pedidoslaboratorio.downloadWord')
-    ->middleware(['checkRole:laboratorio,counter']);
+    ->middleware(['checkRole:laboratorio,counter,admin']);
 
 Route::resource('pedidoscontabilidad', PedidosContaController::class)->middleware(['checkRole:contabilidad,admin']);
 Route::get('/pedidoscontabilidad/downloadExcel/{fechainicio}/{fechafin}', PedidosContaController::class .'@downloadExcel')
@@ -68,6 +69,8 @@ Route::get('/pedidoscontabilidad/downloadExcel/{fechainicio}/{fechafin}', Pedido
 
     
 Route::resource('pedidosmotorizado', PedidosMotoController::class)->middleware(['checkRole:motorizado,admin']);
+
+//VISITADOR
 
 Route::middleware(['checkRole:visitador,admin'])->group(function () {
 
@@ -83,6 +86,7 @@ Route::middleware(['checkRole:visitador,admin'])->group(function () {
     Route::get('/enrutamiento/{id}', [EnrutamientoController::class, 'agregarLista'])->name('enrutamiento.agregarlista');
     Route::get('/enrutamientolista/{id}', [EnrutamientoController::class, 'DoctoresLista'])->name('enrutamientolista.doctores');
     Route::put('/enrutamientolista/doctor/{id}', [EnrutamientoController::class, 'DoctoresListaUpdate'])->name('enrutamientolista.doctoresupdate');
+    Route::resource('visitadoctor', VisitaDoctorController::class);
     //=============================Muestras - Modulo
     // Ruta principal que muestra todas las muestras
     Route::resource('muestras', MuestrasController::class);

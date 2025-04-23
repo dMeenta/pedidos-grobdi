@@ -19,21 +19,20 @@ class PedidoslabController extends Controller
         }else{
             $fecha = date('Y-m-d');
         }
-        $pedidos = Pedidos::where('deliveryDate', $fecha)->orderBy('nroOrder','asc')
-        ->latest()->get();
-        return view('pedidos.laboratorio.index', compact('pedidos'));
+        if($request->turno){
+            $turno = $request->turno;
+            $pedidos = Pedidos::where('deliveryDate', $fecha)->where('turno',$turno)->orderBy('nroOrder','asc')
+            ->latest()->get();
+        }else{
+            $turno = 0;
+            $pedidos = Pedidos::where('deliveryDate', $fecha)->where('turno',0)->orderBy('nroOrder','asc')
+            ->latest()->get();
+        }
+        return view('pedidos.laboratorio.index', compact('pedidos','turno'));
     }
     public function show($pedido){
         $pedido = Pedidos::find($pedido);
         return view('pedidos.laboratorio.show', compact('pedido'));
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit($pedido){
-        $pedido = Pedidos::find($pedido);
-        return view('pedidos.laboratorio.edit',compact('pedido'));
     }
 
     /**
@@ -44,12 +43,14 @@ class PedidoslabController extends Controller
         $pedidos = Pedidos::find($id);
         $pedidos->update(attributes: request()->all());
           
-        return redirect()->route('pedidoslaboratorio.index')
-                        ->with('success','Pedido modificado exitosamente');
+        return back()->with('success','Pedido modificado exitosamente');
     }
-    public function DownloadWord($fecha){
-        // dd($fecha);
-        $pedidos = Pedidos::where('deliveryDate',$fecha)->orderBy('nroOrder','asc')->get();
+    public function DownloadWord($fecha,$turno){
+        if($turno == 'vacio'){
+            $pedidos = Pedidos::where('deliveryDate',$fecha)->orderBy('nroOrder','asc')->get();
+        }else{
+            $pedidos = Pedidos::where('deliveryDate',$fecha)->where('turno',$turno)->orderBy('nroOrder','asc')->get();
+        }
         $zonas = Zone::get();
         $phpWord = new \PhpOffice\PhpWord\PhpWord();
         $section = $phpWord->addSection();

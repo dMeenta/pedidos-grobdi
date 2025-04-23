@@ -20,6 +20,8 @@ class CargarPedidosController extends Controller
      */
     public function index(Request $request)
     {
+        $ordenarPor = $request->get('sort_by', 'nroOrder'); // campo por defecto
+        $direccion = $request->get('direction', 'asc'); // dirección por defecto
         if($request->query("fecha")){
             $request->validate([
                 'fecha' => 'required|date'
@@ -28,9 +30,9 @@ class CargarPedidosController extends Controller
         }else{
             $dia = now()->format('Y-m-d');
         }
-        $pedidos = Pedidos::whereDate('deliveryDate', $dia)->orderBy('nroOrder','asc')
+        $pedidos = Pedidos::whereDate('deliveryDate', $dia)->orderBy($ordenarPor, $direccion)
         ->get();
-        return view('pedidos.counter.cargar_pedido.index', compact('pedidos'));
+        return view('pedidos.counter.cargar_pedido.index', compact('pedidos', 'ordenarPor', 'direccion'));
     }
 
     /**
@@ -122,7 +124,13 @@ class CargarPedidosController extends Controller
         return redirect()->route('cargarpedidos.index',$fecha)
                         ->with('success','Pedido modificado exitosamente');
     }
-
+    public function actualizarTurno(Request $request, $id)
+    {
+        $pedidos = Pedidos::find($id);
+        $pedidos->update(attributes: request()->all());
+          
+        return back()->with('success','Turno modificado exitosamente');
+    }
     public function uploadfile(Pedidos $pedido){
         // dd($pedido);
         return view('pedidos.counter.cargar_pedido.uploadFile',data: compact('pedido'));

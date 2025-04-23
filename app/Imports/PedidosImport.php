@@ -62,7 +62,7 @@ class PedidosImport implements ToCollection
                     $pedidos->zone_id = Distritos_zonas::zonificar($pedidos->district);
                     $pedidos->created_at = $hora_fecha;
                     $hora_pedido = Carbon::parse($hora_fecha)->format('H:i:s');
-                    if($hora_pedido<"15:30:00"){
+                    if($hora_pedido<"17:00:00"){
                         $pedidos->turno = 0;
                     }
                     else{
