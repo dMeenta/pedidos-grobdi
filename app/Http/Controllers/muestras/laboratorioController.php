@@ -50,5 +50,19 @@ class laboratorioController extends Controller
         
         return response()->json(['success' => true]);
     }
+
+    public function actualizarComentario(Request $request, $id)
+{
+    $request->validate([
+        'comentarios' => 'nullable|string',
+    ]);
+
+    $muestra = Muestras::findOrFail($id);
+    $muestra->comentarios = $request->comentarios;
+    $muestra->save();
+
+    return redirect()->route('muestras.estado')->with('success', 'Comentario guardado correctamente.');
+}
+
     
 }

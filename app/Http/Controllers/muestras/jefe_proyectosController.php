@@ -53,4 +53,13 @@ class jefe_proyectosController extends Controller
             'precio' => $request->precio
         ]);
     }
+
+    public function show($id)
+    {
+        // Cargar la muestra con su clasificación y la unidad de medida asociada
+        $muestra = Muestras::with(['clasificacion.unidadMedida'])->findOrFail($id);
+        
+        // Retornar la vista de "Detalles de Muestra" con los datos
+        return view('muestras.jefe_proyectos.show', compact('muestra'));
+    }
 }

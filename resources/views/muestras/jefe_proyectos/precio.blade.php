@@ -23,9 +23,11 @@
                         <th>Precio Total</th>
                         <th>Observaciones</th>
                         <th>Creado por</th>
+                        <th>Comentarios <br> de laboratorio</th>
                         <th>Doctor</th>
                         <th>Fecha/hora<br>Recibida</th>
                         <th>Estado</th>
+                        <th>Ver</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -41,7 +43,8 @@
                         <td id="total_{{ $muestra->id }}">{{ $muestra->cantidad_de_muestra * $muestra->precio }}</td>
                         <td class="observaciones">{{ $muestra->observacion }}</td>
                         <td>{{ $muestra->creator ? $muestra->creator->name : 'Desconocido' }}</td>
-                        <td>{{ $muestra->name_doctor }}</td>
+                        <td class="observaciones">{{ $muestra->comentarios }}</td>
+                        <td class="observaciones">{{ $muestra->name_doctor }}</td>
                         <td>
                             {{ ($muestra->updated_at ?? $muestra->created_at)->format('Y-m-d') }}<br>
                             {{ ($muestra->updated_at ?? $muestra->created_at)->format('H:i:s') }}
@@ -50,6 +53,11 @@
                             <span class="badge" style="background-color: {{ $muestra->estado == 'Pendiente' ? 'red' : 'green' }}; color: white; padding: 5px;">
                                 {{ $muestra->estado }}
                             </span>
+                        </td>
+                        <td>
+                            <a title="Ver detalles" href="{{ route('muestras.show', $muestra->id) }}" class="btn btn-success btn-sm">
+                                <i class="bi bi-binoculars"></i>
+                            </a>
                         </td>
                     </tr>
                     @endforeach
@@ -93,7 +101,7 @@
         // iniciar Pusher 
         function initPusher() {
             Pusher.logToConsole = true;
-            const pusher = new Pusher('260bec4d6a6754941503', { cluster: 'us2' });
+            const pusher = new Pusher('e4c5eef429639dfca470', { cluster: 'us2' });
             const channel = pusher.subscribe('muestras');
             
             channel.bind('muestra.creada', handleNewSample);

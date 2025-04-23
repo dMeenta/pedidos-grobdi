@@ -28,8 +28,10 @@
                         <th scope="col">Observaciones</th>
                         <th>Creado por</th>
                         <th>Doctor</th>
+                        <th scope="col">Comentarios <br> de laboratorio</th>
                         <th scope="col">Fecha/hora Recibida</th>
                         <th scope="col">Acciones</th> <!-- Columna para mostrar el estado con color -->
+                        <th scope="col">Ver</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -55,7 +57,8 @@
                             </td>
                             <td class="observaciones">{{ $muestra->observacion }}</td>
                             <td>{{ $muestra->creator ? $muestra->creator->name : 'Desconocido' }}</td>
-                            <td>{{ $muestra->name_doctor }}</td>
+                            <td class="observaciones">{{ $muestra->name_doctor }}</td>
+                            <td class="observaciones">{{ $muestra->comentarios }}</td>
                             <td>
                             {{ $muestra->updated_at ? $muestra->updated_at->format('Y-m-d') : $muestra->created_at->format('Y-m-d') }} <br>
                             {{ $muestra->updated_at ? $muestra->updated_at->format('H:i:s') : $muestra->created_at->format('H:i:s') }}</td>
@@ -65,6 +68,11 @@
                                     style="background-color: {{ $muestra->estado == 'Pendiente' ? 'red' : 'green' }}; color: white; padding: 5px;">
                                     {{ $muestra->estado }}
                                 </span>
+                            </td>
+                            <td>
+                                <a title="Ver detalles" href="{{ route('muestras.show', $muestra->id) }}" class="btn btn-success btn-sm">
+                                    <i class="bi bi-binoculars"></i>
+                                </a>
                             </td>
                         </tr>
                     @endforeach

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('cantidad_de_muestra')->nullable(); 
             $table->decimal('precio', 10, 2)->nullable(); 
             $table->string('estado', 50)->nullable(); 
+            $table->text('comentarios')->nullable();
             $table->enum('tipo_muestra', ['Frasco Original', 'Frasco Muestra'])->nullable(); 
             $table->foreignId('clasificacion_id')->nullable()->constrained('clasificaciones')->onDelete('set null'); 
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null'); 

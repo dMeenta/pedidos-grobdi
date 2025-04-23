@@ -40,7 +40,7 @@ class MuestrasController extends Controller
             'cantidad_de_muestra' => 'required|numeric|min:1|max:10000',
             'observacion' => 'nullable|string',
             'tipo_muestra' => 'required|in:frasco original,frasco muestra',
-            'name_doctor' => 'nullable|string|max:50',
+            'name_doctor' => 'nullable|string|max:80',
         ]);
     
        
@@ -84,28 +84,30 @@ class MuestrasController extends Controller
     }
 
     public function update(Request $request, $id)
-    {
-        $request->validate([
-            'nombre_muestra' => 'required|string|max:255',
-            'clasificacion_id' => 'required|exists:clasificaciones,id',
-            'cantidad_de_muestra' => 'required|numeric|min:1|max:10000',
-            'observacion' => 'nullable|string',
-            'tipo_muestra' => 'required|in:frasco original,frasco muestra',
-        ]);
-        
-        $muestra = Muestras::findOrFail($id);
-        $muestra->update($request->only([
-            'nombre_muestra',
-            'clasificacion_id',
-            'cantidad_de_muestra',
-            'observacion',
-            'tipo_muestra'
-        ]));
+{
+    $request->validate([
+        'nombre_muestra' => 'required|string|max:255',
+        'clasificacion_id' => 'required|exists:clasificaciones,id',
+        'cantidad_de_muestra' => 'required|numeric|min:1|max:10000',
+        'observacion' => 'nullable|string',
+        'tipo_muestra' => 'required|in:frasco original,frasco muestra',
+        'name_doctor' => 'nullable|string|max:80',
+    ]);
     
-         event(new MuestraActualizada($muestra));
-        
-        return redirect()->route('muestras.index')->with('success', 'Muestra actualizada exitosamente.');
-    }
+    $muestra = Muestras::findOrFail($id);
+    $muestra->update($request->only([
+        'nombre_muestra',
+        'clasificacion_id',
+        'cantidad_de_muestra',
+        'observacion',
+        'tipo_muestra',
+        'name_doctor'
+    ]));
+
+    event(new MuestraActualizada($muestra));
+    
+    return redirect()->route('muestras.index')->with('success', 'Muestra actualizada exitosamente.');
+}
 
     public function destroy($id)
     {

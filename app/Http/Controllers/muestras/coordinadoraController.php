@@ -82,9 +82,18 @@ class coordinadoraController extends Controller
         return redirect()->route('muestras.aprobacion.coordinadora')->with('success', 'Fecha de entrega actualizada correctamente.');
     }
 
-    public function aprobacionCoordinadora()
-{
-    $muestras = Muestras::with(['clasificacion.unidadMedida'])->paginate(15);
-    return view('muestras.coordinadora.aprob', compact('muestras'));
-}
+        public function aprobacionCoordinadora()
+    {
+        $muestras = Muestras::with(['clasificacion.unidadMedida'])->paginate(15);
+        return view('muestras.coordinadora.aprob', compact('muestras'));
+    }
+
+    public function showCo($id)
+    {
+        // Cargar la muestra con su clasificación y la unidad de medida asociada
+        $muestra = Muestras::with(['clasificacion.unidadMedida'])->findOrFail($id);
+        
+        // Retornar la vista de "Detalles de Muestra" con los datos
+        return view('muestras.coordinadora.showCo', compact('muestra'));
+    }
 }

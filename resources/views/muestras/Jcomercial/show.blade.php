@@ -9,7 +9,7 @@
 @section('content')
 <div class="container">
 <h1 class="text-center">
-   <a class="float-start" title="Volver" href="{{ route('muestras.estado') }}">
+   <a class="float-start" title="Volver" href="{{ route('muestras.confirmar') }}">
       <i class="bi bi-arrow-left-circle"></i>
    </a>
    Datos de la muestra <hr>
@@ -104,23 +104,10 @@
                 readonly style="background-color:rgb(225, 255, 207); color: #555; border: 2px solid #ccc; font-weight: bold;">
         </li>
 
-        <!-- Fecha y Hora de Entrega -->
-        <li class="list-group-item">
-            Fecha y Hora de Entrega: &nbsp; &nbsp;
-            <input type="text" class="form-control" 
-                value="{{ $muestra->fecha_hora_entrega ? \Carbon\Carbon::parse($muestra->fecha_hora_entrega)->format('Y-m-d H:i') : 'No disponible' }}" 
-                readonly style="background-color: #f4f4f4; color: #555; border: 2px solid #ccc; font-weight: bold;">
-        </li>
-
                 <!-- Comentario -->
         <li class="list-group-item">
-            <form method="POST" action="{{ route('muestras.actualizarComentario', $muestra->id) }}">
-                @csrf
-                @method('PUT')
-                <label for="comentarios">Comentario:</label>
-                <textarea name="comentarios" id="comentarios" class="form-control" rows="3" placeholder="Escriba un comentario...">{{ old('comentarios', $muestra->comentarios) }}</textarea>
-                <button type="submit" class="btn btn-primary mt-2">Guardar Comentario</button>
-            </form>
+                Comentario de Laboratorio: &nbsp; &nbsp;
+                <strong class="text-end">{{ $muestra->comentarios ?? 'No hay comentarios' }}</strong>
         </li>
 
         </ul>

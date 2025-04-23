@@ -60,6 +60,14 @@
                     <strong class="text-end">{{ $muestra->name_doctor ?? 'No disponible' }}</strong>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center"> 
+                    <span class="text-muted">Creado por:</span>
+                    <strong class="text-end">{{ $muestra->creator ? $muestra->creator->name : 'Desconocido'}}</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center"> 
+                    <span class="text-muted">Comentario de Laboratorio:</span>
+                    <strong class="text-end">{{ $muestra->comentarios ?? 'No hay comentarios' }}</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center"> 
                     <span class="text-muted">Fecha de registro:</span>
                     <strong class="text-end">{{ $muestra->created_at->format('d/m/Y H:i') }}</strong>
                 </li>
