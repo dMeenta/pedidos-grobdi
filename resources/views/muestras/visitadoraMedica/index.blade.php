@@ -30,6 +30,7 @@
                         <th scope="col">Cantidad</th>
                         <th scope="col">Observaciones</th>
                         <th scope="col">Doctor</th>
+                        <th scope="col">Comentarios <br> de laboratorio</th>
                         <th scope="col">Creado por</th>
                         <th scope="col">Fecha/hora<br>Registrada</th>
                         <th scope="col">Acciones</th>
@@ -51,7 +52,8 @@
                             <td>{{ ucfirst($muestra->tipo_muestra) ?? 'No asignado' }}</td>
                             <td>{{ $muestra->cantidad_de_muestra }}</td>
                             <td class="observaciones">{{ $muestra->observacion }}</td>
-                            <td>{{ $muestra->name_doctor }}</td>
+                            <td class="observaciones">{{ $muestra->name_doctor }}</td>
+                            <td class="observaciones">{{ $muestra->comentarios }}</td>
                             <td>{{ $muestra->creator ? $muestra->creator->name : 'Desconocido' }}</td>
                             <td>
                                 {{ $muestra->updated_at ? $muestra->updated_at->format('Y-m-d') : $muestra->created_at->format('Y-m-d') }}<br>
@@ -86,7 +88,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="{{ asset('css/muestras/home.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/muestras/labora.css') }}">
     <style>
         /* Estilos para el contenedor de herramientas */
         .header-tools {

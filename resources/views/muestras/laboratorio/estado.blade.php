@@ -12,6 +12,17 @@
             | Laboratorio - Muestras
         @endsection
 
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show d-flex align-items-center" role="alert" style="background-color: #d1e7dd; color: #0f5132;">
+                <div class="text-center flex-grow-1">
+                    {{ session('success') }}
+                </div>
+                <button type="button" class="btn p-0 border-0 bg-transparent" data-bs-dismiss="alert" aria-label="Cerrar">
+                    <i class="bi bi-x-lg" style="font-size: 1.2rem; color: #0f5132;"></i>
+                </button>
+            </div>
+        @endif
+
         <h1 class="text-center"> Estado de las Muestras<br></h1>
         
         <div class="table-responsive">
@@ -22,9 +33,9 @@
                         <th scope="col">Nombre de la Muestra</th>
                         <th scope="col">Clasificación</th>
                         <th scope="col">Tipo de Muestra</th> <!-- Nueva columna -->
-                        <th scope="col" class="th-small">Unidad <br> de Medida</th>
-                        <th scope="col" class="th-small">Aprobado por <br> Jefe Comercial</th>
-                        <th scope="col" class="th-small">Aprobado por<br> Coordinadora</th>
+                        <th scope="col" class="th-small">Unidad de Medida</th>
+                        <th scope="col" class="th-small">Aprobado<br> Jefe Comercial</th>
+                        <th scope="col" class="th-small">Aprobado<br> Coordinadora</th>
                         <th scope="col">Cantidad</th>
                         <th scope="col">Observaciones</th>
                         <th scope="col">Fecha/hora Recibida</th>
@@ -32,6 +43,7 @@
                         <th scope="col">Acciones</th>
                         <th scope="col">Creado por</th>
                         <th scope="col">Doctor</th>
+                        <th scope="col">Comentario</th>
                         <th scope="col">Fecha/hora Entrega</th>
                         <th scope="col">Ver Muestras</th>
                     </tr>
@@ -76,7 +88,8 @@
                                 </span>
                             </td>
                             <td>{{ $muestra->creator ? $muestra->creator->name : 'Desconocido' }}</td>
-                            <td>{{ $muestra->name_doctor }}</td>
+                            <td class="observaciones">{{ $muestra->name_doctor }}</td>
+                            <td class="observaciones">{{ $muestra->comentarios }}</td>
                             <td>
                                 @if($muestra->fecha_hora_entrega)
                                     {{ \Carbon\Carbon::parse($muestra->fecha_hora_entrega)->format('Y-m-d') }} <br>
@@ -86,13 +99,9 @@
                                 @endif
                             </td>
                             <td>
-                                <ul class="flex_acciones">
-                                    <li>
-                                        <a title="Ver detalles de la muestra" href="{{ route('muestras.showLab', $muestra->id) }}" class="btn btn-success">
-                                            <i class="bi bi-binoculars"></i>
-                                        </a>
-                                    </li>
-                                </ul>
+                                <a title="Ver detalles de la muestra" href="{{ route('muestras.showLab', $muestra->id) }}" class="btn btn-success">
+                                    <i class="bi bi-binoculars"></i>
+                                </a>
                             </td> 
                         </tr>
                     @endforeach
