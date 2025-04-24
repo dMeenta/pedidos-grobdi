@@ -116,7 +116,7 @@ Route::middleware(['checkRole:laboratorio,admin'])->group(function () {
 // Ruta para la gestión de precios en la vista de jefe de proyectos
 Route::middleware(['checkRole:jefe-operaciones,admin'])->group(function () {
     Route::get('/jefe-operaciones', [jefe_proyectosController::class, 'precio'])->name('muestras.precio');
-    Route::get('/jefe_proyectos/{id}', [jefe_proyectosController::class, 'show'])->name('muestras.show');
+    Route::get('/jefe_proyectos/{id}', [jefe_proyectosController::class, 'showJO'])->name('muestras.showJO');
     Route::put('/muestras/{id}/actualizar-precio', [jefe_proyectosController::class, 'actualizarPrecio'])->name('muestras.actualizarPrecio');
 });
 

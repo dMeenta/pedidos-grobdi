@@ -505,13 +505,13 @@
                                 'can' => 'gerencia-general',
                             ],
                             [
-                                'text' => 'Frasco Original',
+                                'text' => 'Frasco Muestra',
                                 'url' => 'reporte/frasco-muestra',
                                 'icon' => 'fas fa-fw fa-medkit',
                                 'can' => 'gerencia-general',
                             ],
                             [
-                                'text' => 'Frasco Muestra',
+                                'text' => 'Frasco Original',
                                 'url' => 'reporte/frasco-original',
                                 'icon' => 'fas fa-fw fa-user-md',
                                 'can' => 'gerencia-general',
