@@ -59,6 +59,18 @@
                 @endforeach 
             </div>
         </div>
+        @if ($pedido->fotoDomicilio)
+            <div class="col-xs-4 col-sm-4 col-md-4">
+                <strong>Imagen Foto Domicilio:</strong>
+                <img src="{{ asset($pedido->fotoDomicilio) }}" alt="{{ $pedido->orderId }} width="400" height="400"">
+            </div>
+        @endif
+        @if ($pedido->fotoEntrega)
+            <div class="col-xs-4 col-sm-4 col-md-4">
+            <strong>Imagen Foto Entregado:</strong>
+                <img src="{{ asset($pedido->fotoEntrega) }}" alt="{{ $pedido->orderId }} width="400" height="400"">
+            </div>
+        @endif
     </div>
   
   </div>

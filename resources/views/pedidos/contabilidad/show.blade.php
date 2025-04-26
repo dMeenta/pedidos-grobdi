@@ -62,13 +62,17 @@
             @csrf
             @method('PUT')
       
-            <div class="mb-3">
+            <div class="mb-4">
                 <label for="accountingStatus" class="form-select"><strong>Estado de contabilidad:</strong></label>
-                <select class="form-select" name="accountingStatus" id="accountingStatus">
+                <select class="form-control" name="accountingStatus" id="accountingStatus">
                     <option disabled select>Selecciona una opción</option>
                     <option value="0" {{ $pedido->accountingStatus === 0 ? 'selected' : '' }}>Sin revisar</option>
                     <option value="1" {{ $pedido->accountingStatus === 1 ? 'selected' : '' }}>Revisado</option>
                 </select>
+            </div>
+            <div class="mb-4">
+                <label>Banco Destino:</label>
+                <input class="form-control" name="bancoDestino">
             </div>
             <button type="submit" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> Actualizar revisión</button>
         </form>

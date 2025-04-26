@@ -136,6 +136,13 @@ class DatabaseSeeder extends Seeder
             'active'=> 1,
             'role_id' => 10,
         ]);
+        User::factory()->create([
+            'name' => 'Supervisor',
+            'email' => 'supervisor@grobdi.com',
+            'password'=> bcrypt('12345678'),
+            'active'=> 1,
+            'role_id' => 11,
+        ]);
         $this->call(ZoneSeeder::class);
         $this->call(ModuleSeeder::class);
         $this->call(DepartamentosSeeder::class);

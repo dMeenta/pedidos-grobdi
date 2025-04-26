@@ -61,13 +61,14 @@ class PedidosImport implements ToCollection
                     $hora_fecha = Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[20]))->format('Y-m-d H:i:s');
                     $pedidos->zone_id = Distritos_zonas::zonificar($pedidos->district);
                     $pedidos->created_at = $hora_fecha;
-                    $hora_pedido = Carbon::parse($hora_fecha)->format('H:i:s');
-                    if($hora_pedido<"17:00:00"){
-                        $pedidos->turno = 0;
-                    }
-                    else{
-                        $pedidos->turno = 1;
-                    }
+                    // $hora_pedido = Carbon::parse($hora_fecha)->format('H:i:s');
+                    // if($hora_pedido<"17:00:00"){
+                    //     $pedidos->turno = 0;
+                    // }
+                    // else{
+                    //     $pedidos->turno = 1;
+                    // }
+                    $pedidos->turno = 0;
                     $usuario = User::where('name',$row[19])->first();
                     // dd($usuario);
                     if(empty($usuario)){

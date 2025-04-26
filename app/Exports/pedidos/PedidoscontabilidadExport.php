@@ -34,6 +34,8 @@ class PedidoscontabilidadExport implements FromArray, WithHeadings
                 'cliente' => $pedido->customerName,
                 'fecha_creado' => date('d-m-Y',strtotime($pedido->created_at)),
                 'metodo de pago' => $pedido->paymentMethod,
+                'numero operación' => $pedido->operationNumber,
+                'Banco Destino' => $pedido->bancoDestino,
                 'voucher' => $voucher,
                 'total' => $pedido->prize,
                 'Estado de Contabilidad' => $pedido->accountingStatus == 0 ? 'Sin revisar':'Revisado',

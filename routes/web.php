@@ -49,31 +49,27 @@ Route::middleware(['checkRole:counter,admin'])->group(function () {
     Route::put('/cargarpedidos/actualizarTurno/{id}',CargarPedidosController::class.'@actualizarTurno')->name('cargarpedidos.actualizarTurno');
     Route::resource('/historialpedidos', HistorialPedidosController::class);
     Route::resource('asignarpedidos', AsignarPedidoController::class);
+    Route::post('/cargarpedidos/downloadWord', CargarPedidosController::class .'@downloadWord')
+    ->name('cargarpedidos.downloadWord');
 });
     
-Route::resource('usuarios', UsuariosController::class)->middleware(['checkRole:admin']);
+Route::resource('usuarios', UsuariosController::class)->middleware(['checkRole:admin,jefe-operaciones']);
 Route::put('/usuarios/changepass/{fecha}', UsuariosController::class .'@changepass')
     ->name('usuarios.changepass')
-    ->middleware(['checkRole:admin']);
+    ->middleware(['checkRole:admin,jefe-operaciones']);
 
-
-
-Route::get('/pedidoslaboratorio/{fecha}/downloadWord/{turno}', PedidoslabController::class .'@downloadWord')
-    ->name('pedidoslaboratorio.downloadWord')
-    ->middleware(['checkRole:laboratorio,counter,admin']);
 
 Route::resource('pedidoscontabilidad', PedidosContaController::class)->middleware(['checkRole:contabilidad,admin']);
 Route::get('/pedidoscontabilidad/downloadExcel/{fechainicio}/{fechafin}', PedidosContaController::class .'@downloadExcel')
     ->name('pedidoscontabilidad.downloadExcel')
     ->middleware(['checkRole:contabilidad,admin']);
 
-    
+//MOTORIZADO
 Route::resource('pedidosmotorizado', PedidosMotoController::class)->middleware(['checkRole:motorizado,admin']);
+Route::put('/pedidosmotorizado/fotos/{id}', [PedidosMotoController::class, 'cargarFotos'])->name('pedidosmotorizado.cargarfotos')->middleware(['checkRole:motorizado,admin']);
 
-//VISITADOR
-
-Route::middleware(['checkRole:visitador,admin'])->group(function () {
-
+//SUPERVISOR
+Route::middleware(['checkRole:supervisor,admin'])->group(function () {
     Route::resource('centrosalud', CentroSaludController::class);
     Route::get('centrosaludbuscar', CentroSaludController::class.'@buscar');
     Route::resource('especialidad', EspecialidadController::class);
@@ -86,6 +82,10 @@ Route::middleware(['checkRole:visitador,admin'])->group(function () {
     Route::get('/enrutamiento/{id}', [EnrutamientoController::class, 'agregarLista'])->name('enrutamiento.agregarlista');
     Route::get('/enrutamientolista/{id}', [EnrutamientoController::class, 'DoctoresLista'])->name('enrutamientolista.doctores');
     Route::put('/enrutamientolista/doctor/{id}', [EnrutamientoController::class, 'DoctoresListaUpdate'])->name('enrutamientolista.doctoresupdate');
+});
+//VISITADOR
+Route::middleware(['checkRole:visitador,admin'])->group(function () {
+
     Route::resource('visitadoctor', VisitaDoctorController::class);
     //=============================Muestras - Modulo
     // Ruta principal que muestra todas las muestras
@@ -107,7 +107,7 @@ Route::get('/distritoslimacallao', UbigeoController::class .'@ObtenerDistritosLi
 
 
 
-//laboratorio======================
+//laboratorio
 Route::middleware(['checkRole:laboratorio,admin'])->group(function () {
     Route::resource('pedidoslaboratorio', PedidoslabController::class);
     Route::get('/laboratorio', [laboratorioController::class, 'estado'])->name('muestras.estado');
@@ -117,6 +117,8 @@ Route::middleware(['checkRole:laboratorio,admin'])->group(function () {
     Route::put('/laboratorio/{id}/actualizar-fecha', [laboratorioController::class, 'actualizarFechaEntrega'])->name('muestras.actualizarFechaEntrega');
     Route::get('/get-unidades/{clasificacionId}', [MuestrasController::class, 'getUnidadesPorClasificacion']);
     Route::put('/muestras/{id}/comentario', [laboratorioController::class, 'actualizarComentario'])->name('muestras.actualizarComentario');
+    Route::get('/pedidoslaboratorio/{fecha}/downloadWord/{turno}', PedidoslabController::class .'@downloadWord')
+    ->name('pedidoslaboratorio.downloadWord');
 });
 // Ruta para actualizar el precio de una muestra
 // Ruta para la gestión de precios en la vista de jefe de proyectos
@@ -124,6 +126,7 @@ Route::middleware(['checkRole:jefe-operaciones,admin'])->group(function () {
     Route::get('/jefe-operaciones', [jefe_proyectosController::class, 'precio'])->name('muestras.precio');
     Route::get('/jefe_proyectos/{id}', [jefe_proyectosController::class, 'show'])->name('muestras.show');
     Route::put('/muestras/{id}/actualizar-precio', [jefe_proyectosController::class, 'actualizarPrecio'])->name('muestras.actualizarPrecio');
+    Route::get('/pedidos/jefe_proyectos'.jefe_proyectosController::class,);
 });
 
 //coordinadora 

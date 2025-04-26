@@ -8,39 +8,69 @@
 @stop
 
 @section('content')
-    <h1>Pedidos por día</h1>
-
+<div class="card mt-2">
+    <h2 class="card-header">Pedidos por día</h2>
+    <div class="card-body">
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
         <a class="btn btn-success btn-sm" href="{{ route('cargarpedidos.create') }}"> <i class="fa fa-plus"></i> Registrar datos</a>
     </div>
     <br>
-    <form action="{{ route('cargarpedidos.index') }}" method="GET">
-        <div class="row">
-            <div class="col-xs-1 col-sm-1 col-md-1">
-                <label for="fecha_inicio">Fecha:</label>
+    <div class="row">
+        <div class="col-xs-6 col-sm-6 col-md-6">
+            <form action="{{ route('cargarpedidos.index') }}" method="GET">
+            <div class="row">
+                    <div class="col-xs-1 col-sm-1 col-md-1">
+                        <label for="fecha_inicio">Fecha:</label>
+                    </div>
+                    <div class="col-xs-4 col-sm-4 col-md-4">
+                        <input class="form-control" type="date" name="fecha" id="fecha" required>
+                    </div>
+                    <div class="col-xs-4 col-sm-4 col-md-4">
+                        <button type="submit" class="btn btn-outline-success"><i class="fa fa-search"></i> Buscar</button>
+                    </div>
             </div>
-            <div class="col-xs-2 col-sm-2 col-md-2">
-                <input class="form-control" type="date" name="fecha" id="fecha" required>
-            </div>
-            <div class="col-xs-6 col-sm-6 col-md-6">
-                <button type="submit" class="btn btn-outline-success"><i class="fa fa-search"></i> Buscar</button>
-            </div>
-            @if(request()->get('fecha'))
-                <div class="col-xs-2 col-sm-2 col-md-2">
-                    <a class="btn btn-outline-primary btn-sm" href="{{ route('pedidoslaboratorio.downloadWord',['fecha'=>request()->get('fecha'),'turno' => 'vacio']) }}"><i class="fa fa-file-word"></i> Descargar Word</a>
-                </div>
-            @else
-                <div class="col-xs-2 col-sm-2 col-md-2">
-                    <a class="btn btn-outline-primary btn-sm" href="{{ route('pedidoslaboratorio.downloadWord',['fecha'=>date('Y-m-d'),'turno' => 'vacio']) }}"><i class="fa fa-file-word"></i> Descargar Word</a>
-                </div>
-            @endif
+            </form>
         </div>
+        <div class="col-xs-6 col-sm-6 col-md-6">
+            <form action="{{ route('cargarpedidos.downloadWord') }}" method="POST">
+                @csrf
+                <div class="row">
+                    <div class="col-xs-3 col-sm-3 col-md-3">
+                        <b>Seleccione Turno</b>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="turno" id="turno0" value=0 checked>
+                            <label class="form-check-label" for="turno0">
+                                Mañana
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="turno" id="turno1" value=1>
+                            <label class="form-check-label" for="turno1">
+                                Tarde
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-xs-2 col-sm-2 col-md-2">
+                        @if(request()->get('fecha'))
+                            <input type="hidden" value={{ request()->get('fecha') }} name="fecha">
+                        @else
+                            <input type="hidden" value={{ date('Y-m-d') }} name="fecha">
+                        @endif
+                        <button class="btn btn-outline-primary" type="submit"><i class="fa fa-file-word"></i> Descargar Word</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
         @error('message')
             <p style="color: red;">{{ $message }}</p>
         @enderror
-    </form>
+    
     <br>
-    <table class="table table-striped table-hover">
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+    <input class="form-control" type="text" id="myInput" onkeyup="searchTable()" placeholder="Buscar...">
+    </div>
+    <table class="table table-striped table-hover" id="myTable">
         <thead>
             <tr>
                 <th>Nro</th>
@@ -146,6 +176,8 @@
             {{ session('danger') }}
         </div>
     @endif
+    </div>
+</div> 
 @stop
 
 @section('css')
@@ -157,5 +189,32 @@
 @stop
 
 @section('js')
-    <script> console.log("Hi, I'm using the Laravel-AdminLTE package!"); </script>
+    <script>
+    function searchTable() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById('myInput');
+        filter = input.value.toUpperCase();
+        table = document.getElementById('myTable');
+        tr = table.getElementsByTagName('tr');
+
+        // Iterar sobre las filas de la tabla
+        for (i = 1; i < tr.length; i++) { // Empieza en 1 para no incluir el encabezado
+            td = tr[i].getElementsByTagName('td');
+            let found = false;
+            
+            // Iterar sobre las celdas de cada fila
+            for (let j = 0; j < td.length; j++) {
+                if (td[j]) {
+                    txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        found = true;
+                    }
+                }
+            }
+            
+            // Si alguna celda de la fila contiene el texto, mostrarla, sino ocultarla
+            tr[i].style.display = found ? "" : "none";
+        }
+    }
+    </script>
 @stop

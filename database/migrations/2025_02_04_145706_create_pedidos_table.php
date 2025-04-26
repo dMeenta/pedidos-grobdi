@@ -32,9 +32,12 @@ return new class extends Migration
             $table->foreignId('zone_id')->constrained(); 
             $table->string('voucher')->nullable();
             $table->string('receta')->nullable();
+            $table->string('fotoDomicilio')->nullable();
+            $table->string('fotoEntrega')->nullable();
             $table->string('operationNumber')->nullable();
             $table->string('paymentMethod')->nullable();
             $table->string('detailMotorizado')->nullable();
+            $table->string('bancoDestino')->nullable();
             $table->timestamps();
         });
     }

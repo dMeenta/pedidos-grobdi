@@ -402,54 +402,59 @@
                     'icon' => 'fas fa-fw fa-user',
                     'can' => 'jefe-operaciones'
                 ],
-
+            //sidebar Supervisor
+            [
+                'header' => 'Supervisor',
+                'can' => 'supervisor'
+            ],
+            [
+                'text' => 'mantenimiento',
+                'icon' => 'fas fa-fw fa-wrench',
+                'submenu' => [
+                    [
+                        'text' => 'Centro de Salud',
+                        'url' => 'centrosalud',
+                        'icon' => 'fas fa-fw fa-h-square',
+                        'can' => 'supervisor',
+                    ],
+                    [
+                        'text' => 'Especialidad',
+                        'url' => 'especialidad',
+                        'icon' => 'fas fa-fw fa-medkit',
+                        'can' => 'supervisor',
+                    ],
+                    [
+                        'text' => 'doctor',
+                        'url' => 'doctor',
+                        'icon' => 'fas fa-fw fa-user-md',
+                        'can' => 'supervisor',
+                    ],
+                ],
+            ],
+            [
+                'text' => 'Enrutamiento',
+                'icon' => 'fas fa-list-alt',
+                'submenu' => [
+                    [
+                        'text' => 'Listas',
+                        'url' => 'lista',
+                        'icon' => 'fas fa-list',
+                        'can' => 'supervisor',
+                    ],
+                    [
+                        'text' => 'Enrutamiento',
+                        'url' => 'enrutamiento',
+                        'icon' => 'fas fa-calendar',
+                        'can' => 'supervisor',
+                    ],
+                ],
+            ],
             //sidebar de Visitadoras
             [
                 'header' => 'Visitador Medico',
                 'can' => 'visitador'
+                
             ],
-                [
-                    'text' => 'mantenimiento',
-                    'icon' => 'fas fa-fw fa-wrench',
-                    'submenu' => [
-                        [
-                            'text' => 'Centro de Salud',
-                            'url' => 'centrosalud',
-                            'icon' => 'fas fa-fw fa-h-square',
-                            'can' => 'visitador',
-                        ],
-                        [
-                            'text' => 'Especialidad',
-                            'url' => 'especialidad',
-                            'icon' => 'fas fa-fw fa-medkit',
-                            'can' => 'visitador',
-                        ],
-                        [
-                            'text' => 'doctor',
-                            'url' => 'doctor',
-                            'icon' => 'fas fa-fw fa-user-md',
-                            'can' => 'visitador',
-                        ],
-                    ],
-                ],
-                [
-                    'text' => 'Enrutamiento',
-                    'icon' => 'fas fa-list-alt',
-                    'submenu' => [
-                        [
-                            'text' => 'Listas',
-                            'url' => 'lista',
-                            'icon' => 'fas fa-list',
-                            'can' => 'visitador',
-                        ],
-                        [
-                            'text' => 'Enrutamiento',
-                            'url' => 'enrutamiento',
-                            'icon' => 'fas fa-calendar',
-                            'can' => 'visitador',
-                        ],
-                    ],
-                ],
                 [
                     'text' => 'Muestras',
                     'url' => 'muestras',
@@ -505,13 +510,13 @@
                                 'can' => 'gerencia-general',
                             ],
                             [
-                                'text' => 'Frasco Original',
+                                'text' => 'Frasco Muestra',
                                 'url' => 'reporte/frasco-muestra',
                                 'icon' => 'fas fa-fw fa-medkit',
                                 'can' => 'gerencia-general',
                             ],
                             [
-                                'text' => 'Frasco Muestra',
+                                'text' => 'Frasco Original',
                                 'url' => 'reporte/frasco-original',
                                 'icon' => 'fas fa-fw fa-user-md',
                                 'can' => 'gerencia-general',

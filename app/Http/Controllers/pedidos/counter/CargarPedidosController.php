@@ -89,9 +89,72 @@ class CargarPedidosController extends Controller
         return view('pedidos.counter.cargar_pedido.edit',compact('pedido','zonas'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+    public function DownloadWord(Request $request){
+        $fecha = $request->fecha;
+        $fecha_format = Carbon::parse($fecha)->format('d-m-Y');
+        $turno = $request->turno;
+        if($turno == 'vacio'){
+            $pedidos = Pedidos::where('deliveryDate',$fecha)->orderBy('nroOrder','asc')->get();
+        }else{
+            $pedidos = Pedidos::where('deliveryDate',$fecha)->where('turno',$turno)->orderBy('nroOrder','asc')->get();
+        }
+        $zonas = Zone::get();
+        $phpWord = new \PhpOffice\PhpWord\PhpWord();
+        $section = $phpWord->addSection();
+        foreach($zonas as $zona){
+            $arrayWord = [];
+            $numero_ordenes = "";
+            $manana = 0;
+            $tarde = 0;
+            array_push($arrayWord,$zona->name);
+            foreach($pedidos as $pedido){
+                if($pedido->zone_id === $zona->id){
+                    if($manana == 0 && $pedido->turno == 0){
+                        $manana = 1;
+                        array_push($arrayWord,'TURNO MAÑANA');
+                    }else if ($tarde == 0 && $pedido->turno == 1){
+                        array_push($arrayWord,'TURNO TARDE');
+                        $tarde = 1;
+                    }
+                    $numero_ordenes =$numero_ordenes.$pedido->nroOrder.", ";
+                    array_push($arrayWord,$pedido->nroOrder." PED ".$pedido->orderId);
+                    array_push($arrayWord,$pedido->customerName." - ".$pedido->customerNumber);
+                    foreach($pedido->detailpedidos as $orden){
+                        array_push($arrayWord,'• '.$orden->articulo.' - '.$orden->cantidad.' unid.');
+                    }
+                    array_push($arrayWord,$pedido->district);
+                }
+            }
+            $arrayWord[0] = $arrayWord[0].": ".$numero_ordenes;
+            $text = $section->addText('FECHA DE ENTREGA: '.$fecha_format,array('name'=>'Arial','size' => 18,'bold' => true));
+            foreach ($arrayWord as $id => $text) {
+                if ($id == 0) {
+                    $text = $section->addText($text,array('name'=>'Arial','size' => 11,'bold' => true));
+                }elseif (strpos($text,' PED ')) {
+                    $text = $section->addText($text,array('name'=>'Arial','size' => 11,'bold' => true));
+                }else{
+                    $text = $section->addText($text,
+                    array('bold' => false),
+                    array('space' => array('before' => 0, 'after' => 0)
+                        )
+                    );
+                }
+            }
+            $section->addPageBreak();
+        }
+        
+
+
+        $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007');
+        if (file_exists('docs\pedidos-'.$fecha.'.docx')){
+            unlink('docs\pedidos-'.$fecha.'.docx');
+            $objWriter->save('docs\pedidos-'.$fecha.'.docx');
+            
+        }else{
+            $objWriter->save('docs\pedidos-'.$fecha.'.docx');
+        }
+        return response()->download(public_path('docs\pedidos-'.$fecha.'.docx'));
+    }
     public function update(CargarPedidosUpdateRequest $request, $id)
     {
         $pedidos = Pedidos::find($id);
@@ -112,11 +175,12 @@ class CargarPedidosController extends Controller
             $nroOrder = $ultimo_nro +1;
             $pedidos->nroOrder = $nroOrder;
             $pedidos->deliveryStatus = "Reprogramado";
-            if(date("H:i:s") < "15:00:00" ){
-                $pedidos->turno = 0;
-            }else{
-                $pedidos->turno = 1;
-            }
+            // if(date("H:i:s") < "15:00:00" ){
+            //     $pedidos->turno = 0;
+            // }else{
+            //     $pedidos->turno = 1;
+            // }
+            $pedidos->turno = 0;
         }
         $pedidos->zone_id = $request->zone_id;
         $pedidos->user_id = Auth::user()->id;

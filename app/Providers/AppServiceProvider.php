@@ -45,7 +45,6 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('jefe-operaciones', function (User $user) {
              if($user->role->name === 'jefe-operaciones'){
                  return true;
-
              }
         });
         Gate::define('gerencia-general', function (User $user) {
@@ -56,6 +55,9 @@ class AppServiceProvider extends ServiceProvider
         });
         Gate::define('jefe-comercial', function (User $user) {
             return $user->role->name === 'jefe-comercial';
+        });
+        Gate::define('supervisor', function (User $user) {
+            return $user->role->name === 'supervisor';
         });
         Paginator::useBootstrapFive();
     }

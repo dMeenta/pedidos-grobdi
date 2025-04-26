@@ -24,7 +24,7 @@ class DetailPedidosImport implements ToCollection
         $row_no_encontrados = 0;
         $row_existentes = 0;
         $mensaje = "";
-        $msj = "";
+        $msj = "DETALLADO DE PEDIDOS EXISTENTES: ";
         foreach($rows as $row){
             if($row[16]==="Distrito"){
                 $mensaje = "Formato Incorrecto";
@@ -46,7 +46,7 @@ class DetailPedidosImport implements ToCollection
                         $detallePedido->save();
                         ++$row_nuevos;
                     }else{
-                        $msj = $msj.$row[3].$row[16];
+                        $msj = $msj.'Pedido: '.$row[3].' '.$row[16].' cantidad:'.$row[17]."\n";
                         ++$row_existentes;
                     }
                 }else{
@@ -62,7 +62,7 @@ class DetailPedidosImport implements ToCollection
             $rpta = $mensaje;
             $key = "danger";
         }else{
-            $rpta = "Articulos registrados: ".$row_nuevos."\n Articulos Existentes: ".$row_existentes."\n Articulos no encontrados: ".$row_no_encontrados;
+            $rpta = 'Articulos registrados: '.$row_nuevos."\n".'Articulos Existentes: '.$row_existentes."\n".'Articulos no encontrados: '.$row_no_encontrados."\n".' No fueron registrados estos productos, ya fueron registrados con la misma cantidad: '.$msj;
         }
         $this->data= $rpta;
         $this->key = $key;

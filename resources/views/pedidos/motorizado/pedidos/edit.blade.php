@@ -13,7 +13,7 @@
   <div class="card-body">
   
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-        <a class="btn btn-primary btn-sm" href="{{ url()->previous() }}"><i class="fa fa-arrow-left"></i> Atrás</a>
+        <a class="btn btn-primary btn-sm" href="{{ route('pedidosmotorizado.index') }}"><i class="fa fa-arrow-left"></i> Atrás</a>
     </div>
   
     <form action="{{ route('pedidosmotorizado.update',$pedido->id) }}" method="POST">
@@ -49,7 +49,31 @@
         <br>
         <button type="submit" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> Actualizar</button>
     </form>
-  
+    <br>
+    <div class="row">
+        <form id="enviarfoto" action="{{ route('pedidosmotorizado.cargarfotos',$pedido->id) }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
+            <div class="col-6">
+                <label>Cargar foto del domicilio</label>
+                <input class="form-control" accept="image/*" type="file" capture="camera" name="fotoDomicilio" id="fotoDomicilio">
+            </div>
+            @if ($pedido->fotoDomicilio)
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                    <img src="{{ asset($pedido->fotoDomicilio) }}" alt="{{ $pedido->orderId }} width="400" height="400"">
+                </div>
+            @endif
+            <div class="col-6">
+                <label>Cargar foto del pedido entregado</label>
+                <input class="form-control" accept="image/*" type="file" capture="camera" name="fotoEntrega" id="fotoEntrega">
+            </div>
+            @if ($pedido->fotoEntrega)
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                    <img src="{{ asset($pedido->fotoEntrega) }}" alt="{{ $pedido->orderId }} width="400" height="400"">
+                </div>
+            @endif
+        </form>
+    </div>
   </div>
 </div>
 
@@ -64,5 +88,14 @@
 @stop
 
 @section('js')
-    <script> console.log("Hi, I'm using the Laravel-AdminLTE package!"); </script>
+<script>
+    document.getElementById('fotoDomicilio').addEventListener('change', function () {
+        // Enviar el formulario automáticamente cuando se seleccione un archivo
+        document.getElementById('enviarfoto').submit();
+    });
+    document.getElementById('fotoEntrega').addEventListener('change', function () {
+        // Enviar el formulario automáticamente cuando se seleccione un archivo
+        document.getElementById('enviarfoto').submit();
+    });
+</script>
 @stop

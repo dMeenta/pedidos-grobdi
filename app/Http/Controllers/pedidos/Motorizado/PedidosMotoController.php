@@ -9,6 +9,8 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Intervention\Image\Laravel\Facades\Image;
+use Intervention\Image\Typography\FontFactory;
 
 class PedidosMotoController extends Controller
 {
@@ -54,5 +56,34 @@ class PedidosMotoController extends Controller
         ]));
         return redirect()->route('pedidosmotorizado.index')
                         ->with('success','Pedido modificado exitosamente');
+    }
+    public function cargarFotos(Request $request ,$id){
+
+        $pedidos = Pedidos::find($id);
+        
+        if($request->fotoDomicilio){
+			$imagen = $request->file("fotoDomicilio");
+			$img_ext = explode(".",$imagen->getClientOriginalName());
+			$extension = '.'.$img_ext[1];
+            $imageNameDomicilio = time().$extension;
+			//$imageNameReceta = time().'.'.$request->receta->extension();
+			
+        	$imagen->move(public_path('images/fotoDomicilio'), $imageNameDomicilio);
+            $pedidos->fotoDomicilio = 'images/fotoDomicilio/'.$imageNameDomicilio;
+            $pedidos->save();
+        }
+        if($request->fotoEntrega){
+			$imagen = $request->file("fotoEntrega");
+			$img_ext = explode(".",$imagen->getClientOriginalName());
+			$extension = '.'.$img_ext[1];
+            $imageNameEntrega = time().$extension;
+			//$imageNameReceta = time().'.'.$request->receta->extension();
+			
+        	$imagen->move(public_path('images/fotos_entrega'), $imageNameEntrega);
+            $pedidos->fotoEntrega = 'images/fotos_entrega/'.$imageNameEntrega;
+            $pedidos->save();
+        }
+        
+        return back()->with('success','Pedido modificado exitosamente');
     }
 }

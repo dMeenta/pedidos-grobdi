@@ -46,6 +46,7 @@ class PedidoslabController extends Controller
         return back()->with('success','Pedido modificado exitosamente');
     }
     public function DownloadWord($fecha,$turno){
+        $fecha_format = Carbon::parse($fecha)->format('d-m-Y');
         if($turno == 'vacio'){
             $pedidos = Pedidos::where('deliveryDate',$fecha)->orderBy('nroOrder','asc')->get();
         }else{
@@ -64,33 +65,33 @@ class PedidoslabController extends Controller
                 if($pedido->zone_id === $zona->id){
                     if($manana == 0 && $pedido->turno == 0){
                         $manana = 1;
-                        array_push($arrayWord,'');
                         array_push($arrayWord,'TURNO MAÑANA');
                     }else if ($tarde == 0 && $pedido->turno == 1){
-                        array_push($arrayWord,'');
                         array_push($arrayWord,'TURNO TARDE');
                         $tarde = 1;
                     }
                     $numero_ordenes =$numero_ordenes.$pedido->nroOrder.", ";
                     array_push($arrayWord,$pedido->nroOrder." PED ".$pedido->orderId);
                     array_push($arrayWord,$pedido->customerName." - ".$pedido->customerNumber);
-                    array_push($arrayWord,$pedido->doctorName);
                     foreach($pedido->detailpedidos as $orden){
-                        array_push($arrayWord,$orden->articulo.' - '.$orden->cantidad.' unid.');
+                        array_push($arrayWord,'• '.$orden->articulo.' - '.$orden->cantidad.' unid.');
                     }
-                    array_push($arrayWord,"S/ ".$pedido->prize);
                     array_push($arrayWord,$pedido->district);
                 }
             }
             $arrayWord[0] = $arrayWord[0].": ".$numero_ordenes;
-            
+            $text = $section->addText('FECHA DE ENTREGA: '.$fecha_format,array('name'=>'Arial','size' => 18,'bold' => true));
             foreach ($arrayWord as $id => $text) {
                 if ($id == 0) {
-                    $text = $section->addText($text,array('name'=>'Arial','size' => 16,'bold' => true));
+                    $text = $section->addText($text,array('name'=>'Arial','size' => 11,'bold' => true));
                 }elseif (strpos($text,' PED ')) {
                     $text = $section->addText($text,array('name'=>'Arial','size' => 11,'bold' => true));
                 }else{
-                    $text = $section->addText($text);
+                    $text = $section->addText($text,
+                    array('bold' => false),
+                    array('space' => array('before' => 0, 'after' => 0)
+                        )
+                    );
                 }
             }
             $section->addPageBreak();
