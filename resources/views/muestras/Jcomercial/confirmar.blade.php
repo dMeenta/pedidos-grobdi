@@ -70,7 +70,7 @@
                                 </span>
                             </td>
                             <td>
-                                <a title="Ver detalles" href="{{ route('muestras.show', $muestra->id) }}" class="btn btn-success btn-sm">
+                                <a title="Ver detalles" href="{{ route('muestras.showJC', $muestra->id) }}" class="btn btn-success btn-sm">
                                     <i class="bi bi-binoculars"></i>
                                 </a>
                             </td>
