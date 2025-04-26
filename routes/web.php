@@ -124,7 +124,7 @@ Route::middleware(['checkRole:laboratorio,admin'])->group(function () {
 // Ruta para la gestión de precios en la vista de jefe de proyectos
 Route::middleware(['checkRole:jefe-operaciones,admin'])->group(function () {
     Route::get('/jefe-operaciones', [jefe_proyectosController::class, 'precio'])->name('muestras.precio');
-    Route::get('/jefe_proyectos/{id}', [jefe_proyectosController::class, 'show'])->name('muestras.show');
+    Route::get('/jefe-operaciones/{id}', [jefe_proyectosController::class, 'showJO'])->name('muestras.showJO');
     Route::put('/muestras/{id}/actualizar-precio', [jefe_proyectosController::class, 'actualizarPrecio'])->name('muestras.actualizarPrecio');
     Route::get('/pedidos/jefe_proyectos'.jefe_proyectosController::class,);
 });
@@ -135,14 +135,19 @@ Route::middleware(['checkRole:jefe-operaciones,admin'])->group(function () {
 Route::middleware(['checkRole:coordinador-lineas,admin'])->group(function () {
     Route::get('/Coordinadora', [coordinadoraController::class, 'aprobacionCoordinadora'])->name('muestras.aprobacion.coordinadora');
     Route::put('/muestras/{id}/actualizar-fecha', [coordinadoraController::class, 'actualizarFechaEntrega'])->name('muestras.actualizarFechaEntrega');
-    Route::get('/coordinadora/{id}', [coordinadoraController::class, 'showCo'])->name('muestras.showCo');
+    //crud
+    Route::get('/Coordinadora/{id}', [coordinadoraController::class, 'showCo'])->name('muestras.showCo');
+    Route::get('/Coordinadora/agregar', [coordinadoraController::class, 'createCO'])->name('muestras.createCO');
+    Route::post('/Coordinadora/agregar', [coordinadoraController::class, 'storeCO'])->name('muestras.storeCO');
+    Route::get('/Coordinadora/{id}/edit', [coordinadoraController::class, 'editCO'])->name('muestras.editCO');
+    Route::delete('/Coordinadora/elimi/{id}', [coordinadoraController::class, 'destroyCO'])->name('muestras.destroyCO');
 });
 
 Route::put('/muestras/{id}/actualizar-aprobacion', [coordinadoraController::class, 'actualizarAprobacion'])->name('muestras.actualizarAprobacion')->middleware(['checkRole:jefe-comercial,coordinador-lineas,admin']);
 
 //Jcomercial
 Route::get('/jefe-comercial', [JcomercialController::class, 'confirmar'])->name('muestras.confirmar')->middleware(['checkRole:jefe-comercial,admin']);
-Route::get('/jefe-comercial/{id}', [JcomercialController::class, 'show'])->name('muestras.show');
+Route::get('/jefe-comercial/{id}', [JcomercialController::class, 'showJC'])->name('muestras.showJC');
 
 //GERENCIACONTROLLER
 Route::middleware(['checkRole:gerencia-general,admin'])->group(function () {

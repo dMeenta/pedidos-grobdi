@@ -92,6 +92,12 @@ input[type="checkbox"]:checked::before {
     display: block;
 }
 
+.flex_acciones {
+    list-style-type: none;
+    text-decoration: none;
+    display: flex;
+    justify-content: space-around;
+}
 /* ========== RESPONSIVIDAD ========== */
 
 /* Para pantallas grandes */

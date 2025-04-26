@@ -9,6 +9,11 @@
 @section('content')    
     <div class="container">
         <h1 class="text-center">Estado de las Muestras<hr></h1>
+        <div class="header-tools">
+            <a title="Ver detalles" href="{{ route('muestras.createCO') }}" class="btn btn-success btn-sm">
+                    <i class="bi bi-plus-circle"></i> Agregar Muestra
+            </a>
+        </div> 
         <div class="table-responsive">
             <table class="table table-hover" id="table_muestras">
                 <thead>
@@ -76,9 +81,21 @@
                                 </form>
                             </td>
                             <td>
+                            <div class="d-flex gap-2">
                                 <a title="Ver detalles" href="{{ route('muestras.showCo', $muestra->id) }}" class="btn btn-success btn-sm">
                                     <i class="bi bi-binoculars"></i>
                                 </a>
+                                <a href="{{ route('muestras.editCO', $muestra->id) }}" class="btn btn-primary btn-sm">
+                                    <i class="bi bi-pencil-square"></i>   
+                                </a>
+                                    <form action="{{ route('muestras.destroyCO', $muestra->id) }}" method="post">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Desea eliminar esta muestra?');">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                    </div>
                             </td>
                         </tr>
                     @endforeach
