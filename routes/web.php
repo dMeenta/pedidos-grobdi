@@ -147,7 +147,7 @@ Route::put('/muestras/{id}/actualizar-aprobacion', [coordinadoraController::clas
 
 //Jcomercial
 Route::get('/jefe-comercial', [JcomercialController::class, 'confirmar'])->name('muestras.confirmar')->middleware(['checkRole:jefe-comercial,admin']);
-Route::get('/jefe-comercial/{id}', [JcomercialController::class, 'showJC'])->name('muestras.showJC');
+Route::get('/jefe-comercial/{id}', [JcomercialController::class, 'showJC'])->name('muestras.showJC')->middleware(['checkRole:jefe-comercial,admin']);
 
 //GERENCIACONTROLLER
 Route::middleware(['checkRole:gerencia-general,admin'])->group(function () {
