@@ -15,7 +15,7 @@
     Editar Muestra <hr>
 </h1>
 
-<form action="{{ route('muestras.update', $muestra->id) }}" method="POST" enctype="multipart/form-data">
+<form action="{{ route('muestras.updateCO', $muestra->id) }}" method="POST" enctype="multipart/form-data">
     @csrf
     @method("PUT")
 
