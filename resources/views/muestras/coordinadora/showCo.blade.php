@@ -78,16 +78,43 @@
                     <p><strong style="color:rgb(224, 61, 80);">Fecha y Hora Recibida:</strong></p>
                     <input type="text" class="form-control mb-2"
                            value="{{ $muestra->updated_at ? \Carbon\Carbon::parse($muestra->updated_at)->format('Y-m-d H:i') : ($muestra->created_at ? \Carbon\Carbon::parse($muestra->created_at)->format('Y-m-d H:i') : 'No disponible') }}"
-                           readonly style="background-color:rgb(251, 215, 255); color: #555; border: 2px solid #ccc; font-weight: bold;">
+                           readonly style="background-color:rgb(251, 239, 252); color: #555; border: 2px solid #ccc; font-weight: bold;">
 
                     <p><strong style="color:rgb(224, 61, 80);">Fecha y Hora de Entrega:</strong></p>
                     <input type="text" class="form-control"
                            value="{{ $muestra->fecha_hora_entrega ? \Carbon\Carbon::parse($muestra->fecha_hora_entrega)->format('Y-m-d H:i') : 'Aún no se asigna fecha de entrega' }}"
-                           readonly style="background-color:rgb(223, 191, 255); color: #555; border: 2px solid #ccc; font-weight: bold;">
-                </div>
-                <div class="card-footer">
-                    <strong style="color:rgb(224, 61, 80);">Comentario de Laboratorio:</strong>
+                           readonly style="background-color:rgb(244, 232, 255); color: #555; border: 2px solid #ccc; font-weight: bold;">
+
+                    <p><strong style="color:rgb(224, 61, 80);">Comentario de Laboratorio:</strong></p>
                     <span>{{ $muestra->comentarios ?? 'No hay comentarios' }}</span>
+                </div>
+                  <!--FOTO CON MODAL -->
+                  <div class="card-footer">
+                        <strong style="color:rgb(224, 61, 80);">Foto Receta: </strong>
+                        <!-- Mostrar la foto si ya existe en la base de datos -->
+                        @if($muestra->foto)
+                            <button type="button" class="btn" style="background-color: #fe495f; color: white; border-radius: 5px;" data-bs-toggle="modal" data-bs-target="#fotoModal">
+                                <i class="bi bi-eye"></i> Ver Foto
+                            </button>
+                        @else 
+                        <span> No hay foto disponible</span>
+                        @endif
+                    </div>
+
+                <!-- Modal para mostrar la foto ampliada -->
+                <div class="modal fade" id="fotoModal" tabindex="-1" aria-labelledby="fotoModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content" style="border-radius: 15px;">
+                            <div class="modal-header" style="background-color: #fe495f; color: white;">
+                                <h5 class="modal-title" id="fotoModalLabel">Foto de la Muestra</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body text-center">
+                                <!-- Imagen ampliada -->
+                                <img src="{{ asset('storage/' . $muestra->foto) }}" alt="Foto de la muestra" style="max-width: 100%; max-height: 400px; border-radius: 10px;">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -96,6 +123,7 @@
 @stop
 
 @section('css')
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         .card-title {
@@ -126,9 +154,20 @@
             transform: scale(1.10);
             transition: transform 0.4s ease;
         }
+
+        /* Estilo adicional para el modal */
+        .modal-content {
+            border-radius: 15px;
+        }
+
+        .modal-header {
+            background-color: #fe495f;
+            color: white;
+        }
     </style>
 @stop
 
 @section('js')
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script> console.log('Datos de la muestra cargados'); </script>
 @stop

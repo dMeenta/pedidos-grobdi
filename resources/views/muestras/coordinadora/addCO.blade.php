@@ -24,6 +24,11 @@
                 <label class="form-label">Nombre de la Muestra</label>
                 <input type="text" name="nombre_muestra" class="form-control" required />
             </div>
+            
+            <div class="mb-3">
+                <label for="foto" class="form-label">Foto de la muestra (opcional)</label>
+                <input type="file" name="foto" id="foto" class="form-control">
+            </div>
 
             <!-- Campo para la clasificacion (select) -->
             <div class="mb-3">

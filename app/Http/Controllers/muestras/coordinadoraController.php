@@ -105,34 +105,39 @@ class coordinadoraController extends Controller
     }
        // Método para almacenar una nueva muestra
        public function storeCO(Request $request)
-       {
-           // Validar los datos del formulario
-           $validated = $request->validate([
-               'nombre_muestra' => 'required|string|max:255',
-               'clasificacion_id' => 'required|exists:clasificaciones,id',
-               'cantidad_de_muestra' => 'required|numeric|min:1|max:10000',
-               'observacion' => 'nullable|string',
-               'tipo_muestra' => 'required|in:frasco original,frasco muestra',
-               'name_doctor' => 'nullable|string|max:80',
-           ]);
-   
-           // Crear la muestra
-           $muestra = Muestras::create([
-               'nombre_muestra' => $validated['nombre_muestra'],
-               'clasificacion_id' => $validated['clasificacion_id'],
-               'cantidad_de_muestra' => $validated['cantidad_de_muestra'],
-               'observacion' => $validated['observacion'],
-               'tipo_muestra' => $validated['tipo_muestra'],
-               'name_doctor' => $validated['name_doctor'],
-               'created_by' => auth()->id(),
-           ]);
-   
-           // Disparar evento de creación
-           event(new MuestraCreada($muestra));
-   
-           // Redirigir a la lista de muestras con mensaje de éxito
-           return redirect()->route('muestras.aprobacion.coordinadora')->with('success', 'Muestra registrada exitosamente.');
-       }
+{
+    $validated = $request->validate([
+        'nombre_muestra' => 'required|string|max:255',
+        'clasificacion_id' => 'required|exists:clasificaciones,id',
+        'cantidad_de_muestra' => 'required|numeric|min:1|max:10000',
+        'observacion' => 'nullable|string',
+        'tipo_muestra' => 'required|in:frasco original,frasco muestra',
+        'name_doctor' => 'nullable|string|max:80',
+        'foto' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048', // VALIDACIÓN DE IMAGEN
+    ]);
+
+    // Manejar la subida de la imagen si existe
+    $fotoPath = null;
+    if ($request->hasFile('foto')) {
+        $fotoPath = $request->file('foto')->store('muestras_fotos', 'public');
+    }
+
+    // Crear la muestra
+    $muestra = Muestras::create([
+        'nombre_muestra' => $validated['nombre_muestra'],
+        'clasificacion_id' => $validated['clasificacion_id'],
+        'cantidad_de_muestra' => $validated['cantidad_de_muestra'],
+        'observacion' => $validated['observacion'],
+        'tipo_muestra' => $validated['tipo_muestra'],
+        'name_doctor' => $validated['name_doctor'],
+        'foto' => $fotoPath, // GUARDAR RUTA EN BD
+        'created_by' => auth()->id(),
+    ]);
+
+    event(new MuestraCreada($muestra));
+    return redirect()->route('muestras.aprobacion.coordinadora')->with('success', 'Muestra registrada exitosamente.');
+}
+
 
        // Método para mostrar el formulario de edición de una muestra
        public function editCO($id)
@@ -146,27 +151,31 @@ class coordinadoraController extends Controller
    
        // Método para actualizar una muestra
        public function updateCO(Request $request, $id)
-       {
-           // Validar los datos del formulario
-           $validated = $request->validate([
-               'nombre_muestra' => 'required|string|max:255',
-               'clasificacion_id' => 'required|exists:clasificaciones,id',
-               'cantidad_de_muestra' => 'required|numeric|min:1|max:10000',
-               'observacion' => 'nullable|string',
-               'tipo_muestra' => 'required|in:frasco original,frasco muestra',
-               'name_doctor' => 'nullable|string|max:80',
-           ]);
-   
-           // Buscar la muestra a actualizar
-           $muestra = Muestras::findOrFail($id);
-           $muestra->update($validated); // Actualizar la muestra
-   
-           // Disparar evento de actualización
-           event(new MuestraActualizada($muestra));
-   
-           // Redirigir con mensaje de éxito
-           return redirect()->route('muestras.aprobacion.coordinadora')->with('success', 'Muestra actualizada exitosamente.');
-       }
+{
+    $validated = $request->validate([
+        'nombre_muestra' => 'required|string|max:255',
+        'clasificacion_id' => 'required|exists:clasificaciones,id',
+        'cantidad_de_muestra' => 'required|numeric|min:1|max:10000',
+        'observacion' => 'nullable|string',
+        'tipo_muestra' => 'required|in:frasco original,frasco muestra',
+        'name_doctor' => 'nullable|string|max:80',
+        'foto' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+    ]);
+
+    $muestra = Muestras::findOrFail($id);
+
+    // Si hay una nueva imagen, subirla
+    if ($request->hasFile('foto')) {
+        $fotoPath = $request->file('foto')->store('muestras_fotos', 'public');
+        $validated['foto'] = $fotoPath;
+    }
+
+    $muestra->update($validated);
+    event(new MuestraActualizada($muestra));
+
+    return redirect()->route('muestras.aprobacion.coordinadora')->with('success', 'Muestra actualizada exitosamente.');
+}
+
    
        // Método para eliminar una muestra
        public function destroyCO($id)
