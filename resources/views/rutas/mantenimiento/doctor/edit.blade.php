@@ -17,7 +17,7 @@
   
     <form action="{{ route('doctor.update',$doctor->id) }}" method="POST">
         @csrf
-    1   @method('PUT')
+        @method('PUT')
         <div class="row">
             <div class="col-xs-6 col-sm-6 col-md-6">
                 <label for="inputName" class="form-label"><strong>Nombres:</strong></label>
@@ -74,7 +74,7 @@
             </div>
             <div class="col-xs-4 col-sm-4 col-md-4">
                 <label for="distrito_id" class="form-label"><strong>Distrito:</strong></label>
-                <select class="form-select @error('distrito_id') is-invalid @enderror" aria-label="distrito_id" name="distrito_id" >
+                <select class="form-select @error('distrito_id') is-invalid @enderror" aria-label="distrito_id" name="distrito_id" id="distrito_id">
                     <option selected disabled>Seleccione el distrito</option>
                     @foreach ($distritos as $distrito)
                         <option value="{{ $distrito->id }}" {{ $doctor->distrito_id == $distrito->id ? 'selected' : '' }}>{{ $distrito->name}}</option>
@@ -86,7 +86,7 @@
             </div>
             <div class="col-xs-4 col-sm-4 col-md-4">
                 <label for="especialidad" class="form-label"><strong>Especialidades:</strong></label>
-                <select class="form-select @error('especialidad_id') is-invalid @enderror" aria-label="selecciona un especialidad" name="especialidad_id">
+                <select class="form-select @error('especialidad_id') is-invalid @enderror" aria-label="selecciona un especialidad" name="especialidad_id" id="especialidad">
                     <option selected disabled>Seleccione una especialidad</option>
                     @foreach ($especialidades as $especialidad)
                         <option value="{{ $especialidad->id }}" {{ $doctor->especialidad_id == $especialidad->id ?'selected':'' }}>{{ $especialidad->name }}</option>
@@ -111,7 +111,7 @@
             </div>
             <div class="col-xs-4 col-sm-4 col-md-4">
                 <label for="categoria" class="form-label"><strong>Categoría Médico:</strong></label>
-                <select class="form-select" aria-label="categoria" name="categoria_medico">
+                <select class="form-select" aria-label="categoria" name="categoria_medico" id="categoria">
                     <option disabled>Seleccione</option>
                     <option value="Empresa" {{ $doctor->categoria_medico == 'Empresa' ? 'selected' : '' }}>Empresa</option>
                     <option value="Visitador" {{ $doctor->categoria_medico == 'Visitador' ? 'selected' : '' }}>Visitador</option>
@@ -119,7 +119,7 @@
             </div>
             <div class="col-xs-4 col-sm-4 col-md-4">
                 <label for="tipo_medico" class="form-label"><strong>Tipo Médico:</strong></label>
-                <select class="form-select" aria-label="tipo_medico" name="tipo_medico">
+                <select class="form-select" aria-label="tipo_medico" name="tipo_medico" id="tipo_medico">
                     <option selected disabled>Seleccione</option>
                     @foreach ( App\Models\Doctor::TIPOMEDICO as $tipo_medico)
                     <option value="{{ $tipo_medico }}" {{ $doctor->tipo_medico == $tipo_medico ? 'selected' : '' }}>{{$tipo_medico}}</option>
@@ -128,8 +128,8 @@
                 </select>
             </div>
             <div class="col-xs-4 col-sm-4 col-md-4">
-                <label for="tipo_medico" class="form-label"><strong>¿Asignado a consultorio?</strong></label>
-                <select class="form-select" aria-label="asignado_consultorio" name="asignado_consultorio">
+                <label for="asignado_consultorio" class="form-label"><strong>¿Asignado a consultorio?</strong></label>
+                <select class="form-select" aria-label="asignado_consultorio" name="asignado_consultorio" id="asignado_consultorio">
                     <option selected disabled>Seleccione</option>
                     <option value="0" {{ $doctor->asignado_consultorio == 0 ? 'selected': '' }}>No</option>
                     <option value="1" {{ $doctor->asignado_consultorio == 1 ? 'selected': '' }}>Si</option>
@@ -137,14 +137,14 @@
             </div>
             <div class="col-xs-4 col-sm-4 col-md-4">
                 <label for="hijos" class="form-label"><strong>¿Padre?</strong></label>
-                <select class="form-select" aria-label="hijos" name="songs">
+                <select class="form-select" aria-label="hijos" name="songs" id="hijos">
                     <option disabled>Seleccione</option>
                     <option value="0" {{ $doctor->songs == 0 ? 'selected': '' }}>No</option>
                     <option value="1" {{ $doctor->songs == 1 ? 'selected': '' }}>Si</option>
                 </select>
             </div>
             <div class="col-xs-6 col-sm-6 col-md-6">
-            <label for="hijos" class="form-label"><strong>Centro de Salud</strong></label>
+            <label for="search" class="form-label"><strong>Centro de Salud</strong></label>
                 <input type="text" 
                 id="search" 
                 name="centrosalud_name" 

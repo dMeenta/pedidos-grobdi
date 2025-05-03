@@ -47,6 +47,11 @@ class AppServiceProvider extends ServiceProvider
                  return true;
              }
         });
+        Gate::define('counter-jefe_operaciones', function (User $user) {
+            if($user->role->name === 'jefe-operaciones' or $user->role->name === 'counter'){
+                return true;
+            }
+       });
         Gate::define('gerencia-general', function (User $user) {
             return $user->role->name === 'gerencia-general';
         });

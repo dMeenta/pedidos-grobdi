@@ -75,15 +75,15 @@
             <tr>
                 <th>Nro</th>
                 <th>
-                    <a href="{{ route('cargarpedidos.index', ['sort_by' => 'nroOrder', 'direction' => $ordenarPor == 'nroOrder' && $direccion == 'asc' ? 'desc' : 'asc']) }}">
+                    <a href="{{ route('cargarpedidos.index', ['sort_by' => 'orderId', 'direction' => $ordenarPor == 'orderId' && $direccion == 'asc' ? 'desc' : 'asc','fecha'=>request()->query('fecha')?request()->query('fecha'):date('Y-m-d')]) }}">
                         Id Pedido 
-                        @if ($ordenarPor == 'nroOrder')
+                        @if ($ordenarPor == 'orderId')
                             {{ $direccion == 'asc' ? '↑' : '↓' }}
                         @endif
                     </a>
                 </th>
                 <th>
-                    <a href="{{ route('cargarpedidos.index', ['sort_by' => 'customerName', 'direction' => $ordenarPor == 'customerName' && $direccion == 'asc' ? 'desc' : 'asc']) }}">
+                    <a href="{{ route('cargarpedidos.index', ['sort_by' => 'customerName', 'direction' => $ordenarPor == 'customerName' && $direccion == 'asc' ? 'desc' : 'asc','fecha'=>request()->query('fecha')?request()->query('fecha'):date('Y-m-d')]) }}">
                         Cliente
                         @if ($ordenarPor == 'customerName')
                             {{ $direccion == 'asc' ? '↑' : '↓' }}
@@ -91,7 +91,7 @@
                     </a>
                 </th>
                 <th>
-                    <a href="{{ route('cargarpedidos.index', ['sort_by' => 'doctorName', 'direction' => $ordenarPor == 'doctorName' && $direccion == 'asc' ? 'desc' : 'asc']) }}">
+                    <a href="{{ route('cargarpedidos.index', ['sort_by' => 'doctorName', 'direction' => $ordenarPor == 'doctorName' && $direccion == 'asc' ? 'desc' : 'asc','fecha'=>request()->query('fecha')?request()->query('fecha'):date('Y-m-d')]) }}">
                         Doctor
                         @if ($ordenarPor == 'doctorName')
                             {{ $direccion == 'asc' ? '↑' : '↓' }}

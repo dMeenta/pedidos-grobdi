@@ -349,7 +349,7 @@
                         'text' => 'Historial pedidos',
                         'url' => 'historialpedidos',
                         'icon' => 'fas fa-fw fa-history',
-                        'can' => 'counter'
+                        'can' => 'counter-jefe_operaciones'
                     ],
                     [
                         'text' => 'Asignar Pedidos',
@@ -367,6 +367,12 @@
                     'text' => 'pedidos',
                     'url' => 'pedidoslaboratorio',
                     'icon' => 'fas fa-fw fa-user',
+                    'can' => 'laboratorio'
+                ],
+                [
+                    'text' => 'Historial pedidos',
+                    'url' => 'historialpedidos',
+                    'icon' => 'fas fa-fw fa-history',
                     'can' => 'laboratorio'
                 ],
                 [

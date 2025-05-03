@@ -119,7 +119,7 @@
             
             <div class="col-xs-2 col-sm-2 col-md-2">
                 <label for="zone_id" class="form-label"><strong>Zonas:</strong></label>
-                <select class="form-select" name="zone_id" id="zone_id">
+                <select class="form-control" name="zone_id" id="zone_id">
                     <option value="" disabled>Selecciona una zona</option>
                     @foreach ($zonas as $zona )
                         <option value={{ $zona->id}} {{ $zona->id === $pedido->zone_id ? 'selected' : '' }} >{{ $zona->name }}</option>

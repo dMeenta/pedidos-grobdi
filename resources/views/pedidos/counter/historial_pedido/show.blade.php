@@ -54,21 +54,43 @@
         <div class="col-xs-12 col-sm-12 col-md-12 mt-2">
             <div class="form-group">
                 <strong>Detalles:</strong> <br/>
-                @foreach ($pedido->detailpedidos as $detail_pedidos)
-                    {{ $detail_pedidos->articulo }} - {{ $detail_pedidos->cantidad }} unid.<br>
-                @endforeach 
+                <ul class="list-group">
+                    @foreach ($pedido->detailpedidos as $detail_pedidos)
+                    <li class="list-group-item" data-id="{{ $detail_pedidos->id }}">
+                        <form action="{{ route('historialpedidos.destroy',$detail_pedidos->id) }}" method="POST" class="form-inline">
+                            <span class="descripcion-text">{{ $detail_pedidos->articulo }} - {{ $detail_pedidos->cantidad }} unid. </span>
+                            <input type="text" class="descripcion-input form-control col-sm-5" value="{{ $detail_pedidos->articulo }}"style="display: none;" disabled/>
+                            <input type="number" class="cantidad-input form-control  col-sm-1" value="{{ $detail_pedidos->cantidad }}"style="display: none;"/>
+                            @if (Auth::user()->role->name == "jefe-operaciones" or Auth::user()->role->name == "admin" )
+                            @csrf
+                            @method('DELETE')
+                                <button class="btn btn-outline-warning btn-editar" type="button"><i class="fa fa-pen"></i></button>
+                                <button class="btn btn-success btn-guardar" type="button" style="display: none;">Actualizar</button>
+                                <button class="btn btn-outline-danger btn-eliminar" type="submit"><I class="fa fa-trash"></I></button>
+                            @endif 
+                        </form>
+                    </li>
+                    @endforeach 
+                </ul>
+
             </div>
         </div>
         @if ($pedido->fotoDomicilio)
             <div class="col-xs-4 col-sm-4 col-md-4">
                 <strong>Imagen Foto Domicilio:</strong>
-                <img src="{{ asset($pedido->fotoDomicilio) }}" alt="{{ $pedido->orderId }} width="400" height="400"">
+                <img src="{{ asset($pedido->fotoDomicilio) }}" alt="{{ $pedido->orderId }} width="600" height="600"">
+                <br>
+                <strong>Fecha y hora del registro:</strong> {{ $pedido->fechaFotoDomicilio }}
             </div>
         @endif
         @if ($pedido->fotoEntrega)
             <div class="col-xs-4 col-sm-4 col-md-4">
-            <strong>Imagen Foto Entregado:</strong>
-                <img src="{{ asset($pedido->fotoEntrega) }}" alt="{{ $pedido->orderId }} width="400" height="400"">
+                <div class="form-group">
+                    <strong>Imagen Foto Entregado:</strong>
+                    <img src="{{ asset($pedido->fotoEntrega) }}" alt="{{ $pedido->orderId }} width="600" height="600"">
+                    <br>
+                    <strong>Fecha y hora del registro:</strong> {{ $pedido->fechaFotoEntrega }}
+                </div>
             </div>
         @endif
     </div>
@@ -84,5 +106,49 @@
 @stop
 
 @section('js')
-    <script> console.log("Hi, I'm using the Laravel-AdminLTE package!"); </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+        // Hacer que los inputs sean visibles solo cuando se presiona 'Editar'
+        $(".btn-editar").on('click', function() {
+            var row = $(this).closest("li");
+            row.find(".descripcion-text").hide();
+            row.find(".descripcion-input").show();
+            row.find(".cantidad-input").show();
+            row.find(".btn-editar").hide();
+            row.find(".btn-eliminar").hide();
+            row.find(".btn-guardar").show();
+        });
+            // Cuando se presiona 'Guardar', actualiza los datos
+        $(".btn-guardar").on('click', function() {
+            var row = $(this).closest("li");
+            var id = row.data('id');
+            var descripcion = row.find(".descripcion-input").val();
+            var cantidad = row.find(".cantidad-input").val();
+
+            $.ajax({
+                url: '/historial/' + id + '/actualizar',
+                    type: "POST",
+                    data: {
+                        _method: "PUT",
+                        _token: '{{ csrf_token() }}',
+                        descripcion: descripcion,
+                        cantidad: cantidad
+                    },
+                success: function(response) {
+                    row.find(".descripcion-text").text(descripcion+' - '+cantidad+' unid.').show();
+                    row.find(".descripcion-input").hide();
+                    row.find(".cantidad-input").hide();
+                    row.find(".btn-editar").show();
+                    row.find(".btn-eliminar").show();
+                    row.find(".btn-guardar").hide();
+                    alert('Producto actualizado');
+                },
+                error: function(error) {
+                    alert('Error al actualizar el producto');
+                }
+            });
+        });
+    });
+    </script>
 @stop

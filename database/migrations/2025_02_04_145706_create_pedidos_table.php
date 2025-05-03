@@ -34,6 +34,8 @@ return new class extends Migration
             $table->string('receta')->nullable();
             $table->string('fotoDomicilio')->nullable();
             $table->string('fotoEntrega')->nullable();
+            $table->dateTime('fechaFotoDomicilio')->nullable();
+            $table->dateTime('fechaFotoEntrega')->nullable();
             $table->string('operationNumber')->nullable();
             $table->string('paymentMethod')->nullable();
             $table->string('detailMotorizado')->nullable();

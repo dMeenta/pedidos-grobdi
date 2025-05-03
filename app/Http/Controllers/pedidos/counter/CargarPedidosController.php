@@ -20,7 +20,7 @@ class CargarPedidosController extends Controller
      */
     public function index(Request $request)
     {
-        $ordenarPor = $request->get('sort_by', 'nroOrder'); // campo por defecto
+        $ordenarPor = $request->get('sort_by', 'orderId'); // campo por defecto
         $direccion = $request->get('direction', 'asc'); // dirección por defecto
         if($request->query("fecha")){
             $request->validate([
@@ -197,25 +197,48 @@ class CargarPedidosController extends Controller
     }
     public function uploadfile(Pedidos $pedido){
         // dd($pedido);
-        return view('pedidos.counter.cargar_pedido.uploadFile',data: compact('pedido'));
+        if(strpos($pedido->voucher,",")){
+        }
+        $images = explode(",",$pedido->voucher);
+        $nro_operaciones = explode(",",$pedido->operationNumber);
+        $array_voucher = [];
+        foreach ($images as $key => $voucher) {
+            array_push($array_voucher,['nro_operacion'=>$nro_operaciones[$key],'voucher'=>$voucher]);
+        }
+        return view('pedidos.counter.cargar_pedido.uploadFile',data: compact('pedido','array_voucher'));
     }
-    public function cargarImagen(Request $request, $id){
+    public function actualizarPago(Request $request, $id){
+        
         $request->validate([
             'paymentStatus' => 'required',
-            'voucher' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'paymentMethod' => 'required',
         ]);
-        // dd(request()->all());
-        $imageName = time().'.'.$request->voucher->extension();
-        $request->voucher->move(public_path('images/voucher_pedidos'), $imageName);
-        
         $pedidos = Pedidos::find($id);
-        // $pedidos->name = $request->name;
         $pedidos->paymentStatus = $request->paymentStatus;
         $pedidos->paymentMethod = $request->paymentMethod;
-        $pedidos->operationNumber = $request->operationNumber;
-        $pedidos->voucher = 'images/voucher_pedidos/'.$imageName;
         $pedidos->save();
         return back()->with('success','Pedido modificado exitosamente');
+    }
+    public function cargarImagen(Request $request, $id){
+
+        $request->validate([
+            'operationNumber' => 'required',
+            'voucher' => 'required|image|mimes:jpeg,png,jpg,gif|max:3048',
+        ]);
+        // dd(request()->all());
+        $pedidos = Pedidos::find($id);
+        $imageName =$pedidos->orderId.'_'.time().'.'.$request->voucher->extension();
+        $request->voucher->move(public_path('images/voucher_pedidos'), $imageName);
+        
+        if($pedidos->voucher){
+            $pedidos->voucher = $pedidos->voucher.',images/voucher_pedidos/'.$imageName;
+            $pedidos->operationNumber = $pedidos->operationNumber.','.$request->operationNumber;
+        }else{
+            $pedidos->voucher = 'images/voucher_pedidos/'.$imageName;
+            $pedidos->operationNumber = $request->operationNumber;
+        }
+        $pedidos->save();
+        return back()->with('success','Imagen cargada exitosamente');
     }
     public function cargarImagenReceta(Request $request, $id){
         $request->validate([

@@ -70,6 +70,7 @@ class PedidosMotoController extends Controller
 			
         	$imagen->move(public_path('images/fotoDomicilio'), $imageNameDomicilio);
             $pedidos->fotoDomicilio = 'images/fotoDomicilio/'.$imageNameDomicilio;
+            $pedidos->fechaFotoDomicilio = now();
             $pedidos->save();
         }
         if($request->fotoEntrega){
@@ -81,6 +82,7 @@ class PedidosMotoController extends Controller
 			
         	$imagen->move(public_path('images/fotos_entrega'), $imageNameEntrega);
             $pedidos->fotoEntrega = 'images/fotos_entrega/'.$imageNameEntrega;
+            $pedidos->fechaFotoEntrega = now();
             $pedidos->save();
         }
         

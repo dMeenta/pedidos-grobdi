@@ -9,7 +9,7 @@
 @section('content')
 
 <div class="card mt-5">
-  <h2 class="card-header">Actualizar Pedido</h2>
+  <h2 class="card-header">Actualizar Pedido - orden: {{ $pedido->orderId }} - Nro: {{ $pedido->nroOrder }}</h2>
   <div class="card-body">
   
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
@@ -60,8 +60,9 @@
             </div>
             @if ($pedido->fotoDomicilio)
                 <div class="col-xs-4 col-sm-4 col-md-4">
-                    <img src="{{ asset($pedido->fotoDomicilio) }}" alt="{{ $pedido->orderId }} width="400" height="400"">
-                </div>
+                    <img src="{{ asset($pedido->fotoDomicilio) }}" alt="{{ $pedido->orderId }} width="500" height="500""><br>
+                    <strong>Fecha y hora del registro:</strong>{{ $pedido->fechaFotoDomicilio }}
+                </div><br>
             @endif
             <div class="col-6">
                 <label>Cargar foto del pedido entregado</label>
@@ -69,7 +70,8 @@
             </div>
             @if ($pedido->fotoEntrega)
                 <div class="col-xs-4 col-sm-4 col-md-4">
-                    <img src="{{ asset($pedido->fotoEntrega) }}" alt="{{ $pedido->orderId }} width="400" height="400"">
+                    <img src="{{ asset($pedido->fotoEntrega) }}" alt="{{ $pedido->orderId }} width="500" height="500""><br>
+                    <strong>Fecha y hora del registro:</strong>{{ $pedido->fechaFotoEntrega }}
                 </div>
             @endif
         </form>

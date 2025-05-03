@@ -38,6 +38,7 @@ Auth::routes();
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
+//COUNTER
 Route::middleware(['checkRole:counter,admin'])->group(function () {
     
     // Route::resource('cargarpedidos', PedidosController::class);
@@ -45,14 +46,27 @@ Route::middleware(['checkRole:counter,admin'])->group(function () {
     Route::post('/cargarpedidosdetail',CargarPedidosController::class.'@cargarExcelArticulos')->name('cargarpedidos.excelarticulos');
     Route::get('/cargarpedidos/{pedido}/uploadfile', CargarPedidosController::class .'@uploadfile')->name('cargarpedidos.uploadfile');
     Route::put('/cargarpedidos/cargarImagen/{post}', CargarPedidosController::class .'@cargarImagen')->name('cargarpedidos.cargarImagen');
+    Route::put('/cargarpedidos/actualizarPago/{post}', CargarPedidosController::class .'@actualizarPago')->name('cargarpedidos.actualizarPago');
     Route::put('/cargarpedidos/cargarImagenReceta/{post}', CargarPedidosController::class .'@cargarImagenReceta')->name('cargarpedidos.cargarImagenReceta');
     Route::put('/cargarpedidos/actualizarTurno/{id}',CargarPedidosController::class.'@actualizarTurno')->name('cargarpedidos.actualizarTurno');
-    Route::resource('/historialpedidos', HistorialPedidosController::class);
     Route::resource('asignarpedidos', AsignarPedidoController::class);
     Route::post('/cargarpedidos/downloadWord', CargarPedidosController::class .'@downloadWord')
     ->name('cargarpedidos.downloadWord');
 });
-    
+//counter - jefe de operaciones -laboratorio
+Route::get('historialpedidos', HistorialPedidosController::class.'@index')
+->name('historialpedidos.index')
+->middleware(['checkRole:counter,admin,jefe-operaciones,laboratorio']);
+Route::get('historialpedidos/{historialpedido}', HistorialPedidosController::class.'@show')
+->name('historialpedidos.show')
+->middleware(['checkRole:counter,admin,jefe-operaciones,laboratorio']);
+//Jefe de operaciones
+Route::delete('historialpedidos/{historialpedido}', HistorialPedidosController::class.'@destroy')
+->name('historialpedidos.destroy')
+->middleware(['checkRole:admin,jefe-operaciones']);
+Route::put('historial/{historialpedido}/actualizar', HistorialPedidosController::class.'@update')
+->name('historialpedidos.update')
+->middleware(['checkRole:admin,jefe-operaciones']);
 Route::resource('usuarios', UsuariosController::class)->middleware(['checkRole:admin,jefe-operaciones']);
 Route::put('/usuarios/changepass/{fecha}', UsuariosController::class .'@changepass')
     ->name('usuarios.changepass')

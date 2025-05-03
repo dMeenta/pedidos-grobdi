@@ -15,30 +15,26 @@
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
         <a class="btn btn-primary btn-sm" href="{{ route('cargarpedidos.index', ['fecha' => $pedido->deliveryDate]) }}"><i class="fa fa-arrow-left"></i> Atrás</a>
     </div>
-  
-    <form action="{{ route('cargarpedidos.cargarImagen',$pedido->id) }}" method="POST" enctype="multipart/form-data">
+    <div class="d-grid gap-2 d-md-flex ">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+        Agregar Imagen Voucher
+        </button>
+    </div>
+    <br><div class="row">
+        @if ($pedido->voucher)
+        @foreach ($array_voucher as $voucher)
+            <div class="col-xs-4 col-sm-4 col-md-4">
+                Nro de Operación: <strong>{{ $voucher['nro_operacion'] }}</strong><br>
+                <img src="{{ asset($voucher['voucher']) }}" alt="{{ $pedido->orderId }} width="400" height="400"">
+            </div>
+        @endforeach
+
+        @endif
+    </div>
+    <form action="{{ route('cargarpedidos.actualizarPago',$pedido->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         <div class="row">
-            @if ($pedido->voucher)
-                <div class="col-xs-4 col-sm-4 col-md-4">
-                    <img src="{{ asset($pedido->voucher) }}" alt="{{ $pedido->orderId }} width="400" height="300"">
-                </div>
-            @endif
-
-            <div class="col-xs-4 col-sm-4 col-md-4">
-                <label for="inputvoucher" class="form-label"><strong>Imagen del voucher de pago:</strong></label>
-                <input 
-                    type="file" 
-                    name="voucher" 
-                    value="{{ $pedido->voucher }}"
-                    class="form-control @error('voucher') is-invalid @enderror" 
-                    id="inputvoucher" 
-                    placeholder="Name">
-                @error('voucher')
-                    <div class="form-text text-danger">{{ $message }}</div>
-                @enderror
-            </div>
             <div class="col-xs-2 col-sm-2 col-md-2">
                 <label for="inputName" class="form-label"><strong>Estado del pago:</strong></label>
                 <select class="form-select" name="paymentStatus" id="paymentStatus">
@@ -47,19 +43,6 @@
                     <option value="PENDIENTE">PENDIENTE</option>
                 </select>
                 @error('paymentStatus')
-                    <div class="form-text text-danger">{{ $message }}</div>
-                @enderror
-            </div>
-            <div class="col-xs-3 col-sm-3 col-md-3">
-                <label for="inputpaymentmethod" class="form-label"><strong>Número de operación:</strong></label>
-                <input 
-                    type="text" 
-                    name="operationNumber" 
-                    value="{{ $pedido->operationNumber }}"
-                    class="form-control @error('operationNumber') is-invalid @enderror" 
-                    id="inputoperationNumber" 
-                    placeholder="número de operación">
-                @error('name')
                     <div class="form-text text-danger">{{ $message }}</div>
                 @enderror
             </div>
@@ -104,7 +87,7 @@
             </div>
         </div>
         <br>
-        <button type="submit" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> Actualizar Imagen de la receta</button>
+        <button type="submit" class="btn btn-success"><i class="fa fa-floppy-o"></i> Actualizar Imagen de la receta</button>
     </form>
     @if(session('success'))
         <div class="alert alert-success">
@@ -119,7 +102,52 @@
     @endif
   </div>
 </div>
-
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <form action="{{ route('cargarpedidos.cargarImagen',$pedido->id) }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        @method('PUT')
+        <div class="modal-header">
+            <h1 class="modal-title fs-5" id="staticBackdropLabel">Ingresar Voucher</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <div class="mb-3">
+                <label for="inputvoucher" class="form-label"><strong>Imagen del voucher de pago:</strong></label>
+                <input 
+                    type="file" 
+                    name="voucher" 
+                    value=""
+                    class="form-control @error('voucher') is-invalid @enderror" 
+                    id="inputvoucher" 
+                    placeholder="Name">
+                @error('voucher')
+                    <div class="form-text text-danger">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="mb-3">
+                <label for="inputpaymentmethod" class="form-label"><strong>Número de operación:</strong></label>
+                <input 
+                    type="text" 
+                    name="operationNumber" 
+                    value=""
+                    class="form-control @error('operationNumber') is-invalid @enderror" 
+                    id="inputoperationNumber" 
+                    placeholder="número de operación">
+                @error('name')
+                    <div class="form-text text-danger">{{ $message }}</div>
+                @enderror
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+    </form>
+    </div>
+</div>
+</div>
 @stop
 
 @section('css')
