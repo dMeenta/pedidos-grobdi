@@ -12,7 +12,7 @@
             | Laboratorio - Muestras
         @endsection
 
-        <h1 class="text-center"> Estado de las Muestras<hr></h1>
+        <h1 class="flex-grow-1 text-center"> Estado de las Muestras<hr></h1>
         <div class="table-responsive">
             <table class="table table-hover" id="table_muestras">
                 <thead>

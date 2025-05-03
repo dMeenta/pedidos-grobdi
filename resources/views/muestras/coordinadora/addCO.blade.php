@@ -9,7 +9,7 @@
 @section('content')    
     <div class="container">
 
-    <h1 class="text-center">
+    <h1 class="flex-grow-1 text-center">
    <a class="float-start" title="Volver" href="{{ route('muestras.aprobacion.coordinadora') }}">
       <i class="bi bi-arrow-left-circle"></i>
    </a>

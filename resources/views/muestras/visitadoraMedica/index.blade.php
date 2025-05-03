@@ -9,13 +9,12 @@
 @section('content')
     <div class="container">
         @include('messages')
-        <h1 class="text-center">Muestras Registradas <hr></h1>
+        <h1 class="flex-grow-1 text-center">Muestras Registradas <hr></h1>
 
         <div class="header-tools">
-            <a href="{{ route('muestras.create') }}" class="btn btn-primary">
+            <a href="{{ route('muestras.create') }}" class="btn" style="background-color:rgb(255, 113, 130); color: white;">
                 <i class="bi bi-plus-circle"></i> Agregar Muestra
             </a>
-            <!-- el buscador de DataTables se colocará aqui -->
         </div>
 
         <div class="table-responsive">

@@ -8,7 +8,7 @@
 
 @section('content')
 <div class="container">
-<h1 class="text-center">
+<h1 class="flex-grow-1 text-center">
     <a class="float-start" title="Volver" href="{{ route('muestras.aprobacion.coordinadora') }}">
         <i class="bi bi-arrow-left-circle"></i>
     </a>
@@ -63,7 +63,7 @@
 
                 <!-- Modal para mostrar la foto ampliada -->
                 <div class="modal fade" id="fotoModal" tabindex="-1" aria-labelledby="fotoModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="fotoModalLabel">Foto de la Muestra</h5>
@@ -71,7 +71,7 @@
                             </div>
                             <div class="modal-body text-center">
                                 <!-- Imagen ampliada -->
-                                <img src="{{ asset('storage/' . $muestra->foto) }}" alt="Foto de la muestra" style="max-width: 100%; max-height: 400px; border-radius: 10px;">
+                                <img src="{{ asset('storage/' . $muestra->foto) }}" alt="Foto de la muestra" style="max-width: 100%; max-height: 500px; border-radius: 10px;">
                             </div>
                         </div>
                     </div>

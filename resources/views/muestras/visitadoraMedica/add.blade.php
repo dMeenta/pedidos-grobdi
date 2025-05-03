@@ -9,7 +9,7 @@
 @section('content')    
     <div class="container">
 
-    <h1 class="text-center">
+    <h1 class="flex-grow-1 text-center">
    <a class="float-start" title="Volver" href="{{ route('muestras.index') }}">
       <i class="bi bi-arrow-left-circle"></i>
    </a>
@@ -49,6 +49,11 @@
                     <option value="frasco original">Frasco Original</option>
                     <option value="frasco muestra">Frasco Muestra</option>
                 </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="foto" class="form-label">Foto de la muestra (opcional)</label>
+                <input type="file" name="foto" id="foto" class="form-control">
             </div>
 
             <div class="mb-3">

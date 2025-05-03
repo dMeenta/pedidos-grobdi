@@ -11,7 +11,7 @@
         <a class="btn me-3" title="Volver" href="{{ route('muestras.aprobacion.coordinadora') }}" style="color:#6c757d; font-size: 2.3rem;">
             <i class="bi bi-arrow-left-circle"></i>
         </a>
-        <h1 class="flex-grow-1 text-center" style="color: #fe495f; font-weight: bold; margin: 0;">
+        <h1 class="flex-grow-1 text-center">
             Datos de la Muestra
         </h1>
     </div>
@@ -40,6 +40,8 @@
                     <p><strong style="color:rgb(224, 61, 80);">Observaciones:</strong> {{ $muestra->observacion }}</p>
                     <p><strong style="color:rgb(224, 61, 80);">Doctor:</strong> {{ $muestra->name_doctor }}</p>
                     <p><strong style="color:rgb(224, 61, 80);">Creado por:</strong> {{ $muestra->creator ? $muestra->creator->name : 'Desconocido' }}</p>
+                    <p><strong style="color:rgb(224, 61, 80);">Comentario de Laboratorio:</strong></p>
+                    <span>{{ $muestra->comentarios ?? 'No hay comentarios' }}</span>
                 </div>
             </div>
         </div>
@@ -84,9 +86,6 @@
                     <input type="text" class="form-control"
                            value="{{ $muestra->fecha_hora_entrega ? \Carbon\Carbon::parse($muestra->fecha_hora_entrega)->format('Y-m-d H:i') : 'Aún no se asigna fecha de entrega' }}"
                            readonly style="background-color:rgb(244, 232, 255); color: #555; border: 2px solid #ccc; font-weight: bold;">
-
-                    <p><strong style="color:rgb(224, 61, 80);">Comentario de Laboratorio:</strong></p>
-                    <span>{{ $muestra->comentarios ?? 'No hay comentarios' }}</span>
                 </div>
                   <!--FOTO CON MODAL -->
                   <div class="card-footer">
@@ -103,7 +102,7 @@
 
                 <!-- Modal para mostrar la foto ampliada -->
                 <div class="modal fade" id="fotoModal" tabindex="-1" aria-labelledby="fotoModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
                         <div class="modal-content" style="border-radius: 15px;">
                             <div class="modal-header" style="background-color: #fe495f; color: white;">
                                 <h5 class="modal-title" id="fotoModalLabel">Foto de la Muestra</h5>
@@ -111,7 +110,7 @@
                             </div>
                             <div class="modal-body text-center">
                                 <!-- Imagen ampliada -->
-                                <img src="{{ asset('storage/' . $muestra->foto) }}" alt="Foto de la muestra" style="max-width: 100%; max-height: 400px; border-radius: 10px;">
+                                <img src="{{ asset('storage/' . $muestra->foto) }}" alt="Foto de la muestra" style="max-width: 100%; max-height: 500px; border-radius: 10px;">
                             </div>
                         </div>
                     </div>
@@ -125,6 +124,7 @@
 @section('css')
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/muestras/labora.css') }}">
     <style>
         .card-title {
             font-size: 1.3rem;
@@ -148,11 +148,6 @@
             background-color: #f8f9fa;
             padding: 10px;
             border-radius: 0 0 10px 10px;
-        }
-
-        .btn:hover {
-            transform: scale(1.10);
-            transition: transform 0.4s ease;
         }
 
         /* Estilo adicional para el modal */
