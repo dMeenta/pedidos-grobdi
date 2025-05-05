@@ -28,7 +28,7 @@ class laboratorioController extends Controller
         public function estado()
     {
         // Obtén todas las muestras
-        $muestras = Muestras::paginate(10);
+        $muestras = Muestras::orderBy('created_at', 'desc')->paginate(10);
         return view('muestras.laboratorio.estado', compact('muestras'));
     }
 

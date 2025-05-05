@@ -20,7 +20,7 @@ class MuestrasController extends Controller
     public function index()
     { 
         // Cargamos las muestras con su clasificación y la unidad de medida asociada
-        $muestras = Muestras::with(['clasificacion.unidadMedida'])->get();
+        $muestras = Muestras::with(['clasificacion.unidadMedida'])->orderBy('created_at', 'desc')->get();
         $clasificaciones = Clasificacion::all();
         
         return view('muestras.visitadoraMedica.index', compact('muestras', 'clasificaciones'));

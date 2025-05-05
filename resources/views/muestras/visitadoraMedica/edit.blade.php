@@ -27,6 +27,35 @@
         </div>
     </div>
 
+     <!--FOTO CON MODAL -->
+     <div class="mb-3">
+                    <label for="foto" class="form-label">Foto de la muestra (opcional)</label>
+                    <div class="d-flex align-items-center">
+                        <input type="file" name="foto" id="foto" class="form-control me-2" style="max-width: 80%;" accept="images/*">
+                        @if($muestra->foto)
+                            <button type="button" class="btn" style="background-color: #fe495f; color: white; border-radius: 5px;" data-bs-toggle="modal" data-bs-target="#fotoModal">
+                                <i class="bi bi-eye"></i> Ver Foto
+                            </button>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Modal para mostrar la foto ampliada -->
+                <div class="modal fade" id="fotoModal" tabindex="-1" aria-labelledby="fotoModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="fotoModalLabel">Foto de la Muestra</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body text-center">
+                                <!-- Imagen ampliada -->
+                                <img src="{{ asset('storage/' . $muestra->foto) }}" alt="Foto de la muestra" style="max-width: 100%; max-height: 500px; border-radius: 10px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
     <!-- Campo para la clasificación (select) -->
     <div class="mb-3">
         <label class="form-label">Clasificación</label>
@@ -70,35 +99,6 @@
             <input type="number" id="cantidad_de_muestra" name="cantidad_de_muestra" class="form-control" required value="{{ $muestra->cantidad_de_muestra }}" min="1" />
         </div>
     </div>
-
-     <!--FOTO CON MODAL -->
-     <div class="mb-3">
-                    <label for="foto" class="form-label">Foto de la muestra (opcional)</label>
-                    <div class="d-flex align-items-center">
-                        <input type="file" name="foto" id="foto" class="form-control me-2" style="max-width: 80%;">
-                        @if($muestra->foto)
-                            <button type="button" class="btn" style="background-color: #fe495f; color: white; border-radius: 5px;" data-bs-toggle="modal" data-bs-target="#fotoModal">
-                                <i class="bi bi-eye"></i> Ver Foto
-                            </button>
-                        @endif
-                    </div>
-                </div>
-
-                <!-- Modal para mostrar la foto ampliada -->
-                <div class="modal fade" id="fotoModal" tabindex="-1" aria-labelledby="fotoModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="fotoModalLabel">Foto de la Muestra</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body text-center">
-                                <!-- Imagen ampliada -->
-                                <img src="{{ asset('storage/' . $muestra->foto) }}" alt="Foto de la muestra" style="max-width: 100%; max-height: 500px; border-radius: 10px;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
     <!-- Campo para las observaciones -->
     <div class="row">
