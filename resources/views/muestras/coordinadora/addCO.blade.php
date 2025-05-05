@@ -27,7 +27,7 @@
             
             <div class="mb-3">
                 <label for="foto" class="form-label">Foto de la muestra (opcional)</label>
-                <input type="file" name="foto" id="foto" class="form-control">
+                <input type="file" name="foto" id="foto" class="form-control" accept="images/*">
             </div>
 
             <!-- Campo para la clasificacion (select) -->

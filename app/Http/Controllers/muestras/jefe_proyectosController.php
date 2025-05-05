@@ -20,8 +20,7 @@ class jefe_proyectosController extends Controller
          public function precio()
     {
         // Obtén todas las muestras
-        $muestras = Muestras::paginate(15);
-        
+        $muestras = Muestras::orderBy('created_at', 'desc')->paginate(10);
         return view('muestras.jefe_proyectos.precio', compact('muestras'));
     }
 

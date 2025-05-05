@@ -27,32 +27,11 @@
             </div>
         </div>
 
-        <!-- Campo para la clasificación (select) -->
-        <div class="mb-3">
-            <label class="form-label">Clasificación</label>
-            <select name="clasificacion_id" id="clasificacion_id" class="form-select" required>
-                <option value="">Seleccione una clasificación</option>
-                @foreach ($clasificaciones as $clasificacion)
-                    <option value="{{ $clasificacion->id }}" 
-                        {{ $clasificacion->id == $muestra->clasificacion_id ? 'selected' : '' }}>
-                        {{ $clasificacion->nombre_clasificacion }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-
-                <!-- Campo para la unidad de medida (autocompletado desde la clasificación) -->
-                <div class="mb-3">
-                    <label class="form-label">Unidad de Medida</label>
-                    <input type="text" name="unidad_de_medida" id="unidad_de_medida" class="form-control" readonly required
-                        value="{{ $muestra->clasificacion->unidadMedida->nombre_unidad_de_medida ?? '' }}">
-                </div>
-
-                <!--FOTO CON MODAL -->
-                <div class="mb-3">
+         <!--FOTO CON MODAL -->
+         <div class="mb-3">
                     <label for="foto" class="form-label">Foto de la muestra (opcional)</label>
                     <div class="d-flex align-items-center">
-                        <input type="file" name="foto" id="foto" class="form-control me-2" style="max-width: 80%;">
+                        <input type="file" name="foto" id="foto" class="form-control me-2" style="max-width: 80%;" accept="images/*">
                         @if($muestra->foto)
                             <button type="button" class="btn" style="background-color: #fe495f; color: white; border-radius: 5px;" data-bs-toggle="modal" data-bs-target="#fotoModal">
                                 <i class="bi bi-eye"></i> Ver Foto
@@ -77,6 +56,26 @@
                     </div>
                 </div>
 
+        <!-- Campo para la clasificación (select) -->
+        <div class="mb-3">
+            <label class="form-label">Clasificación</label>
+            <select name="clasificacion_id" id="clasificacion_id" class="form-select" required>
+                <option value="">Seleccione una clasificación</option>
+                @foreach ($clasificaciones as $clasificacion)
+                    <option value="{{ $clasificacion->id }}" 
+                        {{ $clasificacion->id == $muestra->clasificacion_id ? 'selected' : '' }}>
+                        {{ $clasificacion->nombre_clasificacion }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+                <!-- Campo para la unidad de medida (autocompletado desde la clasificación) -->
+                <div class="mb-3">
+                    <label class="form-label">Unidad de Medida</label>
+                    <input type="text" name="unidad_de_medida" id="unidad_de_medida" class="form-control" readonly required
+                        value="{{ $muestra->clasificacion->unidadMedida->nombre_unidad_de_medida ?? '' }}">
+                </div>
 
             <div class="mb-3">
                 <label for="name_doctor" class="form-label">Nombre del doctor</label>
