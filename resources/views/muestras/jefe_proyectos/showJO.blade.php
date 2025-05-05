@@ -35,6 +35,8 @@
                         @endif
                     </p>
                     <p><strong class="text-danger">Cantidad:</strong> {{ $muestra->cantidad_de_muestra }}</p>
+                    <p><strong class="text-danger">Precio:</strong> {{ $muestra->precio }}</p>
+                    <p><strong class="text-danger">Total S/.</strong> {{ $muestra->cantidad_de_muestra * $muestra->precio }}</p>
                     <p><strong class="text-danger">Observaciones:</strong> {{ $muestra->observacion }}</p>
                     <p><strong class="text-danger">Doctor:</strong> {{ $muestra->name_doctor }}</p>
                     <p><strong class="text-danger">Creado por:</strong> {{ $muestra->creator ? $muestra->creator->name : 'Desconocido' }}</p>

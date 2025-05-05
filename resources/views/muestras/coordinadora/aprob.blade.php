@@ -23,15 +23,11 @@
                         <th scope="col">Nombre de la Muestra</th>
                         <th scope="col">Clasificación</th>
                         <th scope="col">Tipo de Muestra</th>
-                        <th scope="col" class="th-small">Unidad <br> de Medida</th>
                         <th scope="col">Cantidad</th>
-                        <th scope="col" class="th-small">Aprobado por <br> Jefe Comercial</th>
-                        <th scope="col" class="th-small">Aprobado por<br> Coordinadora</th>
-                        <th scope="col">Observaciones</th>
+                        <th scope="col" class="th-small">Aprobado<br> J. Comercial</th>
+                        <th scope="col" class="th-small">Aprobado<br> Coordinadora</th>
                         <th>Creado por</th>
                         <th>Doctor</th>
-                        <th scope="col">Comentarios <br> de laboratorio</th>
-                        <th scope="col">Fecha/hora Recibida</th>
                         <th scope="col">Estado</th>
                         <th scope="col">Fecha/hora Entrega</th>
                         <th scope="col">Acciones</th>
@@ -44,13 +40,6 @@
                             <td class="observaciones">{{ $muestra->nombre_muestra }}</td>
                             <td>{{ $muestra->clasificacion ? $muestra->clasificacion->nombre_clasificacion : 'Sin clasificación' }}</td>
                             <td>{{ $muestra->tipo_muestra ?? 'No asignado' }}</td>
-                            <td>
-                                @if($muestra->clasificacion && $muestra->clasificacion->unidadMedida)
-                                    {{ $muestra->clasificacion->unidadMedida->nombre_unidad_de_medida }}
-                                @else
-                                    No asignada
-                                @endif
-                            </td>
                             <td>{{ $muestra->cantidad_de_muestra }}</td>
                             <td>
                                 <input type="checkbox" class="aprobacion-jefe" disabled {{ $muestra->aprobado_jefe_comercial ? 'checked' : '' }}>
@@ -58,13 +47,8 @@
                             <td>
                                 <input type="checkbox" class="aprobado-coordinadora" data-id="{{ $muestra->id }}" {{ $muestra->aprobado_coordinadora ? 'checked' : '' }} {{ !$muestra->aprobado_jefe_comercial ? 'disabled' : '' }}>
                             </td>
-                            <td class="observaciones">{{ $muestra->observacion }}</td>
                             <td>{{ $muestra->creator ? $muestra->creator->name : 'Desconocido' }}</td>
                             <td class="observaciones">{{ $muestra->name_doctor }}</td>
-                            <td class="observaciones">{{ $muestra->comentarios }}</td>
-                            <td>{{ $muestra->updated_at ? $muestra->updated_at->format('Y-m-d') : $muestra->created_at->format('Y-m-d') }} <br>
-                            {{ $muestra->updated_at ? $muestra->updated_at->format('H:i:s') : $muestra->created_at->format('H:i:s') }}
-                            </td>
                             <td>
                                 <span class="badge" style="background-color: {{ $muestra->estado == 'Pendiente' ? 'red' : 'green' }}; color: white; padding: 5px;">
                                     {{ $muestra->estado }}

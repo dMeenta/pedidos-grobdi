@@ -21,9 +21,7 @@
                         <th class="th-custom">Cantidad</th>
                         <th class="th-custom">Precio</th>
                         <th class="th-custom">Precio Total</th>
-                        <th class="th-custom">Observaciones</th>
                         <th class="th-custom">Creado por</th>
-                        <th class="th-custom">Comentarios <br> de laboratorio</th>
                         <th class="th-custom">Doctor</th>
                         <th class="th-custom">Fecha/hora<br>Recibida</th>
                         <th class="th-custom">Estado</th>
@@ -41,9 +39,7 @@
                         <td>{{ $muestra->cantidad_de_muestra }}</td>
                         <td><input type="number" class="form-control precio-input" data-id="{{ $muestra->id }}" value="{{ $muestra->precio }}" required></td>
                         <td id="total_{{ $muestra->id }}">{{ $muestra->cantidad_de_muestra * $muestra->precio }}</td>
-                        <td class="observaciones">{{ $muestra->observacion }}</td>
                         <td>{{ $muestra->creator ? $muestra->creator->name : 'Desconocido' }}</td>
-                        <td class="observaciones">{{ $muestra->comentarios }}</td>
                         <td class="observaciones">{{ $muestra->name_doctor }}</td>
                         <td>
                             {{ ($muestra->updated_at ?? $muestra->created_at)->format('Y-m-d') }}<br>
