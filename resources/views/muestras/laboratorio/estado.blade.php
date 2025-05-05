@@ -30,17 +30,13 @@
                         <th scope="col">Nombre de la Muestra</th>
                         <th scope="col">Clasificación</th>
                         <th scope="col">Tipo de Muestra</th> <!-- Nueva columna -->
-                        <th scope="col" class="th-small">Unidad de Medida</th>
-                        <th scope="col" class="th-small">Aprobado<br> Jefe Comercial</th>
+                        <th scope="col" class="th-small">Aprobado<br> J. Comercial</th>
                         <th scope="col" class="th-small">Aprobado<br> Coordinadora</th>
                         <th scope="col">Cantidad</th>
-                        <th scope="col">Observaciones</th>
-                        <th scope="col">Fecha/hora Recibida</th>
                         <th scope="col">Estado</th> 
                         <th scope="col">Acciones</th>
                         <th scope="col">Creado por</th>
                         <th scope="col">Doctor</th>
-                        <th scope="col">Comentario</th>
                         <th scope="col">Fecha/hora Entrega</th>
                         <th scope="col">Ver Muestras</th>
                     </tr>
@@ -53,23 +49,12 @@
                             <td>{{ $muestra->clasificacion ? $muestra->clasificacion->nombre_clasificacion : 'Sin clasificación' }}</td>
                             <td>{{ $muestra->tipo_muestra ?? 'No asignado' }}</td> <!-- Mostrar el tipo de muestra -->
                             <td>
-                                @if($muestra->clasificacion && $muestra->clasificacion->unidadMedida)
-                                    {{ $muestra->clasificacion->unidadMedida->nombre_unidad_de_medida }}
-                                @else
-                                    No asignada
-                                @endif
-                            </td>
-                            <td>
                                 <input type="checkbox" class="aprobacion-jefe" data-id="{{ $muestra->id }}" disabled {{ $muestra->aprobado_jefe_comercial ? 'checked' : '' }}>
                             </td>
                             <td>
                                 <input type="checkbox" class="aprobado_coordinadora" data-id="{{ $muestra->id }}" disabled {{ $muestra->aprobado_coordinadora ? 'checked' : '' }}>
                             </td>
                             <td>{{ $muestra->cantidad_de_muestra }}</td>
-                            <td class="observaciones">{{ $muestra->observacion }}</td>
-                            <td>{{ $muestra->updated_at ? $muestra->updated_at->format('Y-m-d') : $muestra->created_at->format('Y-m-d') }} <br>
-                            {{ $muestra->updated_at ? $muestra->updated_at->format('H:i:s') : $muestra->created_at->format('H:i:s') }}
-                            </td>
                             <td>
                                 <select name="estado" 
                                         onchange="actualizarEstado({{ $muestra->id }}, this.value)" 
@@ -86,7 +71,6 @@
                             </td>
                             <td>{{ $muestra->creator ? $muestra->creator->name : 'Desconocido' }}</td>
                             <td class="observaciones">{{ $muestra->name_doctor }}</td>
-                            <td class="observaciones">{{ $muestra->comentarios }}</td>
                             <td>
                                 @if($muestra->fecha_hora_entrega)
                                     {{ \Carbon\Carbon::parse($muestra->fecha_hora_entrega)->format('Y-m-d') }} <br>
