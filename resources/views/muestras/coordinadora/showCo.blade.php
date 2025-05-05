@@ -110,7 +110,7 @@
                             </div>
                             <div class="modal-body text-center">
                                 <!-- Imagen ampliada -->
-                                <img src="{{ asset('storage/' . $muestra->foto) }}" alt="Foto de la muestra" style="max-width: 100%; max-height: 500px; border-radius: 10px;">
+                                <img src="{{ asset($muestra->foto) }}" alt="Foto de la muestra" style="max-width: 100%; max-height: 500px; border-radius: 10px;">
                             </div>
                         </div>
                     </div>

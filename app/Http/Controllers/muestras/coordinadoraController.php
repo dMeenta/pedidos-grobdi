@@ -4,6 +4,7 @@ namespace App\Http\Controllers\muestras; // Namespace correcto para la carpeta "
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use App\Models\Muestras;
@@ -116,13 +117,17 @@ class coordinadoraController extends Controller
             'foto' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048', // VALIDACIÓN DE IMAGEN
         ]);
 
-        // Manejar la subida de la imagen si existe
+        // Manejar la subida de la imagen si existeq
         $fotoPath = null;
         if ($request->hasFile('foto')) {
             $file = $request->file('foto');
             $timestamp = Carbon::now()->format('m-d_H-i');
             $filename = Str::slug($validated['nombre_muestra']) . "_$timestamp." . $file->getClientOriginalExtension();
-            $fotoPath = $file->storeAs('muestras_fotos', $filename, 'public');
+            $relativePath = 'images/muestras_fotos';
+            $fullPath = public_path($relativePath);
+            if (!file_exists($fullPath)) {mkdir($fullPath, 0755, true);} //crea directorio si no existe
+            $file->move($fullPath, $filename);
+            $fotoPath = $relativePath.'/'.$filename;
         }
 
         $muestra = Muestras::create([
@@ -165,13 +170,16 @@ class coordinadoraController extends Controller
         if ($request->hasFile('foto')) {
             $file = $request->file('foto');
             $nombreMuestra = Str::slug($validated['nombre_muestra'], '_');
-            $fecha = now()->format('m-d_H-i'); 
+            $fecha = now()->format('m-d_H-i');
             $extension = $file->getClientOriginalExtension();
             $fileName = "{$nombreMuestra}-{$fecha}.{$extension}";
-            $fotoPath = $file->storeAs('muestras_fotos', $fileName, 'public');
-
-            $validated['foto'] = $fotoPath;
-        }
+            $destinationPath = public_path('images/muestras_fotos');
+            if (!File::exists($destinationPath)) {File::makeDirectory($destinationPath, 0755, true); }
+            if (isset($muestra->foto) && $muestra->foto) {
+                $oldFilePath = public_path($muestra->foto);
+                if (File::exists($oldFilePath)) { File::delete($oldFilePath); }}
+            $file->move($destinationPath, $fileName);
+            $validated['foto'] = 'images/muestras_fotos/' . $fileName;}
 
         $muestra->update($validated);
         event(new MuestraActualizada($muestra));
