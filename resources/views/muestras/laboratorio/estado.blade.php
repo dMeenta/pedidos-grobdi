@@ -8,9 +8,6 @@
 
 @section('content')    
     <div class="container">
-        @section('title')
-            | Laboratorio - Muestras
-        @endsection
 
         @if(session('success'))
             <div class="alert alert-success alert-dismissible fade show d-flex align-items-center" role="alert" style="background-color: #d1e7dd; color: #0f5132;">
@@ -23,7 +20,7 @@
             </div>
         @endif
 
-        <h1 class="text-center"> Estado de las Muestras<br></h1>
+        <h1 class="flex-grow-1 text-center"> Estado de las Muestras<br></h1>
         
         <div class="table-responsive">
             <table class="table table-hover" id="table_muestras">

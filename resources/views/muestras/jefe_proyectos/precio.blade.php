@@ -8,26 +8,26 @@
 
 @section('content')
     <div class="container">
-    <h1 class="text-center">Estado de las Muestras<hr></h1>
+    <h1 class="flex-grow-1 text-center" style="color: #fe495f; font-weight: bold; margin: 0;">Estado de las Muestras<hr></h1>
         <div class="table-responsive">
             <table class="table table-hover" id="table_muestras">
                 <thead>
                     <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Nombre de la Muestra</th>
-                        <th scope="col">Clasificación</th>
-                        <th scope="col">Tipo de Muestra</th>
-                        <th class="th-small">Unidad de<br>Medida</th>
-                        <th>Cantidad</th>
-                        <th>Precio</th>
-                        <th>Precio Total</th>
-                        <th>Observaciones</th>
-                        <th>Creado por</th>
-                        <th>Comentarios <br> de laboratorio</th>
-                        <th>Doctor</th>
-                        <th>Fecha/hora<br>Recibida</th>
-                        <th>Estado</th>
-                        <th>Ver</th>
+                        <th class="th-custom" scope="col">#</th>
+                        <th class="th-custom" scope="col">Nombre de la Muestra</th>
+                        <th class="th-custom" scope="col">Clasificación</th>
+                        <th class="th-custom" scope="col">Tipo de Muestra</th>
+                        <th class="th-custom" class="th-small">Unidad de<br>Medida</th>
+                        <th class="th-custom">Cantidad</th>
+                        <th class="th-custom">Precio</th>
+                        <th class="th-custom">Precio Total</th>
+                        <th class="th-custom">Observaciones</th>
+                        <th class="th-custom">Creado por</th>
+                        <th class="th-custom">Comentarios <br> de laboratorio</th>
+                        <th class="th-custom">Doctor</th>
+                        <th class="th-custom">Fecha/hora<br>Recibida</th>
+                        <th class="th-custom">Estado</th>
+                        <th class="th-custom">Ver</th>
                     </tr>
                 </thead>
                 <tbody>

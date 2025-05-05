@@ -26,6 +26,7 @@ class Muestras extends Model
         'aprobado_coordinadora',
         'name_doctor',
         'created_by',
+        'foto',
     ];
 
     // Relación con Clasificacion

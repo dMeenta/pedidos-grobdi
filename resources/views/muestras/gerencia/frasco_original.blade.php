@@ -78,7 +78,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <style>
             :root {
-                --primary: #d6254d;
+                --primary: #fe495f;
                 --secondary: #ff5475;
                 --accent: #fff1be;
                 --text-dark: #333;
@@ -97,7 +97,9 @@
                  padding: 15px;
 
             }
-
+            label{
+                    color: var(--primary);
+                }
             .content-header {
                 padding: 5px 0.5rem;
             }

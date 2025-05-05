@@ -9,7 +9,7 @@
 @section('content')    
     <div class="container">
 
-    <h1 class="text-center">
+    <h1 class="flex-grow-1 text-center">
    <a class="float-start" title="Volver" href="{{ route('muestras.aprobacion.coordinadora') }}">
       <i class="bi bi-arrow-left-circle"></i>
    </a>
@@ -23,6 +23,11 @@
             <div class="mb-3">
                 <label class="form-label">Nombre de la Muestra</label>
                 <input type="text" name="nombre_muestra" class="form-control" required />
+            </div>
+            
+            <div class="mb-3">
+                <label for="foto" class="form-label">Foto de la muestra (opcional)</label>
+                <input type="file" name="foto" id="foto" class="form-control">
             </div>
 
             <!-- Campo para la clasificacion (select) -->

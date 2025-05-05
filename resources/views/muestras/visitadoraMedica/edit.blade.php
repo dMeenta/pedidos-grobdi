@@ -71,6 +71,35 @@
         </div>
     </div>
 
+     <!--FOTO CON MODAL -->
+     <div class="mb-3">
+                    <label for="foto" class="form-label">Foto de la muestra (opcional)</label>
+                    <div class="d-flex align-items-center">
+                        <input type="file" name="foto" id="foto" class="form-control me-2" style="max-width: 80%;">
+                        @if($muestra->foto)
+                            <button type="button" class="btn" style="background-color: #fe495f; color: white; border-radius: 5px;" data-bs-toggle="modal" data-bs-target="#fotoModal">
+                                <i class="bi bi-eye"></i> Ver Foto
+                            </button>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Modal para mostrar la foto ampliada -->
+                <div class="modal fade" id="fotoModal" tabindex="-1" aria-labelledby="fotoModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="fotoModalLabel">Foto de la Muestra</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body text-center">
+                                <!-- Imagen ampliada -->
+                                <img src="{{ asset('storage/' . $muestra->foto) }}" alt="Foto de la muestra" style="max-width: 100%; max-height: 500px; border-radius: 10px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
     <!-- Campo para las observaciones -->
     <div class="row">
         <div class="col-md-12 mb-3">
@@ -90,6 +119,17 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="{{ asset('css/muestras/home.css') }}">
+    <style>
+        /* Estilo adicional para el modal */
+        .modal-content {
+            border-radius: 15px;
+        }
+
+        .modal-header {
+            background-color: #fe495f;
+            color: white;
+        }
+    </style>
 @stop
 
 @section('js')

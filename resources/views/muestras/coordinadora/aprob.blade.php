@@ -8,9 +8,10 @@
 
 @section('content')    
     <div class="container">
-        <h1 class="text-center">Estado de las Muestras<hr></h1>
+    @include('messages')
+        <h1 class="flex-grow-1 text-center">Estado de las Muestras<hr></h1>
         <div class="header-tools">
-            <a title="Ver detalles" href="{{ route('muestras.createCO') }}" class="btn btn-success btn-sm">
+            <a title="Ver detalles" href="{{ route('muestras.createCO') }}" class="btn btn-success">
                     <i class="bi bi-plus-circle"></i> Agregar Muestra
             </a>
         </div> 

@@ -1,8 +1,8 @@
 
     :root {
-        --primary: #d6254d;
+        --primary: #fe495f;
         --secondary: #ff5475;
-        --accent: #fff1be;
+        --accent: #fcfadc;
         --text-dark: #333;
         --text-light: #fff;
         --bg-light: #fff9f0;
@@ -10,7 +10,7 @@
         --box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         --transition: all 0.3s ease;
     }
-
+   
     /* Contenido principal sin afectar sidebar */
     .content-wrapper {
         background-color: var(--bg-light);
@@ -28,7 +28,9 @@
         border-radius: var(--border-radius);
         box-shadow: var(--box-shadow);
     }
-
+    label{
+        color: var(--primary);
+    }
     /* Encabezados */
     .content-container h1, 
     .content-container h3 {
@@ -36,6 +38,7 @@
         text-align: center;
         word-wrap: break-word;
         margin-bottom: 15px;
+        font-weight: bold; 
     }
 
     .content-container h1 {

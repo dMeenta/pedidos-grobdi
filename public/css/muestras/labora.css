@@ -24,7 +24,14 @@
         max-width: 100%; /* Para pantallas muy pequeñas, aseguramos que el contenedor ocupe todo el ancho */
     }
 }
+.btn:hover {
+    transform: scale(1.03);
+    transition: transform 0.3s ease;
+}
 
+h1{
+    color: #fe495f; font-weight: bold; margin: 0;
+}
 /* Estilos generales para la tabla */
 .table-responsive {
     width: 100%;
@@ -45,6 +52,11 @@
     text-align: center;
     vertical-align: middle;
     word-wrap: break-word;
+}
+
+#table_muestras th{
+    color: rgb(237, 100, 116);
+    font-weight: bold;
 }
 
 /* Estilos para celdas y texto largo en columnas */

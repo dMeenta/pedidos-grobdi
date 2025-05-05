@@ -24,6 +24,7 @@ return new class extends Migration
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null'); 
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null'); 
             $table->timestamp('fecha_hora_entrega')->nullable();
+            $table->string('foto')->nullable();
             $table->boolean('aprobado_jefe_comercial')->default(false); 
             $table->boolean('aprobado_coordinadora')->default(false); 
             $table->string('name_doctor', 50)->nullable();
