@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Muestras;
 use App\Models\UnidadMedida;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use App\Models\Clasificacion;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -50,7 +51,11 @@ class MuestrasController extends Controller
             $file = $request->file('foto');
             $timestamp = Carbon::now()->format('m-d_H-i');
             $filename = Str::slug($validated['nombre_muestra']) . "_$timestamp." . $file->getClientOriginalExtension();
-            $fotoPath = $file->storeAs('muestras_fotos', $filename, 'public');
+            $relativePath = 'images/muestras_fotos';
+            $fullPath = public_path($relativePath);
+            if (!file_exists($fullPath)) {mkdir($fullPath, 0755, true);} //crea directorio si no existe
+            $file->move($fullPath, $filename);
+            $fotoPath = $relativePath.'/'.$filename;
         }
 
         $muestra = Muestras::create([
@@ -108,13 +113,16 @@ class MuestrasController extends Controller
     if ($request->hasFile('foto')) {
         $file = $request->file('foto');
         $nombreMuestra = Str::slug($validated['nombre_muestra'], '_');
-        $fecha = now()->format('m-d_H-i'); 
+        $fecha = now()->format('m-d_H-i');
         $extension = $file->getClientOriginalExtension();
         $fileName = "{$nombreMuestra}-{$fecha}.{$extension}";
-        $fotoPath = $file->storeAs('muestras_fotos', $fileName, 'public');
-
-        $validated['foto'] = $fotoPath;
-    }
+        $destinationPath = public_path('images/muestras_fotos');
+        if (!File::exists($destinationPath)) {File::makeDirectory($destinationPath, 0755, true); }
+        if (isset($muestra->foto) && $muestra->foto) {
+            $oldFilePath = public_path($muestra->foto);
+            if (File::exists($oldFilePath)) { File::delete($oldFilePath); }}
+        $file->move($destinationPath, $fileName);
+        $validated['foto'] = 'images/muestras_fotos/' . $fileName;}
 
     $muestra->update($validated);
 

@@ -82,7 +82,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body text-center">
-                    <img src="{{ asset('storage/' . $muestra->foto) }}" class="img-fluid rounded" style="max-height: 500px;" alt="Foto de la muestra">
+                    <img src="{{ asset($muestra->foto) }}" class="img-fluid rounded" style="max-height: 500px;" alt="Foto de la muestra">
                 </div>
             </div>
         </div>
