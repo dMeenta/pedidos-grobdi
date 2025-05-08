@@ -9,7 +9,7 @@
 
 @section('content')
 <div class="card mt-2">
-    <h2 class="card-header">Pedidos por día</h2>
+    <h2 class="card-header">Pedidos del día: {{ request()->query('fecha')?request()->query('fecha'):date('Y-m-d') }}</h2>
     <div class="card-body">
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
         <a class="btn btn-success btn-sm" href="{{ route('cargarpedidos.create') }}"> <i class="fa fa-plus"></i> Registrar datos</a>
@@ -20,10 +20,16 @@
             <form action="{{ route('cargarpedidos.index') }}" method="GET">
             <div class="row">
                     <div class="col-xs-1 col-sm-1 col-md-1">
-                        <label for="fecha_inicio">Fecha:</label>
+                        <label for="fecha">Fecha:</label>
+                    </div>
+                    <div class="col-xs-3 col-sm-3 col-md-3">
+                        <select name="filtro" class="form-control">
+                            <option value="deliveryDate">Fecha de Entrega</option>
+                            <option value="created_at" {{ request()->query('filtro')=='created_at'?'selected':'' }}>Fecha de Registro</option>
+                        </select>
                     </div>
                     <div class="col-xs-4 col-sm-4 col-md-4">
-                        <input class="form-control" type="date" name="fecha" id="fecha" required>
+                        <input class="form-control" type="date" name="fecha" id="fecha" value="{{ request()->query('fecha')?request()->query('fecha'):date('Y-m-d') }}" required>
                     </div>
                     <div class="col-xs-4 col-sm-4 col-md-4">
                         <button type="submit" class="btn btn-outline-success"><i class="fa fa-search"></i> Buscar</button>

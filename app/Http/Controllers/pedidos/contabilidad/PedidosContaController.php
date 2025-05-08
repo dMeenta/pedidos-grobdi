@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Pedidos;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Intervention\Image\Colors\Rgb\Channels\Red;
 use Maatwebsite\Excel\Facades\Excel;
 
 class PedidosContaController extends Controller
@@ -34,8 +35,7 @@ class PedidosContaController extends Controller
             ->latest()->paginate(25);
 
         }
-        return view('pedidos.contabilidad.index', compact('pedidos'))
-            ->with('i', (request()->input('page', 1) - 1) * 25);
+        return view('pedidos.contabilidad.index', compact('pedidos'));
     }
 
     /**
@@ -53,23 +53,13 @@ class PedidosContaController extends Controller
     {
         //
     }
-
-    public function show($pedido)
-    {
-        $pedido = Pedidos::find($pedido);
-        return view('pedidos.contabilidad.show',compact('pedido'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, $id)
     {
         $pedidos = Pedidos::find($id);
-        $pedidos->update(attributes: request()->all());
-          
-        return redirect()->route('pedidoscontabilidad.index')
-                        ->with('success','Pedido modificado exitosamente');
+        $pedidos->accountingStatus = $request->accountingStatus;
+        $pedidos->bancoDestino = $request->bancoDestino;
+        $pedidos->save();
+        return back()->with('success','Pedido modificado exitosamente');
     }
     public function downloadExcel($fecha_inicio,$fecha_fin){
         $dia = date('d-m-Y');

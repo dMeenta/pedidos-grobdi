@@ -25,8 +25,8 @@
         </div>
         <div class="col-xs-4 col-sm-4 col-md-4">
             <div class="form-group">
-                <strong>Fecha de Emtrega:</strong> <br/>
-                {{ $pedido->deliveryDate }}
+                <strong>Fecha de Registro:</strong> <br/>
+                {{ $pedido->created_at }}
             </div>
         </div>
         <div class="col-xs-4 col-sm-4 col-md-4">

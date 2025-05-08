@@ -30,7 +30,12 @@ class CargarPedidosController extends Controller
         }else{
             $dia = now()->format('Y-m-d');
         }
-        $pedidos = Pedidos::whereDate('deliveryDate', $dia)->orderBy($ordenarPor, $direccion)
+        if($request->filtro){
+            $filtro = $request->filtro;
+        }else{
+            $filtro = "deliveryDate";
+        }
+        $pedidos = Pedidos::whereDate($filtro, $dia)->orderBy($ordenarPor, $direccion)
         ->get();
         return view('pedidos.counter.cargar_pedido.index', compact('pedidos', 'ordenarPor', 'direccion'));
     }
@@ -196,9 +201,6 @@ class CargarPedidosController extends Controller
         return back()->with('success','Turno modificado exitosamente');
     }
     public function uploadfile(Pedidos $pedido){
-        // dd($pedido);
-        if(strpos($pedido->voucher,",")){
-        }
         $images = explode(",",$pedido->voucher);
         $nro_operaciones = explode(",",$pedido->operationNumber);
         $array_voucher = [];

@@ -70,17 +70,94 @@
                         @endif
                     </td>
                     <td>
-                        <form action="{{ route('pedidoscontabilidad.destroy',$pedido->id) }}" method="POST">
-             
-                            <a class="btn btn-info btn-sm" href="{{ route('pedidoscontabilidad.show',$pedido->id) }}"><i class="fa fa-info"></i> Detalles</a>
-             
-                            @csrf
-                            @method('DELETE')
-                
-                            <!-- <button type="submit" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash"></i> Delete</button> -->
-                        </form>
+                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#ModalPedido{{ $pedido->id }}">
+                            <i class="fa fa-info"></i> Detalles
+                        </button>
                     </td>
                 </tr>
+                <!-- Modal -->
+                <div class="modal fade" id="ModalPedido{{ $pedido->id }}" tabindex="-1" aria-labelledby="labelPedido{{ $pedido->id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-xl">
+                        <form action="{{ route('pedidoscontabilidad.update', $pedido->id) }}" method="POST">
+                            @csrf
+                            @method('PUT')
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="labelPedido{{ $pedido->id }}">Editar Pedido</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-xs-4 col-sm-4 col-md-4">
+                                            <div class="form-group">
+                                                <strong>Nro del Pedido:</strong> <br/>
+                                                {{ $pedido->orderId }}
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-8 col-sm-8 col-md-8">
+                                            <div class="form-group">
+                                                <strong>cliente:</strong> <br/>
+                                                {{ $pedido->customerName }}
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-4 col-sm-4 col-md-4 mt-2">
+                                            <div class="form-group">
+                                                <strong>Fecha Entrega:</strong> <br/>
+                                                {{ $pedido->deliveryDate }}
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-4 col-sm-4 col-md-4 mt-2">
+                                            <div class="form-group">
+                                                <strong>Estado de pago:</strong> <br/>
+                                                {{ $pedido->paymentStatus }}
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-4 col-sm-4 col-md-4 mt-2">
+                                            <div class="form-group">
+                                                <strong>Metodo de pago:</strong> <br/>
+                                                {{ $pedido->paymentMethod }}
+                                            </div>
+                                        </div>
+                                        @if ($pedido->voucher)
+                                            @php
+                                                $images = explode(",",$pedido->voucher);
+                                                $nro_operaciones = explode(",",$pedido->operationNumber);
+                                                $array_voucher = [];
+                                                foreach ($images as $key => $voucher) {
+                                                    array_push($array_voucher,['nro_operacion'=>$nro_operaciones[$key],'voucher'=>$voucher]);
+                                                }
+                                            @endphp
+                                            @foreach ($array_voucher as $voucher)
+                                                <div class="col-xs-4 col-sm-4 col-md-4">
+                                                    Nro de Operación: <strong>{{ $voucher['nro_operacion'] }}</strong><br>
+                                                    <img src="{{ asset($voucher['voucher']) }}" alt="{{ $pedido->orderId }} width="400" height="400"">
+                                                </div>
+                                            @endforeach
+                                        @endif
+                                        <div class="col-xs-4 col-sm-4 col-md-4 mt-2">
+                                            <label for="accountingStatus" class="form-select"><strong>Estado de contabilidad:</strong></label>
+                                            <select class="form-control" name="accountingStatus" id="accountingStatus">
+                                                <option disabled select>Selecciona una opción</option>
+                                                <option value="0" {{ $pedido->accountingStatus === 0 ? 'selected' : '' }}>Sin revisar</option>
+                                                <option value="1" {{ $pedido->accountingStatus === 1 ? 'selected' : '' }}>Revisado</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-xs-4 col-sm-4 col-md-4 mt-2">
+                                            <label>Banco Destino:</label>
+                                            <input class="form-control" name="bancoDestino" value="{{ $pedido->bancoDestino }}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-success">Guardar cambios</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             @empty
                 <tr>
                     <td colspan="7">No hay información que mostrar</td>
@@ -94,6 +171,7 @@
 
   </div>
 </div> 
+
 @stop
 
 @section('css')
@@ -102,5 +180,4 @@
 @stop
 
 @section('js')
-    <script> console.log("Hi, I'm using the Laravel-AdminLTE package!"); </script>
 @stop

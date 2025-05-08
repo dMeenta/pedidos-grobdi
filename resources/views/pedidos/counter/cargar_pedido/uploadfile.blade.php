@@ -37,7 +37,7 @@
         <div class="row">
             <div class="col-xs-2 col-sm-2 col-md-2">
                 <label for="inputName" class="form-label"><strong>Estado del pago:</strong></label>
-                <select class="form-select" name="paymentStatus" id="paymentStatus">
+                <select class="form-control" name="paymentStatus" id="paymentStatus">
                     <option value="" select>Selecciona una opción de pago</option>
                     <option value="PAGADO">PAGADO</option>
                     <option value="PENDIENTE">PENDIENTE</option>
@@ -110,7 +110,9 @@
         @method('PUT')
         <div class="modal-header">
             <h1 class="modal-title fs-5" id="staticBackdropLabel">Ingresar Voucher</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
         <div class="modal-body">
             <div class="mb-3">
@@ -119,6 +121,7 @@
                     type="file" 
                     name="voucher" 
                     value=""
+                     accept="image/*"
                     class="form-control @error('voucher') is-invalid @enderror" 
                     id="inputvoucher" 
                     placeholder="Name">
@@ -141,7 +144,7 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             <button type="submit" class="btn btn-primary">Guardar</button>
         </div>
     </form>
@@ -153,7 +156,6 @@
 @section('css')
     {{-- Add here extra stylesheets --}}
     {{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://getbootstrap.com/docs/5.3/assets/css/docs.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 @stop
