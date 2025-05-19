@@ -65,7 +65,7 @@
                 {{ $pedido->doctorName }}
             </div>
         </div>
-        <div class="col-xs-12 col-sm-12 col-md-12 mt-2">
+        <div class="col-xs-8 col-sm-8 col-md-8 mt-2">
             <div class="form-group">
                 <strong>Detalles:</strong> <br/>
                 @foreach ($pedido->detailpedidos as $detail_pedidos)
@@ -73,7 +73,12 @@
                 @endforeach
             </div>
         </div>
-
+        <div class="col-xs-4 col-sm-4 col-md-4 mt-2">
+            <div class="form-group">
+                <strong>Precio:</strong> <br/>
+                S/ {{ $pedido->prize }}
+            </div>
+        </div>
         <div class="col-xs-4 col-sm-4 col-md-4 mt-2">
             <div class="form-group">
                 <strong>Estado Pago:</strong> <br/>

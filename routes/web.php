@@ -26,6 +26,7 @@ use App\Http\Controllers\muestras\JcomercialController;
 use App\Http\Controllers\muestras\jefe_proyectosController;
 use App\Http\Controllers\muestras\laboratorioController;
 use App\Http\Controllers\muestras\MuestrasController;
+use App\Http\Controllers\pedidos\reportes\FormatosController;
 use App\Http\Controllers\rutas\enrutamiento\EnrutamientoController;
 use App\Http\Controllers\rutas\visita\VisitaDoctorController;
 
@@ -77,6 +78,10 @@ Route::resource('pedidoscontabilidad', PedidosContaController::class)->middlewar
 Route::get('/pedidoscontabilidad/downloadExcel/{fechainicio}/{fechafin}', PedidosContaController::class .'@downloadExcel')
     ->name('pedidoscontabilidad.downloadExcel')
     ->middleware(['checkRole:contabilidad,admin']);
+
+//ADMINISTRACION
+Route::get('formatos',FormatosController::class.'@index')->name('formatos.index');
+Route::post('excelhojaruta',FormatosController::class.'@excelhojaruta')->name('formatos.excelhojaruta');
 
 //MOTORIZADO
 Route::resource('pedidosmotorizado', PedidosMotoController::class)->middleware(['checkRole:motorizado,admin']);

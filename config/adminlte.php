@@ -15,7 +15,7 @@
         |
         */
     
-        'title' => 'AdminLTE 3',
+        'title' => 'Grobdi System',
         'title_prefix' => '',
         'title_postfix' => '',
     
@@ -114,11 +114,11 @@
             'enabled' => true,
             'mode' => 'fullscreen',
             'img' => [
-                'path' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
-                'alt' => 'AdminLTE Preloader Image',
+                'path' => 'images/logo_solo.png',
+                'alt' => 'Grobdi Preloader Image',
                 'effect' => 'animation__shake',
-                'width' => 60,
-                'height' => 60,
+                'width' => 80,
+                'height' => 80,
             ],
         ],
     

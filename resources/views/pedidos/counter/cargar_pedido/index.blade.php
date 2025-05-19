@@ -74,14 +74,14 @@
     
     <br>
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-    <input class="form-control" type="text" id="myInput" onkeyup="searchTable()" placeholder="Buscar...">
+        <input class="form-control" type="text" id="myInput" onkeyup="searchTable()" placeholder="Buscar...">
     </div>
     <table class="table table-striped table-hover" id="myTable">
         <thead>
             <tr>
                 <th>Nro</th>
                 <th>
-                    <a href="{{ route('cargarpedidos.index', ['sort_by' => 'orderId', 'direction' => $ordenarPor == 'orderId' && $direccion == 'asc' ? 'desc' : 'asc','fecha'=>request()->query('fecha')?request()->query('fecha'):date('Y-m-d')]) }}">
+                    <a href="{{ route('cargarpedidos.index', ['sort_by' => 'orderId', 'direction' => $ordenarPor == 'orderId' && $direccion == 'asc' ? 'desc' : 'asc','fecha'=>request()->query('fecha')?request()->query('fecha'):date('Y-m-d'),'filtro'=>request()->query('filtro')?request()->query('filtro'):'deliveryDate']) }}">
                         Id Pedido 
                         @if ($ordenarPor == 'orderId')
                             {{ $direccion == 'asc' ? '↑' : '↓' }}
@@ -89,7 +89,7 @@
                     </a>
                 </th>
                 <th>
-                    <a href="{{ route('cargarpedidos.index', ['sort_by' => 'customerName', 'direction' => $ordenarPor == 'customerName' && $direccion == 'asc' ? 'desc' : 'asc','fecha'=>request()->query('fecha')?request()->query('fecha'):date('Y-m-d')]) }}">
+                    <a href="{{ route('cargarpedidos.index', ['sort_by' => 'customerName', 'direction' => $ordenarPor == 'customerName' && $direccion == 'asc' ? 'desc' : 'asc','fecha'=>request()->query('fecha')?request()->query('fecha'):date('Y-m-d'),'filtro'=>request()->query('filtro')?request()->query('filtro'):'deliveryDate']) }}">
                         Cliente
                         @if ($ordenarPor == 'customerName')
                             {{ $direccion == 'asc' ? '↑' : '↓' }}
@@ -97,7 +97,7 @@
                     </a>
                 </th>
                 <th>
-                    <a href="{{ route('cargarpedidos.index', ['sort_by' => 'doctorName', 'direction' => $ordenarPor == 'doctorName' && $direccion == 'asc' ? 'desc' : 'asc','fecha'=>request()->query('fecha')?request()->query('fecha'):date('Y-m-d')]) }}">
+                    <a href="{{ route('cargarpedidos.index', ['sort_by' => 'doctorName', 'direction' => $ordenarPor == 'doctorName' && $direccion == 'asc' ? 'desc' : 'asc','fecha'=>request()->query('fecha')?request()->query('fecha'):date('Y-m-d'),'filtro'=>request()->query('filtro')?request()->query('filtro'):'deliveryDate']) }}">
                         Doctor
                         @if ($ordenarPor == 'doctorName')
                             {{ $direccion == 'asc' ? '↑' : '↓' }}

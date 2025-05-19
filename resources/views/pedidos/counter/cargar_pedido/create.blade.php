@@ -35,7 +35,7 @@
                 required
             >
             @error('archivo')
-            <p style="color: red;">{{ $archivo }}</p>
+                <p style="color: red;">{{ $archivo }}</p>
             @enderror
         </div>
         <button type="submit" class="btn btn-success"><i class="fas fa-file-excel"></i> Importar Pedidos Excel</button>

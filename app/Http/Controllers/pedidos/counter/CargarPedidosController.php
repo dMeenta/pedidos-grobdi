@@ -203,11 +203,12 @@ class CargarPedidosController extends Controller
     public function uploadfile(Pedidos $pedido){
         $images = explode(",",$pedido->voucher);
         $nro_operaciones = explode(",",$pedido->operationNumber);
+        $recetas = explode(",",$pedido->receta);
         $array_voucher = [];
         foreach ($images as $key => $voucher) {
             array_push($array_voucher,['nro_operacion'=>$nro_operaciones[$key],'voucher'=>$voucher]);
         }
-        return view('pedidos.counter.cargar_pedido.uploadFile',data: compact('pedido','array_voucher'));
+        return view('pedidos.counter.cargar_pedido.uploadFile',data: compact('pedido','array_voucher','recetas'));
     }
     public function actualizarPago(Request $request, $id){
         
@@ -244,13 +245,30 @@ class CargarPedidosController extends Controller
     }
     public function cargarImagenReceta(Request $request, $id){
         $request->validate([
-            'receta' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'receta' => 'required',
+            'receta.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ], [
+            'receta.required' => 'Debes seleccionar al menos una imagen.',
+            'receta.*.image' => 'Cada archivo debe ser una imagen.',
+            'receta.*.mimes' => 'Solo se permiten imágenes con formato jpeg, png, jpg, gif o webp.',
+            'receta.*.max' => 'Cada imagen no puede superar los 2 MB.',
         ]);
-        
-        $imageNameReceta = time().'.'.$request->receta->extension();
-        $request->receta->move(public_path('images/receta_pedidos'), $imageNameReceta);
         $pedidos = Pedidos::find($id);
-        $pedidos->receta = 'images/receta_pedidos/'.$imageNameReceta;
+        if ($request->hasFile('receta')) {
+            $urls = '';
+            $contador = 1;
+            foreach ($request->file('receta') as $imagen) {
+                $imageNameReceta = $pedidos->orderId.'_'.$contador.'_'.time().'.'.$imagen->extension();
+                ++$contador;
+                $imagen->move(public_path('images/receta_pedidos'), $imageNameReceta);
+                if($urls){
+                    $urls = $urls .','.'images/receta_pedidos/'.$imageNameReceta;
+                }else{
+                    $urls = 'images/receta_pedidos/'.$imageNameReceta;
+                }
+            }
+        }
+        $pedidos->receta = $urls;
         $pedidos->save();
         return back()->with('success','Receta cargada exitosamente');
     }
