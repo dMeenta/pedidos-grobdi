@@ -11,7 +11,6 @@
 <div class="card mt-5">
   <h2 class="card-header">Actualizar pago del Pedido N° {{$pedido->orderId}}</h2>
   <div class="card-body">
-  
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
         <a class="btn btn-primary btn-sm" href="{{ route('cargarpedidos.index', ['fecha' => $pedido->deliveryDate]) }}"><i class="fa fa-arrow-left"></i> Atrás</a>
     </div>
@@ -20,10 +19,24 @@
         Agregar Imagen Voucher
         </button>
     </div>
+    @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+        
+    @endif
     <br><div class="row">
         @if ($pedido->voucher)
         @foreach ($array_voucher as $voucher)
             <div class="col-xs-4 col-sm-4 col-md-4">
+                <div class="d-md-flex justify-content-md-center">
+                    <form action="{{ route('cargarpedidos.eliminarFotoVoucher', $pedido->id ) }}" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <input type="hidden" value="{{ $voucher['voucher'] }}" name="voucher">
+                        <button class="btn btn-danger" type="submit"><i class="fa fa-trash"></i> Eliminar</button>
+                    </form>
+                </div>
                 Nro de Operación: <strong>{{ $voucher['nro_operacion'] }}</strong><br>
                 <img src="{{ asset($voucher['voucher']) }}" alt="{{ $pedido->orderId }}" width="500" height="500"">
             </div>
@@ -141,7 +154,7 @@
                         value=""
                         class="form-control @error('operationNumber') is-invalid @enderror" 
                         id="inputoperationNumber" 
-                        placeholder="número de operación">
+                        placeholder="número de operación" required>
                     @error('name')
                         <div class="form-text text-danger">{{ $message }}</div>
                     @enderror

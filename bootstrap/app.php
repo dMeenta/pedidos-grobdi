@@ -5,6 +5,7 @@ use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -20,5 +21,13 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->respond(function (Response $response) {
+            if ($response->getStatusCode() === 419) {
+                return redirect()
+                    ->route('login') // o usa back() si prefieres
+                    ->with('message', 'Tu sesión ha expirado. Por favor, inicia sesión de nuevo.');
+            }
+
+            return $response;
+        });
     })->create();

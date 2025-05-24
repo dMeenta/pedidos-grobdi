@@ -10,8 +10,6 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Laravel\Facades\Image;
-use Intervention\Image\Typography\FontFactory;
-
 class PedidosMotoController extends Controller
 {
     public function index(Request $request){
@@ -65,10 +63,17 @@ class PedidosMotoController extends Controller
 			$imagen = $request->file("fotoDomicilio");
 			$img_ext = explode(".",$imagen->getClientOriginalName());
 			$extension = '.'.$img_ext[1];
-            $imageNameDomicilio = time().$extension;
+            $imageNameDomicilio = $pedidos->orderId.'_'.time().$extension;
 			//$imageNameReceta = time().'.'.$request->receta->extension();
-			
-        	$imagen->move(public_path('images/fotoDomicilio'), $imageNameDomicilio);
+            $img = Image::read($imagen->getRealPath());
+
+            // Redimensionar la imagen
+            $img->resize(800, 700, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            });
+        	$path = public_path('images/fotoDomicilio/'.$imageNameDomicilio);
+            $img->save($path);
             $pedidos->fotoDomicilio = 'images/fotoDomicilio/'.$imageNameDomicilio;
             $pedidos->fechaFotoDomicilio = now();
             $pedidos->save();
@@ -77,10 +82,17 @@ class PedidosMotoController extends Controller
 			$imagen = $request->file("fotoEntrega");
 			$img_ext = explode(".",$imagen->getClientOriginalName());
 			$extension = '.'.$img_ext[1];
-            $imageNameEntrega = time().$extension;
+            $imageNameEntrega = $pedidos->orderId.'_'.time().$extension;
 			//$imageNameReceta = time().'.'.$request->receta->extension();
-			
-        	$imagen->move(public_path('images/fotos_entrega'), $imageNameEntrega);
+            $img = Image::read($imagen->getRealPath());
+
+            // Redimensionar la imagen
+            $img->resize(800, 700, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            });
+            $path = public_path('images/fotos_entrega/'.$imageNameEntrega);
+            $img->save($path);
             $pedidos->fotoEntrega = 'images/fotos_entrega/'.$imageNameEntrega;
             $pedidos->fechaFotoEntrega = now();
             $pedidos->save();

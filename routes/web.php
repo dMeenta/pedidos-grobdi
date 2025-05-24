@@ -49,6 +49,7 @@ Route::middleware(['checkRole:counter,admin'])->group(function () {
     Route::put('/cargarpedidos/cargarImagen/{post}', CargarPedidosController::class .'@cargarImagen')->name('cargarpedidos.cargarImagen');
     Route::put('/cargarpedidos/actualizarPago/{post}', CargarPedidosController::class .'@actualizarPago')->name('cargarpedidos.actualizarPago');
     Route::put('/cargarpedidos/cargarImagenReceta/{post}', CargarPedidosController::class .'@cargarImagenReceta')->name('cargarpedidos.cargarImagenReceta');
+    Route::delete('cargarpedidos/eliminarFotoVoucher/{id}',CargarPedidosController::class.'@eliminarFotoVoucher')->name('cargarpedidos.eliminarFotoVoucher');
     Route::put('/cargarpedidos/actualizarTurno/{id}',CargarPedidosController::class.'@actualizarTurno')->name('cargarpedidos.actualizarTurno');
     Route::resource('asignarpedidos', AsignarPedidoController::class);
     Route::post('/cargarpedidos/downloadWord', CargarPedidosController::class .'@downloadWord')

@@ -276,4 +276,39 @@ class CargarPedidosController extends Controller
     {
         //
     }
+    public function eliminarFotoVoucher(Request $request,$id){
+        $pedido = Pedidos::find($id);
+        $array_voucher = explode(',',$pedido->voucher);
+        $nro_operaciones = explode(",",$pedido->operationNumber);
+        $urls = '';
+        $text_nro_operacion = '';
+        foreach($array_voucher as $key => $voucher){
+            if($voucher == $request->voucher){
+                if (file_exists($voucher)) {
+                    unlink($voucher);
+                }
+                unset($nro_operaciones[$key]);
+                unset($array_voucher[$key]);
+            }
+        }
+        foreach($array_voucher as $key => $voucher){
+            if(count($array_voucher)>1){
+                if($urls){
+                    $urls = $urls .','.$voucher;
+                    $text_nro_operacion = $text_nro_operacion .','.$nro_operaciones[$key];
+                }else{
+                    $urls = $voucher;
+                    $text_nro_operacion = $nro_operaciones[$key];
+                }
+            }else{
+                $urls = $voucher;
+                $text_nro_operacion = $nro_operaciones[$key];
+            }
+        }
+        $pedido->voucher = $urls;
+        $pedido->operationNumber = $text_nro_operacion;
+        $pedido->save();
+
+        return back()->with('success','imagen eliminada exitosamente');
+    }
 }
