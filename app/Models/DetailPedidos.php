@@ -11,6 +11,8 @@ class DetailPedidos extends Model
         'articulo',
         'cantidad',
         'unit_prize',
+        'tecnico_produccion',
+        'estado',
         'sub_total',
     ];
     public function pedido()

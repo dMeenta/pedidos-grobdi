@@ -18,6 +18,8 @@ return new class extends Migration
             $table->integer('cantidad');
             $table->decimal('unit_prize', total: 8, places: 2);
             $table->decimal('sub_total', total: 8, places: 2);
+            $table->boolean('estado')->default(true);          
+            $table->string('tecnico_produccion')->nullable();
             $table->timestamps();
         });
     }
