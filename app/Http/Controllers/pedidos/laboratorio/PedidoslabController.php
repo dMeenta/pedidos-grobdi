@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\pedidos\laboratorio;
 
 use App\Http\Controllers\Controller;
+use App\Models\Bases;
+use App\Models\DetailPedidos;
 use Illuminate\Http\Request;
 use App\Models\Pedidos;
 use App\Models\Zone;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+
 class PedidoslabController extends Controller
 {
     public function index(Request $request)
@@ -30,9 +34,87 @@ class PedidoslabController extends Controller
         }
         return view('pedidos.laboratorio.index', compact('pedidos','turno'));
     }
-    public function show($pedido){
-        $pedido = Pedidos::find($pedido);
-        return view('pedidos.laboratorio.show', compact('pedido'));
+    
+    public function show($id){
+
+        $pedido = Pedidos::with(['detailpedidos' => function ($query) {
+            $query->where('articulo', 'not like', '%bolsa%')
+                ->where('articulo', 'not like', '%delivery%');
+        }])->findOrFail($id);
+
+        $bases = Bases::lista();
+        // dd($pedido->detailpedidos);
+        $array_pedido = [];
+        foreach($pedido->detailpedidos as $detalle){
+            foreach ($bases as $base => $contenido) {
+                // dd($base);
+                if(strpos($detalle->articulo,$base)!==false){
+                    // dd($contenido['clasificacion']);
+                    array_push($array_pedido,[
+                        'articulo'=>$detalle->articulo,
+                        'cantidad'=>$detalle->cantidad,
+                        'clasificacion'=>$contenido['clasificacion']]);
+                }else{
+                    $mensaje = "No se encontró base para este producto";
+                }
+            }
+        }
+        // dd($array_pedido);
+        return response()->json($pedido);
+    }
+    public function pedidosDetalles(Request $request){
+        $detallepedidos = DetailPedidos::whereHas('pedido', function ($query) {
+            $query->whereDate('deliveryDate', Carbon::parse('10-04-2025')->startOfDay());
+        })
+        ->where('articulo', 'not like', '%bolsa%')
+        ->where('articulo', 'not like', '%delivery%')->get();
+        // dd($detallepedidos);
+        $bases = Bases::lista();
+        foreach ($detallepedidos as $detalle) {
+            $detalle->bases = null; // por defecto
+            $detalle->contenido = null;
+
+            foreach ($bases as $palabra => $contenido) {
+                if (stripos($detalle->articulo, $palabra) !== false) {
+                    $detalle->bases = $palabra;
+                    $detalle->contenido = $contenido;
+                    // Expresión regular para capturar nombre + número + unidad
+                    preg_match_all('/(.*?)(\d+)(MG|UI|ML)/i', $detalle->articulo, $matches, PREG_SET_ORDER);
+
+                    $componentes = [];
+
+                    foreach ($matches as $match) {
+                        $nombre = trim($match[1]);
+                        $cantidad = (int) $match[2];
+                        $unidad = strtoupper($match[3]);
+
+                        $componentes[] = [
+                            'nombre'   => $nombre,
+                            'cantidad' => $cantidad,
+                            'unidad'   => $unidad,
+                        ];
+                    }
+                    // dd($componentes[0]['nombre']);
+                    //Al primer array reemplaza los valores de la clasificacion y el " DE0"
+                    if(isset($componentes[0]['nombre'])){
+                        $componentes[0]['nombre'] = str_replace([' DE ',$palabra],'',$componentes[0]['nombre']);
+                        // dd($componentes[0]['nombre']);
+                    }
+                    $detalle->insumos = $componentes;
+                    // dd($detalle->insumos);
+                    // dd($detalle->articulo);
+                    break; // si encuentra uno, sale
+                }
+            }
+        }
+        // foreach($detallepedidos as $detalle){
+        //     foreach($detalle->contenido['clasificacion'] as $key =>$clasificacion){
+
+        //         dd($key);
+        //     }
+        // }
+        return view('pedidos.laboratorio.pedidodetalle',compact('detallepedidos','bases'));
+
     }
 
     /**

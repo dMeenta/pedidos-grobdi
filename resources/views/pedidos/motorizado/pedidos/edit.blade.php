@@ -60,7 +60,7 @@
             </div>
             @if ($pedido->fotoDomicilio)
                 <div class="col-xs-4 col-sm-4 col-md-4">
-                    <img src="{{ asset($pedido->fotoDomicilio) }}" alt="{{ $pedido->orderId }} width="500" height="500""><br>
+                    <img src="{{ asset($pedido->fotoDomicilio) }}" alt="{{ $pedido->orderId }}"><br>
                     <strong>Fecha y hora del registro:</strong>{{ $pedido->fechaFotoDomicilio }}
                 </div><br>
             @endif
@@ -68,9 +68,9 @@
                 <label>Cargar foto del pedido entregado</label>
                 <input class="form-control" accept="image/*" type="file" capture="camera" name="fotoEntrega" id="fotoEntrega">
             </div>
-            @if ($pedido->fotoEntrega)
+            @if($pedido->fotoEntrega)
                 <div class="col-xs-4 col-sm-4 col-md-4">
-                    <img src="{{ asset($pedido->fotoEntrega) }}" alt="{{ $pedido->orderId }} width="500" height="500""><br>
+                    <img src="{{ asset($pedido->fotoEntrega) }}" alt="{{ $pedido->orderId }}"><br>
                     <strong>Fecha y hora del registro:</strong>{{ $pedido->fechaFotoEntrega }}
                 </div>
             @endif
@@ -86,6 +86,13 @@
     {{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://getbootstrap.com/docs/5.3/assets/css/docs.css" rel="stylesheet">
+    <style>
+        img {
+            display: block;
+            margin: 20px auto;
+            max-width: 90%;
+        }
+    </style>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 @stop
 

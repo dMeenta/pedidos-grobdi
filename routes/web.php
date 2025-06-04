@@ -26,6 +26,7 @@ use App\Http\Controllers\muestras\JcomercialController;
 use App\Http\Controllers\muestras\jefe_proyectosController;
 use App\Http\Controllers\muestras\laboratorioController;
 use App\Http\Controllers\muestras\MuestrasController;
+use App\Http\Controllers\pedidos\laboratorio\PresentacionFarmaceuticaController;
 use App\Http\Controllers\pedidos\reportes\FormatosController;
 use App\Http\Controllers\rutas\enrutamiento\EnrutamientoController;
 use App\Http\Controllers\rutas\visita\VisitaDoctorController;
@@ -139,6 +140,13 @@ Route::middleware(['checkRole:laboratorio,admin'])->group(function () {
     Route::put('/muestras/{id}/comentario', [laboratorioController::class, 'actualizarComentario'])->name('muestras.actualizarComentario');
     Route::get('/pedidoslaboratorio/{fecha}/downloadWord/{turno}', PedidoslabController::class .'@downloadWord')
     ->name('pedidoslaboratorio.downloadWord');
+    Route::get('/pedidoslaboratoriodetalles',[PedidoslabController::class,'pedidosDetalles'])->name('pedidosLaboratorio.detalles');
+
+    Route::resource('presentacionfarmaceutica', PresentacionFarmaceuticaController::class);
+    Route::get('insumos/{base_id}',[PresentacionFarmaceuticaController::class,'listarinsumos'])->name('insumos.index');
+    Route::post('bases',[PresentacionFarmaceuticaController::class,'guardarbases'])->name('bases.store');
+    Route::post('insumos',[PresentacionFarmaceuticaController::class,'guardarinsumos'])->name('insumos.store');
+    Route::post('excipientes',[PresentacionFarmaceuticaController::class,'guardarexcipientes'])->name('excipientes.store');
 });
 // Ruta para actualizar el precio de una muestra
 // Ruta para la gestión de precios en la vista de jefe de proyectos

@@ -370,9 +370,21 @@
                     'can' => 'laboratorio'
                 ],
                 [
+                    'text' => 'Detalles Pedidos',
+                    'url' => 'pedidoslaboratoriodetalles',
+                    'icon' => 'fas fa-fw fa-user',
+                    'can' => 'laboratorio'
+                ],
+                [
                     'text' => 'Historial pedidos',
                     'url' => 'historialpedidos',
                     'icon' => 'fas fa-fw fa-history',
+                    'can' => 'laboratorio'
+                ],
+                [
+                    'text' => 'Presentaciones',
+                    'url' => 'presentacionfarmaceutica',
+                    'icon' => 'fas fa-fw fa-flask',
                     'can' => 'laboratorio'
                 ],
                 [

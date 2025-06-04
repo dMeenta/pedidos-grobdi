@@ -10,6 +10,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Laravel\Facades\Image;
+use Intervention\Image\Typography\FontFactory;
+
 class PedidosMotoController extends Controller
 {
     public function index(Request $request){

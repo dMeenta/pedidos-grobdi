@@ -157,7 +157,7 @@
                     <td>
                         <form action="{{ route('cargarpedidos.destroy',$arr->id) }}" method="POST">
                             <a class="btn btn-danger btn-sm" href="{{ route('cargarpedidos.uploadfile',$arr->id) }}"><i class="fa fa-upload"></i>Carga</a>
-                            <a class="btn btn-info btn-sm" href="{{ route('cargarpedidos.show',$arr->id) }}"><i class="fa fa-eye"></i> Ver</a>
+                            <a class="btn btn-info btn-sm" href="{{ route('cargarpedidos.show',$arr->id) }}" target="_blank"><i class="fa fa-eye"></i> Ver</a>
 
                             <a class="btn btn-primary btn-sm" href="{{ route('cargarpedidos.edit',$arr->id) }}"><i class="fa-pencil"></i> Editar</a>
 
