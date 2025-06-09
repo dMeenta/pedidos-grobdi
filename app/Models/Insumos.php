@@ -10,6 +10,10 @@ class Insumos extends Model
 
     public function excipientes()
     {
-        return $this->hasMany(Bases::class,'presentacionfarmaceutica_id');
+        return $this->hasMany(Excipientes::class,'insumos_id');
+    }
+    public function base()
+    {
+        return $this->belongsTo(Bases::class,'bases_id');
     }
 }

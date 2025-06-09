@@ -8,9 +8,13 @@ class Bases extends Model
 {
     protected $table = 'bases';
 
-        public function PresentacionFarmaceutica() // Método en minúsculas y singular
+    public function PresentacionFarmaceutica() // Método en minúsculas y singular
     {
         return $this->belongsTo(PresentacionFarmaceutica::class, 'presentacionfarmaceutica_id'); // Relación con la tabla 'unidad_de_medida'
+    }
+    public function insumos()
+    {
+        return $this->hasMany(Insumos::class); 
     }
     public static function lista(){
         $bases = [

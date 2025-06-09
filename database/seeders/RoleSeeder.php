@@ -22,7 +22,7 @@ class RoleSeeder extends Seeder
             ['name'=>'coordinador-lineas','description'=>'rol de coordinador de lineas'],
             ['name'=>'gerencia-general','description'=>'rol de gerencia general'],
             ['name'=>'supervisor','description'=>'rol de supervisor'],
-            ['name'=>'tecnico_produccion','description'=>'Técnico asignado para elaborar gomitas'],
+            ['name'=>'tecnico_produccion','description'=>'Técnico de produccion de laboratorio'],
         ];
             
             foreach ($roles as $role) {

@@ -27,6 +27,7 @@ use App\Http\Controllers\muestras\jefe_proyectosController;
 use App\Http\Controllers\muestras\laboratorioController;
 use App\Http\Controllers\muestras\MuestrasController;
 use App\Http\Controllers\pedidos\laboratorio\PresentacionFarmaceuticaController;
+use App\Http\Controllers\pedidos\produccion\OrdenesController;
 use App\Http\Controllers\pedidos\reportes\FormatosController;
 use App\Http\Controllers\rutas\enrutamiento\EnrutamientoController;
 use App\Http\Controllers\rutas\visita\VisitaDoctorController;
@@ -141,6 +142,7 @@ Route::middleware(['checkRole:laboratorio,admin'])->group(function () {
     Route::get('/pedidoslaboratorio/{fecha}/downloadWord/{turno}', PedidoslabController::class .'@downloadWord')
     ->name('pedidoslaboratorio.downloadWord');
     Route::get('/pedidoslaboratoriodetalles',[PedidoslabController::class,'pedidosDetalles'])->name('pedidosLaboratorio.detalles');
+    Route::put('pedidoslaboratoriodetalles/asignar/{id}/',[PedidoslabController::class,'asignarTecnicoProd'])->name('pedidosLaboratorio.asignarTecnicoProd');
 
     Route::resource('presentacionfarmaceutica', PresentacionFarmaceuticaController::class);
     Route::get('insumos/{base_id}',[PresentacionFarmaceuticaController::class,'listarinsumos'])->name('insumos.index');
@@ -148,6 +150,8 @@ Route::middleware(['checkRole:laboratorio,admin'])->group(function () {
     Route::post('insumos',[PresentacionFarmaceuticaController::class,'guardarinsumos'])->name('insumos.store');
     Route::post('excipientes',[PresentacionFarmaceuticaController::class,'guardarexcipientes'])->name('excipientes.store');
 });
+    Route::get('pedidosproduccion',OrdenesController::class.'@index')->name('produccion.index')->middleware(['checkRole:tecnico_produccion']);
+    Route::post('pedidosproduccion/{detalleId}/actualizarestado',[OrdenesController::class,'actualizarEstado'])->name('pedidosproduccion.actualizarEstado');
 // Ruta para actualizar el precio de una muestra
 // Ruta para la gestión de precios en la vista de jefe de proyectos
 Route::middleware(['checkRole:jefe-operaciones,admin'])->group(function () {

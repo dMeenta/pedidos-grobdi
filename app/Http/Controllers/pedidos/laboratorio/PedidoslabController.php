@@ -7,6 +7,8 @@ use App\Models\Bases;
 use App\Models\DetailPedidos;
 use Illuminate\Http\Request;
 use App\Models\Pedidos;
+use App\Models\PresentacionFarmaceutica;
+use App\Models\User;
 use App\Models\Zone;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -63,23 +65,27 @@ class PedidoslabController extends Controller
         return response()->json($pedido);
     }
     public function pedidosDetalles(Request $request){
+
+        $tecnicos_produccion = User::whereHas('role',function($query){
+            $query->where('name','like','tecnico_produccion');
+        })->get();
         $detallepedidos = DetailPedidos::whereHas('pedido', function ($query) {
-            $query->whereDate('deliveryDate', Carbon::parse('10-04-2025')->startOfDay());
+            $query->whereDate('deliveryDate', Carbon::parse('14-04-2025')->startOfDay());
         })
         ->where('articulo', 'not like', '%bolsa%')
         ->where('articulo', 'not like', '%delivery%')->get();
         // dd($detallepedidos);
-        $bases = Bases::lista();
+        $presentacion_farmaceutica = PresentacionFarmaceutica::all();
         foreach ($detallepedidos as $detalle) {
             $detalle->bases = null; // por defecto
             $detalle->contenido = null;
 
-            foreach ($bases as $palabra => $contenido) {
-                if (stripos($detalle->articulo, $palabra) !== false) {
-                    $detalle->bases = $palabra;
-                    $detalle->contenido = $contenido;
+            foreach ($presentacion_farmaceutica as $presentacion) {
+                if (stripos($detalle->articulo, $presentacion->name) !== false) {
+                    $detalle->bases = $presentacion->name;
+                    $detalle->contenido = $presentacion->bases;
                     // Expresión regular para capturar nombre + número + unidad
-                    preg_match_all('/(.*?)(\d+)(MG|UI|ML)/i', $detalle->articulo, $matches, PREG_SET_ORDER);
+                    preg_match_all('/(.*?)(\d+)(MG|UI|ML|%)/i', $detalle->articulo, $matches, PREG_SET_ORDER);
 
                     $componentes = [];
 
@@ -97,7 +103,7 @@ class PedidoslabController extends Controller
                     // dd($componentes[0]['nombre']);
                     //Al primer array reemplaza los valores de la clasificacion y el " DE0"
                     if(isset($componentes[0]['nombre'])){
-                        $componentes[0]['nombre'] = str_replace([' DE ',$palabra],'',$componentes[0]['nombre']);
+                        $componentes[0]['nombre'] = str_replace([' DE ',$presentacion->name],'',$componentes[0]['nombre']);
                         // dd($componentes[0]['nombre']);
                     }
                     $detalle->insumos = $componentes;
@@ -113,8 +119,16 @@ class PedidoslabController extends Controller
         //         dd($key);
         //     }
         // }
-        return view('pedidos.laboratorio.pedidodetalle',compact('detallepedidos','bases'));
+        return view('pedidos.laboratorio.pedidodetalle',compact('detallepedidos','presentacion_farmaceutica','tecnicos_produccion'));
 
+    }
+    public function asignarTecnicoProd(Request $request, $id){
+        
+        $detailPed = DetailPedidos::find($id);
+        $detailPed->usuario_produccion_id = $request->usuario_produccion_id;
+        $detailPed->save();
+
+        return redirect()->back()->with('success','Usuario asignado exitosamente');
     }
 
     /**

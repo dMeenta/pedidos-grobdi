@@ -393,6 +393,16 @@
                     'icon' => 'fas fa-fw fa-user',
                     'can' => 'laboratorio'
                 ],
+            [
+                'header' => 'Produccion',
+                'can' => 'tecnico_produccion'
+            ],
+                [
+                    'text' => 'Ordenes',
+                    'url' => 'pedidosproduccion',
+                    'icon' => 'fas fa-fw fa-flask',
+                    'can' => 'tecnico_produccion'
+                ],
             ['header' => 'Contabilidad',
                 'can' => 'contabilidad'],
                 [

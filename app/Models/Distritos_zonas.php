@@ -8,42 +8,45 @@ class Distritos_zonas
     {
         $zona_norte = [
             "Callao",
+            "Breña",
+            "Pueblo Libre",
             "Carabayllo",
             "Comas",
             "Independencia",
             "Los Olivos",
-            "Magdalena",
             "Puente Piedra",
             "San Martín de Porres",
             "San Miguel",
+            "Ventanilla"
         ];
           
         $zona_centro = [
-            "Breña",
             "Cercado de Lima",
             "El Agustino",
             "Jesús María",
             "La Victoria",
             "Lince",
-            "Miraflores",
-            "Pueblo Libre",
+            "Santa Anita",
             "Rímac",
+            "Ate Vitarte",
+            "Ate",
             "San Juan de Lurigancho",
             "SJL",
+            "San Luis",
+            "La Molina",
             "Santa Anita",
-            "San Isidro",
+            
         ];
           
         $zona_sur = [
-            "Ate",
-            "Ate Vitarte",
+            "Miraflores",
+            "Magdalena",
+            "San Isidro",
             "Barranco",
             "Chorrillos",
-            "La Molina",
             "San Borja",
+            "Villa maria del triunfo",
             "San Juan de Miraflores",
-            "San Luis",
-            "Santa Anita",
             "Surco",
             "Surquillo",
             "Villa El Salvador",

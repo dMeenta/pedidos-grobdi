@@ -19,4 +19,8 @@ class DetailPedidos extends Model
     {
         return $this->belongsTo(Pedidos::class,'pedidos_id'); 
     }
+    public function usuario_produccion()
+    {
+        return $this->belongsTo(User::class,'usuario_produccion_id'); 
+    }
 }

@@ -19,14 +19,25 @@
                             <thead>
                                 <tr>
                                     <th>Nombre</th>
+                                    <th>Bases</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($presentacionfarmaceutica as $presentacion)
+                                @foreach ($presentaciones as $presentacion)
                                     <tr data-bs-toggle="collapse" data-bs-target="#bases-{{ $presentacion->id }}" aria-expanded="false" aria-controls="bases-{{ $presentacion->id }}">
                                         <td>{{ $presentacion->name }}</td> 
-                                        <td><button class="btn btn-sm btn-info" type="button" data-toggle="modal" data-target="#presentacion_{{ $presentacion->id }}">Agregar Bases</button></td>  
+                                        <td><button class="btn btn-sm btn-info" type="button" data-toggle="modal" data-target="#presentacion_{{ $presentacion->id }}">Agregar Bases</button></td>
+                                        <td>
+                                        <form action="{{ route('presentacionfarmaceutica.edit', $presentacion->id) }}" method="GET">
+                                            <button type="submit" class="btn btn-sm btn-primary"><i class="fa fa-pen"></i></button>
+                                        </form>
+                                        <form action="{{ route('presentacionfarmaceutica.destroy', $presentacion->id) }}" method="POST" style="display:inline" onsubmit="return confirm('¿Estás seguro de eliminar este ítem?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
+                                        </form>
+                                        </td>
                                     </tr>
                                     <tr class="collapse bg-light" id="bases-{{ $presentacion->id }}">
                                         <td colspan="4">
@@ -42,7 +53,10 @@
                                                     @foreach ($presentacion->bases as $bases)
                                                         <tr>
                                                             <td>{{ $bases->name }}</td>
-                                                            <td><a href="{{ route('insumos.index',$bases->id) }}">Insumos</a></td>
+                                                            <td>
+                                                                <a href="{{ route('insumos.index',$bases->id) }}">Insumos</a>
+                                                            </td>
+
                                                         </tr>
                                                     @endforeach
                                                 </tbody>
@@ -92,16 +106,19 @@
         <div class="col-sm-6">
             <div class="card">
                 <div class="card-header">
-                    <h5>Registrar Presentacion Farmaceutica</h5>
+                    <h5>{{ isset($presentacionfarma)?'Editar Presentacion Farmaceutica':'Registrar Presentacion Farmaceutica' }}</h5>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{{ route('presentacionfarmaceutica.store') }}">
+                    <form method="POST" action="{{ isset($presentacionfarma) ? route('presentacionfarmaceutica.update',$presentacionfarma->id) : route('presentacionfarmaceutica.store') }}">
                         @csrf
+                        @if(isset($presentacionfarma))
+                            @method('PUT')
+                        @endif
                         <div class="mb-3">
                             <label>Nombre:</label>
-                            <input class="form-control" type="text" name="name" placeholder="Ingresar nombre de la presentación Farmaceutica">
+                            <input class="form-control" type="text" name="name" value="{{ old('name', $presentacionfarma->name ?? '') }}" placeholder="Ingresar nombre de la presentación Farmaceutica" required>
                         </dic>
-                        <button class="btn btn-success" type="submit">Registrar</button>
+                        <button class="btn btn-success" type="submit">{{ isset($presentacionfarma)?'Actualizar':'Registrar' }}</button>
                     </form>
                 </div>
             </div>

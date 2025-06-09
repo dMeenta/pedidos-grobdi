@@ -21,6 +21,7 @@
                                     <th>Nombre</th>
                                     <th>Cantidad</th>
                                     <th>Unidad de Medida</th>
+                                    <th>Actualizar</th>
                                     <th>Excipientes</th>
                                 </tr>
                             </thead>
@@ -28,11 +29,12 @@
                                 @foreach ($insumos as $insumo)
                                 <tr>
                                         <td>{{ $insumo->name }}</td> 
-                                        <td>{{ $insumo->cantidad }}</td> 
+                                        <td><input class="form-control" value="{{ $insumo->cantidad }}"></td> 
                                         <td>{{ $insumo->unidad_medida }}</td> 
+                                        <td><button class="btn btn-success"><i class="fa fa-wrench"></i></button></td>
                                         <td>
                                             @if (isset($insumo->excipientes))
-                                            <button type="button" class="btn btn-link" data-toggle="modal" data-target="#insumo_{{ $insumo->id }}"><i class="fa fa-eye"></i> Ver</button>/
+                                            <button type="button" class="btn btn-link" data-toggle="modal" data-target="#insumo_ver_{{ $insumo->id }}"><i class="fa fa-eye"></i> Ver</button>/
                                             
                                             @endif
                                             <button type="button" class="btn btn-link" data-toggle="modal" data-target="#insumo_{{ $insumo->id }}"><i class="fa fa-plus"></i> Agregar</button>
@@ -74,6 +76,35 @@
                                                     <button type="input" class="btn btn-primary">Guardar</button>
                                                 </div>
                                             </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal fade" id="insumo_ver_{{ $insumo->id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="exampleModalLabel">Excipientes de {{ $insumo->name }}</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-6"><label>Nombre</label></div>
+                                                    <div class="col-sm-3"><label>Cantidad</label></div>
+                                                    <div class="col-sm-3"><label>Unidad Medida</label></div>
+                                                </div>
+                                                @foreach ($insumo->excipientes as $excipientes)
+                                                <div class="row">
+                                                    <div class="col-sm-6">{{ $excipientes->name }}</div>
+                                                    <div class="col-sm-3">{{ $excipientes->cantidad }}</div>
+                                                    <div class="col-sm-3">{{ $excipientes->unidad_medida }}</div>
+                                                </div>
+                                                @endforeach
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
