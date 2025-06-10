@@ -85,16 +85,31 @@
                         @endif
                         </td>
                         <td>
-                            <form action="{{ route('pedidoslaboratorio.destroy',$pedido->id) }}" method="POST">
+                            @if ($pedido->receta)
+                                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#imageModal{{ $pedido->id }}"><i class="fa fa-file-image"></i> Imagen
+                                </button>
+                                <div class="modal fade" id="imageModal{{ $pedido->id }}" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel{{ $pedido->id }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="imageModalLabel{{ $pedido->id }}">Nro de Pedido: {{ $pedido->orderId }}</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                                                <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body text-center">
+                                                <img src="{{ asset($pedido->receta) }}" class="img-fluid" alt="{{ $pedido->orderId }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @else
+                                <span class="badge bg-danger">Sin imagen</span>
+                            @endif
+                            <button class="btn btn-secondary btn-sm btn-detalle" type="button"  data-id="{{ $pedido->id }}"><i class="fa fa-info"></i> Detalles</button>
+                            <!-- <a class="btn btn-secondary btn-sm" href="{{ route('pedidoslaboratorio.show',$pedido->id) }}"><i class="fa fa-info"></i> Detalles</a> -->
                  
-                                <button class="btn btn-secondary btn-detalle" type="button"  data-id="{{ $pedido->id }}"><i class="fa fa-info"></i> Detalles</button>
-                                <a class="btn btn-secondary btn-sm" href="{{ route('pedidoslaboratorio.show',$pedido->id) }}"><i class="fa fa-info"></i> Detalles</a>
-                 
-                                @csrf
-                                @method('DELETE')
-                    
-                                <!-- <button type="submit" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash"></i> Delete</button> -->
-                            </form>
+
                         </td>
                     </tr>
                     <div class="modal fade" id="detalleModal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
@@ -103,19 +118,12 @@
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="exampleModalLabel">Pedido:</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
+                                        <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
                                 <div class="modal-body">
                                     <div class="card">
                                         <div class="card-header">
-                                            <div class="row">
-                                                <div class="col col-6"><label>Producto</label></div>
-                                                <div class="col col-2"><label>Cantidad</label></div>
-                                                <div class="col col-2"><label>precio</label></div>
-                                                <div class="col col-2"><label>total</label></div>
-
-                                            </div>
                                         </div>
                                         <div class="card-body">
                                             <ul id="detalle-lista" class="list-group"></ul>
@@ -124,11 +132,12 @@
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
                                 </div>
                             </div>
                         </div>
                     </div>
+
                 @empty
                     <tr>
                         <td colspan="8">No hay información que mostrar</td>
@@ -139,7 +148,21 @@
             </table>
 
         </div>
-
+        <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Imagen de la Receta</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <img id="modalImage" src="" alt="Imagen del producto" class="img-fluid">
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div> 
 @stop
@@ -152,6 +175,7 @@
 
 @section('js')
 <script>
+
     $(document).ready(function () {
         $('.btn-detalle').click(function () {
             const id = $(this).data('id');
@@ -163,7 +187,7 @@
                     $('#detalle-lista').empty();
                     pedido.detailpedidos.forEach(detalle => {
                         $('#detalle-lista').append(`<li class="list-group-item">
-                            Producto: ${detalle.articulo} | Cantidad: ${detalle.cantidad} 
+                            <label>Producto:</label> ${detalle.articulo} | <label>Cantidad:</label> ${detalle.cantidad} 
                         </li>`);
                     });
                     $('#detalleModal').modal('show');
@@ -171,5 +195,6 @@
             });
         });
     });
+    
 </script>
 @stop

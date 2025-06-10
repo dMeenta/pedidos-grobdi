@@ -59,7 +59,7 @@
                                         <div class="modal-content">
                                         <div class="modal-header">
                                             <h5 class="modal-title">Realice su firma</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                                 <span aria-hidden="true">&times;</span>
                                             </button>
                                         </div>
@@ -69,7 +69,7 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button id="btn-guardar" class="btn btn-primary">Actualizar Estado</button>
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                                         </div>
                                         </div>
                                     </div>
@@ -97,9 +97,10 @@
 @stop
 
 @section('js')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        
         let canvas = document.getElementById('myCanvas');
         let ctx = canvas.getContext('2d');
         let isDrawing = false;
@@ -192,7 +193,6 @@
                     _token: '{{ csrf_token() }}',
                 },
                 success: function (response) {
-                    console.log(response.data)
                     if (response.success) {
                         const celda = $('td.estado[data-id="' + detalleId + '"]');
                         celda.html('<span class="badge bg-success">Completado</span>');

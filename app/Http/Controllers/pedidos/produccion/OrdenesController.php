@@ -24,7 +24,7 @@ class OrdenesController extends Controller
 
     public function actualizarEstado(Request $request, $detalleId){
         $detallePedido = DetailPedidos::findOrFail($detalleId);
-        $detallePedido->estado_produccion = $request->estado;
+        $detallePedido->estado_produccion = 1;
         // dd($request->all());
 
 
@@ -33,15 +33,14 @@ class OrdenesController extends Controller
         $img = str_replace(' ', '+', $img);
         $imageName = 'firma_' . $detalleId . '_' . time() . '.png';
 
-        Storage::disk('public')->put($imageName, base64_decode($img));
-
+        Storage::disk('public')->put("firmas_produccion/{$imageName}", base64_decode($img));
+        
         $detallePedido->save();
-
         return response()->json([
             'success' => true,
             'mensaje' => 'Estado actualizado correctamente',
-            'data' => $request->all(),
             'nuevo_estado' => 'Completado'
         ]);
+
     }
 }
