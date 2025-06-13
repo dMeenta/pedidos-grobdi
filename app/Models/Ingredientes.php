@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Insumos extends Model
+class Ingredientes extends Model
 {
-    protected $table = 'insumos';
+    protected $table = 'ingredientes';
 
     public function excipientes()
     {

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('excipientes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('insumos_id')->constrained('insumos')->cascadeOnDelete();
+            $table->foreignId('ingredientes_id')->constrained('ingredientes')->cascadeOnDelete();
             $table->string('name');
             $table->decimal('cantidad',8,2);
             $table->string('unidad_medida');

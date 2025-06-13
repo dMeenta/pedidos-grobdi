@@ -359,6 +359,55 @@
                     ],
                 ],
             ],
+            //sidebar de administracion
+            [
+                'header' => 'Administracion',
+                'can' => 'administracion'
+            ],
+                [
+                    'text' => 'Articulos',
+                    'icon' => 'fas fa-cogs',
+                    'submenu' => [
+                        [
+                            'text' => 'Insumos',
+                            'url' => 'insumo_empaque',
+                            'icon' => 'fas fa-flask',
+                            'can' => 'administracion',
+                        ],
+                        [
+                            'text' => 'Merchandise',
+                            'url' => 'merchandise',
+                            'icon' => 'fas fa-clipboard-list',
+                            'can' => 'administracion',
+                        ],
+                        [
+                            'text' => 'Utiles',
+                            'url' => 'util',
+                            'icon' => 'fas fa-paperclip',
+                            'can' => 'administracion',
+                        ],
+                        
+                    ],
+                ],
+                [
+                    'text' => 'Compras',
+                    'url' => 'compras',
+                    'icon' => 'fas fa-shopping-bag',
+                    'can' => 'administracion',
+                ],
+                [
+                    'text' => 'Proveedores',
+                    'url' => 'proveedores',
+                    'icon' => 'fas fa-truck',
+                    'can' => 'administracion',
+                ],
+                [
+                    'text' => 'Tipo de Cambio',
+                    'url' => '/resumen-tipo-cambio',
+                    'icon' => 'fas fa-exchange-alt',
+                    'can' => 'administracion',
+                ],
+            //sidebar de laboratorio
             [
                 'header' => 'Laboratorio',
                 'can' => 'laboratorio'
@@ -393,6 +442,26 @@
                     'icon' => 'fas fa-fw fa-user',
                     'can' => 'laboratorio'
                 ],
+                [
+                    'text' => 'Producto Final',
+                    'url' => 'producto_final',
+                    'icon' => 'fas fa-vial',
+                    'can' => 'laboratorio'
+                ],
+                [
+                    'text' => 'Base',
+                    'url' => 'bases',
+                    'icon' => 'fas fa-atom',
+                    'can' => 'laboratorio'
+                ],
+                [
+                    'text' => 'Volumen',
+                    'url' => 'volumen',
+                    'icon' => 'fas fa-balance-scale',
+                    'can' => 'laboratorio'
+                ],
+
+                //sidebar produccion
             [
                 'header' => 'Produccion',
                 'can' => 'tecnico_produccion'

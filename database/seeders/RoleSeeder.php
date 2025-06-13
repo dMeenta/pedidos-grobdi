@@ -23,6 +23,7 @@ class RoleSeeder extends Seeder
             ['name'=>'gerencia-general','description'=>'rol de gerencia general'],
             ['name'=>'supervisor','description'=>'rol de supervisor'],
             ['name'=>'tecnico_produccion','description'=>'Técnico de produccion de laboratorio'],
+            ['name'=>'administracion','description'=>'rol de administracion'],
         ];
             
             foreach ($roles as $role) {
