@@ -145,10 +145,12 @@ Route::middleware(['checkRole:laboratorio,admin'])->group(function () {
     Route::put('pedidoslaboratoriodetalles/asignar/{id}/',[PedidoslabController::class,'asignarTecnicoProd'])->name('pedidosLaboratorio.asignarTecnicoProd');
 
     Route::resource('presentacionfarmaceutica', PresentacionFarmaceuticaController::class);
-    Route::get('insumos/{base_id}',[PresentacionFarmaceuticaController::class,'listarinsumos'])->name('insumos.index');
+    Route::get('ingredientes/{base_id}',[PresentacionFarmaceuticaController::class,'listaringredientes'])->name('ingredientes.index');
     Route::post('bases',[PresentacionFarmaceuticaController::class,'guardarbases'])->name('bases.store');
-    Route::post('insumos',[PresentacionFarmaceuticaController::class,'guardarinsumos'])->name('insumos.store');
+    Route::post('ingredientes',[PresentacionFarmaceuticaController::class,'guardaringredientes'])->name('ingredientes.store');
+    Route::put('ingredientes/{id}',[PresentacionFarmaceuticaController::class,'actualizaringredientes'])->name('ingredientes.update');
     Route::post('excipientes',[PresentacionFarmaceuticaController::class,'guardarexcipientes'])->name('excipientes.store');
+    Route::delete('excipientes/{id}',[PresentacionFarmaceuticaController::class,'eliminarexcipientes'])->name('excipientes.delete');
 });
     Route::get('pedidosproduccion',OrdenesController::class.'@index')->name('produccion.index')->middleware(['checkRole:tecnico_produccion']);
     Route::post('pedidosproduccion/{detalleId}/actualizarestado',[OrdenesController::class,'actualizarEstado'])->name('pedidosproduccion.actualizarEstado');

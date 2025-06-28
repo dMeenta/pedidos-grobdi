@@ -12,9 +12,9 @@ class Bases extends Model
     {
         return $this->belongsTo(PresentacionFarmaceutica::class, 'presentacionfarmaceutica_id'); // Relación con la tabla 'unidad_de_medida'
     }
-    public function insumos()
+    public function ingredientes()
     {
-        return $this->hasMany(Insumos::class); 
+        return $this->hasMany(Ingredientes::class); 
     }
     public static function lista(){
         $bases = [

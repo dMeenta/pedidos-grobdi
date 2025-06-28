@@ -54,7 +54,7 @@
                                                         <tr>
                                                             <td>{{ $bases->name }}</td>
                                                             <td>
-                                                                <a href="{{ route('insumos.index',$bases->id) }}">Insumos</a>
+                                                                <a href="{{ route('ingredientes.index',$bases->id) }}">Ingredientes</a>
                                                             </td>
 
                                                         </tr>

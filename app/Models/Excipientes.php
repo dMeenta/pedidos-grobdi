@@ -8,8 +8,8 @@ class Excipientes extends Model
 {
     protected $table = 'excipientes';
 
-    public function insumo()
+    public function ingrediente()
     {
-        return $this->belongsTo(Insumos::class);
+        return $this->belongsTo(Ingredientes::class);
     }
 }

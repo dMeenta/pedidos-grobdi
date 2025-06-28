@@ -65,15 +65,34 @@ class PedidoslabController extends Controller
         return response()->json($pedido);
     }
     public function pedidosDetalles(Request $request){
-
+        // dd($request->all());
         $tecnicos_produccion = User::whereHas('role',function($query){
             $query->where('name','like','tecnico_produccion');
         })->get();
-        $detallepedidos = DetailPedidos::whereHas('pedido', function ($query) {
-            $query->whereDate('deliveryDate', Carbon::parse('14-04-2025')->startOfDay());
-        })
-        ->where('articulo', 'not like', '%bolsa%')
-        ->where('articulo', 'not like', '%delivery%')->get();
+
+        if(isset($request->fecha_produccion)){
+            // $fecha = date('2025-04-16');
+            $fecha = Carbon::parse($request->fecha_produccion)->startOfDay();
+            // dd($fecha);
+        }else{
+            $fecha = date('Y-m-d');
+            // $fecha = date('2025-04-16');
+        }
+        if($request->presentacion){
+            // dd($request->presentacion);
+            $detallepedidos = DetailPedidos::whereHas('pedido', function ($query) use($fecha) {
+                $query->whereDate('deliveryDate', $fecha);
+            })
+            ->where('articulo', 'not like', '%bolsa%')
+            ->where('articulo', 'like', '%'.$request->presentacion.'%')
+            ->where('articulo', 'not like', '%delivery%')->get();
+        }else{
+            $detallepedidos = DetailPedidos::whereHas('pedido', function ($query) use($fecha) {
+                $query->whereDate('deliveryDate', $fecha);
+            })
+            ->where('articulo', 'not like', '%bolsa%')
+            ->where('articulo', 'not like', '%delivery%')->get();
+        }
         // dd($detallepedidos);
         $presentacion_farmaceutica = PresentacionFarmaceutica::all();
         foreach ($detallepedidos as $detalle) {
@@ -106,8 +125,8 @@ class PedidoslabController extends Controller
                         $componentes[0]['nombre'] = str_replace([' DE ',$presentacion->name],'',$componentes[0]['nombre']);
                         // dd($componentes[0]['nombre']);
                     }
-                    $detalle->insumos = $componentes;
-                    // dd($detalle->insumos);
+                    $detalle->ingredientes = $componentes;
+                    // dd($detalle->ingredientes);
                     // dd($detalle->articulo);
                     break; // si encuentra uno, sale
                 }

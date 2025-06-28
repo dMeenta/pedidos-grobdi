@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('insumos', function (Blueprint $table) {
+        Schema::create('ingredientes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('bases_id')->constrained('bases')->cascadeOnDelete();
+            $table->foreignId(column: 'bases_id')->constrained('bases')->cascadeOnDelete();
             $table->string('name');
             $table->decimal('cantidad',8,2);
             $table->string('unidad_medida');
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('insumos');
+        Schema::dropIfExists('ingredientes');
     }
 };

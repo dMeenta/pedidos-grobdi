@@ -4,13 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Insumos extends Model
+class Ingredientes extends Model
 {
-    protected $table = 'insumos';
+    protected $table = 'ingredientes';
 
     public function excipientes()
     {
-        return $this->hasMany(Excipientes::class,'insumos_id');
+        return $this->hasMany(Excipientes::class,'ingredientes_id');
     }
     public function base()
     {

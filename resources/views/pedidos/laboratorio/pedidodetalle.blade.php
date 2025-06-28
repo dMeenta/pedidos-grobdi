@@ -15,21 +15,24 @@
                     <label>Detalles de Pedidos del día {{ date('d/m/Y') }}</label>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <label class="col-sm-1">Filtrar: </label>
-                        <input type="date" name="fecha_produccion" class="form-control col-sm-2">
-                        <div class="col-sm-2">
-                            <select class="form-control" name="base">
-                                @foreach ($presentacion_farmaceutica as $presentacion)
-                                <option>{{ $presentacion->name }}</option>
-                                @endforeach
-                            </select>
+                    <form action="{{ route('pedidosLaboratorio.detalles') }}" method="GET">
+                        <div class="row">
+                            <label class="col-sm-1">Filtrar: </label>
+                            <input type="date" name="fecha_produccion" class="form-control col-sm-2" value="{{ Request::get('fecha_produccion') }}">
+                            <div class="col-sm-2">
+                                <select class="form-control" name="presentacion">
+                                    <option value="">Todos</option>
+                                    @foreach ($presentacion_farmaceutica as $presentacion)
+                                    <option value="{{ $presentacion->name }}" {{ Request::get('presentacion') == $presentacion->name ?'selected':''}}>{{ $presentacion->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <button class="btn btn-primary col-sm-1" type="input"><i class="fa fa-filter"></i>Filtrar</button>
+                            <button onclick="location.reload()" class="btn btn-outline-success  col-sm-2 offset-sm-4">
+                                <i class="fas fa-sync-alt"></i> Recarga pagina
+                            </button>
                         </div>
-                        <button class="btn btn-primary col-sm-1"><i class="fa fa-filter"></i>Filtrar</button>
-                        <button onclick="location.reload()" class="btn btn-outline-success  col-sm-2 offset-sm-4">
-                            <i class="fas fa-sync-alt"></i> Recarga pagina
-                        </button>
-                    </div>
+                    </form>
                     <br>
                     <div class="table-responsive">
                         <table class="table">
@@ -119,15 +122,15 @@
                                                     </div>
                                                     <div class="card-body">
                                                         <div class="row">
-                                                            @if ($detalle->insumos)
-                                                                @foreach ($detalle->insumos as $insumos)
-                                                                    <div class="col col-3"><p>{{$insumos['nombre']}}</p></div>
-                                                                    <div class="col col-3"><p>{{$insumos['cantidad']}}</p></div>
-                                                                    <div class="col col-3"><p>{{$insumos['unidad']}}</p></div>
+                                                            @if ($detalle->ingredientes)
+                                                                @foreach ($detalle->ingredientes as $ingredientes)
+                                                                    <div class="col col-3"><p>{{$ingredientes['nombre']}}</p></div>
+                                                                    <div class="col col-3"><p>{{$ingredientes['cantidad']}}</p></div>
+                                                                    <div class="col col-3"><p>{{$ingredientes['unidad']}}</p></div>
                                                                     @if ($detalle->bases =="GOMITAS" or $detalle->bases =="CAPSULAS" or $detalle->bases =="PAPELILLOS")
-                                                                    <div class="col col-3"><p>{{$insumos['cantidad']*30* $detalle->cantidad }}</p></div>
+                                                                    <div class="col col-3"><p>{{$ingredientes['cantidad']*30* $detalle->cantidad }}</p></div>
                                                                     @elseif($detalle->bases =="JARABE" or $detalle->bases =="POLVO")
-                                                                    <div class="col col-3"><p>{{$insumos['cantidad']*1/1}}</p></div>
+                                                                    <div class="col col-3"><p>{{$ingredientes['cantidad']*1/1}}</p></div>
                                                                     @else
                                                                     <div class="col col-3"><p>No pudimos obtener resultados</p></div>
 
@@ -145,16 +148,16 @@
                                                     <div class="card-body">
                                                         @if(isset($detalle->contenido))
                                                             @foreach($detalle->contenido as $bases)
-                                                                <div class="insumos" id="insumos-{{ $bases->id }}">
+                                                                <div class="ingredientes" id="ingredientes-{{ $bases->id }}">
                                                                     <h4>{{ $bases->name }}</h4>
-                                                                    @if($bases->insumos->count())
+                                                                    @if($bases->ingredientes->count())
                                                                         <ul>
-                                                                            @foreach($bases->insumos as $insumo)
-                                                                                <li><label>{{ $insumo->name }}:</label> Cantidad: {{ $insumo->cantidad }} {{ $insumo->unidad_medida }}</li>
+                                                                            @foreach($bases->ingredientes as $ingrediente)
+                                                                                <li><label>{{ $ingrediente->name }}:</label> Cantidad: {{ $ingrediente->cantidad }} {{ $ingrediente->unidad_medida }}</li>
                                                                             @endforeach
                                                                         </ul>
                                                                     @else
-                                                                        <p>No hay insumos para esta base.</p>
+                                                                        <p>No hay ingredientes para esta base.</p>
                                                                     @endif
                                                                 </div>
                                                             @endforeach

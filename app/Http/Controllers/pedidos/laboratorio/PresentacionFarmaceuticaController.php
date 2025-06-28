@@ -5,7 +5,7 @@ namespace App\Http\Controllers\pedidos\laboratorio;
 use App\Http\Controllers\Controller;
 use App\Models\Bases;
 use App\Models\Excipientes;
-use App\Models\Insumos;
+use App\Models\Ingredientes;
 use App\Models\PresentacionFarmaceutica;
 use Illuminate\Http\Request;
 use Intervention\Image\Colors\Rgb\Channels\Red;
@@ -42,10 +42,10 @@ class PresentacionFarmaceuticaController extends Controller
         $presentacion->delete();
         return redirect()->route('presentacionfarmaceutica.index');
     }
-    public function listarinsumos($id){
-        $insumos = Insumos::where('bases_id',$id)->get();
+    public function listaringredientes($id){
+        $ingredientes = Ingredientes::where('bases_id',$id)->get();
 
-        return view('pedidos.laboratorio.presentacionFarmaceutica.insumo_index',compact('insumos'));
+        return view('pedidos.laboratorio.presentacionFarmaceutica.ingrediente_index',compact('ingredientes'));
     }
     public function guardarbases(Request $request){
         $bases = new bases();
@@ -55,23 +55,36 @@ class PresentacionFarmaceuticaController extends Controller
 
         return redirect()->route('presentacionfarmaceutica.index');
     }
-    public function guardarInsumos(Request $request){
+    public function guardaringredientes(Request $request){
         // dd($request->all());
-        $insumos = new Insumos();
-        $insumos->name = $request->name;
-        $insumos->cantidad = $request->cantidad;
-        $insumos->unidad_medida = $request->unidad_medida;
-        $insumos->bases_id = $request->base_id;
-        $insumos->save();
-        return redirect()->route('insumos.index', $request->base_id);
+        $ingredientes = new Ingredientes();
+        $ingredientes->name = $request->name;
+        $ingredientes->cantidad = $request->cantidad;
+        $ingredientes->unidad_medida = $request->unidad_medida;
+        $ingredientes->bases_id = $request->base_id;
+        $ingredientes->save();
+        return redirect()->route('ingredientes.index', $request->base_id);
+    }
+    public function actualizaringredientes(Request $request,$id){
+        $ingrediente = Ingredientes::find($id);
+        $ingrediente->cantidad = $request->cantidad;
+        $ingrediente->save();
+        
+        return redirect()->back()->with('success','Ingrediente actualizado correctamente');
     }
     public function guardarexcipientes(Request $request){
         $excipientes = new Excipientes();
         $excipientes->name = $request->name;
         $excipientes->cantidad = $request->cantidad;
         $excipientes->unidad_medida = $request->unidad_medida;
-        $excipientes->insumos_id = $request->insumo_id;
+        $excipientes->ingredientes_id = $request->ingrediente_id;
         $excipientes->save();
         return redirect()->back();
+    }
+    public function eliminarexcipientes($id){
+        $excipientes = Excipientes::find($id);
+        $excipientes->delete();
+
+        return redirect()->back()->with('success','Excipiente eliminado correctamente                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ');
     }
 }
