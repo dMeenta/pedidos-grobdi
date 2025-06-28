@@ -359,6 +359,55 @@
                     ],
                 ],
             ],
+            //sidebar de administracion
+            [
+                'header' => 'Administracion',
+                'can' => 'administracion'
+            ],
+                [
+                    'text' => 'Articulos',
+                    'icon' => 'fas fa-cogs',
+                    'submenu' => [
+                        [
+                            'text' => 'Insumos',
+                            'url' => 'insumo_empaque',
+                            'icon' => 'fas fa-flask',
+                            'can' => 'administracion',
+                        ],
+                        [
+                            'text' => 'Merchandise',
+                            'url' => 'merchandise',
+                            'icon' => 'fas fa-clipboard-list',
+                            'can' => 'administracion',
+                        ],
+                        [
+                            'text' => 'Utiles',
+                            'url' => 'util',
+                            'icon' => 'fas fa-paperclip',
+                            'can' => 'administracion',
+                        ],
+                        
+                    ],
+                ],
+                [
+                    'text' => 'Compras',
+                    'url' => 'compras',
+                    'icon' => 'fas fa-shopping-bag',
+                    'can' => 'administracion',
+                ],
+                [
+                    'text' => 'Proveedores',
+                    'url' => 'proveedores',
+                    'icon' => 'fas fa-truck',
+                    'can' => 'administracion',
+                ],
+                [
+                    'text' => 'Tipo de Cambio',
+                    'url' => '/resumen-tipo-cambio',
+                    'icon' => 'fas fa-exchange-alt',
+                    'can' => 'administracion',
+                ],
+            //sidebar de laboratorio
             [
                 'header' => 'Laboratorio',
                 'can' => 'laboratorio'
@@ -390,9 +439,29 @@
                 [
                     'text' => 'Muestras',
                     'url' => 'laboratorio',
-                    'icon' => 'fas fa-fw fa-user',
+                    'icon' => 'fas fa-pump-medical',
                     'can' => 'laboratorio'
                 ],
+                [
+                    'text' => 'Producto Final',
+                    'url' => 'producto_final',
+                    'icon' => 'fas fa-vial',
+                    'can' => 'laboratorio'
+                ],
+                [
+                    'text' => 'Base',
+                    'url' => 'bases',
+                    'icon' => 'fas fa-atom',
+                    'can' => 'laboratorio'
+                ],
+                [
+                    'text' => 'Volumen',
+                    'url' => 'volumen',
+                    'icon' => 'fas fa-balance-scale',
+                    'can' => 'laboratorio'
+                ],
+
+                //sidebar produccion
             [
                 'header' => 'Produccion',
                 'can' => 'tecnico_produccion'
@@ -486,7 +555,7 @@
                 [
                     'text' => 'Muestras',
                     'url' => 'muestras',
-                    'icon' => 'fas fa-fw fa-user',
+                    'icon' => 'fas fa-pump-medical',
                     'can' => 'visitador'
                 ],
                 //Jefe de Operaciones
@@ -497,7 +566,7 @@
                 [
                     'text' => 'Muestras',
                     'url' => 'jefe-operaciones',
-                    'icon' => 'fas fa-fw fa-user',
+                    'icon' => 'fas fa-pump-medical',
                     'can' => 'jefe-operaciones'
                 ],
                 //Coordinador de Lineas
@@ -508,7 +577,7 @@
                 [
                     'text' => 'Muestras',
                     'url' => 'Coordinadora',
-                    'icon' => 'fas fa-fw fa-user',
+                    'icon' => 'fas fa-pump-medical',
                     'can' => 'coordinador-lineas'
                 ],
                 //Jefe comercial
@@ -519,7 +588,7 @@
                 [
                     'text' => 'Muestras',
                     'url' => 'jefe-comercial',
-                    'icon' => 'fas fa-fw fa-user',
+                    'icon' => '	fas fa-pump-medical',
                     'can' => 'jefe-comercial'
                 ],
                 //sidebar de gerencia General
@@ -529,24 +598,24 @@
                 ],
                     [
                         'text' => 'Muestras',
-                        'icon' => 'fas fa-fw fa-wrench',
+                        'icon' => 'fas fa-pump-medical',
                         'submenu' => [
                             [
                                 'text' => 'clasificaciones',
                                 'url' => 'reporte',
-                                'icon' => 'fas fa-fw fa-h-square',
+                                'icon' => 'fas fa-chart-bar',
                                 'can' => 'gerencia-general',
                             ],
                             [
                                 'text' => 'Frasco Muestra',
                                 'url' => 'reporte/frasco-muestra',
-                                'icon' => 'fas fa-fw fa-medkit',
+                                'icon' => 'fas fa-chart-line',
                                 'can' => 'gerencia-general',
                             ],
                             [
                                 'text' => 'Frasco Original',
                                 'url' => 'reporte/frasco-original',
-                                'icon' => 'fas fa-fw fa-user-md',
+                                'icon' => 'fas fa-chart-line',
                                 'can' => 'gerencia-general',
                             ],
                         ],

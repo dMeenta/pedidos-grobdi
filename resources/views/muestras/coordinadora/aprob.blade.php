@@ -67,9 +67,10 @@
                             </td>
                             <td>
                             <div class="d-flex gap-2">
-                                <a title="Ver detalles" href="{{ route('muestras.showCo', $muestra->id) }}" class="btn btn-success btn-sm">
+                                @include('muestras.coordinadora.showCo')
+                                <button class="btn btn-success btn-sm"  data-bs-toggle="modal" data-bs-target="#muestraModal{{ $muestra->id }}">
                                     <i class="bi bi-binoculars"></i>
-                                </a>
+                                </button>
                                 <a href="{{ route('muestras.editCO', $muestra->id) }}" class="btn btn-primary btn-sm">
                                     <i class="bi bi-pencil-square"></i>   
                                 </a>
@@ -105,6 +106,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 
     <script>
+        // Seleccionamos todos los botones con la clase 'verFotoBtn'
+        document.querySelectorAll('.verFotoBtn').forEach(function(button) {
+            button.addEventListener('click', function() {
+                // Encontramos el contenedor de foto correspondiente al botón
+                var fotoContainer = this.nextElementSibling;
+                var isVisible = fotoContainer.style.display === 'block';
+
+                // Alterna entre mostrar y ocultar la foto
+                fotoContainer.style.display = isVisible ? 'none' : 'block';
+
+                // Cambiar el texto del botón según el estado de la foto
+                this.innerHTML = isVisible ? '<i class="bi bi-eye"></i> Ver Foto' : '<i class="bi bi-eye-slash"></i> Ocultar Foto';
+            });
+        });
             // Función para manejar la aprobación de coordinadora
             function actualizarAprobacion(id, field, value) {
                 $.ajax({

@@ -31,7 +31,17 @@ use App\Http\Controllers\pedidos\produccion\OrdenesController;
 use App\Http\Controllers\pedidos\reportes\FormatosController;
 use App\Http\Controllers\rutas\enrutamiento\EnrutamientoController;
 use App\Http\Controllers\rutas\visita\VisitaDoctorController;
-
+//COTIZADOR GENERAL
+use App\Http\Controllers\cotizador\ProductoFinalController;
+use App\Http\Controllers\cotizador\BaseController;
+use App\Http\Controllers\cotizador\InsumoEmpaqueController;
+//softlyn modulos
+use App\Http\Controllers\softlyn\VolumenController;
+use App\Http\Controllers\softlyn\ProveedorController;
+use App\Http\Controllers\softlyn\TipoCambioController;
+use App\Http\Controllers\softlyn\MerchandiseController;
+use App\Http\Controllers\softlyn\CompraController;
+use App\Http\Controllers\softlyn\UtilController;
 // use App\Http\Middleware\RoleMiddleware;
 
 // use Auth;
@@ -196,3 +206,43 @@ Route::middleware(['checkRole:gerencia-general,admin'])->group(function () {
     Route::get('reporte/PDF-frascoMuestra', [gerenciaController::class, 'exportarPDF'])->name('muestras.exportarPDF');
     Route::get('reporte/PDF-frascoOriginal', [gerenciaController::class, 'exportarPDFFrascoOriginal'])->name('muestras.frasco.original.pdf');
 });
+
+//COTIZADOR GENERAL----------
+//modulos del softlyn
+Route::middleware(['checkRole:administracion,admin'])->group(function () {
+    //Administración
+    Route::resource('insumo_empaque', InsumoEmpaqueController::class);
+    //Crud proveedores
+    Route::resource('proveedores', ProveedorController::class)->parameters([
+            'proveedores' => 'proveedor']); 
+    //Crud tipo de cambio- EL PRINCIPAL ES RESUMEN-TIPO-CAMBIO!!!
+    Route::resource('tipo_cambio', TipoCambioController::class);
+    Route::get('/resumen-tipo-cambio', [TipoCambioController::class, 'resumenTipoCambio'])->name('tipo_cambio.resumen');
+
+    //crud para merchandise
+    Route::resource('merchandise', MerchandiseController::class);
+    //Ruta para utiles
+    Route::resource('util', UtilController::class);
+    //crud compras
+    Route::resource('compras', CompraController::class);
+});
+
+Route::middleware(['checkRole:administracion,admin'])->group(function () {
+    // Rutas estándar del CRUD
+    Route::resource('producto_final', ProductoFinalController::class);
+
+    //crud volumen
+    Route::resource('volumen', VolumenController::class);
+
+    //Laboratorio 
+    Route::resource('bases', BaseController::class);
+    // Rutas adicionales para AJAX
+    /* Route::get('articulos/por-tipo', [CompraController::class, 'getArticulosByTipo'])
+        ->name('articulos.por-tipo');
+    */
+});
+
+
+
+
+

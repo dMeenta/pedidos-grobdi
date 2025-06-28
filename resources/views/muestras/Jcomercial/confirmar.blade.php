@@ -58,9 +58,10 @@
                                 </span>
                             </td>
                             <td>
-                                <a title="Ver detalles" href="{{ route('muestras.showJC', $muestra->id) }}" class="btn btn-success btn-sm">
+                                @include('muestras.Jcomercial.showJC')
+                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#muestraModal{{ $muestra->id }}">
                                     <i class="bi bi-binoculars"></i>
-                                </a>
+                                </button>
                             </td>
                         </tr>
                     @endforeach

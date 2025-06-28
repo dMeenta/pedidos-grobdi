@@ -17,7 +17,16 @@ class UnidadesYClasificacionesSeeder extends Seeder
         $unidades = [
             ['nombre_unidad_de_medida' => 'und'],
             ['nombre_unidad_de_medida' => 'ml'],
-            ['nombre_unidad_de_medida' => 'gr']
+            ['nombre_unidad_de_medida' => 'g'],
+            //SIN RELACION CON LAS CLISIFICACIONES, nuevas unidades de medida para la calculadora
+            ['nombre_unidad_de_medida' => 'mcg'],
+            ['nombre_unidad_de_medida' => 'ml'],
+            ['nombre_unidad_de_medida' => 'ui'],
+            ['nombre_unidad_de_medida' => '%'],
+            ['nombre_unidad_de_medida' => 'g'],
+            ['nombre_unidad_de_medida' => 'mg'],
+            ['nombre_unidad_de_medida' => 'L'],
+            ['nombre_unidad_de_medida' => 'kg'],
         ];
 
         foreach ($unidades as $unidad) {
@@ -38,14 +47,16 @@ class UnidadesYClasificacionesSeeder extends Seeder
             'Soluciones' => 'ml',
             'Solución Nasal' => 'ml',
             'Shampoo' => 'ml',
+            'Solución Topico' => 'ml',
+            'Solución Oral' => 'ml',
             
             // Clasificaciones que usan "gr" (gramos)
-            'Polvo' => 'gr',
-            'Talco' => 'gr',
-            'Cremas' => 'gr',
-            'Unguento' => 'gr',
-            'Geles' => 'gr',
-            'Jabon' => 'gr'
+            'Polvo' => 'g',
+            'Talco' => 'g',
+            'Cremas' => 'g',
+            'Unguento' => 'g',
+            'Gel' => 'g',
+            'Jabon' => 'g'
         ];
 
         foreach ($clasificaciones as $nombre => $unidad) {

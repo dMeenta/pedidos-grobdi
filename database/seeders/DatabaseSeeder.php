@@ -143,6 +143,13 @@ class DatabaseSeeder extends Seeder
             'active'=> 1,
             'role_id' => 11,
         ]);
+        User::factory()->create([
+            'name' => 'Administracion',
+            'email' => 'administracion@grobdi.com',
+            'password'=> bcrypt('12345678'),
+            'active'=> 1,
+            'role_id' => 13,
+        ]);
         $this->call(ZoneSeeder::class);
         $this->call(ModuleSeeder::class);
         $this->call(DepartamentosSeeder::class);
@@ -151,6 +158,10 @@ class DatabaseSeeder extends Seeder
         $this->call(DaySeeder::class);
         $this->call(UnidadesYClasificacionesSeeder::class);
         $this->call(EstadoVisitaSeeder::class);
+        $this->call(ConfiguracionesSeeder::class);
+        $this->call(TipoMonedaSeeder::class);
+        $this->call(VolumenesPorClasificacionSeeder::class);
+
 
     }
 }

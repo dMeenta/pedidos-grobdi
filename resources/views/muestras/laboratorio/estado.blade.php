@@ -59,9 +59,10 @@
                                 <select name="estado" 
                                         onchange="actualizarEstado({{ $muestra->id }}, this.value)" 
                                         class="custom-select">
-                                    <option selected value="Pendiente" {{ $muestra->estado == 'Pendiente' ? 'selected' : '' }}>Pendiente</option>
+                                    <option value="" disabled {{ empty($muestra->estado) ? 'selected' : '' }}>Seleccione estado</option>
+                                    <option value="Pendiente" {{ $muestra->estado == 'Pendiente' ? 'selected' : '' }}>Pendiente</option>
                                     <option value="Elaborado" {{ $muestra->estado == 'Elaborado' ? 'selected' : '' }}>Elaborado</option>
-                                </select>   
+                                </select>
                             </td>
                             <td>
                                 <span class="badge" 
@@ -80,9 +81,10 @@
                                 @endif
                             </td>
                             <td>
-                                <a title="Ver detalles de la muestra" href="{{ route('muestras.showLab', $muestra->id) }}" class="btn btn-success">
-                                    <i class="bi bi-binoculars"></i>
-                                </a>
+                               @include('muestras.laboratorio.showlab')
+                                <button type="button" class="btn" style="background-color:rgb(152, 236, 62); color: white; border-radius: 5px;" data-bs-toggle="modal" data-bs-target="#contenidoModal{{ $muestra->id }}">
+                                    <i class="bi bi-eye"></i> 
+                                </button>
                             </td> 
                         </tr>
                     @endforeach
@@ -94,6 +96,7 @@
     @stop
 
 @section('css')
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="{{ asset('css/muestras/labora.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
@@ -106,6 +109,21 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
     
     <script>
+                    // Seleccionamos todos los botones con la clase 'verFotoBtn'
+                document.querySelectorAll('.verFotoBtn').forEach(function(button) {
+                    button.addEventListener('click', function() {
+                        // Encontramos el contenedor de foto correspondiente al botón
+                        var fotoContainer = this.nextElementSibling;
+                        var isVisible = fotoContainer.style.display === 'block';
+
+                        // Alterna entre mostrar y ocultar la foto
+                        fotoContainer.style.display = isVisible ? 'none' : 'block';
+
+                        // Cambiar el texto del botón según el estado de la foto
+                        this.innerHTML = isVisible ? '<i class="bi bi-eye"></i> Ver Foto' : '<i class="bi bi-eye-slash"></i> Ocultar Foto';
+                    });
+                });
+
                            // Función para enviar la actualización
                            function actualizarEstado(id, nuevoEstado) {
                     $.ajax({
