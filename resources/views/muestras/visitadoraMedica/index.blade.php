@@ -61,9 +61,10 @@
                             <td>
                                 <div class="d-flex gap-2">
                                     @include('muestras.visitadoraMedica.show')
-                                    <button class="btn btn-success btn-sm"  data-bs-toggle="modal" data-bs-target="#muestraModal{{ $muestra->id }}">
-                                        <i class="bi bi-binoculars"></i>
-                                    </button>
+<button class="btn btn-success btn-sm" data-toggle="modal" data-target="#muestraModal{{ $muestra->id }}">
+    <i class="bi bi-binoculars"></i>
+</button>
+
                                     <a href="{{ route('muestras.edit', $muestra->id) }}" class="btn btn-primary btn-sm">
                                         <i class="bi bi-pencil-square"></i>   
                                     </a>

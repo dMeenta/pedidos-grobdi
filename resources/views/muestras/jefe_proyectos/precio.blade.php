@@ -52,7 +52,7 @@
                         </td>
                         <td>
                             @include('muestras.jefe_proyectos.showJO')
-                            <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#muestraModal{{ $muestra->id }}">
+                            <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#muestraModal{{ $muestra->id }}">
                                 <i class="bi bi-binoculars"></i>
                             </button>
                         </td>

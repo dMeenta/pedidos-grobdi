@@ -59,7 +59,7 @@
                             </td>
                             <td>
                                 @include('muestras.Jcomercial.showJC')
-                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#muestraModal{{ $muestra->id }}">
+                                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#muestraModal{{ $muestra->id }}">
                                     <i class="bi bi-binoculars"></i>
                                 </button>
                             </td>

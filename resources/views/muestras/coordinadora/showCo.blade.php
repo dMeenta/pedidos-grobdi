@@ -1,16 +1,20 @@
-<div class="modal fade" id="muestraModal{{ $muestra->id }}" tabindex="-1" aria-labelledby="muestraModalLabel{{ $muestra->id }}" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+<!-- Modal para mostrar los detalles de la muestra -->
+<div class="modal fade" id="muestraModal{{ $muestra->id }}" tabindex="-1" role="dialog" aria-labelledby="muestraModalLabel{{ $muestra->id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content" style="border-radius: 15px;">
-            <div class="modal-header" style="background-color:hsl(353, 100.00%, 69.60%); color: white;">
+            <div class="modal-header" style="background-color:hsl(353, 100%, 69.6%); color: white;">
                 <h5 class="modal-title" id="muestraModalLabel{{ $muestra->id }}">Datos de la Muestra</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
+
             <div class="modal-body">
                 <div class="row">
                     <!-- Primera columna: Información General -->
-                    <div class="col-md-6 mb-4" style="overflow-wrap: break-word;word-wrap: break-word; white-space: normal;">
+                    <div class="col-md-6 mb-4" style="overflow-wrap: break-word; white-space: normal;">
                         <div class="card" style="border-radius: 10px;">
-                            <div class="card-header"  style="background-color:rgb(255, 175, 184); color: rgb(169, 68, 80);">
+                            <div class="card-header" style="background-color:rgb(255, 175, 184); color: rgb(169, 68, 80);">
                                 <h5><i class="bi bi-info-circle" style="margin-right: 6px;"></i> Información General</h5>
                             </div>
                             <div class="card-body">
@@ -37,32 +41,33 @@
                     </div>
 
                     <!-- Segunda columna: Estado y Fechas -->
-                    <div class="col-md-6 mb-4" style="overflow-wrap: break-word;word-wrap: break-word; white-space: normal;">
+                    <div class="col-md-6 mb-4" style="overflow-wrap: break-word; white-space: normal;">
                         <div class="card" style="border-radius: 10px;">
-                            <div class="card-header"  style="background-color:rgb(255, 175, 184); color: rgb(169, 68, 80);">
+                            <div class="card-header" style="background-color:rgb(255, 175, 184); color: rgb(169, 68, 80);">
                                 <h5><i class="bi bi-clock-history" style="margin-right: 6px;"></i> Estado y Fechas</h5>
                             </div>
                             <div class="card-body">
                                 <p><strong style="color:rgb(224, 61, 80);">Aprobado por Jefe Comercial:</strong>
-                                    <span class="badge"
+                                    <span class="badge badge-pill"
                                         style="background-color: {{ $muestra->aprobado_jefe_comercial ? 'green' : ($muestra->aprobado_coordinadora ? 'yellow' : 'red') }};
-                                                color: {{ ($muestra->aprobado_jefe_comercial == false && $muestra->aprobado_coordinadora == false) || $muestra->aprobado_jefe_comercial ? 'white' : 'black' }}; 
+                                                color: {{ ($muestra->aprobado_jefe_comercial == false && $muestra->aprobado_coordinadora == false) || $muestra->aprobado_jefe_comercial ? 'white' : 'black' }};
                                                 padding: 10px;">
                                         {{ $muestra->aprobado_jefe_comercial ? 'Aprobado' : 'Pendiente' }}
                                     </span>
                                 </p>
 
                                 <p><strong style="color:rgb(224, 61, 80);">Aprobado por Coordinadora:</strong>
-                                    <span class="badge"
-                                        style="background-color: {{ $muestra->aprobado_coordinadora ? 'green' : ($muestra->aprobado_jefe_comercial ? 'yellow' : 'red') }}; 
-                                                color: {{ ($muestra->aprobado_coordinadora == false && $muestra->aprobado_jefe_comercial == false) || $muestra->aprobado_coordinadora ? 'white' : 'black' }}; 
+                                    <span class="badge badge-pill"
+                                        style="background-color: {{ $muestra->aprobado_coordinadora ? 'green' : ($muestra->aprobado_jefe_comercial ? 'yellow' : 'red') }};
+                                                color: {{ ($muestra->aprobado_coordinadora == false && $muestra->aprobado_jefe_comercial == false) || $muestra->aprobado_coordinadora ? 'white' : 'black' }};
                                                 padding: 10px;">
                                         {{ $muestra->aprobado_coordinadora ? 'Aprobado' : 'Pendiente' }}
                                     </span>
                                 </p>
 
                                 <p><strong style="color:rgb(224, 61, 80);">Estado:</strong>
-                                    <span class="badge" style="background-color: {{ $muestra->estado == 'Pendiente' ? 'red' : 'green' }}; color: white; padding: 10px;">
+                                    <span class="badge badge-pill"
+                                        style="background-color: {{ $muestra->estado == 'Pendiente' ? 'red' : 'green' }}; color: white; padding: 10px;">
                                         {{ $muestra->estado }}
                                     </span>
                                 </p>
@@ -78,7 +83,6 @@
                                     readonly style="background-color:rgb(244, 232, 255); color: #555; border: 2px solid #ccc; font-weight: bold;">
                             </div>
 
-                            <!-- Botón para mostrar/ocultar la foto -->
                             <div class="card-footer">
                                 <strong style="color:rgb(224, 61, 80);">Foto Receta:</strong>
                                 @if($muestra->foto)
@@ -98,11 +102,9 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Bootstrap 5 Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>

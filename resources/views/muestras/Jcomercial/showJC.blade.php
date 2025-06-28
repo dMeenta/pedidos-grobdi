@@ -1,11 +1,13 @@
 <!-- Modal -->
-<div class="modal fade" id="muestraModal{{ $muestra->id }}" tabindex="-1" aria-labelledby="muestraModalLabel{{ $muestra->id }}" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+<div class="modal fade" id="muestraModal{{ $muestra->id }}" tabindex="-1" role="dialog" aria-labelledby="muestraModalLabel{{ $muestra->id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content" style="border-radius: 15px;">
             <!-- Modal Header -->
-            <div class="modal-header" style="background-color:hsl(353, 100.00%, 69.60%); color: white;">
+            <div class="modal-header" style="background-color:hsl(353, 100%, 69.6%); color: white;">
                 <h5 class="modal-title" id="muestraModalLabel{{ $muestra->id }}">Datos de la Muestra</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
 
             <!-- Modal Body -->
@@ -13,7 +15,7 @@
                 <div class="row">
                     <!-- Card Información General -->
                     <div class="col-md-6 mb-4">
-                        <div class="card" style="overflow-wrap: break-word;word-wrap: break-word; white-space: normal;">
+                        <div class="card" style="overflow-wrap: break-word; white-space: normal;">
                             <div class="card-header" style="background-color:rgb(255, 175, 184); color: rgb(169, 68, 80);">
                                 <h5><i class="bi bi-info-circle" style="margin-right: 6px;"></i> Información General</h5>
                             </div>
@@ -39,7 +41,7 @@
                     </div>
 
                     <!-- Card Estado y Fechas -->
-                    <div class="col-md-6 mb-4" style="overflow-wrap: break-word;word-wrap: break-word; white-space: normal;">
+                    <div class="col-md-6 mb-4" style="overflow-wrap: break-word; white-space: normal;">
                         <div class="card" style="border-radius: 10px;">
                             <div class="card-header" style="background-color:rgb(255, 175, 184); color: rgb(169, 68, 80);">
                                 <h5><i class="bi bi-clock-history" style="margin-right: 6px;"></i> Estado y Fechas</h5>
@@ -48,7 +50,8 @@
                                 <p><strong class="text-danger">Aprobado por Jefe Comercial:</strong>
                                     <span class="badge"
                                         style="background-color: {{ $muestra->aprobado_jefe_comercial ? 'green' : ($muestra->aprobado_coordinadora ? 'yellow' : 'red') }};
-                                                color: {{ ($muestra->aprobado_jefe_comercial == false && $muestra->aprobado_coordinadora == false) || $muestra->aprobado_jefe_comercial ? 'white' : 'black' }}; padding: 10px;">
+                                               color: {{ ($muestra->aprobado_jefe_comercial == false && $muestra->aprobado_coordinadora == false) || $muestra->aprobado_jefe_comercial ? 'white' : 'black' }};
+                                               padding: 10px;">
                                         {{ $muestra->aprobado_jefe_comercial ? 'Aprobado' : 'Pendiente' }}
                                     </span>
                                 </p>
@@ -56,21 +59,24 @@
                                 <p><strong class="text-danger">Aprobado por Coordinadora:</strong>
                                     <span class="badge"
                                         style="background-color: {{ $muestra->aprobado_coordinadora ? 'green' : ($muestra->aprobado_jefe_comercial ? 'yellow' : 'red') }};
-                                                color: {{ ($muestra->aprobado_coordinadora == false && $muestra->aprobado_jefe_comercial == false) || $muestra->aprobado_coordinadora ? 'white' : 'black' }}; padding: 10px;">
+                                               color: {{ ($muestra->aprobado_coordinadora == false && $muestra->aprobado_jefe_comercial == false) || $muestra->aprobado_coordinadora ? 'white' : 'black' }};
+                                               padding: 10px;">
                                         {{ $muestra->aprobado_coordinadora ? 'Aprobado' : 'Pendiente' }}
                                     </span>
                                 </p>
 
                                 <p><strong class="text-danger">Estado:</strong>
-                                    <span class="badge" style="background-color: {{ $muestra->estado == 'Pendiente' ? 'red' : 'green' }}; color: white; padding: 10px;">
+                                    <span class="badge"
+                                          style="background-color: {{ $muestra->estado == 'Pendiente' ? 'red' : 'green' }};
+                                                 color: white; padding: 10px;">
                                         {{ $muestra->estado }}
                                     </span>
                                 </p>
 
                                 <p><strong class="text-danger">Fecha y Hora Recibida:</strong></p>
                                 <input type="text" class="form-control mb-2"
-                                        value="{{ $muestra->updated_at ? \Carbon\Carbon::parse($muestra->updated_at)->format('Y-m-d H:i') : ($muestra->created_at ? \Carbon\Carbon::parse($muestra->created_at)->format('Y-m-d H:i') : 'No disponible') }}"
-                                        readonly style="background-color:rgb(251, 239, 252); color: #555; border: 2px solid #ccc; font-weight: bold;">
+                                       value="{{ $muestra->updated_at ? \Carbon\Carbon::parse($muestra->updated_at)->format('Y-m-d H:i') : ($muestra->created_at ? \Carbon\Carbon::parse($muestra->created_at)->format('Y-m-d H:i') : 'No disponible') }}"
+                                       readonly style="background-color:rgb(251, 239, 252); color: #555; border: 2px solid #ccc; font-weight: bold;">
                             </div>
                         </div>
                     </div>
@@ -79,20 +85,12 @@
 
             <!-- Modal Footer -->
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
 </div>
-
-<!-- Bootstrap 5 CSS and Icons -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-
-<!-- Custom CSS -->
 <link rel="stylesheet" href="{{ asset('css/muestras/home.css') }}">
-
-<!-- Custom Styles -->
 <style>
     .card-header {
         background-color: #fe495f;
@@ -114,6 +112,3 @@
         font-size: 0.9rem;
     }
 </style>
-
-<!-- Bootstrap 5 JavaScript -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
