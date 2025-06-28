@@ -68,7 +68,7 @@
                             <td>
                             <div class="d-flex gap-2">
                                 @include('muestras.coordinadora.showCo')
-                                <button class="btn btn-success btn-sm"  data-bs-toggle="modal" data-bs-target="#muestraModal{{ $muestra->id }}">
+                                <button class="btn btn-success btn-sm"  data-toggle="modal" data-target="#muestraModal{{ $muestra->id }}">
                                     <i class="bi bi-binoculars"></i>
                                 </button>
                                 <a href="{{ route('muestras.editCO', $muestra->id) }}" class="btn btn-primary btn-sm">
