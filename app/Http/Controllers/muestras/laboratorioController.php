@@ -25,10 +25,22 @@ class laboratorioController extends Controller
        return view('muestras.laboratorio.showlab', ['muestra' => $muestra]);
     }
 
-        public function estado()
+            public function estado()
     {
-        // Obtén todas las muestras
-        $muestras = Muestras::orderBy('created_at', 'desc')->paginate(10);
+        // Obtén la fecha actual
+        $fechaActual = Carbon::now();
+
+        // Calcula la fecha de hace 7 días
+        $fechaInicio = $fechaActual->copy()->startOfDay();
+        
+        // Calcula la fecha de 7 días a partir de la fecha actual
+        $fechaFin = $fechaActual->copy()->addDays(7)->endOfDay();
+
+        // Obtén todas las muestras cuyo 'fecha_hora_entrega' esté dentro de los próximos 7 días
+        $muestras = Muestras::whereBetween('fecha_hora_entrega', [$fechaInicio, $fechaFin])
+                            ->orderBy('created_at', 'desc')
+                            ->paginate(10);
+
         return view('muestras.laboratorio.estado', compact('muestras'));
     }
 

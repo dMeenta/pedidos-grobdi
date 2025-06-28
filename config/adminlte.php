@@ -439,7 +439,7 @@
                 [
                     'text' => 'Muestras',
                     'url' => 'laboratorio',
-                    'icon' => 'fas fa-fw fa-user',
+                    'icon' => 'fas fa-pump-medical',
                     'can' => 'laboratorio'
                 ],
                 [
@@ -555,7 +555,7 @@
                 [
                     'text' => 'Muestras',
                     'url' => 'muestras',
-                    'icon' => 'fas fa-fw fa-user',
+                    'icon' => 'fas fa-pump-medical',
                     'can' => 'visitador'
                 ],
                 //Jefe de Operaciones
@@ -566,7 +566,7 @@
                 [
                     'text' => 'Muestras',
                     'url' => 'jefe-operaciones',
-                    'icon' => 'fas fa-fw fa-user',
+                    'icon' => 'fas fa-pump-medical',
                     'can' => 'jefe-operaciones'
                 ],
                 //Coordinador de Lineas
@@ -577,7 +577,7 @@
                 [
                     'text' => 'Muestras',
                     'url' => 'Coordinadora',
-                    'icon' => 'fas fa-fw fa-user',
+                    'icon' => 'fas fa-pump-medical',
                     'can' => 'coordinador-lineas'
                 ],
                 //Jefe comercial
@@ -588,7 +588,7 @@
                 [
                     'text' => 'Muestras',
                     'url' => 'jefe-comercial',
-                    'icon' => 'fas fa-fw fa-user',
+                    'icon' => '	fas fa-pump-medical',
                     'can' => 'jefe-comercial'
                 ],
                 //sidebar de gerencia General
@@ -598,24 +598,24 @@
                 ],
                     [
                         'text' => 'Muestras',
-                        'icon' => 'fas fa-fw fa-wrench',
+                        'icon' => 'fas fa-pump-medical',
                         'submenu' => [
                             [
                                 'text' => 'clasificaciones',
                                 'url' => 'reporte',
-                                'icon' => 'fas fa-fw fa-h-square',
+                                'icon' => 'fas fa-chart-bar',
                                 'can' => 'gerencia-general',
                             ],
                             [
                                 'text' => 'Frasco Muestra',
                                 'url' => 'reporte/frasco-muestra',
-                                'icon' => 'fas fa-fw fa-medkit',
+                                'icon' => 'fas fa-chart-line',
                                 'can' => 'gerencia-general',
                             ],
                             [
                                 'text' => 'Frasco Original',
                                 'url' => 'reporte/frasco-original',
-                                'icon' => 'fas fa-fw fa-user-md',
+                                'icon' => 'fas fa-chart-line',
                                 'can' => 'gerencia-general',
                             ],
                         ],

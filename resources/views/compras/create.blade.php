@@ -333,7 +333,17 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 $(document).ready(function() {
-    
+    //si da problemas en el futuro revisar el localStorage para el manejo de sesiones por posble error 419
+    // Guardar datos del formulario en localStorage al cambiarlos
+    $('#compraForm :input').on('change keyup', function() {
+        const datosFormulario = {};
+        $('#compraForm :input').each(function() {
+            if (this.name && this.type !== 'submit' && this.type !== 'button') {
+                datosFormulario[this.name] = $(this).val();
+            }
+        });
+        localStorage.setItem('formularioCompra', JSON.stringify(datosFormulario));
+    });
 
     $('#proveedor_id').select2({
                 placeholder: "Seleccionar proveedor",
@@ -348,7 +358,22 @@ $(document).ready(function() {
     let articuloSeleccionado = null;
     let carrito = [];
     let simboloMoneda = 'S/';
-
+    // Intentar recuperar carrito del localStorage
+    const carritoGuardado = localStorage.getItem('carritoCompra');
+    if (carritoGuardado) {
+        carrito = JSON.parse(carritoGuardado);
+    }
+    // Recuperar datos del formulario
+    const formularioGuardado = localStorage.getItem('formularioCompra');
+    if (formularioGuardado) {
+        const datos = JSON.parse(formularioGuardado);
+        for (const campo in datos) {
+            const $campo = $('[name="' + campo + '"]');
+            if ($campo.length) {
+                $campo.val(datos[campo]).trigger('change');
+            }
+        }
+    }
 
     actualizarTablaCarrito();
 
@@ -558,7 +583,8 @@ $(document).ready(function() {
         if (confirm('¿Está seguro de limpiar el formulario? Se perderán todos los datos ingresados.')) {
             $('#compraForm')[0].reset();
             carrito = [];
-           
+            localStorage.removeItem('carritoCompra');
+            localStorage.removeItem('formularioCompra');
             actualizarTablaCarrito();
             $('#proveedor_id').val(null).trigger('change');
             $('#btnRegistrar').prop('disabled', true);
@@ -618,6 +644,7 @@ $(document).ready(function() {
         }
         
         calcularTotales();
+        localStorage.setItem('carritoCompra', JSON.stringify(carrito));
     }
 
     // Función para calcular totales
@@ -644,7 +671,8 @@ $(document).ready(function() {
         if (carrito.length === 0) {
             e.preventDefault();
             alert('Debe agregar al menos un artículo a la compra');
-           
+            localStorage.removeItem('carritoCompra');
+            localStorage.removeItem('formularioCompra');
             return false;
         }
         

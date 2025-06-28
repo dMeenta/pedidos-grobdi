@@ -60,9 +60,10 @@
                             </td>
                             <td>
                                 <div class="d-flex gap-2">
-                                    <a title="Ver detalles" href="{{ route('muestras.show', $muestra->id) }}" class="btn btn-success btn-sm">
+                                    @include('muestras.visitadoraMedica.show')
+                                    <button class="btn btn-success btn-sm"  data-bs-toggle="modal" data-bs-target="#muestraModal{{ $muestra->id }}">
                                         <i class="bi bi-binoculars"></i>
-                                    </a>
+                                    </button>
                                     <a href="{{ route('muestras.edit', $muestra->id) }}" class="btn btn-primary btn-sm">
                                         <i class="bi bi-pencil-square"></i>   
                                     </a>
@@ -124,6 +125,20 @@
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     
         <script>
+            // Seleccionamos todos los botones con la clase 'verFotoBtn'
+            document.querySelectorAll('.verFotoBtn').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    // Encontramos el contenedor de foto correspondiente al botón
+                    var fotoContainer = this.nextElementSibling;
+                    var isVisible = fotoContainer.style.display === 'block';
+
+                    // Alterna entre mostrar y ocultar la foto
+                    fotoContainer.style.display = isVisible ? 'none' : 'block';
+
+                    // Cambiar el texto del botón según el estado de la foto
+                    this.innerHTML = isVisible ? '<i class="bi bi-eye"></i> Ver Foto' : '<i class="bi bi-eye-slash"></i> Ocultar Foto';
+                });
+            });
             $(document).ready(function() {
                 $('#table_muestras').DataTable({
                     language: {
@@ -131,8 +146,7 @@
                     },
                     ordering: false,
                     responsive: true,
-                    dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
-                    lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Todos"]],
+                    dom: '<"row"<"col-sm-12 col-md-12"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
                     pageLength: 10,
                     initComplete: function() {
                         $('.dataTables_filter')

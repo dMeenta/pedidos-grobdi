@@ -91,7 +91,7 @@
                                 {{ $compra->proveedor->razon_social }}
                             </td>
                             <td>{{ $compra->serie }} - {{ $compra->numero }}</td>
-                            <td class="text-right">{{ number_format($compra->precio_total, 2) }}</td>
+                            <td class="text-right">{{ number_format($compra->precio_total, 4) }}</td>
                             <td>{{ $compra->creador->name ?? 'en sysgrob' }}</td>
                             <td class="text-center">
                                 <a href="{{ route('compras.show', $compra->id) }}" class="btn btn-sm btn-info" title="Ver detalle">
