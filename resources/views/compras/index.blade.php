@@ -159,7 +159,6 @@
 <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>>
     <script>
         $(document).ready(function() {
-                // Inicializar select2 para el campo de proveedor
                 $('.select2').select2({
                     placeholder: 'Seleccione un proveedor',
                     allowClear: true,
