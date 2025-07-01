@@ -163,7 +163,7 @@
                 $('.select2').select2({
                     placeholder: 'Seleccione un proveedor',
                     allowClear: true,
-                    width: '100%' // Asegura que el select ocupe todo el ancho disponible
+                    width: '100%' 
                 });
 
                 // Inicializar DataTable
