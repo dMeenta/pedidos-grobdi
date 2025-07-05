@@ -95,7 +95,6 @@
     @stop
 
 @section('css')
-    
     <link rel="stylesheet" href="{{ asset('css/muestras/labora.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
 @stop

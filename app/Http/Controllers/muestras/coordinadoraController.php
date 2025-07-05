@@ -86,7 +86,7 @@ class coordinadoraController extends Controller
 
         public function aprobacionCoordinadora()
     {
-        $muestras = Muestras::with(['clasificacion.unidadMedida'])->orderBy('created_at', 'desc')->paginate(10);
+        $muestras = Muestras::with(['clasificacion.unidadMedida'])->orderBy('created_at', 'desc')->get();
         return view('muestras.coordinadora.aprob', compact('muestras'));
     }
 

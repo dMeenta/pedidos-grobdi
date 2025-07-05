@@ -53,14 +53,13 @@
                         <td>
                             @include('muestras.jefe_proyectos.showJO')
                             <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#muestraModal{{ $muestra->id }}">
-                                <i class="bi bi-binoculars"></i>
+                                <i class="fas fa-binoculars"></i>
                             </button>
                         </td>
                     </tr>
                     @endforeach
                 </tbody>
             </table>
-            {!!$muestras->appends(request()->except('page'))->links()!!}
         </div>
         
         <div id="success-message" class="alert alert-success d-none mt-3"></div>
@@ -76,7 +75,35 @@
 @section('js')
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
-    
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(document).ready(function() {
+                    $('#table_muestras').DataTable({
+                        language: {
+                            url: 'https://cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json',
+                        },
+                        ordering: false,
+                        responsive: true,
+                        dom: '<"row"<"col-sm-12 col-md-12"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+                        pageLength: 10,
+                        initComplete: function() {
+                            $('.dataTables_filter')
+                                .appendTo('.header-tools')
+                                .addClass('text-right ml-auto')
+                                .find('input')  
+                                .attr('placeholder', 'Buscar por nombre de la muestra')
+                                .end()  
+                                .find('label')
+                                .contents().filter(function() {
+                                    return this.nodeType === 3;
+                                }).remove()
+                                .end()
+                                .prepend('Buscar:');
+                        }
+                    });
+                });
+    </script>
     <script>
         const MAX_NOTIFICATIONS = 4;
         const STORAGE_KEY = 'persistentNotificationsQueue';

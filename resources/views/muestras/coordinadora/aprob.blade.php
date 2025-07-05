@@ -12,7 +12,7 @@
         <h1 class="flex-grow-1 text-center">Estado de las Muestras<hr></h1>
         <div class="header-tools">
             <a title="Ver detalles" href="{{ route('muestras.createCO') }}" class="btn btn-success">
-                    <i class="bi bi-plus-circle"></i> Agregar Muestra
+                    <i class="fas fa-plus-circle"></i> Agregar Muestra
             </a>
         </div> 
         <div class="table-responsive">
@@ -87,7 +87,6 @@
                     @endforeach
                 </tbody>
             </table>
-            {!!$muestras->appends(request()->except('page'))->links()!!}
         </div>
     </div>
     @stop
@@ -101,7 +100,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
-
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     <script>
         // Seleccionamos todos los botones con la clase 'verFotoBtn'
         document.querySelectorAll('.verFotoBtn').forEach(function(button) {
@@ -114,7 +114,7 @@
                 fotoContainer.style.display = isVisible ? 'none' : 'block';
 
                 // Cambiar el texto del botón según el estado de la foto
-                this.innerHTML = isVisible ? '<i class="bi bi-eye"></i> Ver Foto' : '<i class="bi bi-eye-slash"></i> Ocultar Foto';
+                this.innerHTML = isVisible ? '<i class="fas fa-eye"></i> Ver Foto' : '<i class="fas fa-eye-slash"></i> Ocultar Foto';
             });
         });
             // Función para manejar la aprobación de coordinadora
@@ -346,6 +346,33 @@
                 // Adjuntar manejadores de eventos
                 attachEventHandlers();
                 
+            });
+  </script>
+  <script>
+    $(document).ready(function() {
+                $('#table_muestras').DataTable({
+                    language: {
+                        url: 'https://cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json',
+                    },
+                    ordering: false,
+                    responsive: true,
+                    dom: '<"row"<"col-sm-12 col-md-12"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+                    pageLength: 10,
+                    initComplete: function() {
+                        $('.dataTables_filter')
+                            .appendTo('.header-tools')
+                            .addClass('text-right ml-auto')
+                            .find('input')  
+                            .attr('placeholder', 'Buscar por nombre de la muestra')
+                            .end()  
+                            .find('label')
+                            .contents().filter(function() {
+                                return this.nodeType === 3;
+                            }).remove()
+                            .end()
+                            .prepend('Buscar:');
+                    }
+                });
             });
   </script>
 @stop
