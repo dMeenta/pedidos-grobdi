@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('cantidad');
             $table->decimal('unit_prize', total: 8, places: 2);
             $table->decimal('sub_total', total: 8, places: 2);
-            $table->boolean('estado_produccion')->default(false);          
+            $table->boolean('estado_produccion')->default(false);
             $table->foreignId('usuario_produccion_id')->nullable()->constrained('users')->cascadeOnUpdate()->nullOnDelete();
             $table->timestamps();
         });

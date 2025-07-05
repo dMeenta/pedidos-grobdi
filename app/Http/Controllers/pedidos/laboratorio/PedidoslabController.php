@@ -149,6 +149,22 @@ class PedidoslabController extends Controller
 
         return redirect()->back()->with('success','Usuario asignado exitosamente');
     }
+    public function asignarmultipletecnico(Request $request){
+        $ids_detalle = $request->input('detalle', []);
+        $tecnico_id = $request->input('usuario_produccion_id');
+        
+        if (empty($ids_detalle)) {
+            return back()->with('error', 'No seleccionaste ningún producto.');
+        }
+
+        if (!$tecnico_id) {
+            return back()->with('error', 'Debes seleccionar un técnico.');
+        }
+
+        DetailPedidos::whereIn('id', $ids_detalle)->update(['usuario_produccion_id' => $tecnico_id]);
+
+        return back()->with('success', 'Ordenes asignadas correctamente.');
+    }
 
     /**
      * Update the specified resource in storage.

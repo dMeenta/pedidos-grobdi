@@ -153,6 +153,7 @@ Route::middleware(['checkRole:laboratorio,admin'])->group(function () {
     ->name('pedidoslaboratorio.downloadWord');
     Route::get('/pedidoslaboratoriodetalles',[PedidoslabController::class,'pedidosDetalles'])->name('pedidosLaboratorio.detalles');
     Route::put('pedidoslaboratoriodetalles/asignar/{id}/',[PedidoslabController::class,'asignarTecnicoProd'])->name('pedidosLaboratorio.asignarTecnicoProd');
+    Route::post('/pedidoslaboratoriodetalles/asignarmultiple',[PedidoslabController::class,'asignarmultipletecnico'])->name('pedidosLaboratorio.asignarmultipletecnico');
 
     Route::resource('presentacionfarmaceutica', PresentacionFarmaceuticaController::class);
     Route::get('ingredientes/{base_id}',[PresentacionFarmaceuticaController::class,'listaringredientes'])->name('ingredientes.index');
@@ -162,7 +163,8 @@ Route::middleware(['checkRole:laboratorio,admin'])->group(function () {
     Route::post('excipientes',[PresentacionFarmaceuticaController::class,'guardarexcipientes'])->name('excipientes.store');
     Route::delete('excipientes/{id}',[PresentacionFarmaceuticaController::class,'eliminarexcipientes'])->name('excipientes.delete');
 });
-    Route::get('pedidosproduccion',OrdenesController::class.'@index')->name('produccion.index')->middleware(['checkRole:tecnico_produccion']);
+    //ROL DE TECNICA DE PRODUCCION
+    Route::get('pedidosproduccion',OrdenesController::class.'@index')->name('produccion.index')->middleware(['checkRole:tecnico_produccion,admin']);
     Route::post('pedidosproduccion/{detalleId}/actualizarestado',[OrdenesController::class,'actualizarEstado'])->name('pedidosproduccion.actualizarEstado');
 // Ruta para actualizar el precio de una muestra
 // Ruta para la gestión de precios en la vista de jefe de proyectos
