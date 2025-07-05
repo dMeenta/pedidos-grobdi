@@ -11,8 +11,8 @@
      @include('messages')
 
         <h1 class="text-center fw-bold">Lista de Volúmenes</h1>
-            <button type="button" class="btn btn_crear mb-3" data-bs-toggle="modal" data-bs-target="#crearVolumenModal">
-                Nuevo Volumen
+            <button type="button" class="btn btn-outline btn_crear btn-sm mt-3" data-toggle="modal" data-target="#crearVolumenModal">
+                <i class="fa fa-plus-circle mr-1"></i> Crear Volumen
             </button>
             @include('cotizador.laboratorio.volumen.create')
             @include('cotizador.laboratorio.volumen.edit')
@@ -33,9 +33,8 @@
                     <td>{{ $volumen->clasificacion->nombre_clasificacion ?? 'Sin clasificación' }}</td>
                     <td>
                         <div class="w">
-                            <button class="btn btn-warning btn-sm"
-                                onclick="abrirModalEditar({{ json_encode(['id' => $volumen->id, 'nombre' => $volumen->nombre, 'clasificacion_id' => $volumen->clasificacion_id]) }})"><i class="fa-solid fa-pen"></i>
-                                Editar
+                            <button type="button" class="btn btn-warning btn-sm" onclick="abrirModalEditar({{ $volumen }})">
+                                <i class="fa fa-edit"></i> Editar
                             </button>
                             <form action="{{ route('volumen.destroy', $volumen->id) }}" method="POST" class="d-inline">
                                 @csrf
@@ -52,57 +51,10 @@
 @stop
 
 @section('css')
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link href="{{ asset('css/muestras/home.css') }}" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <style>
-            .btn-sm {
-                font-size: 1rem; 
-                padding: 8px 14px; 
-                border-radius: 8px;
-                display: flex; 
-                align-items: center; 
-            }
-
-            .btn-sm i {
-                margin-right: 4px; /* Espaciado entre el icono y el texto */
-            }
-            .w {
-                display: flex;
-                justify-content: center;
-                gap: 5px;
-            }
-
-            table thead th {
-                background-color: #fe495f;
-                color: white;
-            }
-
-            table tbody td {
-                background-color: rgb(255, 249, 249);
-            }
-
-            .table-striped tbody tr:nth-of-type(odd) {
-                background-color: #f9f9f9;
-            }
-
-            .table-bordered {
-                border-color: #fe495f;
-            }
-            table th, table td {
-                text-align: center;
-            }
-            td {
-                width: 1%;  
-                white-space: nowrap; 
-            }
-
-    </style>
 @stop
 @section('js')
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#table_muestras').DataTable({
@@ -118,7 +70,7 @@
                         $('.dataTables_filter')
                             .addClass('mb-3')
                             .find('input')
-                            .attr('placeholder', 'Buscar por nombre del insumo') // <- aquí el placeholder
+                            .attr('placeholder', 'Buscar datos de la tabla') // <- aquí el placeholder
                             .end()
                             .find('label')
                             .contents().filter(function() {

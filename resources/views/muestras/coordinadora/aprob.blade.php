@@ -66,19 +66,19 @@
                                 </form>
                             </td>
                             <td>
-                            <div class="d-flex gap-2">
+                            <div class="w">
                                 @include('muestras.coordinadora.showCo')
-                                <button class="btn btn-success btn-sm"  data-toggle="modal" data-target="#muestraModal{{ $muestra->id }}">
-                                    <i class="bi bi-binoculars"></i>
+                                <button class="btn btn-success btn-sm mb-1"  data-toggle="modal" data-target="#muestraModal{{ $muestra->id }}">
+                                    <i class="fas fa-binoculars"></i>
                                 </button>
-                                <a href="{{ route('muestras.editCO', $muestra->id) }}" class="btn btn-primary btn-sm">
-                                    <i class="bi bi-pencil-square"></i>   
+                                <a href="{{ route('muestras.editCO', $muestra->id) }}" class="btn btn-primary btn-sm mb-1">
+                                    <i class="fas fa-edit"></i>   
                                 </a>
                                     <form action="{{ route('muestras.destroyCO', $muestra->id) }}" method="post">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Desea eliminar esta muestra?');">
-                                            <i class="bi bi-trash"></i>
+                                            <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
                                     </div>
@@ -92,15 +92,12 @@
     </div>
     @stop
 
-    @section('css')
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+@section('css')
     <link rel="stylesheet" href="{{ asset('css/muestras/labora.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
 @stop
 
 @section('js')
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>

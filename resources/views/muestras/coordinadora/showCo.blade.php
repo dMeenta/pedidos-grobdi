@@ -9,7 +9,7 @@
                 </button>
             </div>
 
-            <div class="modal-body">
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
                 <div class="row">
                     <!-- Primera columna: Información General -->
                     <div class="col-md-6 mb-4" style="overflow-wrap: break-word; white-space: normal;">

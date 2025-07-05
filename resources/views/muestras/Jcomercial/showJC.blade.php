@@ -11,7 +11,7 @@
             </div>
 
             <!-- Modal Body -->
-            <div class="modal-body">
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
                 <div class="row">
                     <!-- Card Información General -->
                     <div class="col-md-6 mb-4">
@@ -91,24 +91,4 @@
     </div>
 </div>
 <link rel="stylesheet" href="{{ asset('css/muestras/home.css') }}">
-<style>
-    .card-header {
-        background-color: #fe495f;
-        color: white;
-        font-size: 1.2rem;
-    }
 
-    .card-body {
-        background-color: #f8f9fa;
-        padding: 10px;
-        border-radius: 10px;
-    }
-
-    .text-danger {
-        color: rgb(224, 61, 80) !important;
-    }
-
-    .badge {
-        font-size: 0.9rem;
-    }
-</style>

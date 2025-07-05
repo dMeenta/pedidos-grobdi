@@ -95,8 +95,8 @@ class MerchandiseController extends Controller
 
         if ($articulo->estado === 'inactivo') {
             // Ya está inactivo, muestra mensaje para activarlo desde editar
-            return redirect()->route('merchandise.index')
-                ->with('error', 'Este merchandise ya está inactivo. Puedes activarlo desde la pantalla de edición.');
+            return redirect()->route('merchandise.index', ['estado' => 'inactivo'])
+                ->with('error', 'Este merchandise ya está inactivo. Puedes activarlo mediante la edición.');
         }
 
         // Si no está inactivo, lo marcamos como inactivo
@@ -104,7 +104,7 @@ class MerchandiseController extends Controller
             'estado' => 'inactivo',
         ]);
 
-        return redirect()->route('merchandise.index')->with('error', 'Merchandise marcado como inactivo.');
+        return redirect()->route('merchandise.index', ['estado' => 'inactivo'])->with('error', 'Merchandise marcado como inactivo.');
     }
 
 

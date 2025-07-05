@@ -162,3 +162,20 @@ input[type="checkbox"]:checked::before {
         width: auto;
     }
 }
+.modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+.modal-body::-webkit-scrollbar-track {
+    background: #fcebed;
+}
+.modal-body::-webkit-scrollbar-thumb {
+    background:rgb(255, 178, 187);
+    border-radius: 4px;
+}
+
+/* Estilos para Firefox */
+.modal-body,
+.scrollable-custom {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(255, 178, 187) #fcebed;
+}

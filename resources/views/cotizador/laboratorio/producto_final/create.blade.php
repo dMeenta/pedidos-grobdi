@@ -8,11 +8,10 @@
 
 @section('content') 
 <div class="container">
-    <!-- Incluir CSS de Select2 -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <div class="form-check mb-3">
-            <h1 class="text-center"><a class="float-start text-secondary" title="Volver" href="{{ route('producto_final.index') }}">
-            <i class="bi bi-arrow-left-circle"></i></a>
+        <a class="text-secondary" title="Volver" href="{{ route('producto_final.index') }}" style="position: absolute; left: 0; font-size: 2rem;">
+            <i class="fas fa-arrow-left"></i></a>
+            <h1 class="text-center">
             Crear Producto Final</h1>
     </div>
         <form method="POST" action="{{ route('producto_final.store') }}">
@@ -56,7 +55,7 @@
                             <option value="">-- Selecciona una Clasificación primero --</option>
                         </select>
                         <div class="text-success" style="font-size: 0.7rem;">
-                            <i class="fa-solid fa-triangle-exclamation"></i> Si no existe un volumen 
+                            <i class="fas fa-exclamation-triangle"></i> Si no existe un volumen 
                             asociado a la clasificación registrar mediante el módulo "Volúmenes"
                         </div>
                     </div>
@@ -89,7 +88,7 @@
                             <input type="number" id="insumoCantidad" min="1" class="form-control" placeholder="Cantidad" step="any">
                         </div>
                         <div class="col-2">
-                            <button type="button" class="btn btn_crear w-100" id="agregarInsumo"><i class="fa-solid fa-circle-plus"></i></button>
+                            <button type="button" class="btn btn_crear w-100" id="agregarInsumo"><i class="fas fa-plus"></i></button>
                         </div>
                     </div>
                     
@@ -104,7 +103,7 @@
                         </thead>
                         <tbody id="tablaInsumos"></tbody>
                     </table>
-                    <div id="subtotalInsumosPrebase" class="text-end mt-2 d-none">
+                    <div id="subtotalInsumosPrebase" class="text-right mt-2 d-none">
                         <h6>Total de insumos: <span id="subtotalInsumosTexto" class="text-primary">S/ 0.00</span></h6>
                     </div>
 
@@ -128,7 +127,7 @@
                             <input type="number" min="1" id="baseCantidad" class="form-control" placeholder="Cantidad" step="any">
                         </div>
                         <div class="col-2">
-                            <button type="button" class="btn btn_crear w-100" id="agregarBase"><i class="fa-solid fa-circle-plus"></i></button>
+                            <button type="button" class="btn btn_crear w-100" id="agregarBase"><i class="fas fa-plus"></i></button>
                         </div>
                     </div>
 
@@ -144,7 +143,7 @@
                         <tbody id="tablabase"></tbody>
                     </table>
                         
-                        <div class="text-end mt-2">
+                        <div class="text-right mt-2">
                             <h5>Precio Total de Componentes: <span id="precioTotal" class="text-success">S/ 0.00</span></h5>
                         </div>
                     </div>
@@ -159,18 +158,10 @@
 @stop
 
 @section('css')
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 <link href="{{ asset('css/muestras/home.css') }}" rel="stylesheet" />
 @stop
 
 @section('js')
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
     <script>
         const volumenesPorClasificacion = @json($volumenesAgrupados);
 
@@ -223,7 +214,7 @@
 
                     tbody.append(`
                         <tr>
-                            <td>
+                            <td class="observaciones">
                                 ${insumo.nombre}
                                 <input type="hidden" name="insumos[${insumo.id}][id]" value="${insumo.id}">
                             </td>
@@ -232,7 +223,7 @@
                                 <input type="hidden" name="insumos[${insumo.id}][cantidad]" value="${insumo.cantidad}">
                             </td>
                             <td>S/ ${precio.toFixed(2)}</td>
-                            <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarInsumo(${index})">X</button></td>
+                            <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarInsumo(${index})"><i class="fas fa-trash-alt"></i></button></td>
                         </tr>
                     `);
                 });
@@ -256,7 +247,7 @@
 
                     tbody.append(`
                         <tr>
-                            <td>
+                            <td class="observaciones">
                                 ${base.nombre}
                                 <input type="hidden" name="bases[${base.id}][id]" value="${base.id}">
                             </td>
@@ -265,7 +256,7 @@
                                 <input type="hidden" name="bases[${base.id}][cantidad]" value="${base.cantidad}">
                             </td>
                             <td>S/ ${precio.toFixed(2)}</td>
-                            <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarBase(${index})">X</button></td>
+                            <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarBase(${index})"><i class="fas fa-trash-alt"></i></button></td>
                         </tr>
                     `);
                 });

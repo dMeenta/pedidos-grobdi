@@ -43,7 +43,11 @@ class CompraController extends Controller
     {
         $proveedores = Proveedor::activos()->orderBy('razon_social')->get();
         $monedas = TipoMoneda::orderBy('nombre')->get();
-        $articulos = Articulo::activos()->with('insumos.unidadMedida')->orderBy('nombre')->get();
+        $articulos = Articulo::activos()
+        ->whereNotIn('tipo', ['base', 'prebase', 'producto_final'])
+        ->with('insumos.unidadMedida')
+        ->orderBy('nombre')
+        ->get();
         $almacenes = Almacen::orderBy('nombre')->get();
 
         return view('compras.create', compact('proveedores', 'monedas', 'articulos', 'almacenes'));

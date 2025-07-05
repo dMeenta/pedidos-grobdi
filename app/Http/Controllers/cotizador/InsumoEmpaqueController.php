@@ -239,17 +239,14 @@ class InsumoEmpaqueController extends Controller
 
     if ($item && $item->articulo) {
         $articulo = $item->articulo;
-        $nombre = $articulo->nombre;
-
         if ($articulo->estado === 'inactivo') {
-            return redirect()->route('insumo_empaque.index')
-                ->with('error', ucfirst($tipo) . " '{$nombre}' ya está inactivo. Para activarlo, por favor use la sección de editar.");
+            return redirect()->back()->with('error', ucfirst($tipo) . " inactivo. Para activarlo, por favor use la sección de editar.");
         }
 
         $articulo->update(['estado' => 'inactivo']);
 
-        return redirect()->route('insumo_empaque.index')
-            ->with('error', ucfirst($tipo) . " '{$nombre}' inactivado correctamente.");
+        return redirect()->route('insumo_empaque.index', ['estado' => 'inactivo'])
+            ->with('success', ucfirst($tipo) . " inactivado correctamente.");
     }
 
     return redirect()->route('insumo_empaque.index')

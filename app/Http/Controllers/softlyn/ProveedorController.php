@@ -11,11 +11,17 @@ class ProveedorController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+        public function index()
     {
-        $proveedores = Proveedor::orderBy('razon_social')->paginate(10);
-        return view('proveedores.index', compact('proveedores'));
+        $estado = request('estado', 'activo'); // Por defecto 'activo'
+
+        $proveedores = Proveedor::where('estado', $estado)
+            ->orderBy('razon_social')
+            ->get();
+
+        return view('proveedores.index', compact('proveedores', 'estado'));
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -105,11 +111,16 @@ class ProveedorController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Proveedor $proveedor)
+        public function destroy(Proveedor $proveedor)
     {
-        $proveedor->delete();
-
-        return redirect()->route('proveedores.index')
-                         ->with('success', 'Proveedor eliminado exitosamente.');
+         if ($proveedor->estado === 'inactivo') {
+            return redirect()->back()->with('error', 'Este proveedor ya está inactivo. Puedes activarlo desde edición.');
+        }
+        $proveedor->estado = 'inactivo';
+        $proveedor->save();
+       
+        return redirect()->route('proveedores.index', ['estado' => 'inactivo'])
+                        ->with('error', 'Proveedor marcado como inactivo.');
     }
+
 }

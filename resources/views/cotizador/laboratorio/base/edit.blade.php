@@ -9,9 +9,11 @@
 @section('content')
 
 <div class="container">
-    <div class="form-check mb-3">
-            <h1 class="text-center"><a class="float-start text-secondary" title="Volver" href="{{ route('bases.index') }}">
-            <i class="bi bi-arrow-left-circle"></i></a>
+    <div class="form-check mb-3 d-flex align-items-center justify-content-center position-relative">
+        <a class="text-secondary" title="Volver" href="{{ route('bases.index')  }}" style="position: absolute; left: 0; font-size: 2rem">
+             <i class="fas fa-arrow-left"></i>
+        </a>
+            <h1 class="m-0">
             Editar Base</h1>
     </div>
 
@@ -66,9 +68,10 @@
                 @if($base->articulo->estado === 'inactivo')
                 <label for="estado" class="form-label">Estado del base</label><br>
                     <div class="form-check form-switch">
+                        <label class="form-check-label" for="estado">
                         <input class="form-check-input" type="checkbox" name="estado" id="estado"
                             value="activo" {{ $base->articulo->estado === 'activo' ? 'checked' : '' }} required>
-                        <label class="form-check-label" for="estado">Activo</label>
+                        <span style="margin-left: 6px;">Activo</span></label>
                     </div>
                 @endif
                 @if($errors->has('tipo'))
@@ -107,7 +110,7 @@
                         <input type="number" id="insumoCantidad" class="form-control" min="1" placeholder="Cantidad" step="any">
                     </div>
                     <div class="col-2">
-                        <button type="button" class="btn btn_crear w-100" id="agregarInsumo"><i class="fa-solid fa-circle-plus"></i></button>
+                        <button type="button" class="btn btn_crear w-100" id="agregarInsumo"><i class="fas fa-plus"></i></button>
                     </div>
                 </div>
                 
@@ -123,7 +126,7 @@
                     <tbody id="tablaInsumos">
                         @foreach($base->insumos as $insumo)
                             <tr data-id="{{ $insumo->id }}">
-                                <td>{{ $insumo->articulo->nombre }}</td>
+                                <td class="observaciones">{{ $insumo->articulo->nombre }}</td>
                                 <td>
                                     <input type="hidden" name="insumos[{{ $insumo->id }}][id]" value="{{ $insumo->id }}">
                                     <input type="number" class="form-control" name="insumos[{{ $insumo->id }}][cantidad]" 
@@ -131,13 +134,13 @@
                                 </td>
                                 <td>S/ {{ number_format($insumo->precio, 2) }}</td>
                                 <td>
-                                    <button type="button" class="btn btn-danger btn-sm eliminar-insumo">Eliminar</button>
+                                    <button type="button" class="btn btn-danger btn-sm eliminar-insumo"><i class="fas fa-trash-alt"></i></button>
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
-                <div id="subtotalInsumosPrebase" class="text-end mt-2 {{ $base->tipo == 'prebase' ? '' : 'd-none' }}">
+                <div id="subtotalInsumosPrebase" class="text-right mt-2 {{ $base->tipo == 'prebase' ? '' : 'd-none' }}">
                     <h6>Total de insumos: <span id="subtotalInsumosTexto" class="text-primary">S/ {{ number_format($base->precio, 2) }}</span></h6>
                 </div>
 
@@ -150,9 +153,9 @@
                             <option value="">-- Seleccionar Prebase --</option>
                             @foreach($prebases as $prebase)
                                 <option value="{{ $prebase->id }}"
-                                        data-nombre="{{ $prebase->nombre }}"
+                                        data-nombre="{{ $prebase->articulo->nombre }}"
                                         data-precio="{{ $prebase->precio }}">
-                                    {{ $prebase->nombre }}
+                                    {{ $prebase->articulo->nombre }}
                                 </option>
                             @endforeach
                         </select>
@@ -161,7 +164,7 @@
                         <input type="number" id="prebaseCantidad" min="1" class="form-control" placeholder="Cantidad" step="any">
                     </div>
                     <div class="col-2">
-                        <button type="button" class="btn btn_crear w-100" id="agregarPrebase"><i class="fa-solid fa-circle-plus"></i></button>
+                        <button type="button" class="btn btn_crear w-100" id="agregarPrebase"><i class="fas fa-plus"></i></button>
                     </div>
                 </div>
 
@@ -178,7 +181,7 @@
                         @if($base->tipo == 'final')
                             @foreach($base->prebases as $prebase)
                                 <tr data-id="{{ $prebase->id }}">
-                                    <td>{{ $prebase->nombre }}</td>
+                                    <td class="observaciones">{{ $prebase->articulo->nombre }}</td>
                                     <td>
                                         <input type="hidden" name="prebases[{{ $prebase->id }}][id]" value="{{ $prebase->id }}">
                                         <input type="number" class="form-control" name="prebases[{{ $prebase->id }}][cantidad]" 
@@ -186,7 +189,7 @@
                                     </td>
                                     <td>S/ {{ number_format($prebase->precio, 2) }}</td>
                                     <td>
-                                        <button type="button" class="btn btn-danger btn-sm eliminar-prebase">Eliminar</button>
+                                        <button type="button" class="btn btn-danger btn-sm eliminar-prebase"><i class="fas fa-trash-alt"></i></button>
                                     </td>
                                 </tr>
                             @endforeach
@@ -209,10 +212,10 @@
                                 <option value="">-- Seleccionar Empaque --</option>
                                 @foreach($empaques as $empaque)
                                     <option value="{{ $empaque->id }}"
-                                            data-nombre="{{ $empaque->nombre }}"
+                                            data-nombre="{{ $empaque->articulo->nombre }}"
                                             data-precio="{{ $empaque->precio }}"
                                             data-tipo="{{ $empaque->tipo }}">
-                                        {{ $empaque->nombre }} ({{ ucfirst($empaque->tipo) }})
+                                        {{ $empaque->articulo->nombre }} ({{ ucfirst($empaque->tipo) }})
                                     </option>
                                 @endforeach
                             </select>
@@ -221,7 +224,7 @@
                             <input type="number" id="empaqueCantidad" min="1" class="form-control" placeholder="Cantidad" step="any">
                         </div>
                         <div class="col-2">
-                            <button type="button" class="btn btn_crear w-100" id="agregarEmpaque"><i class="fa-solid fa-circle-plus"></i></button>
+                            <button type="button" class="btn btn_crear w-100" id="agregarEmpaque"><i class="fas fa-plus"></i></button>
                         </div>
                     </div>
 
@@ -230,6 +233,7 @@
                             <tr>
                                 <th>Empaque</th>
                                 <th>Cantidad</th>
+                                <th>Precio</th>
                                 <th>Acción</th>
                             </tr>
                         </thead>
@@ -237,15 +241,16 @@
                             @if($base->tipo == 'final')
                                 @foreach($base->empaques as $empaque)
                                     <tr data-id="{{ $empaque->id }}" data-tipo="{{ $empaque->tipo }}">
-                                        <td>{{ $empaque->articulo->nombre }} ({{ ucfirst($empaque->tipo) }})</td>
+                                        <td class="observaciones">{{ $empaque->articulo->nombre }} ({{ ucfirst($empaque->tipo) }})</td>
                                         <td>
                                             <input type="hidden" name="empaques[{{ $empaque->id }}][id]" value="{{ $empaque->id }}">
                                             <input type="hidden" name="empaques[{{ $empaque->id }}][tipo]" value="{{ $empaque->tipo }}">
                                             <input type="number" class="form-control" name="empaques[{{ $empaque->id }}][cantidad]" 
                                                 value="{{ $empaque->pivot->cantidad }}" step="any" required>
                                         </td>
+                                        <td>{{ $empaque->precio }}</td>
                                         <td>
-                                            <button type="button" class="btn btn-danger btn-sm eliminar-empaque">Eliminar</button>
+                                            <button type="button" class="btn btn-danger btn-sm eliminar-empaque"><i class="fas fa-trash-alt"></i></button>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -253,36 +258,30 @@
                         </tbody>
                     </table>
 
-                    <div class="text-end mt-2">
+                    <div class="text-right mt-2">
                         <h5>Precio Total de la Base: <span id="precioTotal" class="text-success">S/ {{ number_format($base->precio, 2) }}</span></h5>
                     </div>
                 </div>
             </div>
         </div>
 
-        <button type="submit" class="btn btn_crear mt-3"><i class="bi bi-clipboard2-check-fill"></i>
+        <button type="submit" class="btn btn_crear mt-3"><i class="fas fa-edit"></i>
         Actualizar Base</button>
     </form>
 </div>
 @stop
 
 @section('css')
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 <link href="{{ asset('css/muestras/home.css') }}" rel="stylesheet" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 @stop
 
 @section('js')
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 $(document).ready(function() {
         // Inicializar Select2
         $('.select2-empaque, .select2-prebase, .select2-clasificacion, .select2-insumo').select2({
-            width: '100%', // o un valor fijo como '300px'
-            dropdownAutoWidth: true
+            allowClear: true,
+            width: '100%'
         });
         // Mostrar unidad de medida cuando se selecciona clasificación
         $('#clasificacion_id').change(function() {
@@ -339,13 +338,13 @@ $(document).ready(function() {
                 // Verificar si ya existe
                 if($('#tablaInsumos tr[data-id="'+insumoId+'"]').length == 0) {
                     var row = '<tr data-id="'+insumoId+'">' +
-                        '<td>'+insumoNombre+'</td>' +
+                        '<td class="observaciones">'+insumoNombre+'</td>' +
                         '<td>' +
                             '<input type="hidden" name="insumos['+insumoId+'][id]" value="'+insumoId+'">' +
                             '<input type="number" class="form-control" name="insumos['+insumoId+'][cantidad]" value="'+cantidad+'" step="any" required>' +
                         '</td>' +
                         '<td>S/ '+parseFloat(insumoPrecio).toFixed(2)+'</td>' +
-                        '<td><button type="button" class="btn btn-danger btn-sm eliminar-insumo">Eliminar</button></td>' +
+                        '<td><button type="button" class="btn btn-danger btn-sm eliminar-insumo"><i class="fas fa-trash-alt"></i></button></td>' +
                     '</tr>';
                     $('#tablaInsumos').append(row);
                     
@@ -371,13 +370,13 @@ $(document).ready(function() {
                 // Verificar si ya existe
                 if($('#tablaPrebases tr[data-id="'+prebaseId+'"]').length == 0) {
                     var row = '<tr data-id="'+prebaseId+'">' +
-                        '<td>'+prebaseNombre+'</td>' +
+                        '<td class="observaciones">'+prebaseNombre+'</td>' +
                         '<td>' +
                             '<input type="hidden" name="prebases['+prebaseId+'][id]" value="'+prebaseId+'">' +
                             '<input type="number" class="form-control" name="prebases['+prebaseId+'][cantidad]" value="'+cantidad+'" step="any" required>' +
                         '</td>' +
                         '<td>S/ '+parseFloat(prebasePrecio).toFixed(2)+'</td>' +
-                        '<td><button type="button" class="btn btn-danger btn-sm eliminar-prebase">Eliminar</button></td>' +
+                        '<td><button type="button" class="btn btn-danger btn-sm eliminar-prebase"><i class="fas fa-trash-alt"></i></button></td>' +
                     '</tr>';
                     $('#tablaPrebases').append(row);
                     calcularPrecioTotal();
@@ -387,31 +386,32 @@ $(document).ready(function() {
             }
         });
             // Agregar empaque (modificado para incluir el precio)
-    $('#agregarEmpaque').click(function() {
-        var empaqueId = $('#empaqueSelect').val();
-        var empaqueNombre = $('#empaqueSelect option:selected').data('nombre');
-        var empaquePrecio = $('#empaqueSelect option:selected').data('precio');
-        var empaqueTipo = $('#empaqueSelect option:selected').data('tipo');
-        var cantidad = $('#empaqueCantidad').val();
+        $('#agregarEmpaque').click(function() {
+            var empaqueId = $('#empaqueSelect').val();
+            var empaqueNombre = $('#empaqueSelect option:selected').data('nombre');
+            var empaquePrecio = parseFloat($('#empaqueSelect option:selected').data('precio')) || 0;
+            var empaqueTipo = $('#empaqueSelect option:selected').data('tipo');
+            var cantidad = $('#empaqueCantidad').val();
 
-        if(empaqueId && cantidad) {
-            if($('#tablaEmpaques tr[data-id="'+empaqueId+'"]').length == 0) {
-                var row = '<tr data-id="'+empaqueId+'" data-tipo="'+empaqueTipo+'" data-precio="'+empaquePrecio+'">' +
-                    '<td>'+empaqueNombre+' ('+empaqueTipo+')</td>' +
-                    '<td>' +
-                        '<input type="hidden" name="empaques['+empaqueId+'][id]" value="'+empaqueId+'">' +
-                        '<input type="hidden" name="empaques['+empaqueId+'][tipo]" value="'+empaqueTipo+'">' +
-                        '<input type="number" class="form-control" name="empaques['+empaqueId+'][cantidad]" value="'+cantidad+'" step="any" required>' +
-                    '</td>' + 
-                    '<td><button type="button" class="btn btn-danger btn-sm eliminar-empaque">Eliminar</button></td>' +
-                '</tr>';
-                $('#tablaEmpaques').append(row);
-                calcularPrecioTotal();
+            if(empaqueId && cantidad) {
+                if($('#tablaEmpaques tr[data-id="'+empaqueId+'"]').length == 0) {
+                    var row = '<tr data-id="'+empaqueId+'" data-tipo="'+empaqueTipo+'" data-precio="'+empaquePrecio+'">' +
+                        '<td class="observaciones">'+empaqueNombre+' ('+empaqueTipo+')</td>' +
+                        '<td>' +
+                            '<input type="hidden" name="empaques['+empaqueId+'][id]" value="'+empaqueId+'">' +
+                            '<input type="hidden" name="empaques['+empaqueId+'][tipo]" value="'+empaqueTipo+'">' +
+                            '<input type="number" class="form-control" name="empaques['+empaqueId+'][cantidad]" value="'+cantidad+'" step="any" required>' +
+                        '</td>' + 
+                        '<td>S/ ' + empaquePrecio.toFixed(2) + '</td>' +
+                        '<td><button type="button" class="btn btn-danger btn-sm eliminar-empaque"><i class="fas fa-trash-alt"></i></button></td>' +
+                    '</tr>';
+                    $('#tablaEmpaques').append(row);
+                    calcularPrecioTotal();
+                }
+                $('#empaqueSelect').val('').trigger('change');
+                $('#empaqueCantidad').val('');
             }
-            $('#empaqueSelect').val('').trigger('change');
-            $('#empaqueCantidad').val('');
-        }
-    });
+        });
         // Eliminar insumo
         $(document).on('click', '.eliminar-insumo', function() {
             $(this).closest('tr').remove();

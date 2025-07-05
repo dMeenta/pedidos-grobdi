@@ -3,8 +3,13 @@ body {
 }
 .container {
     background-color: #fff !important;
-    padding: 20px;
-    border-radius: 10px;
+    padding: 20px; /* Padding alrededor del contenido */
+    border-radius: 10px; /* Bordes redondeados */
+    width: 100%; /* Ocupa todo el ancho disponible */
+    max-width: 90vw; /* Ocupa el 90% del ancho de la ventana */
+    margin: 0 auto; /* Centrado automático */
+    overflow: hidden; /* Para evitar que el contenido se desborde */
+    box-sizing: border-box;
 }
 label {
     display: flex;
@@ -185,3 +190,74 @@ label {
     font-weight: bold;
 }
 
+/* Estilos para scroll en WebKit (Chrome, Edge, Safari) */
+.modal-body::-webkit-scrollbar,
+.scrollable-custom::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track,
+.scrollable-custom::-webkit-scrollbar-track {
+    background: #fcebed;
+}
+
+.modal-body::-webkit-scrollbar-thumb,
+.scrollable-custom::-webkit-scrollbar-thumb {
+    background: rgb(255, 178, 187);
+    border-radius: 4px;
+}
+
+/* Estilos para Firefox */
+.modal-body,
+.scrollable-custom {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(255, 178, 187) #fcebed;
+}
+
+.btn-sm {
+    font-size: 1rem; 
+    padding: 8px 14px; 
+    border-radius: 8px;
+    display: flex; 
+    align-items: center; 
+}
+
+.btn-sm i {
+    margin-right: 4px; /* Espaciado entre el icono y el texto */
+}
+    .btn_crear i {
+    margin-right: 4px; /* Espaciado entre el icono y el texto */
+}
+.w {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+}
+
+table thead th {
+    background-color:rgb(255, 224, 227);
+    color: white;
+}
+
+table tbody td {
+    background-color: rgb(255, 249, 249);
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f9f9f9;
+}
+
+.table-bordered {
+    border-color: #fe495f;
+}
+table th, table td {
+    text-align: center;
+}
+td {
+    width: 1%;  
+    white-space: nowrap; 
+}
+.select2-results__option {
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+}
