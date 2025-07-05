@@ -13,7 +13,7 @@
 
         <div class="header-tools">
             <a href="{{ route('muestras.create') }}" class="btn" style="background-color:rgb(255, 113, 130); color: white;">
-                <i class="bi bi-plus-circle"></i> Agregar Muestra
+                <i class="fas fa-plus"></i> Agregar Muestra
             </a>
         </div>
 
@@ -59,20 +59,19 @@
                                 {{ $muestra->updated_at ? $muestra->updated_at->format('H:i:s') : $muestra->created_at->format('H:i:s') }}
                             </td>
                             <td>
-                                <div class="d-flex gap-2">
+                                <div class="w">
                                     @include('muestras.visitadoraMedica.show')
-<button class="btn btn-success btn-sm" data-toggle="modal" data-target="#muestraModal{{ $muestra->id }}">
-    <i class="bi bi-binoculars"></i>
-</button>
-
-                                    <a href="{{ route('muestras.edit', $muestra->id) }}" class="btn btn-primary btn-sm">
-                                        <i class="bi bi-pencil-square"></i>   
+                                    <button class="btn btn-success mb-1 btn-sm" data-toggle="modal" data-target="#muestraModal{{ $muestra->id }}">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <a href="{{ route('muestras.edit', $muestra->id) }}" class="btn btn-primary mb-1 btn-sm">
+                                        <i class="fas fa-edit"></i>   
                                     </a>
                                     <form action="{{ route('muestras.destroy', $muestra->id) }}" method="post">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Desea eliminar esta muestra?');">
-                                            <i class="bi bi-trash"></i>
+                                            <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
                                 </div>
@@ -86,46 +85,17 @@
 @stop 
 
 @section('css')
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
     <link rel="stylesheet" href="{{ asset('css/muestras/labora.css') }}">
-    <style>
-        /* Estilos para el contenedor de herramientas */
-        .header-tools {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        /* Estilo para el buscador de DataTables */
-        .dataTables_filter {
-            display: flex;
-            align-items: center;
-        }
-        
-        .dataTables_filter label {
-            margin-bottom: 0;
-            margin-right: 10px;
-        }
-        
-        .dataTables_filter input {
-            width: 250px !important;
-        }
-    </style>
-
 @stop
 
-@section('js')
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+@section('js') 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
-    
-        <script>
+            <script>
             // Seleccionamos todos los botones con la clase 'verFotoBtn'
             document.querySelectorAll('.verFotoBtn').forEach(function(button) {
                 button.addEventListener('click', function() {
@@ -137,7 +107,7 @@
                     fotoContainer.style.display = isVisible ? 'none' : 'block';
 
                     // Cambiar el texto del botón según el estado de la foto
-                    this.innerHTML = isVisible ? '<i class="bi bi-eye"></i> Ver Foto' : '<i class="bi bi-eye-slash"></i> Ocultar Foto';
+                    this.innerHTML = isVisible ? '<i class="fas fa-eye"></i> Ver Foto' : '<i class="fas fa-eye-slash"></i> Ocultar Foto';
                 });
             });
             $(document).ready(function() {
@@ -152,9 +122,10 @@
                     initComplete: function() {
                         $('.dataTables_filter')
                             .appendTo('.header-tools')
-                            .find('input')  // Selecciona el input de búsqueda
-                            .attr('placeholder', 'Buscar por nombre de la muestra')  // Agrega el placeholder
-                            .end()  // Vuelve al contenedor del filtro
+                            .addClass('text-right ml-auto')
+                            .find('input')  
+                            .attr('placeholder', 'Buscar por nombre de la muestra')
+                            .end()  
                             .find('label')
                             .contents().filter(function() {
                                 return this.nodeType === 3;

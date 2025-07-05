@@ -11,28 +11,28 @@
      @include('messages')
 
         <div class="form-check mb-3">
-            <h1 class="text-center">
-                Listado de Útiles
+            <h1 class="text-center mb-2">
+                {{ request('estado') == 'inactivo' ? 'Útiles Inactivos' : 'Útiles' }}
             </h1>
         </div>
         <div class="row mb-3 align-items-center">
             <div class="col-md-6">
-                <button type="button" class="btn btn_crear" data-bs-toggle="modal" data-bs-target="#crearUtilModal">
-                    <i class="fa-solid fa-square-plus"></i>Crear Útiles
+                <button type="button" class="btn btn_crear" data-toggle="modal" data-target="#crearUtilModal">
+                    <i class="fas fa-square-plus"></i> Crear Útiles
                 </button>
             </div>
                 @include('cotizador.util.create')
 
-            <div class="col-md-6 text-end">
-                <form method="GET" action="{{ route('util.index') }}" class="mb-0 d-inline-block" id="filterForm">
+            <div class="col-md-6 d-flex justify-content-end align-items-center">
+                <form method="GET" action="{{ route('util.index') }}" class="mb-0" id="filterForm">
                     <div class="btn-group" role="group">
                         <a href="{{ route('util.index') }}" 
                         class="btn btn-sm {{ request()->estado != 'inactivo' ? 'btn_crear' : 'btn-outline-danger' }}">
-                        Activos
+                            Activos
                         </a>
                         <a href="{{ route('util.index', ['estado' => 'inactivo']) }}" 
                         class="btn btn-sm {{ request()->estado == 'inactivo' ? 'btn-secondary' : 'btn-outline-secondary' }}">
-                        Inactivos
+                            Inactivos
                         </a>
                     </div>
                 </form>
@@ -59,8 +59,8 @@
                         <td>{{ $util->articulo->stock }}</td>
                         <td>
                             <div class="w">
-                                <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#modalEditar{{ $util->articulo_id }}">
-                                    <i class="fa-solid fa-pen"></i> Editar
+                                <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#modalEditar{{ $util->articulo_id }}">
+                                    <i class="fa fa-pen"></i> Editar
                                 </button>
                                 @include('cotizador.util.edit', ['item' => $util])
 
@@ -79,54 +79,11 @@
 @stop
 
 @section('css')
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
     <link href="{{ asset('css/muestras/home.css') }}" rel="stylesheet" />
-    <style>
-        .btn-sm {
-            font-size: 1rem; 
-            padding: 8px 14px; 
-            border-radius: 8px;
-            display: flex; 
-            align-items: center; 
-        }
-        .btn i {
-            margin-right: 4px; /* Espaciado entre el icono y el texto */
-        }
-        .w {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-        table thead th {
-            background-color: #fe495f;
-            color: white;
-        }
-
-        table tbody td {
-            background-color: rgb(255, 249, 249);
-        }
-
-        .table-striped tbody tr:nth-of-type(odd) {
-            background-color: #f9f9f9;
-        }
-
-        .table-bordered {
-            border-color: #fe495f;
-        }
-        table th, table td {
-            text-align: center;
-        }
-        td {
-            width: 1%;  
-            white-space: nowrap; 
-        }
-    </style>
+  
 @stop
 @section('js')
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#table_muestras').DataTable({
@@ -142,7 +99,7 @@
                         $('.dataTables_filter')
                             .addClass('mb-3')
                             .find('input')
-                            .attr('placeholder', 'Buscar por nombre del insumo') // <- aquí el placeholder
+                            .attr('placeholder', 'Buscar datos en la tabla') // <- aquí el placeholder
                             .end()
                             .find('label')
                             .contents().filter(function() {

@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Dashboard')
+@section('title', 'Tipo de Cambio')
 
 @section('content_header')
     <!-- <h1>cotizador</h1> -->
@@ -8,14 +8,12 @@
 
 @section('content')
 <div class="container">
-    <div class="form-check mb-3">
-            <h1 class="text-center">
-                <a class="float-start text-secondary" title="Volver" href="{{ route('tipo_cambio.resumen') }}">
-                    <i class="bi bi-arrow-left-circle"></i>
-                </a>
-                Tipo de Cambio
-            </h1>
-        </div>
+    <div class="form-check mb-3 d-flex align-items-center justify-content-center position-relative">
+        <a href="{{ route('tipo_cambio.resumen') }}" class="text-secondary" title="Volver" style="position: absolute; left: 0; font-size: 2rem">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h1 class="m-0">Tipo de Cambio</h1>
+    </div>
     <div class="d-flex justify-content-end mb-3">
         <form method="GET" action="{{ route('tipo_cambio.index') }}" id="filtroForm" class="d-flex align-items-center gap-3">
             <label class="mb-0 d-flex align-items-center">
@@ -25,7 +23,7 @@
                 <span style="margin-left: 6px;">USD</span>
             </label>
 
-            <label class="mb-0 d-flex align-items-center">
+            <label class="mb-0 d-flex align-items-center" style="margin-left: 6px;">
                 <input type="checkbox" name="filtro_monedas[]" value="PEN"
                     onchange="document.getElementById('filtroForm').submit()"
                     {{ in_array('PEN', request()->get('filtro_monedas', [])) ? 'checked' : '' }}>
@@ -64,23 +62,7 @@
 @stop
 
 @section('css')
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
-
-<!-- Bootstrap Icons (Bootstrap 5 oficial) -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
-
-<!-- Font Awesome (opcional, solo si lo usas) -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-
-<!-- Select2 CSS -->
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-
-<!-- Tus estilos personalizados -->
 <link href="{{ asset('css/muestras/home.css') }}" rel="stylesheet" />
-
-
-
-
  <style>
         .btn-sm {
         font-size: 1rem; 
@@ -100,7 +82,7 @@
         }
 
         table thead th {
-            background-color:rgb(224, 68, 86);
+            background-color:rgb(255, 125, 140);
             color: white;
         }
 
@@ -113,7 +95,7 @@
         }
 
         .table-bordered {
-            border-color: #fe495f;
+            border-color:rgb(255, 137, 150);
         }
         table th, table td {
             text-align: center;
@@ -125,21 +107,6 @@
     </style>
 @stop  
 @section('js')
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<!-- Bootstrap 5 Bundle JS (incluye Popper) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- Select2 JS -->
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<!-- DataTables CSS y JS -->
-<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>>
-
-
-
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
 <script>
         $(document).ready(function() {
             $('#table_muestras').DataTable({

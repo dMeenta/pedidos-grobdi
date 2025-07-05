@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Dashboard')
+@section('title', 'Producto Final')
 
 @section('content_header')
     <!-- <h1>cotizador</h1> -->
@@ -10,13 +10,13 @@
     <div class="container">
      @include('messages')
 
-        <div class="row mb-4">
+        <div class="form-check mb-3">
             <div class="form-check mb-6">
+                <a class="float-start text-secondary" title="Volver" href="{{ route('bases.create') }}" style="position: absolute; left: 0; font-size: 2rem;">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
                 <h1 class="text-center">
-                    <a class="float-start text-secondary" title="Volver" href="{{ route('bases.create') }}">
-                        <i class="bi bi-arrow-left-circle"></i>
-                    </a>
-                    Producto Final
+                    {{ request('estado') == 'inactivo' ? 'Inactivos' : 'Producto Final' }}
                 </h1>
             </div>
         </div>
@@ -27,7 +27,7 @@
                 <i class="fas fa-plus"></i> Nuevo Producto
             </a>
         </div>
-        <div class="col-md-6 text-end">
+        <div class="col-md-6 text-right">
             <form method="GET" action="{{ route('producto_final.index') }}" class="mb-0 d-inline-block" id="filterForm">
                 <div class="btn-group" role="group">
                     <a href="{{ route('producto_final.index') }}" 
@@ -67,12 +67,14 @@
                             <td>S/ {{ number_format($producto->costo_total_real, 2) }}</td>
                             <td>
                                 <div class="w">
-                                    <a href="{{ route('producto_final.show', $producto->id) }}" class="btn btn-info btn-sm" style="background-color: #17a2b8; border-color: #17a2b8; color: white;"><i class="fa-regular fa-eye"></i>Ver</a>
-                                    <a href="{{ route('producto_final.edit', $producto->id) }}" class="btn btn-warning btn-sm" style="background-color: #ffc107; border-color: #ffc107; color: white;"><i class="fa-solid fa-pen"></i>Editar</a>
+                                    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#detalleProductoModal{{ $producto->id }}" style="background-color: #17a2b8; border-color: #17a2b8; color: white;"><i class="fa fa-eye"></i>
+                                    Ver</button>
+                                    @include('cotizador.laboratorio.producto_final.show')
+                                    <a href="{{ route('producto_final.edit', $producto->id) }}" class="btn btn-warning btn-sm" style="background-color: #ffc107; border-color: #ffc107; color: white;"><i class="fa fa-pen"></i>Editar</a>
                                     <form action="{{ route('producto_final.destroy', $producto->id) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm" style="background-color: #dc3545; border-color: #dc3545;" title="Eliminar" onclick="return confirm('¿Estás seguro?')"><i class="fa-solid fa-trash"></i>Eliminar</button>
+                                        <button type="submit" class="btn btn-danger btn-sm" style="background-color: #dc3545; border-color: #dc3545;" title="Eliminar" onclick="return confirm('¿Estás seguro?')"><i class="fa fa-trash"></i>Eliminar</button>
                                     </form>
                                 </div>
                             </td>
@@ -89,56 +91,9 @@
 @stop
 
 @section('css')
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link href="{{ asset('css/muestras/home.css') }}" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-
-    <style>
-        .btn-sm {
-            font-size: 1rem; 
-            padding: 8px 14px; 
-            border-radius: 8px;
-            display: flex; 
-            align-items: center; 
-        }
-        .btn i {
-            margin-right: 4px; /* Espaciado entre el icono y el texto */
-        }
-        .w {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-        table thead th {
-            background-color: #fe495f;
-            color: white;
-        }
-
-        table tbody td {
-            background-color: rgb(255, 249, 249);
-        }
-
-        .table-striped tbody tr:nth-of-type(odd) {
-            background-color: #f9f9f9;
-        }
-
-        .table-bordered {
-            border-color: #fe495f;
-        }
-        table th, table td {
-            text-align: center;
-        }
-        td {
-            width: 1%;  
-            white-space: nowrap; 
-        }
-    </style>
 @stop
 @section('js')
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#table_muestras').DataTable({

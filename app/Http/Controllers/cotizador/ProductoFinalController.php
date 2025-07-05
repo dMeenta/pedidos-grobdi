@@ -194,19 +194,17 @@ class ProductoFinalController extends Controller
             public function destroy($id)
     {
         $producto = ProductoFinal::findOrFail($id);
-        $nombre = $producto->articulo->nombre;
-
         if ($producto->articulo->estado === 'inactivo') {
-            return redirect()->route('producto_final.index')
-                ->with('error', "El producto final '{$nombre}' ya está inactivo. Para activarlo, por favor usa la sección de editar.");
+            return redirect()->route('producto_final.index', ['estado' => 'inactivo'])
+                ->with('error', "Producto final inactivo. Para activarlo, por favor usa la sección de editar.");
         }
 
         $producto->articulo->update([
             'estado' => 'inactivo',
         ]);
 
-        return redirect()->route('producto_final.index')
-            ->with('error', "Producto final '{$nombre}' marcado como inactivo correctamente.");
+        return redirect()->route('producto_final.index', ['estado' => 'inactivo'])
+            ->with('error', "Producto final marcado como inactivo correctamente.");
     }
 }
 

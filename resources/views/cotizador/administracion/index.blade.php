@@ -10,9 +10,9 @@
 <div class="container">
      @include('messages')
 
-    <div class="mb-3">
-            <h1 class="text-center">Crear Insumos</h1>
-    </div>
+    <h1 class="text-center mb-2">
+        {{ request('estado') == 'inactivo' ? 'Insumos Inactivos' : 'Insumos' }}
+    </h1>
         @if ($errors->any())
             <div class="alert alert-danger">
                 <ul class="mb-0">
@@ -23,26 +23,30 @@
             </div>
         @endif
     <div class="row mb-3 align-items-center">
-            <div class="col-md-6">
-                <a href="{{ route('insumo_empaque.create') }}" class="btn btn_crear">
-                    <i class="fas fa-plus"></i> Nuevo Insumo
-                </a>
-            </div> 
-            <div class="col-md-6 text-end">
-                <form method="GET" action="{{ route('insumo_empaque.index') }}" class="mb-0 d-inline-block" id="filterForm">
+        <div class="col-md-6">
+            <a href="{{ route('insumo_empaque.create') }}" class="btn btn_crear">
+                <i class="fas fa-plus"></i> Nuevo Insumo
+            </a>
+        </div> 
+
+        <div class="col-md-6">
+            <div class="d-flex justify-content-end">
+                <form method="GET" action="{{ route('insumo_empaque.index') }}" class="form-inline" id="filterForm">
                     <div class="btn-group" role="group">
                         <a href="{{ route('insumo_empaque.index') }}" 
                         class="btn btn-sm {{ request()->estado != 'inactivo' ? 'btn_crear' : 'btn-outline-danger' }}">
-                        Activos
+                            Activos
                         </a>
                         <a href="{{ route('insumo_empaque.index', ['estado' => 'inactivo']) }}" 
                         class="btn btn-sm {{ request()->estado == 'inactivo' ? 'btn-secondary' : 'btn-outline-secondary' }}">
-                        Inactivos
+                            Inactivos
                         </a>
                     </div>
                 </form>
             </div>
+        </div>
     </div>
+
     <table class="table table-bordered table-responsive table-hover" id="table_muestras">
         <thead>
             <tr>
@@ -68,12 +72,18 @@
                     <td>{{ $item->articulo->stock }}</td>
                      <td>
                             <div class="w">
-                                <a href="{{ route('insumo_empaque.show', $item->id) }}?tipo=insumo" class="btn btn-info btn-sm" style="background-color: #17a2b8; border-color: #17a2b8; color: white;"><i class="fa-regular fa-eye"></i>Ver</a>
-                                <a href="{{ route('insumo_empaque.edit', $item->id) }}?tipo=insumo" class="btn btn-warning btn-sm" style="background-color: #ffc107; border-color: #ffc107; color: white;"><i class="fa-solid fa-pen"></i>Editar</a>
+                                <button type="button" class="btn btn-info btn-sm"
+                                        style="background-color: #17a2b8; border-color: #17a2b8; color: white;"
+                                        data-toggle="modal"
+                                        data-target="#detalleModalinsumo{{ $item->id }}">
+                                    <i class="fa fa-eye"></i> Ver
+                                </button>
+                                @include('cotizador.administracion.show', ['item' => $item, 'tipo' => 'insumo'])
+                                <a href="{{ route('insumo_empaque.edit', $item->id) }}?tipo=insumo" class="btn btn-warning btn-sm" style="background-color: #ffc107; border-color: #ffc107; color: white;"><i class="fa fa-pen"></i>Editar</a>
                                 <form action="{{ route('insumo_empaque.destroy', $item->id) }}?tipo=insumo" method="POST" onsubmit="return confirm('¿Estás seguro que deseas eliminar este ítem?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                                    <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i> Eliminar</button>
                                 </form>
                             </div>
                         </td>
@@ -89,12 +99,18 @@
                     <td>{{ $item->articulo->stock }}</td>
                     <td>
                         <div class="w">
-                            <a href="{{ route('insumo_empaque.show', $item->id) }}?tipo={{ $item->tipo }}" class="btn btn-info btn-sm" style="background-color: #17a2b8; border-color: #17a2b8; color: white;"><i class="fa-regular fa-eye"></i>Ver</a>
-                            <a href="{{ route('insumo_empaque.edit', $item->id) }}?tipo={{ $item->tipo }}" class="btn btn-warning btn-sm" style="background-color: #ffc107; border-color: #ffc107; color: white;"><i class="fa-solid fa-pen"></i>Editar</a>
+                            <button type="button" class="btn btn-info btn-sm"
+                                    style="background-color: #17a2b8; border-color: #17a2b8; color: white;"
+                                    data-toggle="modal"
+                                    data-target="#detalleModal{{ $item->tipo }}{{ $item->id }}">
+                                <i class="fa fa-eye"></i> Ver
+                            </button>
+                            @include('cotizador.administracion.show', ['item' => $item, 'tipo' => $item->tipo])
+                            <a href="{{ route('insumo_empaque.edit', $item->id) }}?tipo={{ $item->tipo }}" class="btn btn-warning btn-sm" style="background-color: #ffc107; border-color: #ffc107; color: white;"><i class="fa fa-pen"></i>  Editar</a>
                             <form action="{{ route('insumo_empaque.destroy', $item->id) }}?tipo={{ $item->tipo }}" method="POST" onsubmit="return confirm('¿Estás seguro que deseas eliminar este ítem?')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger"><i class="fa-solid fa-trash"></i>
+                                <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i>
                                 Eliminar</button>
                             </form>
                         </div>
@@ -107,56 +123,9 @@
     @stop
 
 @section('css')
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 <link href="{{ asset('css/muestras/home.css') }}" rel="stylesheet" />
-  <style>
-        .btn-sm {
-        font-size: 1rem; 
-        padding: 8px 14px; 
-        border-radius: 8px;
-        display: flex; 
-        align-items: center; 
-        }
-
-        .btn-sm i {
-            margin-right: 4px; 
-        }
-        .w {
-            display: flex;
-            justify-content: center;
-            gap: 5px;
-        }
-
-        table thead th {
-            background-color: #fe495f;
-            color: white;
-        }
-
-        table tbody td {
-            background-color: rgb(255, 249, 249);
-        }
-
-        .table-striped tbody tr:nth-of-type(odd) {
-            background-color: #f9f9f9;
-        }
-
-        .table-bordered {
-            border-color: #fe495f;
-        }
-        table th, table td {
-            text-align: center;
-        }
-        td {
-            width: 1%;  
-            white-space: nowrap; 
-        }
-    </style>
 @stop
 @section('js')
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-  <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#table_muestras').DataTable({
@@ -172,7 +141,7 @@
                         $('.dataTables_filter')
                             .addClass('mb-3')
                             .find('input')
-                            .attr('placeholder', 'Buscar por nombre del insumo') // <- aquí el placeholder
+                            .attr('placeholder', 'Buscar datos en la tabla')
                             .end()
                             .find('label')
                             .contents().filter(function() {
@@ -185,3 +154,4 @@
             });
     </script>
 @stop
+

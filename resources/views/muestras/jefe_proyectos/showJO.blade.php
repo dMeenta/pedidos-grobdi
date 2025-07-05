@@ -9,12 +9,12 @@
                 </button>
             </div>
 
-            <div class="modal-body">
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
                 <div class="row">
                     <!-- Columna 1 -->
                     <div class="col-md-6 mb-4" style="overflow-wrap: break-word; white-space: normal;">
                         <div class="card mb-4" style="border-radius: 10px;">
-                            <div class="card-header">
+                            <div class="card-header" style="background-color:rgb(255, 175, 184); color: rgb(169, 68, 80);">
                                 <h5><i class="bi bi-info-circle mr-2"></i> Información General</h5>
                             </div>
                             <div class="card-body">
@@ -43,7 +43,7 @@
                     <!-- Columna 2 -->
                     <div class="col-md-6 mb-4" style="overflow-wrap: break-word; white-space: normal;">
                         <div class="card" style="border-radius: 10px;">
-                            <div class="card-header">
+                            <div class="card-header" style="background-color:rgb(255, 175, 184); color: rgb(169, 68, 80);">
                                 <h5><i class="bi bi-clock-history mr-2"></i> Estado y Fechas</h5>
                             </div>
                             <div class="card-body">
@@ -83,25 +83,3 @@
         </div>
     </div>
 </div>
-
-<style>
-    .modal-content {
-        border-radius: 15px;
-    }
-    .card-header {
-        background-color: #fe495f;
-        color: white;
-        font-size: 1.2rem;
-    }
-    .card-body {
-        background-color: #f8f9fa;
-        padding: 10px;
-        border-radius: 10px;
-    }
-    .text-danger {
-        color: rgb(224, 61, 80) !important;
-    }
-    .badge {
-        font-size: 0.9rem;
-    }
-</style>

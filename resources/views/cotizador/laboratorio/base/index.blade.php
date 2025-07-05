@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Dashboard')
+@section('title', 'Formulaciones')
 
 @section('content_header')
     <!-- <h1>cotizador</h1> -->
@@ -10,27 +10,29 @@
     <div class="container">
      @include('messages')
 
-            <h1 class="text-center fw-bold">Formulaciones Registradas</h1>
+            <h1 class="text-center fw-bold">
+                {{ request('estado') == 'inactivo' ? 'Formulaciones Inactivas' : 'Formulaciones' }}
+            </h1>
 
-    <div class="row mb-3 align-items-center">
-        <div class="col-md-6">
-            <a href="{{ route('bases.create') }}" class="btn btn_crear">+ Crear Nueva</a>
-        </div>
-        <div class="col-md-6 text-end">
-            <form method="GET" action="{{ route('bases.index') }}" class="mb-0 d-inline-block" id="filterForm">
-                <div class="btn-group" role="group">
-                    <a href="{{ route('bases.index') }}" 
-                    class="btn btn-sm {{ request()->estado != 'inactivo' ? 'btn_crear' : 'btn-outline-danger' }}">
-                    Activos
-                    </a>
-                    <a href="{{ route('bases.index', ['estado' => 'inactivo']) }}" 
-                    class="btn btn-sm {{ request()->estado == 'inactivo' ? 'btn-secondary' : 'btn-outline-secondary' }}">
-                    Inactivos
-                    </a>
+            <div class="row mb-3 align-items-center">
+                <div class="col-md-6">
+                    <a href="{{ route('bases.create') }}" class="btn btn_crear"><i class="fas fa-plus-square"></i> Crear Nueva</a>
                 </div>
-            </form>
-        </div>
-    </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <form method="GET" action="{{ route('bases.index') }}" class="mb-0 d-inline-block" id="filterForm">
+                        <div class="btn-group" role="group">
+                            <a href="{{ route('bases.index') }}" 
+                            class="btn btn-sm {{ request()->estado != 'inactivo' ? 'btn_crear' : 'btn-outline-danger' }}">
+                            Activos
+                            </a>
+                            <a href="{{ route('bases.index', ['estado' => 'inactivo']) }}" 
+                            class="btn btn-sm {{ request()->estado == 'inactivo' ? 'btn-secondary' : 'btn-outline-secondary' }}">
+                            Inactivos
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
             <table class="table table-bordered table-responsive" id="table_muestras">
                 <thead>
                     <tr>
@@ -52,12 +54,15 @@
                     <td>S/ {{ number_format($base->precio, 2) }}</td>
                     <td>
                         <div class="w">
-                            <a href="{{ route('bases.show', $base->id) }}" class="btn btn-info btn-sm" style="background-color: #17a2b8; border-color: #17a2b8; color: white;"><i class="fa-regular fa-eye"></i>Ver</a>
-                            <a href="{{ route('bases.edit', $base->id) }}" class="btn btn-warning btn-sm" style="background-color: #ffc107; border-color: #ffc107; color: white;"><i class="fa-solid fa-pen"></i>Editar</a>
+                            @include('cotizador.laboratorio.base.show')
+                            <button class="btn btn-sm" style="background-color: #17a2b8; border-color: #17a2b8; color: white;" data-toggle="modal" data-target="#detalleBaseModal{{ $base->id }}">
+                                <i class="fa fa-eye"></i>Ver 
+                            </button>
+                            <a href="{{ route('bases.edit', $base->id) }}" class="btn btn-warning btn-sm" style="background-color: #ffc107; border-color: #ffc107; color: white;"><i class="fa fa-pen"></i>Editar</a>
                             <form action="{{ route('bases.destroy', $base->id) }}" method="POST" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm" style="background-color: #dc3545; border-color: #dc3545;"><i class="fa-solid fa-trash"></i>Eliminar</button>
+                                <button type="submit" class="btn btn-danger btn-sm" style="background-color: #dc3545; border-color: #dc3545;"><i class="fa fa-trash"></i>Eliminar</button>
                             </form>
                         </div>
                     </td>
@@ -69,56 +74,9 @@
 @stop
 
 @section('css')
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 <link href="{{ asset('css/muestras/home.css') }}" rel="stylesheet" />
-  <style>
-        .btn-sm {
-        font-size: 1rem; 
-        padding: 8px 14px; 
-        border-radius: 8px;
-        display: flex; 
-        align-items: center; 
-        }
-
-        .btn-sm i {
-            margin-right: 4px; 
-        }
-        .w {
-            display: flex;
-            justify-content: center;
-            gap: 5px;
-        }
-
-        table thead th {
-            background-color: #fe495f;
-            color: white;
-        }
-
-        table tbody td {
-            background-color: rgb(255, 249, 249);
-        }
-
-        .table-striped tbody tr:nth-of-type(odd) {
-            background-color: #f9f9f9;
-        }
-
-        .table-bordered {
-            border-color: #fe495f;
-        }
-        table th, table td {
-            text-align: center;
-        }
-        td {
-            width: 1%;  
-            white-space: nowrap; 
-        }
-    </style>
 @stop
 @section('js')
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-  <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#table_muestras').DataTable({
@@ -134,7 +92,7 @@
                         $('.dataTables_filter')
                             .addClass('mb-3')
                             .find('input')
-                            .attr('placeholder', 'Buscar por nombre de la base o prebase') // <- aquí el placeholder
+                            .attr('placeholder', 'Buscar datos en la tabla') // <- aquí el placeholder
                             .end()
                             .find('label')
                             .contents().filter(function() {
@@ -147,4 +105,5 @@
             });
     </script>
 @stop
+@section('plugins.Datatables', true)
 

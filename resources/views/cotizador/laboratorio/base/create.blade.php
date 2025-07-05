@@ -10,17 +10,18 @@
 <div class="container">
     
     <div class="form-check mb-3">
+        <label class="form-check-label" for="toggle-producto_final">
         <input type="checkbox" class="form-check-input" id="toggle-producto_final" name="agregar_producto_final">
-        <label class="form-check-label" for="toggle-producto_final">Agregar PRODUCTO FINAL</label>
+        <span style="margin-left: 6px;">Agregar PRODUCTO FINAL</span></label>
     </div>
 
     <div id="formulario-normal">
-        <div class="form-check mb-3">
-            <h1 class="text-center"><a class="float-start text-secondary" title="Volver" href="{{ route('bases.index') }}">
-            <i class="bi bi-arrow-left-circle"></i></a>
+        <div class="form-check mb-3 d-flex align-items-center justify-content-center position-relative">
+            <a class="text-secondary" title="Volver" href="{{ route('bases.index') }}" style="position: absolute; left: 0; font-size: 2rem">
+            <i class="fas fa-arrow-left"></i></a>
+            <h1 class="text-center">
             Crear Formulación</h1>
         </div>
-        <!-- Incluir CSS de Select2 -->
         <form method="POST" action="{{ route('bases.store') }}">
             @csrf
 
@@ -60,7 +61,7 @@
                             <option value="">-- Selecciona una Clasificación primero --</option>
                         </select>
                             <div class="text-success" style="font-size: 0.7rem;">
-                                <i class="fa-solid fa-triangle-exclamation"></i> Si no existe un volumen 
+                                <i class="fas fa-exclamation-triangle"></i> Si no existe un volumen 
                                 asociado a la clasificación registrar mediante el módulo "Volúmenes"
                             </div>
                     </div>
@@ -100,7 +101,7 @@
                             <input type="number" id="insumoCantidad" min="1" class="form-control" placeholder="Cantidad" step="any">
                         </div>
                         <div class="col-2">
-                            <button type="button" class="btn btn_crear w-100" id="agregarInsumo"><i class="fa-solid fa-circle-plus"></i></button>
+                            <button type="button" class="btn btn_crear w-100" id="agregarInsumo"><i class="fas fa-plus"></i></button>
                         </div>
                     </div>
                     
@@ -115,7 +116,7 @@
                         </thead>
                         <tbody id="tablaInsumos"></tbody>
                     </table>
-                    <div id="subtotalInsumosPrebase" class="text-end mt-2 d-none">
+                    <div id="subtotalInsumosPrebase" class="text-right mt-2 d-none">
                         <h6>Total de insumos: <span id="subtotalInsumosTexto" class="text-primary">S/ 0.00</span></h6>
                     </div>
 
@@ -139,7 +140,7 @@
                             <input type="number" min="1" id="prebaseCantidad" class="form-control" placeholder="Cantidad" step="any">
                         </div>
                         <div class="col-2">
-                            <button type="button" class="btn btn_crear w-100" id="agregarPrebase"><i class="fa-solid fa-circle-plus"></i></button>
+                            <button type="button" class="btn btn_crear w-100" id="agregarPrebase"><i class="fas fa-plus"></i></button>
                         </div>
                     </div>
 
@@ -181,7 +182,7 @@
                                 <input type="number" min="1" id="empaqueCantidad" class="form-control" placeholder="Cantidad" step="any">
                             </div>
                             <div class="col-2">
-                                <button type="button" class="btn btn_crear w-100" id="agregarEmpaque"><i class="fa-solid fa-circle-plus"></i></button>
+                                <button type="button" class="btn btn_crear w-100" id="agregarEmpaque"><i class="fas fa-plus"></i></button>
                             </div>
                         </div>
 
@@ -198,14 +199,14 @@
                         </table>
 
     
-                        <div class="text-end mt-2">
+                        <div class="text-right mt-2">
                             <h5>Precio Total de la Base: <span id="precioTotal" class="text-success">S/ 0.00</span></h5>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <button type="submit" class="btn btn_crear mt-3"><i class="fa-solid fa-floppy-disk"></i>
+            <button type="submit" class="btn btn_crear mt-3"><i class="fas fa-save"></i>
             Guardar Base</button>
         </form>
     </div>
@@ -213,16 +214,10 @@
 @stop
 
 @section('css')
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 <link href="{{ asset('css/muestras/home.css') }}" rel="stylesheet" />
 @stop
 
 @section('js')
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     // Inicializar Select2 cuando el DOM esté listo
     document.addEventListener('DOMContentLoaded', function() {
@@ -272,7 +267,7 @@
             const row = document.createElement('tr');
             row.id = `row-insumo-${insumoId}`;
             row.innerHTML = `
-                <td>
+                <td class="observaciones">
                     ${insumoNombre}
                     <input type="hidden" name="insumos[${insumoIndex}][id]" value="${insumoId}">
                 </td>
@@ -284,12 +279,12 @@
                     S/ ${insumoPrecio.toFixed(2)}
                 </td>
                 <td>
-                    <button type="button" class="btn btn-danger btn-sm" onclick="eliminarInsumo('${insumoId}')">X</button>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="eliminarInsumo('${insumoId}')"><i class="fas fa-trash-alt"></i></button>
                 </td>
             `;
             tbody.appendChild(row);
 
-            insumoIndex++; // ✅ Aumentamos el índice para el siguiente
+            insumoIndex++; 
 
             // Resetear el select2
             $('.select2-insumo').val(null).trigger('change');
@@ -323,7 +318,7 @@
             const row = document.createElement('tr');
             row.id = `row-empaque-${empaqueId}`;
             row.innerHTML = `
-                <td>
+                <td class="observaciones">
                     ${empaqueNombre}
                     <input type="hidden" name="empaques[${empaqueIndex}][id]" value="${empaqueId}">
                 </td>
@@ -335,7 +330,7 @@
                     S/ ${empaquePrecio.toFixed(2)}
                 </td>
                 <td>
-                    <button type="button" class="btn btn-danger btn-sm" onclick="eliminarEmpaque('${empaqueId}')">X</button>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="eliminarEmpaque('${empaqueId}')"><i class="fas fa-trash-alt"></i></button>
                 </td>
             `;
             tbody.appendChild(row);
@@ -372,7 +367,7 @@
             const row = document.createElement('tr');
             row.id = `row-prebase-${id}`;
             row.innerHTML = `
-                <td>
+                <td class="observaciones">
                     ${nombre}
                     <input type="hidden" name="prebases[${prebaseIndex}][id]" value="${id}">
                 </td>
@@ -382,7 +377,7 @@
                 </td>
                 <td>S/ ${precio.toFixed(2)}</td>
                 <td>
-                    <button type="button" class="btn btn-danger btn-sm" onclick="eliminarPrebase('${id}')">X</button>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="eliminarPrebase('${id}')"><i class="fas fa-trash-alt"></i></button>
                 </td>
             `;
             tbody.appendChild(row);
@@ -548,39 +543,38 @@
             });
 </script>
 <script>
-    const checkbox = document.getElementById('toggle-producto_final');
-    window.addEventListener('DOMContentLoaded', function () {
-        checkbox.checked = false;
-    });
-    window.addEventListener('pageshow', function () {
-        checkbox.checked = false;
-    });
-     document.getElementById('toggle-producto_final').addEventListener('change', function () {
-        if (this.checked) {
-            window.location.href = "{{ route('producto_final.index') }}";
+        const checkbox = document.getElementById('toggle-producto_final');
+        window.addEventListener('DOMContentLoaded', function () {
+            checkbox.checked = false;
+        });
+        window.addEventListener('pageshow', function () {
+            checkbox.checked = false;
+        });
+        document.getElementById('toggle-producto_final').addEventListener('change', function () {
+            if (this.checked) {
+                window.location.href = "{{ route('producto_final.index') }}";
+            }
+        });
+
+        //oculta empaques si selecciona prebase
+    document.getElementById('tipoBase').addEventListener('change', function () {
+        const seccionEmpaques = document.getElementById('seccionEmpaques');
+        const tablaInsumos = document.getElementById('tablaInsumos');
+
+        // 🔄 Limpiar insumos al cambiar tipo
+        tablaInsumos.innerHTML = '';
+        for (const id in insumosData) {
+            delete insumosData[id];
+        }
+        // 🧮 Recalcular precio
+        actualizarPrecioTotal();
+
+        // 🎯 Mostrar u ocultar empaques según tipo
+        if (this.value === 'prebase') {
+            seccionEmpaques.classList.add('d-none');
+        } else {
+            seccionEmpaques.classList.remove('d-none');
         }
     });
-
-    //oculta empaques si selecciona prebase
-  document.getElementById('tipoBase').addEventListener('change', function () {
-    const seccionEmpaques = document.getElementById('seccionEmpaques');
-    const tablaInsumos = document.getElementById('tablaInsumos');
-
-    // 🔄 Limpiar insumos al cambiar tipo
-    tablaInsumos.innerHTML = '';
-    for (const id in insumosData) {
-        delete insumosData[id];
-    }
-    // 🧮 Recalcular precio
-    actualizarPrecioTotal();
-
-    // 🎯 Mostrar u ocultar empaques según tipo
-    if (this.value === 'prebase') {
-        seccionEmpaques.classList.add('d-none');
-    } else {
-        seccionEmpaques.classList.remove('d-none');
-    }
-});
-
 </script>
 @stop

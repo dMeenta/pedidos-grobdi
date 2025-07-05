@@ -370,8 +370,8 @@ class BaseController extends Controller
             if ($base->articulo) {
                 if ($base->articulo->estado === 'inactivo') {
                     DB::commit();
-                    return redirect()->route('bases.index')
-                        ->with('error', "La base '{$base->articulo->nombre}' ya está inactiva. Para activarla, edítala desde la opción de editar.");
+                    return redirect()->route('bases.index', ['estado' => 'inactivo'])
+                        ->with('error', "La base ya está inactiva. Para activarla, edítala desde la opción de editar.");
                 }
 
                 $base->articulo->estado = 'inactivo';
@@ -379,7 +379,7 @@ class BaseController extends Controller
 
                 DB::commit();
                 return redirect()->route('bases.index')
-                    ->with('error', "Base '{$base->articulo->nombre}' inactivada correctamente.");
+                    ->with('error', "Base inactivada correctamente.");
             }
 
             DB::commit();

@@ -6,7 +6,7 @@
 @stop
 
 @section('content')
-    <div class="container container-fluid">
+    <div class="container container-fluid" style="user-select: none;">
      @include('messages')
 
         <div class="d-flex mb-3 justify-content-between align-items-center">
@@ -94,13 +94,14 @@
                             <td class="text-right">{{ number_format($compra->precio_total, 4) }}</td>
                             <td>{{ $compra->creador->name ?? 'en sysgrob' }}</td>
                             <td class="text-center">
-                                <a href="{{ route('compras.show', $compra->id) }}" class="btn btn-sm btn-info" title="Ver detalle">
+                                @include('compras.show')
+                                <button type="button" class="btn btn-info btn-ver-detalle" title="Ver detalle" data-toggle="modal" data-target="#modalDetalleCompra{{ $compra->id }}">
                                     <i class="fas fa-eye"></i>
-                                </a>
+                                </button>
                                 <form action="{{ route('compras.destroy', $compra->id) }}" method="POST" style="display: inline-block;">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger" title="Eliminar" onclick="return confirm('¿Está seguro?')">
+                                    <button type="submit" class="btn btn-danger" title="Eliminar" onclick="return confirm('¿Está seguro?')">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </form>
@@ -118,52 +119,15 @@
 @stop
 
 @section('css')
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link href="{{ asset('css/muestras/home.css') }}" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-    <style>
-        /* Espaciado entre elementos */
-    .form-group {
-        margin-right: 1rem; /* Espaciado entre los campos */
-        margin-left: 1rem;  /* Espaciado entre los campos */
-    }
-
-    /* Los campos de formulario ocupan el 100% del espacio */
-    select.form-control, input.form-control {
-        width: 100%;
-    }
-
-    /* Espaciado entre columnas */
-    .row.mb-3 {
-        display: flex;
-        gap: 1rem; /* Espacio entre las columnas */
-    }
-
-    /* Botones con margen a la derecha */
-    .d-flex button, .d-flex a {
-        margin-right: 1rem;
-    }
-
-    </style>
 @stop
 @section('js')
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<!-- Bootstrap 5 Bundle JS (incluye Popper) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Select2 JS -->
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<!-- DataTables CSS y JS -->
-<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>>
     <script>
         $(document).ready(function() {
-                // Inicializar select2 para el campo de proveedor
                 $('.select2').select2({
                     placeholder: 'Seleccione un proveedor',
                     allowClear: true,
-                    width: '100%' // Asegura que el select ocupe todo el ancho disponible
+                    width: '100%' 
                 });
 
                 // Inicializar DataTable

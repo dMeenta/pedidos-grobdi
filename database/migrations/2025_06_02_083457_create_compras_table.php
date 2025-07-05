@@ -15,13 +15,13 @@ return new class extends Migration
             $table->id();
             $table->string('serie');
             $table->string('numero');
-            $table->decimal('precio_total', 10, 4);
+            $table->decimal('precio_total', 15, 4);
             $table->foreignId('proveedor_id')->constrained('proveedores')->onDelete('cascade'); 
             $table->date('fecha_emision');
             $table->enum('condicion_pago', ['Contado', 'Crédito']);
             $table->foreignId('moneda_id')->constrained('tipo_moneda')->onDelete('cascade'); 
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null'); 
-            $table->decimal('igv', 5, 2); 
+            $table->decimal('igv', 10, 4); 
             $table->timestamps();
         });
 

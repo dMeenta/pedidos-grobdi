@@ -99,14 +99,14 @@ class UtilController extends Controller
         $articulo = Articulo::findOrFail($id);
 
         if ($articulo->estado === 'inactivo') {
-            return redirect()->route('util.index')->with('error', 'Este útil ya está inactivo. Puedes activarlo desde la pantalla de edición.');
+            return redirect()->back()->with('error', 'Este útil ya está inactivo. Puedes activarlo desde la pantalla de edición.');
         }
 
         $articulo->update([
             'estado' => 'inactivo',
         ]);
 
-        return redirect()->route('util.index')->with('error', 'Útil marcado como inactivo.');
+        return redirect()->route('util.index', [ 'estado' => 'inactivo'])->with('error', 'Útil marcado como inactivo.');
     }
 }
 

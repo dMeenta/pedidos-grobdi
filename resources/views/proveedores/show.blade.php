@@ -1,100 +1,54 @@
-@extends('adminlte::page')
+@if(isset($proveedor))
+<div class="modal fade" id="ProveedorModal{{ $proveedor->id }}" tabindex="-1" role="dialog" aria-labelledby="ProveedorModalLabel{{ $proveedor->id }}" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content" style="border-radius: 12px; background-color:rgb(255, 255, 255);">
+            <div class="modal-header text-white" style="background-color: #fe495f; border-top-left-radius: 12px; border-top-right-radius: 12px;">
+                <h5 class="modal-title" id="ProveedorModalLabel{{ $proveedor->id }}">
+                    <i class="bi bi-person-badge-fill mr-2"></i> Información del Proveedor
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
 
-@section('title', 'Dashboard')
-
-@section('content_header')
-    <!-- <h1>cotizador</h1> -->
-@stop
-
-@section('content')
-<div class="container">
-    <div class="d-flex align-items-center mb-3">
-        <a class="btn me-3" title="Volver" href="{{ route('proveedores.index') }}" style="color:#6c757d; font-size: 2.3rem;">
-            <i class="bi bi-arrow-left-circle"></i>
-        </a>
-        <h1 class="flex-grow-1 text-center">Detalles del Proveedor</h1>
-    </div>
-
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card" style="border-radius: 10px;">
-                <div class="card-header" style="background-color: #fe495f; color: white;">
-                    <h5><i class="bi bi-person-badge-fill" style="margin-right: 6px;"></i> Información</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p><strong style="color:rgb(224, 61, 80);">Razón Social:</strong> {{ $proveedor->razon_social }}</p>
-                            <p><strong style="color:rgb(224, 61, 80);">RUC:</strong> {{ $proveedor->ruc }}</p>
-                            <p><strong style="color:rgb(224, 61, 80);">Dirección:</strong> {{ $proveedor->direccion }}</p>
-                            <p><strong style="color:rgb(224, 61, 80);">Correo:</strong> {{ $proveedor->correo ?? 'N/A' }}</p>
-                            <p><strong style="color:rgb(224, 61, 80);">Correo CPE:</strong> {{ $proveedor->correo_cpe ?? 'N/A' }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <p><strong style="color:rgb(224, 61, 80);">Teléfono 1:</strong> {{ $proveedor->telefono_1 }}</p>
-                            <p><strong style="color:rgb(224, 61, 80);">Teléfono 2:</strong> {{ $proveedor->telefono_2 ?? 'N/A' }}</p>
-                            <p><strong style="color:rgb(224, 61, 80);">Persona de Contacto:</strong> {{ $proveedor->persona_contacto ?? 'N/A' }}</p>
-                            <p><strong style="color:rgb(224, 61, 80);">Estado:</strong> 
-                                <span class="badge" style="background-color: {{ $proveedor->estado == 'activo' ? 'green' : 'gray' }}; color: white; padding: 10px;">
-                                    {{ ucfirst($proveedor->estado) }}
-                                </span>
-                            </p>
-                        </div>
+         <div class="modal-body" style="color: #333; max-height: 70vh; overflow-y: auto;">
+                <div class="row">
+                    <div class="col-md-6" style="word-wrap: break-word; overflow-wrap: break-word;">
+                        <p style="white-space: normal;"><strong style="color:#e03d50;">Razón Social:</strong> {{ $proveedor->razon_social }}</p>
+                        <p style="white-space: normal;"><strong style="color:#e03d50;">RUC:</strong> {{ $proveedor->ruc }}</p>
+                        <p style="white-space: normal;"><strong style="color:#e03d50;">Dirección:</strong> {{ $proveedor->direccion }}</p>
+                        <p style="white-space: normal;"><strong style="color:#e03d50;">Correo:</strong> {{ $proveedor->correo ?? 'No se registró correo' }}</p>
+                        <p style="white-space: normal;"><strong style="color:#e03d50;">Correo CPE:</strong> {{ $proveedor->correo_cpe ?? 'No se registró correo' }}</p>
                     </div>
-                    <p><strong style="color:rgb(224, 61, 80);">Observaciones:</strong></p>
-                    <span>{{ $proveedor->observacion ?? 'Ninguna' }}</span>
+
+                    <div class="col-md-6" style="word-wrap: break-word; overflow-wrap: break-word;">
+                        <p style="white-space: normal;"><strong style="color:#e03d50;">Teléfono 1:</strong> {{ $proveedor->telefono_1 }}</p>
+                        <p style="white-space: normal;"><strong style="color:#e03d50;">Teléfono 2:</strong> {{ $proveedor->telefono_2 ?? 'No se registró un segundo teléfono' }}</p>
+                        <p style="white-space: normal;"><strong style="color:#e03d50;">Persona de Contacto:</strong> {{ $proveedor->persona_contacto ?? 'No se registró una persina de contacto' }}</p>
+                        <p style="white-space: normal;"><strong style="color:#e03d50;">Estado:</strong>
+                            <span class="badge badge-pill" style="background-color: {{ $proveedor->estado == 'activo' ? '#28a745' : '#6c757d' }}; color: white; padding: 8px 12px;">
+                                {{ ucfirst($proveedor->estado) }}
+                            </span>
+                        </p>
+                    </div>
                 </div>
-                <div class="card-footer d-flex justify-content-between">
-                    <a href="{{ route('proveedores.edit', $proveedor->id) }}" class="btn btn_crear" style="color:rgb(224, 61, 80);">
-                        <i class="bi bi-pencil-square"></i> Editar
-                    </a>
-                
+
+                <div class="mt-3 pt-3" style="border-top: 1px solid #eee;">
+                    <p class="mb-2"><strong style="color: #e03d50; font-weight: 600;">Observaciones:</strong></p>
+                    <div class="bg-light p-3 rounded" style="border-left: 3px solid #fe495f; word-wrap: break-word; overflow-wrap: break-word;">
+                        <p class="mb-0" style="white-space: normal;">{{ $proveedor->observacion ?: 'Ninguna observación registrada' }}</p>
+                    </div>
                 </div>
+            </div>
+            <div class="modal-footer" style="background-color: #fff0f2;">
+                <a href="{{ route('proveedores.edit', $proveedor->id) }}" class="btn btn-outline-danger btn-sm">
+                    <i class="bi bi-pencil-square"></i> Editar
+                </a>
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Cerrar
+                </button>
             </div>
         </div>
     </div>
 </div>
-@stop
-
-@section('css')
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
-<!-- Bootstrap Icons (Bootstrap 5 oficial) -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
-<!-- Font Awesome (opcional, solo si lo usas) -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-<!-- Select2 CSS -->
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<!-- Tus estilos personalizados -->
-<link href="{{ asset('css/muestras/home.css') }}" rel="stylesheet" />
-<!-- Bootstrap & Icon links -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-<link rel="stylesheet" href="{{ asset('css/muestras/labora.css') }}">
-<style>
-    .card-body {
-        background-color: #f8f9fa;
-        padding: 10px;
-        border-radius: 10px;
-    }
-    .card-header {
-        font-size: 1.2rem;
-    }
-    .card-footer {
-        background-color: #f8f9fa;
-        padding: 10px;
-        border-radius: 0 0 10px 10px;
-    }
-</style>
-@stop
-@section('js')
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<!-- Bootstrap 5 Bundle JS (incluye Popper) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Select2 JS -->
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<!-- DataTables CSS y JS -->
-<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-<script> console.log('Detalles del proveedor cargados'); </script>
-@stop
+@endif

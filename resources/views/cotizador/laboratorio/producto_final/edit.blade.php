@@ -8,198 +8,196 @@
 
 @section('content')
 <div class="container">
-    <div class="row mb-4">
-    <div class="form-check mb-3">
-        <h1 class="text-center"><a class="float-start text-secondary" title="Volver" href="{{ route('producto_final.index') }}">
-        <i class="bi bi-arrow-left-circle"></i></a>
-        Editar {{ $producto->nombre }}</h1>
-    </div>
-    <form method="POST" action="{{ route('producto_final.update', $producto->id) }}">
-        @csrf
-        @method('PUT')
+        <div class="form-check mb-3">
+            <a class="float-start text-secondary" title="Volver" href="{{ route('producto_final.index') }}" style="position: absolute; left: 0; font-size: 2rem;">
+            <i class="fas fa-arrow-left"></i></a>
+            <h1 class="text-center">
+            Editar Producto Final</h1>
+        </div>
+        <form method="POST" action="{{ route('producto_final.update', $producto->id) }}">
+            @csrf
+            @method('PUT')
 
-        <div class="row">
-            <!-- Columna izquierda -->
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label for="nombre">Nombre</label>
-                    <input type="text" class="form-control" name="nombre" value="{{ old('nombre', $producto->articulo->nombre) }}" required>
-                    @error('nombre')
-                        <div class="text-success">
-                            <i class="fa-solid fa-triangle-exclamation"></i> {{ $message }}
-                        </div>
-                    @enderror
-                </div>
-
-                <div class="mb-3">
-                            <label for="clasificacion_id">Clasificación</label>
-                            <select class="form-control select2-clasificacion" name="clasificacion_id" id="clasificacion_id" required>
-                                <option value="">-- Seleccionar Clasificación --</option>
-                                @foreach($clasificaciones as $c)
-                                    <option value="{{ $c->id }}"
-                                            data-unidad="{{ $c->unidadMedida->nombre_unidad_de_medida ?? '' }}"
-                                            data-unidad-id="{{ $c->unidadMedida->id ?? '' }}">
-                                        {{ $c->nombre_clasificacion }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="unidad_medida">Unidad de Medida</label>
-                            <input type="text" class="form-control" id="unidad_medida" readonly>
-                            <input type="hidden" name="unidad_de_medida_id" id="unidad_de_medida_id" value="">
-                        </div>
-
-                <div class="mb-3">
-                    <label for="volumen_id">Volumen</label>
-                    <select class="form-control" name="volumen_id" id="volumen_id" required>
-                        <option value="">-- Seleccionar Volumen --</option>
-                        @foreach($volumenesAgrupados[$producto->clasificacion_id] ?? [] as $volumen)
-                            <option value="{{ $volumen->id }}" {{ $producto->volumen_id == $volumen->id ? 'selected' : '' }}>
-                                {{ $volumen->nombre }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="form-group mb-3">
-                    @if($producto->articulo->estado === 'inactivo')
-                    <label for="estado" class="form-label">Estado del producto</label><br>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" name="estado" id="estado"
-                                value="activo" {{ $producto->articulo->estado === 'activo' ? 'checked' : '' }} required>
-                            <label class="form-check-label" for="estado">Activo</label>
-                        </div>
-                    @endif
-                </div>
-
-
-                @if($errors->has('llenar'))
-                    <div class="alert alert-danger">
-                        {{ $errors->first('llenar') }}
+            <div class="row">
+                <!-- Columna izquierda -->
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="nombre">Nombre</label>
+                        <input type="text" class="form-control" name="nombre" value="{{ old('nombre', $producto->articulo->nombre) }}" required>
+                        @error('nombre')
+                            <div class="text-success">
+                                <i class="fa-solid fa-triangle-exclamation"></i> {{ $message }}
+                            </div>
+                        @enderror
                     </div>
-                @endif
-            </div>
 
-            <!-- Columna derecha: insumos y base -->
-            <div class="col-md-6">
-                <h5><label>Agregar Insumos</label></h5>
+                    <div class="mb-3">
+                                <label for="clasificacion_id">Clasificación</label>
+                                <select class="form-control select2-clasificacion" name="clasificacion_id" id="clasificacion_id" required>
+                                    <option value="">-- Seleccionar Clasificación --</option>
+                                    @foreach($clasificaciones as $c)
+                                        <option value="{{ $c->id }}"
+                                                data-unidad="{{ $c->unidadMedida->nombre_unidad_de_medida ?? '' }}"
+                                                data-unidad-id="{{ $c->unidadMedida->id ?? '' }}">
+                                            {{ $c->nombre_clasificacion }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="unidad_medida">Unidad de Medida</label>
+                                <input type="text" class="form-control" id="unidad_medida" readonly>
+                                <input type="hidden" name="unidad_de_medida_id" id="unidad_de_medida_id" value="">
+                            </div>
 
-                <div class="row mb-2">
-                    <div class="col-7">
-                        <select id="insumoSelect" class="form-control select2-insumo">
-                            <option value="">-- Seleccionar insumo --</option>
-                            @foreach($insumos as $insumo)
-                                <option value="{{ $insumo->id }}"
-                                        data-nombre="{{ $insumo->articulo->nombre }}"
-                                        data-precio="{{ $insumo->precio }}">
-                                    {{ $insumo->articulo->nombre }}
+                    <div class="mb-3">
+                        <label for="volumen_id">Volumen</label>
+                        <select class="form-control" name="volumen_id" id="volumen_id" required>
+                            <option value="">-- Seleccionar Volumen --</option>
+                            @foreach($volumenesAgrupados[$producto->clasificacion_id] ?? [] as $volumen)
+                                <option value="{{ $volumen->id }}" {{ $producto->volumen_id == $volumen->id ? 'selected' : '' }}>
+                                    {{ $volumen->nombre }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-3">
-                        <input type="number" id="insumoCantidad" min="1" class="form-control" placeholder="Cantidad" step="any">
+
+                    <div class="form-group mb-3">
+                        @if($producto->articulo->estado === 'inactivo')
+                        <label for="estado" class="form-label">Estado del producto</label><br>
+                            <div class="form-check form-switch">
+                                <label class="form-check-label" for="estado">
+                                <input class="form-check-input" type="checkbox" name="estado" id="estado"
+                                    value="activo" {{ $producto->articulo->estado === 'activo' ? 'checked' : '' }} required>
+                                <span style="margin-left: 6px;">Activar</span></label>
+                            </div>
+                        @endif
                     </div>
-                    <div class="col-2">
-                        <button type="button" class="btn btn_crear w-100" id="agregarInsumo"><i class="fa-solid fa-circle-plus"></i></button>
-                    </div>
+
+
+                    @if($errors->has('llenar'))
+                        <div class="alert alert-danger">
+                            {{ $errors->first('llenar') }}
+                        </div>
+                    @endif
                 </div>
 
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Insumo</th>
-                            <th>Cantidad</th>
-                            <th>Precio (S/)</th>
-                            <th>Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tablaInsumos">
-                        @foreach($producto->insumos as $insumo)
-                            <tr data-id="{{ $insumo->id }}">
-                                <td>{{ $insumo->articulo->nombre }}</td>
-                                <td>{{ $insumo->pivot->cantidad }}</td>
-                                <td>S/ {{ $insumo->precio }}</td>
-                                <td><button type="button" class="btn btn-danger btn-sm eliminarInsumo">×</button></td>
-                                <input type="hidden" name="insumos[{{ $insumo->id }}][cantidad]" value="{{ $insumo->pivot->cantidad }}">
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-
-                <div id="seccionbase">
-                    <h5><label>Agregar base</label></h5>
+                <!-- Columna derecha: insumos y base -->
+                <div class="col-md-6">
+                    <h5><label>Agregar Insumos</label></h5>
 
                     <div class="row mb-2">
                         <div class="col-7">
-                            <select id="baseSelect" class="form-control select2-base">
-                                <option value="">-- Seleccionar base --</option>
-                                @foreach($bases as $base)
-                                    <option value="{{ $base->id }}"
-                                            data-nombre="{{ $base->articulo->nombre }}"
-                                            data-precio="{{ $base->precio }}">
-                                        {{ $base->articulo->nombre }}
+                            <select id="insumoSelect" class="form-control select2-insumo">
+                                <option value="">-- Seleccionar insumo --</option>
+                                @foreach($insumos as $insumo)
+                                    <option value="{{ $insumo->id }}"
+                                            data-nombre="{{ $insumo->articulo->nombre }}"
+                                            data-precio="{{ $insumo->precio }}">
+                                        {{ $insumo->articulo->nombre }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="col-3">
-                            <input type="number" min="1" id="baseCantidad" class="form-control" placeholder="Cantidad" step="any">
+                            <input type="number" id="insumoCantidad" min="1" class="form-control" placeholder="Cantidad" step="any">
                         </div>
                         <div class="col-2">
-                            <button type="button" class="btn btn_crear w-100" id="agregarBase"><i class="fa-solid fa-circle-plus"></i></button>
+                            <button type="button" class="btn btn_crear w-100" id="agregarInsumo"><i class="fa fa-plus"></i></button>
                         </div>
                     </div>
 
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th>Base</th>
+                                <th>Insumo</th>
                                 <th>Cantidad</th>
                                 <th>Precio (S/)</th>
                                 <th>Acción</th>
                             </tr>
                         </thead>
-                        <tbody id="tablabase">
-                            @foreach($producto->bases as $base)
-                                <tr data-id="{{ $base->id }}">
-                                    <td>{{ $base->articulo->nombre }}</td>
-                                    <td>{{ $base->pivot->cantidad }}</td>
-                                    <td>S/ {{ $base->precio }}</td>
-                                    <td><button type="button" class="btn btn-danger btn-sm eliminarBase">×</button></td>
-                                    <input type="hidden" name="bases[{{ $base->id }}][cantidad]" value="{{ $base->pivot->cantidad }}">
+                        <tbody id="tablaInsumos">
+                            @foreach($producto->insumos as $insumo)
+                                <tr data-id="{{ $insumo->id }}">
+                                    <td class="observaciones">{{ $insumo->articulo->nombre }}</td>
+                                    <td>{{ $insumo->pivot->cantidad }}</td>
+                                    <td>S/ {{ $insumo->precio }}</td>
+                                    <td><button type="button" class="btn btn-danger btn-sm eliminarInsumo"><i class="fas fa-trash-alt"></i></button></td>
+                                    <input type="hidden" name="insumos[{{ $insumo->id }}][cantidad]" value="{{ $insumo->pivot->cantidad }}">
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
 
-                    <div class="text-end mt-2">
-                        <h5>Precio Total de Producción del producto final:
-                            <span id="precioTotal" class="text-success">
-                                S/ {{ number_format($producto->costo_total_produccion, 2) }}
-                            </span>
-                        </h5>
+                    <div id="seccionbase">
+                        <h5><label>Agregar base</label></h5>
+
+                        <div class="row mb-2">
+                            <div class="col-7">
+                                <select id="baseSelect" class="form-control select2-base">
+                                    <option value="">-- Seleccionar base --</option>
+                                    @foreach($bases as $base)
+                                        <option value="{{ $base->id }}"
+                                                data-nombre="{{ $base->articulo->nombre }}"
+                                                data-precio="{{ $base->precio }}">
+                                            {{ $base->articulo->nombre }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-3">
+                                <input type="number" min="1" id="baseCantidad" class="form-control" placeholder="Cantidad" step="any">
+                            </div>
+                            <div class="col-2">
+                                <button type="button" class="btn btn_crear w-100" id="agregarBase"><i class="fa fa-plus"></i></button>
+                            </div>
+                        </div>
+
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Base</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio (S/)</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablabase">
+                                @foreach($producto->bases as $base)
+                                    <tr data-id="{{ $base->id }}">
+                                        <td class="observaciones">{{ $base->articulo->nombre }}</td>
+                                        <td>{{ $base->pivot->cantidad }}</td>
+                                        <td>S/ {{ $base->precio }}</td>
+                                        <td><button type="button" class="btn btn-danger btn-sm eliminarBase"><i class="fas fa-trash-alt"</button></td>
+                                        <input type="hidden" name="bases[{{ $base->id }}][cantidad]" value="{{ $base->pivot->cantidad }}">
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+
+                        <div class="text-right mt-2">
+                            <h5>Precio Total de Producción del producto final:
+                                <span id="precioTotal" class="text-success">
+                                    S/ {{ number_format($producto->costo_total_produccion, 2) }}
+                                </span>
+                            </h5>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <input type="hidden" name="costo_total_produccion" id="costo_total_produccion" value="{{ $producto->costo_total_produccion }}">
-        <input type="hidden" name="costo_total_real" id="costo_total_real" value="{{ $producto->costo_total_real }}">
-        <button type="submit" class="btn btn_crear mt-3"><i class="fas fa-save"></i>
-        Actualizar Producto Final</button>
-    </form>
+            <input type="hidden" name="costo_total_produccion" id="costo_total_produccion" value="{{ $producto->costo_total_produccion }}">
+            <input type="hidden" name="costo_total_real" id="costo_total_real" value="{{ $producto->costo_total_real }}">
+            <button type="submit" class="btn btn_crear mt-3"><i class="fas fa-save"></i>
+            Actualizar Producto Final</button>
+        </form>
 </div>
 @stop
 
 @section('css')
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 <link href="{{ asset('css/muestras/home.css') }}" rel="stylesheet" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 @stop
 @section('js')
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script>
         const volumenesPorClasificacion = @json($volumenesAgrupados);
 
@@ -253,7 +251,7 @@
 
                     tbody.append(`
                         <tr>
-                            <td>
+                            <td class="observaciones">
                                 ${insumo.nombre}
                                 <input type="hidden" name="insumos[${insumo.id}][id]" value="${insumo.id}">
                             </td>
@@ -262,7 +260,7 @@
                                 <input type="hidden" name="insumos[${insumo.id}][cantidad]" value="${insumo.cantidad}">
                             </td>
                             <td>S/ ${total.toFixed(2)}</td>
-                            <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarInsumo(${index})">X</button></td>
+                            <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarInsumo(${index})"><i class="fas fa-trash-alt"></i></button></td>
                         </tr>
                     `);
                 });
@@ -285,7 +283,7 @@
 
                     tbody.append(`
                         <tr>
-                            <td>
+                            <td class="observaciones">
                                 ${base.nombre}
                                 <input type="hidden" name="bases[${base.id}][id]" value="${base.id}">
                             </td>
@@ -294,7 +292,7 @@
                                 <input type="hidden" name="bases[${base.id}][cantidad]" value="${base.cantidad}">
                             </td>
                             <td>S/ ${total.toFixed(2)}</td>
-                            <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarBase(${index})">X</button></td>
+                            <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarBase(${index})"><i class="fas fa-trash-alt"></i></button></td>
                         </tr>
                     `);
                 });
@@ -356,11 +354,11 @@
                 // Agregar nueva fila
                 $('#tablaInsumos').append(`
                     <tr data-id="${id}">
-                        <td>${nombre}</td>
+                        <td class="observaciones">${nombre}</td>
                         <td>${cantidadNueva}</td>
                         <td>S/ ${precio.toFixed(2)}</td>
                         <td>
-                            <button type="button" class="btn btn-danger btn-sm eliminarInsumo">×</button>
+                            <button type="button" class="btn btn-danger btn-sm eliminarInsumo"><i class="fas fa-trash-alt"></i></button>
                         </td>
                         <input type="hidden" name="insumos[${id}][cantidad]" value="${cantidadNueva}">
                     </tr>
@@ -397,11 +395,11 @@
             } else {
                 $('#tablabase').append(`
                     <tr data-id="${id}">
-                        <td>${nombre}</td>
+                        <td class="observaciones">${nombre}</td>
                         <td>${cantidadNueva}</td>
                         <td>S/ ${precio.toFixed(2)}</td>
                         <td>
-                            <button type="button" class="btn btn-danger btn-sm eliminarBase">×</button>
+                            <button type="button" class="btn btn-danger btn-sm eliminarBase"><i class="fas fa-trash-alt"></i></button>
                         </td>
                         <input type="hidden" name="bases[${id}][cantidad]" value="${cantidadNueva}">
                     </tr>

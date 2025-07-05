@@ -8,8 +8,8 @@
 @section('content')
 <div class="container container-fluid" style="user-select: none;">
         <div class="d-flex mb-4 justify-content-between align-items-center">
-            <h1 class="text-center flex-grow-1"><a class="float-start text-secondary" title="Volver" href="{{ route('compras.index') }}">
-            <i class="bi bi-arrow-left-circle"></i></a>
+            <a class="float-start text-secondary" title="Volver" href="{{ route('compras.index') }}">
+            <i class="bi bi-arrow-left-circle" style="font-size: 2.5rem !important;"></i></a><h1 class="text-center flex-grow-1">
                 <i class="fa-solid fa-basket-shopping"></i>
                 Registro de Compra
             </h1>
@@ -122,7 +122,6 @@
             <!-- Sección de artículos -->
             <div class="mt-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-    
                     <h5 class="font-weight-bold" style="color:rgb(243, 113, 128); font-weight: bold; margin: 0;">Artículos de la Compra</h5>
                     <!-- Botón con Bootstrap 5 -->
                     <button type="button" class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#modalArticulos">
@@ -196,7 +195,7 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="modalArticulosLabel" style="color: #fe495f; font-weight: bold; margin: 0;">Seleccionar Artículo</h5>
             </div>
-            <div class="modal-body">
+            <div class="modal-body"  style="max-height: 70vh; overflow-y: auto;">
                 <!-- Filtro por tipo de artículo -->
                 <div class="form-group mb-2">
                 <label for="tipoArticulo" class="mb-1">Filtrar por Tipo de Artículo</label>
@@ -216,7 +215,7 @@
             </div>
 
                 <!-- Tabla de artículos -->
-                <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                <div class="table-responsive scrollable-custom" style="max-height: 300px; overflow-y: auto;">
                     <table class="table table-bordered table-hover" id="tablaModalArticulos"  style="border: 1px solid #fe495f;">
                         <thead class="thead-rosa">
                             <tr>
@@ -236,7 +235,7 @@
                                 data-tipo="{{ $articulo->tipo }}"
                                 data-unidad="{{ $articulo->insumos->first()?->unidadMedida?->nombre_unidad_de_medida ?? 'und' }}">
                                 <td>{{ $articulo->sku }}</td>
-                                <td>{{ $articulo->nombre }}</td>
+                                <td class="observaciones">{{ $articulo->nombre }}</td>
                                 <td>
                                     <span class="badge" style="background-color: transparent; color: #fe495f; border: 1px solid #fe495f;">
                                         {{ ucfirst($articulo->tipo) }}
@@ -299,23 +298,11 @@
 @stop
 
 @section('css')
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 <link href="{{ asset('css/muestras/home.css') }}" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style>
-    .table thead.thead-rosa {
-        background-color: #f9d3d7 !important;  
-        color: #fe495f !important;             
-        border: 1px solid #fe495f !important;  
-    }
-
-    .table thead.thead-rosa th {
-        background-color: #f9d3d7 !important;  
-        color: #fe495f !important;             
-        border: 1px solid #fe495f !important;  
-    }
     .btn-sm{
         border: 1px solid#fe495f !important;
         background-color:rgb(255, 113, 130); 
@@ -611,7 +598,7 @@ $(document).ready(function() {
                 const fila = `
                     <tr>
                         <td>${item.sku}</td>
-                        <td>${item.nombre}</td>
+                        <td class="observaciones">${item.nombre}</td>
                         <td><span class="badge badge-tipo"  style="color: #fe495f !important; border: 1px solid #fe495f !important;">${item.unidad}</span></td>
                         <td>
                             <input type="number" class="form-control form-control-sm articulo-cantidad" 
@@ -689,7 +676,8 @@ $(document).ready(function() {
             alert('Todos los artículos deben tener cantidad mayor a 0 y precio válido');
             return false;
         }
-        
+        localStorage.removeItem('carritoCompra');
+        localStorage.removeItem('formularioCompra');
         return true;
     });
 

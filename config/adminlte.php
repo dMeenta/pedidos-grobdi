@@ -712,7 +712,7 @@
     
         'plugins' => [
             'Datatables' => [
-                'active' => false,
+                'active' => true,
                 'files' => [
                     [
                         'type' => 'js',
@@ -732,7 +732,7 @@
                 ],
             ],
             'Select2' => [
-                'active' => false,
+                'active' => true,
                 'files' => [
                     [
                         'type' => 'js',
@@ -757,7 +757,7 @@
                 ],
             ],
             'Sweetalert2' => [
-                'active' => false,
+                'active' => true,
                 'files' => [
                     [
                         'type' => 'js',

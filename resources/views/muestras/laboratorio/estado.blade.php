@@ -8,7 +8,6 @@
 
 @section('content')    
     <div class="container">
-
         @if(session('success'))
             <div class="alert alert-success alert-dismissible fade show d-flex align-items-center" role="alert" style="background-color: #d1e7dd; color: #0f5132;">
                 <div class="text-center flex-grow-1">
@@ -20,7 +19,7 @@
             </div>
         @endif
 
-        <h1 class="flex-grow-1 text-center"> Estado de las Muestras<br></h1>
+        <h1 class="flex-grow-1 text-center mb-3"> Estado de las Muestras<br></h1>
         
         <div class="table-responsive">
             <table class="table table-hover" id="table_muestras">
@@ -82,8 +81,8 @@
                             </td>
                             <td>
                                @include('muestras.laboratorio.showlab')
-                                <button type="button" class="btn" style="background-color:rgb(152, 236, 62); color: white; border-radius: 5px;" data-bs-toggle="modal" data-bs-target="#contenidoModal{{ $muestra->id }}">
-                                    <i class="bi bi-eye"></i> 
+                                <button type="button" class="btn" style="background-color:rgb(152, 236, 62); color: white; border-radius: 5px;" data-toggle="modal" data-target="#contenidoModal{{ $muestra->id }}">
+                                    <i class="fas fa-eye"></i>
                                 </button>
                             </td> 
                         </tr>
@@ -96,14 +95,12 @@
     @stop
 
 @section('css')
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    
     <link rel="stylesheet" href="{{ asset('css/muestras/labora.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
 @stop
 
 @section('js')
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
