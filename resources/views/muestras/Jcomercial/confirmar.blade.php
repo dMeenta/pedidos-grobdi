@@ -67,7 +67,6 @@
                     @endforeach
                 </tbody>
             </table>
-            {!!$muestras->appends(request()->except('page'))->links()!!}
         </div>
     </div>
     @stop
@@ -81,7 +80,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
-
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     <script>
             // Función para configurar los checkboxes de coordinadora
             function setupCoordinadoraCheckboxes() {
@@ -276,5 +276,32 @@
                 attachEventHandlers();
                 
             });
-            </script>
+    </script>
+    <script>
+    $(document).ready(function() {
+                $('#table_muestras').DataTable({
+                    language: {
+                        url: 'https://cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json',
+                    },
+                    ordering: false,
+                    responsive: true,
+                    dom: '<"row"<"col-sm-12 col-md-12"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+                    pageLength: 10,
+                    initComplete: function() {
+                        $('.dataTables_filter')
+                            .appendTo('.header-tools')
+                            .addClass('text-right ml-auto')
+                            .find('input')  
+                            .attr('placeholder', 'Buscar por nombre de la muestra')
+                            .end()  
+                            .find('label')
+                            .contents().filter(function() {
+                                return this.nodeType === 3;
+                            }).remove()
+                            .end()
+                            .prepend('Buscar:');
+                    }
+                });
+            });
+</script>
 @stop

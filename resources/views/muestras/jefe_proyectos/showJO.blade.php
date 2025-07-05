@@ -15,7 +15,7 @@
                     <div class="col-md-6 mb-4" style="overflow-wrap: break-word; white-space: normal;">
                         <div class="card mb-4" style="border-radius: 10px;">
                             <div class="card-header" style="background-color:rgb(255, 175, 184); color: rgb(169, 68, 80);">
-                                <h5><i class="bi bi-info-circle mr-2"></i> Información General</h5>
+                                <h5><i class="fas fa-info-circle mr-2"></i> Información General</h5>
                             </div>
                             <div class="card-body">
                                 <p><strong class="text-danger">Nombre de la muestra:</strong> {{ $muestra->nombre_muestra }}</p>
@@ -44,7 +44,7 @@
                     <div class="col-md-6 mb-4" style="overflow-wrap: break-word; white-space: normal;">
                         <div class="card" style="border-radius: 10px;">
                             <div class="card-header" style="background-color:rgb(255, 175, 184); color: rgb(169, 68, 80);">
-                                <h5><i class="bi bi-clock-history mr-2"></i> Estado y Fechas</h5>
+                                <h5><i class="fas fa-clock mr-2"></i> Estado y Fechas</h5>
                             </div>
                             <div class="card-body">
                                 <p><strong class="text-danger">Aprobado por Jefe Comercial:</strong>
