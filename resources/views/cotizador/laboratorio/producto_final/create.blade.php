@@ -151,7 +151,7 @@
             </div>
             <input type="hidden" name="costo_total_produccion" id="costo_total_produccion" value="0">
             <input type="hidden" name="costo_total_real" id="costo_total_real" value="0">
-            <button type="submit" class="btn btn_crear mt-3"><i class="fa-solid fa-floppy-disk"></i>
+            <button type="submit" class="btn btn_crear mt-3"><i class="fas fa-save"></i>
             Guardar Producto Final</button>
         </form>
 </div>
