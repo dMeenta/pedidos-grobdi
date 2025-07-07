@@ -104,7 +104,7 @@ class PedidoslabController extends Controller
                     $detalle->bases = $presentacion->name;
                     $detalle->contenido = $presentacion->bases;
                     // Expresión regular para capturar nombre + número + unidad
-                    preg_match_all('/(.*?)(\d+)(MG|UI|ML|%)/i', $detalle->articulo, $matches, PREG_SET_ORDER);
+                    preg_match_all('/(.*?)(\d+)\s*(MG|UI|ML|MCG|%)/i', $detalle->articulo, $matches, PREG_SET_ORDER);
 
                     $componentes = [];
 

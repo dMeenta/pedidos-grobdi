@@ -27,12 +27,12 @@ class PedidosContaController extends Controller
         
             // Realizar la búsqueda en la base de datos
             $pedidos = Pedidos::whereBetween('created_at', [$fechaInicio, $fechaFin])
-            ->orderBy('created_at','asc')->latest()->paginate(25);
+            ->orderBy('created_at','asc')->latest()->get();
 
         }else{
             $pedidos = Pedidos::orderBy('created_at','asc')
             ->where('created_at',date('Y-m-d'))
-            ->latest()->paginate(25);
+            ->latest()->get();
 
         }
         return view('pedidos.contabilidad.index', compact('pedidos'));
