@@ -30,7 +30,7 @@ class BaseController extends Controller
             });
         }
 
-        $bases = $query->get();
+        $bases = $query->orderBy('id', 'desc')->get();
 
         return view('cotizador.laboratorio.base.index', compact('bases'));
     }

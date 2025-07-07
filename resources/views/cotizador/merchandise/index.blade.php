@@ -12,7 +12,7 @@
 
         <div class="form-check mb-3">
             <h1 class="text-center mb-2">
-                {{ request('estado') == 'inactivo' ? 'Merchandises Inactivos' : 'Merchandises' }}
+                {{ request('estado') == 'inactivo' ? 'Mercancías Inactivas' : 'Mercancías' }}
             </h1>
         </div>
         <div class="row mb-3 align-items-center">

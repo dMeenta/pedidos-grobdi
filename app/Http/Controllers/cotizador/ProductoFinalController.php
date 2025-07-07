@@ -28,7 +28,7 @@ class ProductoFinalController extends Controller
                 $query->where('estado', 'activo');
             });
         }
-        $productos = $query->get();
+        $productos = $query->orderBy('id', 'desc')->get();
         $bases = Base::where('tipo', 'final')->get();
         $insumos = Insumo::all();
 

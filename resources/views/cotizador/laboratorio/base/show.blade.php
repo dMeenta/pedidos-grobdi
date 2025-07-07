@@ -9,7 +9,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+            <div class="modal-body" style="max-height: 65vh; overflow-y: auto;">
                 <div class="card mb-4 border border-danger" style="border-radius: 10px;">
                     <div class="card-body">
                         <div class="row">
@@ -32,26 +32,28 @@
                         <strong>Insumos Utilizados</strong>
                     </div>
                     <div class="card-body">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Cantidad</th>
-                                    <th>Costo Unitario</th>
-                                    <th>Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($base->insumos as $insumo)
-                                <tr>
-                                    <td class="observaciones">{{ $insumo->articulo->nombre }}</td>
-                                    <td>{{ $insumo->pivot->cantidad }}</td>
-                                    <td>S/ {{ number_format($insumo->precio, 2) }}</td>
-                                    <td>S/ {{ number_format($insumo->precio * $insumo->pivot->cantidad, 2) }}</td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                        <div style="overflow-x: auto; width: 100%;">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Cantidad</th>
+                                        <th>Costo Unitario</th>
+                                        <th>Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($base->insumos as $insumo)
+                                    <tr>
+                                        <td class="observaciones">{{ $insumo->articulo->nombre }}</td>
+                                        <td>{{ $insumo->pivot->cantidad }}</td>
+                                        <td>S/ {{ number_format($insumo->precio, 2) }}</td>
+                                        <td>S/ {{ number_format($insumo->precio * $insumo->pivot->cantidad, 2) }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
                 @endif
@@ -62,26 +64,28 @@
                         <strong>Prebases Utilizadas</strong>
                     </div>
                     <div class="card-body">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Cantidad</th>
-                                    <th>Precio Unitario</th>
-                                    <th>Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($base->prebases as $prebase)
-                                <tr>
-                                    <td class="observaciones">{{ $prebase->articulo->nombre }}</td>
-                                    <td>{{ $prebase->pivot->cantidad }}</td>
-                                    <td>S/ {{ number_format($prebase->precio, 2) }}</td>
-                                    <td>S/ {{ number_format($prebase->precio * $prebase->pivot->cantidad, 2) }}</td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                        <div style="overflow-x: auto; width: 100%;">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Cantidad</th>
+                                        <th>Precio Unitario</th>
+                                        <th>Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($base->prebases as $prebase)
+                                    <tr>
+                                        <td class="observaciones">{{ $prebase->articulo->nombre }}</td>
+                                        <td>{{ $prebase->pivot->cantidad }}</td>
+                                        <td>S/ {{ number_format($prebase->precio, 2) }}</td>
+                                        <td>S/ {{ number_format($prebase->precio * $prebase->pivot->cantidad, 2) }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
                 @endif
@@ -92,26 +96,28 @@
                         <strong>Empaques Utilizados</strong>
                     </div>
                     <div class="card-body">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Cantidad</th>
-                                    <th>Costo Unitario</th>
-                                    <th>Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($base->empaques as $empaque)
-                                <tr>
-                                    <td class="observaciones">{{ $empaque->articulo->nombre }}</td>
-                                    <td>{{ $empaque->pivot->cantidad }}</td>
-                                    <td>S/ {{ number_format($empaque->precio, 2) }}</td>
-                                    <td>S/ {{ number_format($empaque->precio * $empaque->pivot->cantidad, 2) }}</td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                        <div style="overflow-x: auto; width: 100%;">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Cantidad</th>
+                                        <th>Costo Unitario</th>
+                                        <th>Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($base->empaques as $empaque)
+                                    <tr>
+                                        <td class="observaciones">{{ $empaque->articulo->nombre }}</td>
+                                        <td>{{ $empaque->pivot->cantidad }}</td>
+                                        <td>S/ {{ number_format($empaque->precio, 2) }}</td>
+                                        <td>S/ {{ number_format($empaque->precio * $empaque->pivot->cantidad, 2) }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div> 
                     </div>
                 </div>
                 @endif

@@ -16,7 +16,7 @@ class ProveedorController extends Controller
         $estado = request('estado', 'activo'); // Por defecto 'activo'
 
         $proveedores = Proveedor::where('estado', $estado)
-            ->orderBy('razon_social')
+            ->orderBy('razon_social', 'desc')
             ->get();
 
         return view('proveedores.index', compact('proveedores', 'estado'));

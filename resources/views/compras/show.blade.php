@@ -41,7 +41,7 @@
           </div>
 
           <!-- Tabla -->
-          <div class="col-md-6">
+          <div class="col-md-6" style="overflow-x: auto; width: 100%;">
             <table id="tablaCompras" class="table table-bordered table-hover">
               <thead class="thead-dark">
                 <tr>

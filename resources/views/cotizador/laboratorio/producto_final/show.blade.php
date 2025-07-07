@@ -10,7 +10,7 @@
                 </button>
             </div>
 
-            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+            <div class="modal-body" style="max-height: 65vh; overflow-y: auto;">
                 <div class="card mb-4 border border-danger" style="border-radius: 10px;">
                     <div class="card-body">
                         <div class="row">
@@ -39,26 +39,28 @@
                         <i class="fa fa-atom"></i> <strong>Insumos Utilizados</strong>
                     </div>
                     <div class="card-body">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Cantidad</th>
-                                    <th>Costo Unitario</th>
-                                    <th>Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($producto->insumos as $insumo)
-                                <tr>
-                                    <td class="observaciones">{{ $insumo->articulo->nombre }}</td>
-                                    <td>{{ $insumo->pivot->cantidad }}</td>
-                                    <td>S/ {{ number_format($insumo->precio, 2) }}</td>
-                                    <td>S/ {{ number_format($insumo->precio * $insumo->pivot->cantidad, 2) }}</td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                        <div style="overflow-x: auto; width: 100%;">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Cantidad</th>
+                                        <th>Costo Unitario</th>
+                                        <th>Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($producto->insumos as $insumo)
+                                    <tr>
+                                        <td class="observaciones">{{ $insumo->articulo->nombre }}</td>
+                                        <td>{{ $insumo->pivot->cantidad }}</td>
+                                        <td>S/ {{ number_format($insumo->precio, 2) }}</td>
+                                        <td>S/ {{ number_format($insumo->precio * $insumo->pivot->cantidad, 2) }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
                 @endif
@@ -70,30 +72,31 @@
                         <i class="fa fa-flask"></i> <strong>Bases Utilizadas</strong>
                     </div>
                     <div class="card-body">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Cantidad</th>
-                                    <th>Costo Unitario</th>
-                                    <th>Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($producto->bases as $base)
-                                <tr>
-                                    <td class="observaciones">{{ $base->articulo->nombre }}</td>
-                                    <td>{{ $base->pivot->cantidad }}</td>
-                                    <td>S/ {{ number_format($base->precio, 2) }}</td>
-                                    <td>S/ {{ number_format($base->precio * $base->pivot->cantidad, 2) }}</td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                        <div style="overflow-x: auto; width: 100%;">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Cantidad</th>
+                                        <th>Costo Unitario</th>
+                                        <th>Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($producto->bases as $base)
+                                    <tr>
+                                        <td class="observaciones">{{ $base->articulo->nombre }}</td>
+                                        <td>{{ $base->pivot->cantidad }}</td>
+                                        <td>S/ {{ number_format($base->precio, 2) }}</td>
+                                        <td>S/ {{ number_format($base->precio * $base->pivot->cantidad, 2) }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
                 @endif
-
             </div>
         </div>
     </div>
