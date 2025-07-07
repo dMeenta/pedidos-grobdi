@@ -10,6 +10,7 @@ body {
     margin: 0 auto; /* Centrado automático */
     overflow: hidden; /* Para evitar que el contenido se desborde */
     box-sizing: border-box;
+    user-select: none;
 }
 label {
     display: flex;

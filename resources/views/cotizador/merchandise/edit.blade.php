@@ -7,7 +7,7 @@
 
                 <div class="modal-header">
                     <h1 class="modal-title" id="modalLabel{{ $item->articulo_id }}">
-                        <i class="fa fa-tape"></i> Editar Merchandise
+                        <i class="fa fa-tape"></i> Editar Mercancía
                     </h1>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
                         <span aria-hidden="true">&times;</span>

@@ -17,9 +17,9 @@
 
     <div id="formulario-normal">
         <div class="form-check mb-3 d-flex align-items-center justify-content-center position-relative">
-            <a class="text-secondary" title="Volver" href="{{ route('bases.index') }}" style="position: absolute; left: 0; font-size: 2rem">
+            <a class="text-secondary" title="Volver" href="{{ route('bases.index') }}" style="position: absolute; left: 0; font-size: 2rem;">
             <i class="fas fa-arrow-left"></i></a>
-            <h1 class="text-center">
+            <h1 class="text-center" style="margin-left:6px;">
             Crear Formulación</h1>
         </div>
         <form method="POST" action="{{ route('bases.store') }}">

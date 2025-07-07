@@ -4,7 +4,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h1 class="modal-title" id="crearMerchandiseLabel">
-          <i class="fa fa-box-open"></i> Crear Merchandise
+          <i class="fa fa-box-open"></i> Crear Mercancía
         </h1>
         <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
           <span aria-hidden="true">&times;</span>

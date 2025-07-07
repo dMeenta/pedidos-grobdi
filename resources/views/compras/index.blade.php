@@ -74,7 +74,7 @@
                         <th width="5%">N°</th>
                         <th width="10%">Fecha</th>
                         <th>Proveedor</th>
-                        <th wifth="10%">Referencia</th>
+                        <th width="10%">Referencia</th>
                         <th width="12%">Total</th>
                         <th width="10%">Usuario</th>
                         <th width="10%">Acciones</th>
@@ -157,5 +157,4 @@
             });
     </script>
 @stop
-@section('plugins.Select2', true)
-@section('plugins.Datatables', true)
+

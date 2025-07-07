@@ -7,7 +7,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+            <div class="modal-body" style="max-height: 65vh; overflow-y: auto;">
                 <div class="row">
                     <!-- Columna 1 -->
                     <div class="col-md-6 mb-4" style="overflow-wrap: break-word; white-space: normal;">

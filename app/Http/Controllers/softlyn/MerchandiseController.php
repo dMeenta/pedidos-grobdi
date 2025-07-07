@@ -51,12 +51,11 @@ class MerchandiseController extends Controller
             'precio' => $data['precio'],
         ]);
 
-        return redirect()->route('merchandise.index')->with('success', 'Merchandise registrado correctamente.');
+        return redirect()->route('merchandise.index')->with('success', 'Mercancía registrada correctamente.');
     }
         public function edit($id)
     {
         $merchandise = Merchandise::findOrFail($id);
-        // Si necesitas pasar más datos a la vista, agrégalos aquí
         return view('cotizador.merchandise.edit', compact('merchandise'));
     }
 
@@ -87,7 +86,7 @@ class MerchandiseController extends Controller
             ]);
         }
 
-        return redirect()->route('merchandise.index')->with('success', 'Merchandise actualizado correctamente.');
+        return redirect()->route('merchandise.index')->with('success', 'Mercancía actualizada correctamente.');
     }
             public function destroy($id)
     {
@@ -104,7 +103,7 @@ class MerchandiseController extends Controller
             'estado' => 'inactivo',
         ]);
 
-        return redirect()->route('merchandise.index', ['estado' => 'inactivo'])->with('error', 'Merchandise marcado como inactivo.');
+        return redirect()->route('merchandise.index', ['estado' => 'inactivo'])->with('error', 'Mercancía marcada como inactiva.');
     }
 
 
