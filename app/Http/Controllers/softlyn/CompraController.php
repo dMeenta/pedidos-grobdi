@@ -51,9 +51,15 @@ class CompraController extends Controller
         ->with('insumos.unidadMedida')
         ->orderBy('nombre')
         ->get();
-        $almacenes = Almacen::orderBy('nombre')->get();
-
-        return view('compras.create', compact('proveedores', 'monedas', 'articulos', 'almacenes'));
+        $tipoMonedaUSD = TipoMoneda::where('codigo_iso', 'USD')->first();
+        $tipoCambioHoyFaltante = false;
+        if ($tipoMonedaUSD) {
+            $existeCambioHoy = TipoCambio::where('tipo_moneda_id', $tipoMonedaUSD->id)
+                ->whereDate('fecha', Carbon::today())
+                ->exists();
+            $tipoCambioHoyFaltante = !$existeCambioHoy;
+        }
+        return view('compras.create', compact('proveedores', 'monedas', 'articulos', 'tipoCambioHoyFaltante'));
     }
 
         public function store(Request $request)

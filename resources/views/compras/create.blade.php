@@ -90,6 +90,7 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+                    
                 </div>
                 <div class="col-md-4 mb-2">
                     <div class="form-group">
@@ -117,7 +118,16 @@
                         @enderror
                     </div>
                 </div>
-                
+                @if ($tipoCambioHoyFaltante)
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i> No se ha registrado el tipo de cambio para hoy ({{ \Carbon\Carbon::today()->format('d/m/Y') }}).  
+                                Si intentas registrar una compra en dólares, el sistema no podrá calcular el total.
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
 
             <!-- Sección de artículos -->
@@ -651,7 +661,7 @@ $(document).ready(function() {
         const valorVenta = parseFloat(selected.data('valor_venta'));
         const monedaId = selected.val();
 
-        // Mostrar subtotal, igv y total en la moneda seleccionada
+        // Mostrar subtotal, igv y total en la moneda seleccionadaa
         $('#subtotal-valor').text(`${simboloSeleccionado} ${subtotal.toFixed(2)}`);
         $('#igv-valor').text(`${simboloSeleccionado} ${igv.toFixed(2)}`);
         $('#total-valor').text(`${simboloSeleccionado} ${total.toFixed(2)}`);
