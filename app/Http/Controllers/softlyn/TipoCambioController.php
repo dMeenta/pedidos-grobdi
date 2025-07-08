@@ -43,18 +43,17 @@ class TipoCambioController extends Controller
             'valor_venta' => 'required|numeric|min:0',
         ]);
 
-    // Forzamos que siempre se registre para el dólar
-    $data = [
-        'tipo_moneda_id' => 1,
-        'valor_compra' => $request->valor_compra,
-        'valor_venta' => $request->valor_venta,
-        'fecha' => date('Y-m-d'),
-    ];
+        // Forzamos que siempre se registre para el dólar
+        $data = [
+            'tipo_moneda_id' => 1,
+            'valor_compra' => $request->valor_compra,
+            'valor_venta' => $request->valor_venta,
+            'fecha' => date('Y-m-d'),
+        ];
 
-    TipoCambio::create($data);
+        TipoCambio::create($data);
 
-    return redirect()->route('tipo_cambio.resumen')->with('success', 'Tipo de cambio registrado exitosamente para el dólar.');
-
+        return redirect()->route('tipo_cambio.resumen')->with('success', 'Tipo de cambio registrado exitosamente para el dólar.');
     }
 
         public function destroy($id)
