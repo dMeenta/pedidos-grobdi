@@ -651,7 +651,7 @@ $(document).ready(function() {
         const valorVenta = parseFloat(selected.data('valor_venta'));
         const monedaId = selected.val();
 
-        // Mostrar subtotal, igv y total en la moneda seleccionada
+        // Mostrar subtotal, igv y total en la moneda seleccionadaa
         $('#subtotal-valor').text(`${simboloSeleccionado} ${subtotal.toFixed(2)}`);
         $('#igv-valor').text(`${simboloSeleccionado} ${igv.toFixed(2)}`);
         $('#total-valor').text(`${simboloSeleccionado} ${total.toFixed(2)}`);
