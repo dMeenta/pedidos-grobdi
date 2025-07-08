@@ -29,25 +29,27 @@
                 <th>N°</th>
                 <th>Nombre</th>
                 <th>Código ISO</th>
-                <th>Último Valor de Cambio</th>
+                <th>Último Valor de Compra</th>
+                <th>Último Valor de Venta</th>
                 <th>Fecha del Cambio</th>
     
             </tr>
         </thead>
-        <tbody>
-            @foreach($monedas as $moneda)
+            <tbody>
+            @if ($moneda)
                 <tr>
                     <td>{{ $moneda->id }}</td>
                     <td>{{ $moneda->nombre }}</td>
                     <td>{{ $moneda->codigo_iso }}</td>
-                    <td>
-                        {{ $moneda->ultimoCambio?->valor_cambio ?? '—' }}
-                    </td>
-                    <td>
-                        {{ $moneda->ultimoCambio?->fecha ?? '—' }}
-                    </td>
+                    <td>{{ $moneda->ultimoCambio?->valor_compra ?? '—' }}</td>
+                    <td>{{ $moneda->ultimoCambio?->valor_venta ?? '—' }}</td>
+                    <td>{{ $moneda->ultimoCambio?->fecha ?? '—' }}</td>
                 </tr>
-            @endforeach
+            @else
+                <tr>
+                    <td colspan="6" class="text-center">No se encontró información del dólar.</td>
+                </tr>
+            @endif
         </tbody>
     </table>
 </div>

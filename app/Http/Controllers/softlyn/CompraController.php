@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers\softlyn;
 use App\Http\Controllers\Controller;
-
+use App\Models\TipoCambio;
+use App\Models\TipoMoneda;
 use App\Models\Compra;
 use App\Models\DetalleCompra;
 use App\Models\Articulo;
 use App\Models\Proveedor;
-use App\Models\TipoMoneda;
 use App\Models\Lote;
 use App\Models\DetalleLote;
 use App\Models\Almacen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-
+use Carbon\Carbon;
 class CompraController extends Controller
 {
         public function index(Request $request)
@@ -42,7 +42,10 @@ class CompraController extends Controller
     public function create()
     {
         $proveedores = Proveedor::activos()->orderBy('razon_social')->get();
-        $monedas = TipoMoneda::orderBy('nombre')->get();
+        $monedas = TipoMoneda::with(['ultimoCambio' => function ($q) {
+            $q->latest('fecha');
+        }])->get();
+
         $articulos = Articulo::activos()
         ->whereNotIn('tipo', ['base', 'prebase', 'producto_final'])
         ->with('insumos.unidadMedida')
@@ -106,11 +109,23 @@ class CompraController extends Controller
             $igv = $request->igv ? $subtotal * 0.18 : 0;
             $total = $subtotal + $igv;
 
-            // Crear la compra
+            $tipoMoneda = TipoMoneda::find($request->moneda_id);
+            $totalEnSoles = $total;
+            if ($tipoMoneda && $tipoMoneda->codigo_iso === 'USD') {
+                $tipoCambio = TipoCambio::where('tipo_moneda_id', $tipoMoneda->id)
+                    ->where('fecha', '<=', Carbon::parse($request->fecha_emision))
+                    ->orderByDesc('fecha')
+                    ->first();
+                if ($tipoCambio) {
+                    $totalEnSoles = $total * $tipoCambio->valor_venta;
+                } else {
+                    return back()->withInput()->with('error', 'No se encontró un tipo de cambio vigente para USD.');
+                }
+            }
             $compra = Compra::create([
                 'serie' => $request->serie,
                 'numero' => $request->numero,
-                'precio_total' => $total,
+                'precio_total' => $totalEnSoles,
                 'proveedor_id' => $request->proveedor_id,
                 'fecha_emision' => $request->fecha_emision,
                 'condicion_pago' => $request->condicion_pago,

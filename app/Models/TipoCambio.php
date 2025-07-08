@@ -13,7 +13,8 @@ class TipoCambio extends Model
     public $timestamps = false;
     protected $fillable = [
         'tipo_moneda_id',
-        'valor_cambio',
+        'valor_compra',
+        'valor_venta',
         'fecha',
     ];
 

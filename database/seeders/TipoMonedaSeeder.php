@@ -11,12 +11,12 @@ class TipoMonedaSeeder extends Seeder
     {
         DB::table('tipo_moneda')->updateOrInsert(
             ['codigo_iso' => 'USD'],
-            ['nombre' => 'Dólar']
+            ['nombre' => 'Dólar', 'simbolo' => '$']
         );
 
         DB::table('tipo_moneda')->updateOrInsert(
             ['codigo_iso' => 'PEN'],
-            ['nombre' => 'Sol']
+            ['nombre' => 'Sol', 'simbolo' => 'S/']
         );
     }
 }

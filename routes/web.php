@@ -220,6 +220,7 @@ Route::middleware(['checkRole:administracion,admin'])->group(function () {
     //Crud tipo de cambio- EL PRINCIPAL ES RESUMEN-TIPO-CAMBIO!!!
     Route::resource('tipo_cambio', TipoCambioController::class);
     Route::get('/resumen-tipo-cambio', [TipoCambioController::class, 'resumenTipoCambio'])->name('tipo_cambio.resumen');
+    Route::delete('/tipo-cambio/{id}', [TipoCambioController::class, 'destroy'])->name('tipo_cambio.destroy');
 
     //crud para merchandise
     Route::resource('merchandise', MerchandiseController::class);

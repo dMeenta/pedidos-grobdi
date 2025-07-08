@@ -14,32 +14,17 @@
         </a>
         <h1 class="m-0">Tipo de Cambio</h1>
     </div>
-    <div class="d-flex justify-content-end mb-3">
-        <form method="GET" action="{{ route('tipo_cambio.index') }}" id="filtroForm" class="d-flex align-items-center gap-3">
-            <label class="mb-0 d-flex align-items-center">
-                <input type="checkbox" name="filtro_monedas[]" value="USD"
-                    onchange="document.getElementById('filtroForm').submit()"
-                    {{ in_array('USD', request()->get('filtro_monedas', [])) ? 'checked' : '' }}>
-                <span style="margin-left: 6px;">USD</span>
-            </label>
-
-            <label class="mb-0 d-flex align-items-center" style="margin-left: 6px;">
-                <input type="checkbox" name="filtro_monedas[]" value="PEN"
-                    onchange="document.getElementById('filtroForm').submit()"
-                    {{ in_array('PEN', request()->get('filtro_monedas', [])) ? 'checked' : '' }}>
-                <span style="margin-left: 6px;">PEN</span>
-            </label>
-        </form>
-    </div>
-
+    
     <table class="table-bordered table-responsive" id="table_muestras">
         <thead>
             <tr>
                 <th>N°</th>
                 <th>Moneda</th>
                 <th>Código ISO</th>
-                <th>Valor de Cambio</th>
+                <th>Valor de Compra</th>
+                <th>Valor de Venta</th>
                 <th>Fecha</th>
+                <th>Eliminar</th>
             </tr>
         </thead>
         <tbody>
@@ -48,8 +33,20 @@
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $tipoCambio->tipoMoneda->nombre }}</td>
                     <td>{{ $tipoCambio->tipoMoneda->codigo_iso }}</td>
-                    <td>{{ number_format($tipoCambio->valor_cambio, 4) }}</td>
+                    <td>{{ number_format($tipoCambio->valor_compra, 4) }}</td>
+                    <td>{{ number_format($tipoCambio->valor_venta, 4) }}</td>
                     <td>{{ $tipoCambio->fecha }}</td>
+                    <td>
+                        @if($tipoCambio->fecha === \Carbon\Carbon::now()->toDateString())
+                            <form action="{{ route('tipo_cambio.destroy', $tipoCambio->id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar este tipo de cambio?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash-alt"></i>  Eliminar</button>
+                            </form>
+                        @else
+                            <span class="text-muted">No se puede Eliminar</span>
+                        @endif
+                    </td>
                 </tr>
             @empty
                 <tr>
