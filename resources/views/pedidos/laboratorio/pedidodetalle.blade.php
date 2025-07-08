@@ -157,7 +157,7 @@
                                                             @if ($detalle->bases =="GOMITAS" or $detalle->bases =="CAPSULAS" or $detalle->bases =="PAPELILLOS")
                                                             <div class="col col-3"><p>{{$ingredientes['cantidad']*30* $detalle->cantidad }} {{$ingredientes['unidad']}}</p></div>
                                                             @elseif($detalle->bases =="JARABE" or $detalle->bases =="POLVO")
-                                                            <div class="col col-3"><p>{{$ingredientes['cantidad']*1/1}}</p></div>
+                                                            <div class="col col-3"><p>{{$ingredientes['cantidad']*1/1}} {{$ingredientes['unidad']}}</p></div>
                                                             @else
                                                             <div class="col col-3"><p>No pudimos obtener resultados</p></div>
 
