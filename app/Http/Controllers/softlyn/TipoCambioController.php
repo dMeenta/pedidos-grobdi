@@ -11,16 +11,11 @@ class TipoCambioController extends Controller
 {
         public function index(Request $request)
     {
-        $query = TipoCambio::with('tipoMoneda')->orderBy('fecha', 'desc')->orderBy('id', 'desc');
+         $tiposCambio = TipoCambio::with('tipoMoneda')
+        ->orderBy('fecha', 'desc')
+        ->orderBy('id', 'desc')
+        ->get();
 
-        if ($request->filled('filtro_monedas')) {
-            $filtroMonedas = $request->get('filtro_monedas');
-            $query->whereHas('tipoMoneda', function ($q) use ($filtroMonedas) {
-                $q->whereIn('codigo_iso', $filtroMonedas);
-            });
-        }
-
-        $tiposCambio = $query->get();
         $monedas = TipoMoneda::all();
 
         return view('tipo_cambio.index', compact('tiposCambio', 'monedas'));
@@ -28,31 +23,52 @@ class TipoCambioController extends Controller
 
         public function resumenTipoCambio()
     {
-        $monedas = TipoMoneda::with(['ultimoCambio' => function ($q) {
+        $moneda = TipoMoneda::with(['ultimoCambio' => function ($q) {
             $q->latest('fecha');
-        }])->get();
+        }])->find(1);
 
-        return view('tipo_cambio.resumen', compact('monedas'));
+        return view('tipo_cambio.resumen', compact('moneda'));
     }
 
     public function create()
     {
-        $monedas = TipoMoneda::all();
+        $monedas = TipoMoneda::where('id', 1)->get();
         return view('tipo_cambio.create', compact('monedas'));
     }
 
         public function store(Request $request)
     {
-        $request->validate([
-            'tipo_moneda_id' => 'required|exists:tipo_moneda,id',
-            'valor_cambio' => 'required|numeric|min:0',
-            // Puedes dejar 'fecha' opcional si siempre quieres fecha actual
+         $request->validate([
+            'valor_compra' => 'required|numeric|min:0',
+            'valor_venta' => 'required|numeric|min:0',
         ]);
 
-        $data = $request->all();
-        $data['fecha'] = date('Y-m-d');
-        TipoCambio::create($data);
+    // Forzamos que siempre se registre para el dólar
+    $data = [
+        'tipo_moneda_id' => 1,
+        'valor_compra' => $request->valor_compra,
+        'valor_venta' => $request->valor_venta,
+        'fecha' => date('Y-m-d'),
+    ];
 
-        return redirect()->route('tipo_cambio.resumen')->with('success', 'Tipo de cambio creado exitosamente.');
+    TipoCambio::create($data);
+
+    return redirect()->route('tipo_cambio.resumen')->with('success', 'Tipo de cambio registrado exitosamente para el dólar.');
+
     }
+
+        public function destroy($id)
+    {
+        $tipoCambio = TipoCambio::findOrFail($id);
+
+        // Verifica si la fecha del tipo de cambio es hoy
+        if ($tipoCambio->fecha !== date('Y-m-d')) {
+            return redirect()->back()->with('error', 'Solo se puede eliminar el tipo de cambio del día actual.');
+        }
+
+        $tipoCambio->delete();
+
+        return redirect()->route('tipo_cambio.index')->with('success', 'Tipo de cambio eliminado correctamente.');
+    }
+
 }

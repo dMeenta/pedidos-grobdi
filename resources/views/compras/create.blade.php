@@ -80,8 +80,9 @@
                             id="moneda_id" name="moneda_id" required>
                             <option value="">Seleccionar moneda</option>
                             @foreach ($monedas as $moneda)
-                                <option value="{{ $moneda->id }}" data-simbolo="{{ $moneda->simbolo ?? 'S/' }}" {{ old('moneda_id') == $moneda->id ? 'selected' : '' }}>
-                                    {{ $moneda->codigo }} - {{ $moneda->nombre }}
+                                <option value="{{ $moneda->id }}" data-simbolo="{{ $moneda->simbolo ?? 'S/' }}"
+                                data-valor_venta="{{ $moneda->ultimoCambio->valor_venta ?? '' }}" {{ old('moneda_id') == $moneda->id ? 'selected' : '' }}>
+                                    {{ $moneda->codigo_iso }} - {{ $moneda->nombre }}
                                 </option>
                             @endforeach
                         </select>
@@ -170,6 +171,10 @@
                         <div class="total-row">
                             <span>Total:</span>
                             <span id="total-valor">S/ 0.00</span>
+                        </div>
+                        <div id="dolar-container" style="display:none;">
+                            <span>Total en Soles</span>
+                            <span id="total-dolares-valor">—</span>
                         </div>
                     </div>
                 </div>
@@ -552,7 +557,7 @@ $(document).ready(function() {
     });
 
     // Cambiar IGV
-    $('#igv').on('change', function() {
+    $('#moneda_id, #igv').on('change', function() {
         calcularTotales();
     });
 
@@ -640,16 +645,32 @@ $(document).ready(function() {
         const conIgv = $('#igv').val() === '1';
         const igv = conIgv ? subtotal * 0.18 : 0;
         const total = subtotal + igv;
-        
-        $('#subtotal-valor').text(`${simboloMoneda} ${subtotal.toFixed(2)}`);
-        $('#igv-valor').text(`${simboloMoneda} ${igv.toFixed(2)}`);
-        $('#total-valor').text(`${simboloMoneda} ${total.toFixed(2)}`);
-        
+
+        const selected = $('#moneda_id option:selected');
+        const simboloSeleccionado = selected.data('simbolo');
+        const valorVenta = parseFloat(selected.data('valor_venta'));
+        const monedaId = selected.val();
+
+        // Mostrar subtotal, igv y total en la moneda seleccionada
+        $('#subtotal-valor').text(`${simboloSeleccionado} ${subtotal.toFixed(2)}`);
+        $('#igv-valor').text(`${simboloSeleccionado} ${igv.toFixed(2)}`);
+        $('#total-valor').text(`${simboloSeleccionado} ${total.toFixed(2)}`);
+
         // Mostrar u ocultar fila de IGV
         if (conIgv) {
             $('#igv-container').show();
         } else {
             $('#igv-container').hide();
+        }
+
+        // Si se selecciona dólar (ID = 1), convertir a soles usando el tipo de cambio
+        if (monedaId == '1' && valorVenta) {
+            const totalEnSoles = total * valorVenta;
+
+            $('#total-dolares-valor').text(`S/ ${totalEnSoles.toFixed(2)}`);
+            $('#dolar-container').show();
+        } else {
+            $('#dolar-container').hide();
         }
     }
 

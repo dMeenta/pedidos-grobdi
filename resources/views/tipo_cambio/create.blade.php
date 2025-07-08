@@ -22,18 +22,20 @@
           @endif
 
           <div class="form-group">
-            <label for="tipo_moneda_id">Moneda</label>
-            <select name="tipo_moneda_id" id="tipo_moneda_id" class="form-control" required>
-              <option value="">-- Selecciona una moneda --</option>
-              @foreach ($monedas as $moneda)
-                  <option value="{{ $moneda->id }}">{{ $moneda->nombre }} ({{ $moneda->codigo_iso }})</option>
-              @endforeach
-            </select>
+              <label>Moneda (USD): </label>
+              <input type="text" class="form-control" value="Dólar (USD)" readonly>
+              <input type="hidden" name="tipo_moneda_id" value="1">
+          </div>
+
+
+          <div class="form-group">
+            <label for="valor_compra">Valor Compra (USD):</label>
+            <input type="number" name="valor_compra" step="0.0001" class="form-control" required>
           </div>
 
           <div class="form-group">
-            <label for="valor_cambio">Valor de cambio</label>
-            <input type="number" min="1" step="0.0001" name="valor_cambio" id="valor_cambio" class="form-control" required>
+              <label for="valor_venta">Valor Venta (USD):</label>
+              <input type="number" name="valor_venta" step="0.0001" class="form-control" required>
           </div>
         </div>
 

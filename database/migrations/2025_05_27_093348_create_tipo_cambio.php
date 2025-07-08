@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('tipo_cambio', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tipo_moneda_id')->constrained('tipo_moneda')->onDelete('cascade');
-            $table->decimal('valor_cambio', 10, 4); // hasta 4 decimales
+            $table->decimal('valor_compra', 10, 4);
+            $table->decimal('valor_venta', 10, 4);
             $table->date('fecha'); //fecha que se hace el cambio
         });
     }

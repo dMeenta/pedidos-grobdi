@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nombre', 50); // Ej: Sol, Dólar
             $table->string('codigo_iso', 3)->unique(); // Ej: USD, PEN
+            $table->string('simbolo', 2)->unique(); // S/
         });
 
     }
