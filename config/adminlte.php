@@ -591,6 +591,12 @@
                     'icon' => '	fas fa-pump-medical',
                     'can' => 'jefe-comercial'
                 ],
+                [
+                    'text' => 'Ventas x Clientes',
+                    'url' => 'ventascliente',
+                    'icon' => '	fas fa-pump-medical',
+                    'can' => 'jefe-comercial'
+                ],
                 //sidebar de gerencia General
                 [
                     'header' => 'Reportes',

@@ -35,6 +35,7 @@ use App\Http\Controllers\rutas\visita\VisitaDoctorController;
 use App\Http\Controllers\cotizador\ProductoFinalController;
 use App\Http\Controllers\cotizador\BaseController;
 use App\Http\Controllers\cotizador\InsumoEmpaqueController;
+use App\Http\Controllers\PedidosController;
 //softlyn modulos
 use App\Http\Controllers\softlyn\VolumenController;
 use App\Http\Controllers\softlyn\ProveedorController;
@@ -157,7 +158,7 @@ Route::middleware(['checkRole:laboratorio,admin'])->group(function () {
 
     Route::resource('presentacionfarmaceutica', PresentacionFarmaceuticaController::class);
     Route::get('ingredientes/{base_id}',[PresentacionFarmaceuticaController::class,'listaringredientes'])->name('ingredientes.index');
-    Route::post('bases',[PresentacionFarmaceuticaController::class,'guardarbases'])->name('bases.store');
+    Route::post('base',[PresentacionFarmaceuticaController::class,'guardarbases'])->name('base.store');
     Route::post('ingredientes',[PresentacionFarmaceuticaController::class,'guardaringredientes'])->name('ingredientes.store');
     Route::put('ingredientes/{id}',[PresentacionFarmaceuticaController::class,'actualizaringredientes'])->name('ingredientes.update');
     Route::post('excipientes',[PresentacionFarmaceuticaController::class,'guardarexcipientes'])->name('excipientes.store');
@@ -195,7 +196,7 @@ Route::put('/muestras/{id}/actualizar-aprobacion', [coordinadoraController::clas
 //Jcomercial
 Route::get('/jefe-comercial', [JcomercialController::class, 'confirmar'])->name('muestras.confirmar')->middleware(['checkRole:jefe-comercial,admin']);
 Route::get('/jefe-comercial/{id}', [JcomercialController::class, 'showJC'])->name('muestras.showJC')->middleware(['checkRole:jefe-comercial,admin']);
-
+Route::get('/ventascliente',[PedidosController::class,'listPedCliente'])->name('pedidosxcliente.listar')->middleware(['checkRole:jefe-comercial,admin']);
 //GERENCIACONTROLLER
 Route::middleware(['checkRole:gerencia-general,admin'])->group(function () {
     //Reporte gerencia - Clasificaciones

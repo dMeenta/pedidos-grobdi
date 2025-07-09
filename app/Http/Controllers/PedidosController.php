@@ -10,6 +10,8 @@ use App\Models\Distritos_zonas;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
 class PedidosController extends Controller
 {
     public function index(Request $request)
@@ -244,5 +246,24 @@ class PedidosController extends Controller
         $pedidos->save();
         return redirect()->route('cargarpedidos.index')
         ->with('success','Pedido modificado exitosamente');
+    }
+    public function listPedCliente(Request $request){
+
+        $desde = $request->input('desde');
+        $hasta = $request->input('hasta');
+            $query = DB::table('detail_pedidos')
+        ->join('pedidos', 'detail_pedidos.pedidos_id', '=', 'pedidos.id')
+        ->select('pedidos.customerName','pedidos.customerNumber', 'detail_pedidos.articulo', DB::raw('SUM(detail_pedidos.cantidad) as total_comprado'),DB::raw('MAX(pedidos.created_at) as ultima_compra'))
+        ->whereNotLike('detail_pedidos.articulo', '%bolsa%')
+        ->whereNotLike('detail_pedidos.articulo', '%delivery%')
+        ->groupBy('pedidos.customerName','pedidos.customerNumber', 'detail_pedidos.articulo');
+
+        if ($desde && $hasta) {
+            $query->whereBetween('pedidos.created_at', [$desde, $hasta]);
+        }
+
+        $resultados = $query->get();
+
+        return view('pedidos.jefecomercial.ventasxcliente', compact('resultados', 'desde', 'hasta'));
     }
 }

@@ -73,7 +73,7 @@
                                                     </button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    <form action="{{route('bases.store')}}" method="POST">
+                                                    <form action="{{route('base.store')}}" method="POST">
                                                         @csrf
                                                         <div class="card">
                                                             <div class="card-header">
