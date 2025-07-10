@@ -41,11 +41,15 @@ class CentroSaludController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string|max:255',
             'adress' => 'required|string|max:255',
+            'latitude' => 'required',
+            'longitude' => 'required',
         ]);
         CentroSalud::create([
             'name'=>$request->name,
             'description'=>$request->description,
             'adress'=>$request->adress,
+            'latitude'=>$request->latitude,
+            'longitude'=>$request->longitude,
         ]);
         
         return redirect()->route('centrosalud.index')
@@ -69,6 +73,8 @@ class CentroSaludController extends Controller
         $centrosalud->name = $request->name;
         $centrosalud->adress = $request->adress;
         $centrosalud->description = $request->description;
+        $centrosalud->latitude = $request->latitude;
+        $centrosalud->longitude = $request->longitude;
         $centrosalud->save();
 
         return redirect()->route('centrosalud.index')

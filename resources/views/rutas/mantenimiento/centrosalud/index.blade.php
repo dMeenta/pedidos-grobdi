@@ -34,7 +34,7 @@
                     <td>{{ $centrosa->name }}</td>
                     <td>{{ $centrosa->description }}</td>
                     <td>{{ $centrosa->adress }}</td>
-                    <td>{{ $centrosa->latitude }} - {{ $centrosa->longtiude }}</td>
+                    <td>{{ $centrosa->latitude }} - {{ $centrosa->longitude }}</td>
                     <td>
                         <form action="{{ route('centrosalud.destroy',$centrosa->id) }}" method="POST">
                             <a class="btn btn-primary btn-sm" href="{{ route('centrosalud.edit',$centrosa->id) }}"><i class="fas fa-pen"></i> Editar</a>
