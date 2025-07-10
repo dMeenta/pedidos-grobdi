@@ -151,8 +151,7 @@
                                 <th>Unidad</th>
                                 <th>Cantidad</th>
                                 <th>Precio Unit.</th>
-                                <th>Lote</th>
-                                <th>Vencimiento</th>
+                              
                                 <th>Subtotal</th>
                                 <th>Acción</th>
                             </tr>
@@ -284,18 +283,7 @@
                                 <input type="number" class="form-control" id="articulo-precio" step="0.0001" min="0" value="0" required>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Lote</label>
-                                <input type="text" class="form-control" id="articulo-lote" placeholder="Número de lote" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Fecha de Vencimiento</label>
-                                <input type="date" class="form-control" id="articulo-vencimiento">
-                            </div>
-                        </div>
+                        
                     </div>
                     <div class="gap-2">
                         <button type="button" class="btn btn_crear" id="btn-agregar-carrito">
@@ -448,8 +436,6 @@ $(document).ready(function() {
         // Limpiar campos del formulario
         $('#articulo-cantidad').val(1);
         $('#articulo-precio').val('');
-        $('#articulo-lote').val('');
-        $('#articulo-vencimiento').val('');
         
         // Enfocar en el campo cantidad
         $('#articulo-cantidad').focus();
@@ -471,8 +457,6 @@ $(document).ready(function() {
 
         const cantidad = parseInt($('#articulo-cantidad').val()) || 0;
         const precio = parseFloat($('#articulo-precio').val()) || 0;
-        const lote = $('#articulo-lote').val().trim();
-        const vencimiento = $('#articulo-vencimiento').val();
 
         // Validaciones
         if (cantidad <= 0) {
@@ -498,8 +482,6 @@ $(document).ready(function() {
             unidad: articuloSeleccionado.unidad,
             cantidad: cantidad,
             precio: precio,
-            lote: lote,
-            vencimiento: vencimiento,
             subtotal: subtotal
         };
 
@@ -559,13 +541,6 @@ $(document).ready(function() {
         actualizarTablaCarrito();
     });
 
-    // Actualizar lote o vencimiento
-    $(document).on('change', '.articulo-lote, .articulo-vencimiento', function() {
-        const index = parseInt($(this).data('index'));
-        const campo = $(this).hasClass('articulo-lote') ? 'lote' : 'vencimiento';
-        carrito[index][campo] = $(this).val();
-    });
-
     // Cambiar IGV
     $('#moneda_id, #igv').on('change', function() {
         calcularTotales();
@@ -622,14 +597,6 @@ $(document).ready(function() {
                         <td>
                             <input type="number" class="form-control form-control-sm articulo-precio" 
                                 data-index="${index}" name="precios[]" value="${item.precio}" min="0" step="0.0001" style="width: 100px">
-                        </td>
-                        <td>
-                            <input type="text" class="form-control form-control-sm articulo-lote" 
-                                data-index="${index}" name="lotes[]" value="${item.lote}" style="width: 100px" required>
-                        </td>
-                        <td>
-                            <input type="date" class="form-control form-control-sm articulo-vencimiento" 
-                                data-index="${index}" name="vencimientos[]" value="${item.vencimiento}" style="width: 150px">
                         </td>
                         <td class="font-weight-bold">${simboloMoneda} ${item.subtotal.toFixed(2)}</td>
                         <td>

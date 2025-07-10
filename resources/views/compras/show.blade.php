@@ -55,8 +55,8 @@
               <tbody>
                 @foreach($compra->detalles as $detalle)
                   <tr>
-                    <td>{{ ucfirst($detalle->lote->articulo->tipo ?? 'Sin tipo') }}</td>
-                    <td class="observaciones">{{ $detalle->lote->articulo->nombre ?? 'Sin nombre' }}</td>
+                    <td>{{ ucfirst($detalle->articulo->tipo ?? 'Sin tipo') }}</td>
+                    <td class="observaciones">{{ $detalle->articulo->nombre ?? 'Sin nombre' }}</td>
                     <td>{{ $detalle->cantidad }}</td>
                     <td>{{ number_format($detalle->precio, 2) }}</td>
                     <td>{{ number_format($detalle->cantidad * $detalle->precio, 2) }}</td>

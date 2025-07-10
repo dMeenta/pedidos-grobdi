@@ -402,6 +402,12 @@
                     'can' => 'administracion',
                 ],
                 [
+                    'text' => 'Guía de Ingreso',
+                    'url' => 'guia_ingreso',
+                    'icon' => 'fas fa-file-import',
+                    'can' => 'administracion',
+                ],
+                [
                     'text' => 'Tipo de Cambio',
                     'url' => '/resumen-tipo-cambio',
                     'icon' => 'fas fa-exchange-alt',

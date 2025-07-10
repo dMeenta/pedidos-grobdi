@@ -65,7 +65,7 @@ class InsumoEmpaqueController extends Controller
                 'nombre' => $data['nombre'],
                 'descripcion' => $data['descripcion'] ?? null, 
                 'tipo' => 'insumo', 
-                'stock' => 1, 
+                'stock' => 0, 
             ]);
 
             // Crear el insumo y asociarlo al artículo
@@ -91,7 +91,7 @@ class InsumoEmpaqueController extends Controller
                 'nombre' => $data['nombre'],
                 'descripcion' => $data['descripcion'] ?? null, 
                 'tipo' => $tipo, // Aquí usamos el tipo 'material' o 'envase' directamente
-                'stock' => 1, 
+                'stock' => 0, 
             ]);
 
             Empaque::create([

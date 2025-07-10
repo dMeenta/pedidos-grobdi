@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('detalle_compra', function (Blueprint $table) {
             $table->id();
             $table->foreignId('compra_id')->constrained('compras')->onDelete('cascade');
-            $table->foreignId('lote_id')->constrained('lotes')->onDelete('cascade');
+            $table->foreignId('articulo_id')->constrained('articulos')->onDelete('cascade');
             $table->integer('cantidad');
             $table->decimal('precio', 10, 4); // Precio por unidad de artículo
             $table->timestamps();

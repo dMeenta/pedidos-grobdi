@@ -48,4 +48,10 @@ class Empaque extends Model
     {
         return $query->where('tipo', 'envase');
     }
+
+    public function unidadMedida()
+{
+    return $this->belongsTo(UnidadMedida::class, 'unidad_medida_id');
+}
+
 }

@@ -51,6 +51,7 @@ Auth::routes();
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
+
 //COUNTER
 Route::middleware(['checkRole:counter,admin'])->group(function () {
     
@@ -207,7 +208,7 @@ Route::middleware(['checkRole:gerencia-general,admin'])->group(function () {
 
 //COTIZADOR GENERAL----------
 //modulos del softlyn
-Route::middleware(['checkRole:administracion,admin'])->group(function () {
+Route::middleware(['checkRole:Administracion,admin'])->group(function () {
     //Administración
     Route::resource('insumo_empaque', InsumoEmpaqueController::class);
     //Crud proveedores
@@ -224,9 +225,14 @@ Route::middleware(['checkRole:administracion,admin'])->group(function () {
     Route::resource('util', UtilController::class);
     //crud compras
     Route::resource('compras', CompraController::class);
+    // CRUD Guía de Ingreso
+    Route::resource('guia_ingreso', \App\Http\Controllers\softlyn\GuiaIngresoController::class);
+    // Ruta AJAX para obtener detalles de compra
+    Route::get('lotes/por-articulo/{articulo_id}', [\App\Http\Controllers\softlyn\GuiaIngresoController::class, 'getLotesPorArticulo'])->name('lotes.por_articulo');
+    Route::get('guia_ingreso/detalles-compra/{compra_id}', [\App\Http\Controllers\softlyn\GuiaIngresoController::class, 'getDetallesCompra'])->name('guia_ingreso.detalles_compra');
 });
 
-Route::middleware(['checkRole:administracion,admin'])->group(function () {
+Route::middleware(['checkRole:Administracion,admin'])->group(function () {
     // Rutas estándar del CRUD
     Route::resource('producto_final', ProductoFinalController::class);
 
@@ -240,8 +246,6 @@ Route::middleware(['checkRole:administracion,admin'])->group(function () {
         ->name('articulos.por-tipo');
     */
 });
-
-
 
 
 
