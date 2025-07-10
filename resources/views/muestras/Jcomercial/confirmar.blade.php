@@ -9,6 +9,16 @@
 @section('content')    
     <div class="container">
         <h1 class="flex-grow-1 text-center"> Estado de las Muestras<hr></h1>
+        <div class="header-tools d-flex justify-content-end align-items-center mb-2" style="gap: 10px;">
+            <div id="datatable-search-wrapper" class="flex-grow-1"></div>
+            <form id="exportExcelForm" method="POST" action="{{ route('muestras.exportarExcelJC') }}">
+                @csrf
+                <input type="hidden" name="ids" id="excelExportIds">
+                <button type="submit" class="btn btn-outline-success" style="white-space:nowrap;">
+                    <i class="fas fa-file-excel"></i> Exportar Excel
+                </button>
+            </form>
+        </div>
         <div class="table-responsive">
             <table class="table table-hover table-sm mb-0" id="table_muestras">
                 <thead>
@@ -275,29 +285,36 @@
     </script>
     <script>
     $(document).ready(function() {
-                $('#table_muestras').DataTable({
-                    language: {
-                        url: 'https://cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json',
-                    },
-                    ordering: false,
-                    responsive: true,
-                    dom: '<"row"<"col-sm-12 col-md-12"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
-                    pageLength: 10,
-                    initComplete: function() {
-                        $('.dataTables_filter')
-                            .appendTo('.header-tools')
-                            .addClass('text-right ml-auto')
-                            .find('input')  
-                            .attr('placeholder', 'Buscar por nombre de la muestra')
-                            .end()  
-                            .find('label')
-                            .contents().filter(function() {
-                                return this.nodeType === 3;
-                            }).remove()
-                            .end()
-                            .prepend('Buscar:');
-                    }
-                });
+        var table = $('#table_muestras').DataTable({
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json',
+            },
+            ordering: false,
+            responsive: true,
+            dom: '<"row"<"col-sm-12 col-md-12"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+            pageLength: 10,
+            initComplete: function() {
+                // Mueve el buscador al wrapper personalizado
+                $('.dataTables_filter').appendTo('#datatable-search-wrapper').addClass('text-right ml-auto')
+                    .find('input').attr('placeholder', 'Buscar por nombre de la muestra').end()
+                    .find('label').contents().filter(function() { return this.nodeType === 3; }).remove().end().prepend('Buscar:');
+            }
+        });
+
+        function stripHtml(html) {
+            return String(html).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+        }
+        $('#exportExcelForm').on('submit', function(e) {
+            var data = table.rows({ search: 'applied' }).nodes();
+            var ids = [];
+            data.each(function(row) {
+                var id = $(row).attr('id');
+                if (id && id.startsWith('muestra_')) {
+                    ids.push(id.replace('muestra_', ''));
+                }
             });
+            $('#excelExportIds').val(JSON.stringify(ids));
+        });
+    });
 </script>
 @stop

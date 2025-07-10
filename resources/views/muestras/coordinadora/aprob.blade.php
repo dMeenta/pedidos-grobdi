@@ -10,9 +10,17 @@
     <div class="container">
     @include('messages')
         <h1 class="flex-grow-1 text-center">Estado de las Muestras<hr></h1>
-        <div class="header-tools">
+        <div class="header-tools d-flex justify-content-end align-items-center mb-2" style="gap: 10px;">
+            <div id="datatable-search-wrapper" class="flex-grow-1"></div>
+            <form id="exportExcelForm" method="POST" action="{{ route('muestras.exportarExcelCO') }}">
+                @csrf
+                <input type="hidden" name="ids" id="excelExportIds">
+                <button type="submit" class="btn btn-outline-success" style="white-space:nowrap;">
+                    <i class="fas fa-file-excel"></i> Exportar Excel
+                </button>
+            </form>
             <a title="Ver detalles" href="{{ route('muestras.createCO') }}" class="btn btn-success">
-                    <i class="fas fa-plus-circle"></i> Agregar Muestra
+                    <i class="bi bi-plus-circle"></i> Agregar Muestra
             </a>
         </div> 
         <div class="table-responsive">
@@ -373,6 +381,20 @@
                             .prepend('Buscar:');
                     }
                 });
+                 function stripHtml(html) {
+                        return String(html).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+                    }
+                    $('#exportExcelForm').on('submit', function(e) {
+                        var data = table.rows({ search: 'applied' }).nodes();
+                        var ids = [];
+                        data.each(function(row) {
+                            var id = $(row).attr('id');
+                            if (id && id.startsWith('muestra_')) {
+                                ids.push(id.replace('muestra_', ''));
+                            }
+                        });
+                        $('#excelExportIds').val(JSON.stringify(ids));
+                    });
             });
   </script>
 @stop

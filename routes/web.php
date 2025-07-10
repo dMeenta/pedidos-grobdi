@@ -247,5 +247,8 @@ Route::middleware(['checkRole:Administracion,admin'])->group(function () {
     */
 });
 
-
+// Ruta principal que muestra todas las muestras
+    Route::post('muestras/exportar-excel-jc', [App\Http\Controllers\muestras\JcomercialController::class, 'exportarExcel'])->name('muestras.exportarExcelJC');
+    Route::post('muestras/exportar-excel-co', [App\Http\Controllers\muestras\coordinadoraController::class, 'exportarExcel'])->name('muestras.exportarExcelCO');
+    Route::post('muestras/exportar-excel-lab', [App\Http\Controllers\muestras\laboratorioController::class, 'exportarExcel'])->name('muestras.exportarExcelLAB');
 

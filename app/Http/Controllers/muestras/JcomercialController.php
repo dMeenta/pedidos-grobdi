@@ -10,10 +10,27 @@ use App\Models\Clasificacion;
 //formatear
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\MuestrasExport;
 class JcomercialController extends Controller
 {
-    
+        public function exportarExcel(Request $request)
+    {
+        $muestras = Muestras::with(['clasificacion', 'creator'])
+                        ->orderByDesc('created_at')
+                        ->get();
+
+        return \Excel::download(
+            new \App\Exports\muestras\MuestrasExport($muestras, [
+                'Nombre de la Muestra',
+                'Clasificación',
+                'Tipo de Muestra',
+                'Día de Entrega',
+                'Creado por'
+            ]),
+            'muestras_jcomercial.xlsx'
+        );
+    }
     public function confirmar()
     {
         $muestras = Muestras::with(['clasificacion.unidadMedida'])->orderBy('created_at', 'desc')->get();

@@ -16,6 +16,33 @@ use App\Events\muestras\MuestraActualizada;
 
 class laboratorioController extends Controller
 {
+    public function exportarExcel(Request $request)
+    {
+        $fechaActual = Carbon::now();
+        $fechaInicio = $fechaActual->copy()->startOfDay();
+        $fechaFin = $fechaActual->copy()->addDays(7)->endOfDay();
+        $muestras = Muestras::with(['clasificacion', 'creator'])
+            ->whereBetween('fecha_hora_entrega', [$fechaInicio, $fechaFin])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        $headers = [
+            '#',
+            'Nombre de la Muestra',
+            'Clasificación',
+            'Tipo de Muestra',
+            'Aprobado J. Comercial',
+            'Aprobado Coordinadora',
+            'Cantidad',
+            'Estado',
+            'Creado por',
+            'Doctor',
+            'Fecha/hora Entrega'
+        ];
+        return \Excel::download(
+            new \App\Exports\muestras\LaboratorioExport($muestras, $headers),
+            'muestras_laboratorio.xlsx'
+        );
+    }
         public function showLab($id)
     { 
        // Cargar la muestra con sus relaciones

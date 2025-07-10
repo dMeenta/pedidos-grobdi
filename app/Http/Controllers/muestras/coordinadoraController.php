@@ -18,9 +18,30 @@ use App\Events\muestras\MuestraCreada;
 use App\Events\muestras\MuestraActualizada;
 //imprimir reportes
 use PDF;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\MuestrasExport;
 
 class coordinadoraController extends Controller
 {   
+            public function exportarExcel(Request $request)
+    {
+        $muestras = Muestras::with(['clasificacion', 'creator'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        $headers = [
+            'Nombre de la Muestra',
+            'Clasificación',
+            'Tipo de Muestra',
+            'Día de Entrega',
+            'Creado por'
+        ];
+        
+        return \Excel::download(
+            new \App\Exports\muestras\MuestrasExport($muestras, $headers), 
+            'muestras_coordinadora.xlsx'
+        );
+    }
     public function actualizarAprobacion(Request $request, $id)
     {
         // Buscar la muestra en la base de datos
