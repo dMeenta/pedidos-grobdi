@@ -13,7 +13,7 @@ class DetalleCompra extends Model
 
     protected $fillable = [
         'compra_id',
-        'lote_id',
+        'articulo_id',
         'cantidad',
         'precio'
     ];
@@ -35,9 +35,9 @@ class DetalleCompra extends Model
         return $this->belongsTo(Articulo::class);
     }
 
-     public function lote()
+    public function detalleGuiaIngresos()
     {
-        return $this->belongsTo(Lote::class);
+        return $this->hasMany(DetalleGuiaIngreso::class, 'detalle_compra_id');
     }
 
     // Métodos auxiliares

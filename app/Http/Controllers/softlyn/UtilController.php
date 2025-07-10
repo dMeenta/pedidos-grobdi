@@ -48,7 +48,7 @@ class UtilController extends Controller
             'nombre' => $data['nombre'],
             'descripcion' => $data['descripcion'] ?? null,
             'tipo' => 'util',
-            'stock' => 1,
+            'stock' => 0,
             'estado' => 'activo',
         ]);
 

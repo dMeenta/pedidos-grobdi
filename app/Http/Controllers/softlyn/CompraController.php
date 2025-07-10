@@ -88,19 +88,7 @@ class CompraController extends Controller
             'cantidades.*' => 'required|integer|min:1',
             'precios' => 'required|array',
             'precios.*' => 'required|numeric|min:0',
-            'lotes' => 'array',
-            'vencimientos' => 'array',
-            'vencimientos.*' => 'nullable|date',
         ]);
-
-        // Validar cada fecha de vencimiento individualmente
-        foreach ($request->vencimientos as $index => $vencimiento) {
-            if ($vencimiento && $vencimiento < $request->fecha_emision) {
-                return back()->withInput()->withErrors([
-                    "vencimientos.$index" => "La fecha de vencimiento debe ser igual o posterior a la fecha de emisión.",
-                ]);
-            }
-        }
 
         try {
             DB::beginTransaction();
@@ -145,44 +133,14 @@ class CompraController extends Controller
                 $articuloId = $request->articulos[$i];
                 $cantidad = $request->cantidades[$i];
                 $precio = $request->precios[$i];
-                $lote = $request->lotes[$i] ?? null;
-                $vencimiento = $request->vencimientos[$i] ?? null;
-
-                // Verificar si el lote ya existe o crear uno nuevo
-                $loteModel = Lote::firstOrCreate(
-                    ['articulo_id' => $articuloId, 'num_lote' => $lote],
-                    ['fecha_vencimiento' => $vencimiento, 'precio' => $precio]
-                );
 
                 // Crear detalle de compra
                 DetalleCompra::create([
                     'compra_id' => $compra->id,
-                    'lote_id' => $loteModel->id,
+                    'articulo_id' => $articuloId,
                     'cantidad' => $cantidad,
                     'precio' => $precio
                 ]);
-
-                // Actualizar stock del artículo
-                $articulo = Articulo::find($articuloId);
-                $articulo->increment('stock', $cantidad);
-
-                // Registrar stock en almacén si hay lote
-                if ($lote) {
-                    $almacen = Almacen::first();
-                    if ($almacen) {
-                        $detalleLote = DetalleLote::firstOrNew([
-                            'lote_id' => $loteModel->id,
-                            'almacen_id' => $almacen->id
-                        ]);
-
-                        if ($detalleLote->exists) {
-                            $detalleLote->increment('stock', $cantidad);
-                        } else {
-                            $detalleLote->stock = $cantidad;
-                            $detalleLote->save();
-                        }
-                    }
-                }
             }
 
             DB::commit();
@@ -206,16 +164,6 @@ class CompraController extends Controller
     {
         try {
             DB::beginTransaction();
-
-            // Revertir stock de los artículos
-            foreach ($compra->detalles as $detalle) {
-                $articulo = $detalle->lote->articulo ?? null;
-
-                if ($articulo) {
-                    $articulo->decrement('stock', $detalle->cantidad);
-                }
-            }
-
             // Eliminar detalles y compra
             $compra->detalles()->delete();
             $compra->delete();

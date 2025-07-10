@@ -20,7 +20,12 @@
         @endif
 
         <h1 class="flex-grow-1 text-center mb-3"> Estado de las Muestras<br></h1>
-        
+        <form id="exportExcelFormLab" method="POST" action="{{ route('muestras.exportarExcelLAB') }}" style="display:inline;">
+            @csrf
+            <button type="submit" class="btn btn-success mb-2">
+                <i class="fas fa-file-excel"></i> Exportar Excel (7 días)
+            </button>
+        </form>
         <div class="table-responsive">
             <table class="table table-hover" id="table_muestras">
                 <thead>

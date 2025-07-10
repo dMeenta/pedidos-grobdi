@@ -42,7 +42,7 @@ class MerchandiseController extends Controller
             'nombre' => $data['nombre'],
             'descripcion' => $data['descripcion'] ?? null,
             'tipo' => 'merchandise',
-            'stock' => 1,
+            'stock' => 0,
             'estado' => 'activo',]);
 
         // Crear registro específico en la tabla merchandises
