@@ -251,18 +251,20 @@ class PedidosController extends Controller
 
         $desde = $request->input('desde');
         $hasta = $request->input('hasta');
-            $query = DB::table('detail_pedidos')
-        ->join('pedidos', 'detail_pedidos.pedidos_id', '=', 'pedidos.id')
-        ->select('pedidos.customerName','pedidos.customerNumber', 'detail_pedidos.articulo', DB::raw('SUM(detail_pedidos.cantidad) as total_comprado'),DB::raw('MAX(pedidos.created_at) as ultima_compra'))
-        ->whereNotLike('detail_pedidos.articulo', '%bolsa%')
-        ->whereNotLike('detail_pedidos.articulo', '%delivery%')
-        ->groupBy('pedidos.customerName','pedidos.customerNumber', 'detail_pedidos.articulo');
-
+        $resultados = collect(); // colección vacía por defecto
+        
         if ($desde && $hasta) {
+            $query = DB::table('detail_pedidos')
+            ->join('pedidos', 'detail_pedidos.pedidos_id', '=', 'pedidos.id')
+            ->select('pedidos.customerName','pedidos.customerNumber', 'detail_pedidos.articulo', DB::raw('SUM(detail_pedidos.cantidad) as total_comprado'),DB::raw('MAX(pedidos.created_at) as ultima_compra'))
+            ->whereNotLike('detail_pedidos.articulo', '%bolsa%')
+            ->whereNotLike('detail_pedidos.articulo', '%delivery%')
+            ->groupBy('pedidos.customerName','pedidos.customerNumber', 'detail_pedidos.articulo');
             $query->whereBetween('pedidos.created_at', [$desde, $hasta]);
+            
+            $resultados = $query->get();
         }
 
-        $resultados = $query->get();
 
         return view('pedidos.jefecomercial.ventasxcliente', compact('resultados', 'desde', 'hasta'));
     }
