@@ -1,13 +1,13 @@
 @extends('adminlte::page')
 
-@section('title', 'Dashboard')
+@section('title', 'Cargar Excel Pedidos')
 
 @section('content_header')
     <!-- <h1>Pedidos</h1> -->
 @stop
 
 @section('content')
-<div class="card mt-5">
+<div class="card mt-2">
     <h2 class="card-header">Cargar Pedido</h2>
     <div class="card-body">
         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
@@ -23,37 +23,42 @@
             </div>
         </div>
         <form action="{{ route('cargarpedidos.store') }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        <div class="mb-5">
-            <label for="pedidos_excel" class="form-label"><strong>Cargar Pedidos con direcciones:</strong></label>
-            <input 
-                type="file" 
-                name="archivo" 
-                class="form-control"
-                accept=".xlsx, .csv" 
-                id="pedidos_excel"
-                required
-            >
-            @error('archivo')
-                <p style="color: red;">{{ $archivo }}</p>
-            @enderror
-        </div>
-        <button type="submit" class="btn btn-success"><i class="fas fa-file-excel"></i> Importar Pedidos Excel</button>
+            @csrf
+            <div class="mb-5">
+                <label for="pedidos_excel" class="form-label"><strong>Cargar Pedidos con direcciones:</strong></label>
+                <input 
+                    type="file" 
+                    name="archivo" 
+                    class="form-control"
+                    accept=".xlsx, .csv" 
+                    id="pedidos_excel"
+                    required
+                >
+                @error('archivo')
+                    <p style="color: red;">{{ $archivo }}</p>
+                @enderror
+            </div>
+            <button type="submit" class="btn btn-success"><i class="fas fa-file-excel"></i> Importar Pedidos Excel</button>
         </form>
         <br>
         <br>
         <form action="{{ route('cargarpedidos.excelarticulos') }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        <div class="mb-5">
-            <label for="detail_excel" class="form-label"><strong>Cargar Pedidos con articulos:</strong></label>
-            <input type="file" name="archivo" accept=".xlsx, .csv" class="form-control" id="detail_excel" required>
-            @error('archivo')
-                <p style="color: red;">{{ $archivo }}</p>
-            @enderror
-        </div>
-        <button type="submit" class="btn btn-success"><i class="fas fa-file-excel"></i> Importar pedidos articulos Excel</button>
+            @csrf
+            <div class="mb-5">
+                <label for="detail_excel" class="form-label"><strong>Cargar Pedidos con articulos:</strong></label>
+                <input type="file" name="archivo" accept=".xlsx, .csv" class="form-control" id="detail_excel" required>
+                @error('archivo')
+                    <p style="color: red;">{{ $archivo }}</p>
+                @enderror
+            </div>
+            <button type="submit" class="btn btn-success"><i class="fas fa-file-excel"></i> Importar pedidos articulos Excel</button>
         </form>
-
+        <br>
+        <br>
+        <div class="mb-5">
+            <label class="form-label">Sincronizar Doctores - Pedidos:</label>
+            <a class="btn btn-outline-primary" href="{{ route('pedidos.sincronizar') }}"><i class="fa fa-sync-alt"></i> Sincronizar</a>
+        </div>
         @if(session('success'))
             <div class="alert alert-success">
                 {{ session('success') }}

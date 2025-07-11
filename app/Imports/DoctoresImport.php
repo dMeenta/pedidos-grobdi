@@ -58,27 +58,26 @@ class DoctoresImport implements ToCollection, WithStartRow
                         //una vez creado la especialidad nueva ingresamos su id al doctor
                         $doctor->especialidad_id = $especialidad->id;
                     }
-                    $namecompleted = explode(" ",$value[2]);
-                    $nombre = "";
-                    $apellido = "";
-                    foreach ($namecompleted as $index => $separador) {
-                        if(count($namecompleted) < 4){
-                            if($index == 0){
-                                $nombre = $separador;
-                            }else{
-                                $apellido = $apellido.$separador." ";
-                            }
-                        }else{
-                            if($index == 0 || $index == 1){
+                    // $namecompleted = explode(" ",string: $value[2]);
+                    // $nombre = "";
+                    // $apellido = "";
+                    // foreach ($namecompleted as $index => $separador) {
+                    //     if(count($namecompleted) < 4){
+                    //         if($index == 0){
+                    //             $nombre = $separador;
+                    //         }else{
+                    //             $apellido = $apellido.$separador." ";
+                    //         }
+                    //     }else{
+                    //         if($index == 0 || $index == 1){
     
-                                $nombre = $nombre.$separador." ";
-                            }else{
-                                $apellido = $apellido.$separador." ";
-                            }
-                        }
-                    }
-                    $doctor->name = $nombre;
-                    $doctor->lastname = $apellido;
+                    //             $nombre = $nombre.$separador." ";
+                    //         }else{
+                    //             $apellido = $apellido.$separador." ";
+                    //         }
+                    //     }
+                    // }
+                    $doctor->name = $value[2];
                     $doctor->CMP = $value[3];
                     $doctor->phone = $value[4];
                     if(!isString($value[6])){

@@ -87,6 +87,9 @@ Route::resource('usuarios', UsuariosController::class)->middleware(['checkRole:a
 Route::put('/usuarios/changepass/{fecha}', UsuariosController::class .'@changepass')
     ->name('usuarios.changepass')
     ->middleware(['checkRole:admin,jefe-operaciones']);
+Route::get('sincronizarpedidos',[CargarPedidosController::class,'sincronizarDoctoresPedidos'])
+    ->name('pedidos.sincronizar')
+    ->middleware(['checkRole:admin,jefe-operaciones']);
 
 
 Route::resource('pedidoscontabilidad', PedidosContaController::class)->middleware(['checkRole:contabilidad,admin']);

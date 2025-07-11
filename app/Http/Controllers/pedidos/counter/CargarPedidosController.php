@@ -47,9 +47,6 @@ class CargarPedidosController extends Controller
         return view('pedidos.counter.cargar_pedido.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         // Validate the uploaded file
@@ -78,9 +75,9 @@ class CargarPedidosController extends Controller
         Excel::import($pedidodetailImport, $file);
         return redirect()->back()->with($pedidodetailImport->key, $pedidodetailImport->data);
     }
-    /**
-     * Display the specified resource.
-     */
+    public function sincronizarDoctoresPedidos(){
+        return redirect()->back()->with('success','Pedidos sincronizados con doctores');
+    }
     public function show($pedido){
         $pedido = Pedidos::find($pedido);
         return view('pedidos.counter.cargar_pedido.show', compact('pedido'));

@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::create('doctor', function (Blueprint $table) {
             $table->id();
-            $table->string('name',50);
-            $table->string('lastname',50);
+            $table->string('name',100);
             $table->string('type_document',50)->nullable();
             $table->string('number_document',50)->nullable();
             $table->string('CMP',50)->nullable();

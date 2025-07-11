@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Dashboard')
+@section('title', 'Pedidos')
 
 @section('content_header')
     
@@ -76,101 +76,103 @@
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
         <input class="form-control" type="text" id="myInput" onkeyup="searchTable()" placeholder="Buscar...">
     </div>
-    <table class="table table-striped table-hover" id="myTable">
-        <thead>
-            <tr>
-                <th>Nro</th>
-                <th>
-                    <a href="{{ route('cargarpedidos.index', ['sort_by' => 'orderId', 'direction' => $ordenarPor == 'orderId' && $direccion == 'asc' ? 'desc' : 'asc','fecha'=>request()->query('fecha')?request()->query('fecha'):date('Y-m-d'),'filtro'=>request()->query('filtro')?request()->query('filtro'):'deliveryDate']) }}">
-                        Id Pedido 
-                        @if ($ordenarPor == 'orderId')
-                            {{ $direccion == 'asc' ? '↑' : '↓' }}
-                        @endif
-                    </a>
-                </th>
-                <th>
-                    <a href="{{ route('cargarpedidos.index', ['sort_by' => 'customerName', 'direction' => $ordenarPor == 'customerName' && $direccion == 'asc' ? 'desc' : 'asc','fecha'=>request()->query('fecha')?request()->query('fecha'):date('Y-m-d'),'filtro'=>request()->query('filtro')?request()->query('filtro'):'deliveryDate']) }}">
-                        Cliente
-                        @if ($ordenarPor == 'customerName')
-                            {{ $direccion == 'asc' ? '↑' : '↓' }}
-                        @endif
-                    </a>
-                </th>
-                <th>
-                    <a href="{{ route('cargarpedidos.index', ['sort_by' => 'doctorName', 'direction' => $ordenarPor == 'doctorName' && $direccion == 'asc' ? 'desc' : 'asc','fecha'=>request()->query('fecha')?request()->query('fecha'):date('Y-m-d'),'filtro'=>request()->query('filtro')?request()->query('filtro'):'deliveryDate']) }}">
-                        Doctor
-                        @if ($ordenarPor == 'doctorName')
-                            {{ $direccion == 'asc' ? '↑' : '↓' }}
-                        @endif
-                    </a>
-                </th>
-                <th>Est. Pago</th>
-                <th>Turno</th>
-                <th>Est. Entrega</th>
-                <th width="200px">distrito</th>
-                <th width="200px">Voucher</th>
-                <th width="200px">Receta</th>
-                <th width="200px">Zona</th>
-                <th width="220px">Opciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($pedidos  as $arr)
+    <div class="table table-responsive">
+        <table class="table table-striped table-hover" id="myTable">
+            <thead>
                 <tr>
-                    <td>{{ $arr["nroOrder"] }}</td>
-                    <td>{{ $arr["orderId"] }}</td>
-                    <td>{{ $arr["customerName"] }}</td>
-                    <td>{{ $arr["doctorName"] }}</td>
-                    <td>{{ $arr["paymentStatus"] }}</td>
-                    <form action="{{ route('cargarpedidos.actualizarTurno',$arr->id) }}" method="POST">
-                    @csrf
-                    @method('PUT')
-                    <td>
-                        <select class="form-select form-select-sm" aria-label=".form-select-sm"  name="turno" id="turno" onchange="this.form.submit()">
-                            <option disabled>Cambiar turno</option>
-                            <option value=0 {{ $arr->turno ===  0  ? 'selected' : '' }}>Mañana</option>
-                            <option value=1 {{ $arr->turno ===  1  ? 'selected' : '' }}>Tarde</option>
-                        </select>
-                    </td>
-                    </form>
-                    @if($arr->user->role->name == 'motorizado' && $arr["paymentStatus"] === "Reprogramado")
-                        <td class="table-danger">{{ $arr["deliveryStatus"] }}</td>
-                    @else
-                        <td>{{ $arr["deliveryStatus"] }}</td>
-                    @endif
-                    <td>{{ $arr["district"] }}</td>
-                    <td>
-                        @if ( $arr["voucher"] == 0)
-                            <span class="badge rounded-pill bg-danger">Sin imagen</span>
-                        @else
-                            <span class="badge rounded-pill bg-success">Imagen</span>
-                        @endif
-                    </td>
-                    <td>
-                        @if ( $arr["receta"] == 0)
-                            <span class="badge rounded-pill bg-danger">Sin imagen</span>
-                        @else
-                            <span class="badge rounded-pill bg-success">Imagen</span>
-                        @endif
-                    </td>
-                    <td>{{ $arr->zone->name }}</td>
-                    <td>
-                        <form action="{{ route('cargarpedidos.destroy',$arr->id) }}" method="POST">
-                            <a class="btn btn-danger btn-sm" href="{{ route('cargarpedidos.uploadfile',$arr->id) }}"><i class="fa fa-upload"></i>Carga</a>
-                            <a class="btn btn-info btn-sm" href="{{ route('cargarpedidos.show',$arr->id) }}" target="_blank"><i class="fa fa-eye"></i> Ver</a>
-
-                            <a class="btn btn-primary btn-sm" href="{{ route('cargarpedidos.edit',$arr->id) }}"><i class="fa-pencil"></i> Editar</a>
-
-                            @csrf
-                            @method('DELETE')
-                    
-                            <!-- <button type="submit" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash"></i> Delete</button> -->
-                        </form>
-                    </td>
+                    <th>Nro</th>
+                    <th>
+                        <a href="{{ route('cargarpedidos.index', ['sort_by' => 'orderId', 'direction' => $ordenarPor == 'orderId' && $direccion == 'asc' ? 'desc' : 'asc','fecha'=>request()->query('fecha')?request()->query('fecha'):date('Y-m-d'),'filtro'=>request()->query('filtro')?request()->query('filtro'):'deliveryDate']) }}">
+                            Id Pedido 
+                            @if ($ordenarPor == 'orderId')
+                                {{ $direccion == 'asc' ? '↑' : '↓' }}
+                            @endif
+                        </a>
+                    </th>
+                    <th>
+                        <a href="{{ route('cargarpedidos.index', ['sort_by' => 'customerName', 'direction' => $ordenarPor == 'customerName' && $direccion == 'asc' ? 'desc' : 'asc','fecha'=>request()->query('fecha')?request()->query('fecha'):date('Y-m-d'),'filtro'=>request()->query('filtro')?request()->query('filtro'):'deliveryDate']) }}">
+                            Cliente
+                            @if ($ordenarPor == 'customerName')
+                                {{ $direccion == 'asc' ? '↑' : '↓' }}
+                            @endif
+                        </a>
+                    </th>
+                    <th>
+                        <a href="{{ route('cargarpedidos.index', ['sort_by' => 'doctorName', 'direction' => $ordenarPor == 'doctorName' && $direccion == 'asc' ? 'desc' : 'asc','fecha'=>request()->query('fecha')?request()->query('fecha'):date('Y-m-d'),'filtro'=>request()->query('filtro')?request()->query('filtro'):'deliveryDate']) }}">
+                            Doctor
+                            @if ($ordenarPor == 'doctorName')
+                                {{ $direccion == 'asc' ? '↑' : '↓' }}
+                            @endif
+                        </a>
+                    </th>
+                    <th>Est. Pago</th>
+                    <th>Turno</th>
+                    <th>Est. Entrega</th>
+                    <th width="200px">distrito</th>
+                    <th width="200px">Voucher</th>
+                    <th width="200px">Receta</th>
+                    <th width="200px">Zona</th>
+                    <th width="220px">Opciones</th>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach ($pedidos  as $arr)
+                    <tr>
+                        <td>{{ $arr["nroOrder"] }}</td>
+                        <td>{{ $arr["orderId"] }}</td>
+                        <td>{{ $arr["customerName"] }}</td>
+                        <td>{{ $arr["doctorName"] }}</td>
+                        <td>{{ $arr["paymentStatus"] }}</td>
+                        <form action="{{ route('cargarpedidos.actualizarTurno',$arr->id) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <td>
+                            <select class="form-select form-select-sm" aria-label=".form-select-sm"  name="turno" id="turno" onchange="this.form.submit()">
+                                <option disabled>Cambiar turno</option>
+                                <option value=0 {{ $arr->turno ===  0  ? 'selected' : '' }}>Mañana</option>
+                                <option value=1 {{ $arr->turno ===  1  ? 'selected' : '' }}>Tarde</option>
+                            </select>
+                        </td>
+                        </form>
+                        @if($arr->user->role->name == 'motorizado' && $arr["paymentStatus"] === "Reprogramado")
+                            <td class="table-danger">{{ $arr["deliveryStatus"] }}</td>
+                        @else
+                            <td>{{ $arr["deliveryStatus"] }}</td>
+                        @endif
+                        <td>{{ $arr["district"] }}</td>
+                        <td>
+                            @if ( $arr["voucher"] == 0)
+                                <span class="badge rounded-pill bg-danger">Sin imagen</span>
+                            @else
+                                <span class="badge rounded-pill bg-success">Imagen</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if ( $arr["receta"] == 0)
+                                <span class="badge rounded-pill bg-danger">Sin imagen</span>
+                            @else
+                                <span class="badge rounded-pill bg-success">Imagen</span>
+                            @endif
+                        </td>
+                        <td>{{ $arr->zone->name }}</td>
+                        <td>
+                            <form action="{{ route('cargarpedidos.destroy',$arr->id) }}" method="POST">
+                                <a class="btn btn-danger btn-sm" href="{{ route('cargarpedidos.uploadfile',$arr->id) }}"><i class="fa fa-upload"></i>Carga</a>
+                                <a class="btn btn-info btn-sm" href="{{ route('cargarpedidos.show',$arr->id) }}" target="_blank"><i class="fa fa-eye"></i> Ver</a>
+    
+                                <a class="btn btn-primary btn-sm" href="{{ route('cargarpedidos.edit',$arr->id) }}"><i class="fa-pencil"></i> Editar</a>
+    
+                                @csrf
+                                @method('DELETE')
+                        
+                                <!-- <button type="submit" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash"></i> Delete</button> -->
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
     @if(session('success'))
         <div class="alert alert-success">
             {{ session('success') }}
