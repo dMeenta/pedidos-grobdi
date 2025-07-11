@@ -34,7 +34,7 @@
                 <form method="GET" action="{{ route('insumo_empaque.index') }}" class="form-inline" id="filterForm">
                     <div class="btn-group" role="group">
                         <a href="{{ route('insumo_empaque.index') }}" 
-                        class="btn btn-sm {{ request()->estado != 'inactivo' ? 'btn_crear' : 'btn-outline-danger' }}">
+                        class="btn btn-sm {{ request()->estado != 'inactivo' ? 'btn_crear' : 'btn_crear' }}">
                             Activos
                         </a>
                         <a href="{{ route('insumo_empaque.index', ['estado' => 'inactivo']) }}" 

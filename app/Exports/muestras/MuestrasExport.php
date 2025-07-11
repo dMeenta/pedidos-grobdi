@@ -27,7 +27,7 @@ class MuestrasExport implements FromView, WithStyles
         ]);
     }
 
-    public function styles(Worksheet $sheet)
+        public function styles(Worksheet $sheet)
     {
         // Estilo para los encabezados
         $sheet->getStyle('A1:E1')->applyFromArray([
@@ -42,8 +42,13 @@ class MuestrasExport implements FromView, WithStyles
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => Border::BORDER_THIN,
-                    'color' => ['rgb' => 'E0E0E0']
+                    'color' => ['rgb' => 'FF7182']
                 ]
+            ],
+            'alignment' => [
+                'wrapText' => true,  
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER, // Centrado horizontal
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER  // Centrado vertical
             ]
         ]);
 
@@ -52,17 +57,27 @@ class MuestrasExport implements FromView, WithStyles
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => Border::BORDER_THIN,
-                    'color' => ['rgb' => 'E0E0E0']
+                    'color' => ['rgb' => 'FF7182']
                 ]
+            ],
+            'alignment' => [
+                'wrapText' => true, 
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER, // Centrado horizontal
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER  // Centrado vertical
             ]
         ]);
 
         // Ajustar el ancho de las columnas (300px ≈ 36 unidades en Excel)
         $sheet->getColumnDimension('A')->setWidth(36);
-        $sheet->getColumnDimension('B')->setWidth(25);
-        $sheet->getColumnDimension('C')->setWidth(36);
-        $sheet->getColumnDimension('D')->setWidth(36);
-        $sheet->getColumnDimension('E')->setWidth(36);
+        $sheet->getColumnDimension('B')->setWidth(20);
+        $sheet->getColumnDimension('C')->setWidth(15);
+        $sheet->getColumnDimension('D')->setWidth(20);
+        $sheet->getColumnDimension('E')->setWidth(20);
+
+        // Ajustar el alto de las filas para que se ajuste al contenido
+        foreach ($sheet->getRowIterator() as $row) {
+            $sheet->getRowDimension($row->getRowIndex())->setRowHeight(-1);  // Esto ajusta la altura automáticamente
+        }
 
         return [];
     }

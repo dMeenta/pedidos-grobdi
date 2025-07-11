@@ -179,3 +179,16 @@ input[type="checkbox"]:checked::before {
     scrollbar-width: thin;
     scrollbar-color: rgb(255, 178, 187) #fcebed;
 }
+.btn_crear {
+    border: 1px solid#fe495f !important;
+    background-color:rgb(255, 113, 130); 
+    color: white;
+    margin: 0 auto;
+}
+.btn-s {
+    font-size: 1rem; 
+    padding: 8px 14px; 
+    border-radius: 8px;
+    display: flex; 
+    align-items: center; 
+}

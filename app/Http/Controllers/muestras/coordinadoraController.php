@@ -90,7 +90,7 @@ class coordinadoraController extends Controller
         // Buscar la muestra en la base de datos
         $muestra = Muestras::find($id);
         $validated = $request->validate([
-            'fecha_hora_entrega' => 'required|date|after_or_equal:' . \Carbon\Carbon::now()->format('Y-m-d\TH:i'),
+            'fecha_hora_entrega' => 'required|date|after_or_equal:' . Carbon::now()->format('Y-m-d\TH:i'),
         ]);
 
         // Usar DB para actualizar solo el campo fecha_hora_entrega sin modificar los timestamps
@@ -159,6 +159,7 @@ class coordinadoraController extends Controller
             'tipo_muestra' => $validated['tipo_muestra'],
             'name_doctor' => $validated['name_doctor'],
             'foto' => $fotoPath, 
+            'estado' => 'Pendiente',
             'created_by' => auth()->id(),
         ]);
 
@@ -174,39 +175,39 @@ class coordinadoraController extends Controller
            return view('muestras.coordinadora.editCO', compact('muestra', 'clasificaciones'));
        }
     
-        public function updateCO(Request $request, $id)
-    {
-        $validated = $request->validate([
-            'nombre_muestra' => 'required|string|max:255',
-            'clasificacion_id' => 'required|exists:clasificaciones,id',
-            'cantidad_de_muestra' => 'required|numeric|min:1|max:10000',
-            'observacion' => 'nullable|string',
-            'tipo_muestra' => 'required|in:frasco original,frasco muestra',
-            'name_doctor' => 'nullable|string|max:80',
-            'foto' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-        ]);
+            public function updateCO(Request $request, $id)
+        {
+            $validated = $request->validate([
+                'nombre_muestra' => 'required|string|max:255',
+                'clasificacion_id' => 'required|exists:clasificaciones,id',
+                'cantidad_de_muestra' => 'required|numeric|min:1|max:10000',
+                'observacion' => 'nullable|string',
+                'tipo_muestra' => 'required|in:frasco original,frasco muestra',
+                'name_doctor' => 'nullable|string|max:80',
+                'foto' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            ]);
 
-        $muestra = Muestras::findOrFail($id);
+            $muestra = Muestras::findOrFail($id);
 
-        if ($request->hasFile('foto')) {
-            $file = $request->file('foto');
-            $nombreMuestra = Str::slug($validated['nombre_muestra'], '_');
-            $fecha = now()->format('m-d_H-i');
-            $extension = $file->getClientOriginalExtension();
-            $fileName = "{$nombreMuestra}-{$fecha}.{$extension}";
-            $destinationPath = public_path('images/muestras_fotos');
-            if (!File::exists($destinationPath)) {File::makeDirectory($destinationPath, 0755, true); }
-            if (isset($muestra->foto) && $muestra->foto) {
-                $oldFilePath = public_path($muestra->foto);
-                if (File::exists($oldFilePath)) { File::delete($oldFilePath); }}
-            $file->move($destinationPath, $fileName);
-            $validated['foto'] = 'images/muestras_fotos/' . $fileName;}
+            if ($request->hasFile('foto')) {
+                $file = $request->file('foto');
+                $nombreMuestra = Str::slug($validated['nombre_muestra'], '_');
+                $fecha = now()->format('m-d_H-i');
+                $extension = $file->getClientOriginalExtension();
+                $fileName = "{$nombreMuestra}-{$fecha}.{$extension}";
+                $destinationPath = public_path('images/muestras_fotos');
+                if (!File::exists($destinationPath)) {File::makeDirectory($destinationPath, 0755, true); }
+                if (isset($muestra->foto) && $muestra->foto) {
+                    $oldFilePath = public_path($muestra->foto);
+                    if (File::exists($oldFilePath)) { File::delete($oldFilePath); }}
+                $file->move($destinationPath, $fileName);
+                $validated['foto'] = 'images/muestras_fotos/' . $fileName;}
 
-        $muestra->update($validated);
-        event(new MuestraActualizada($muestra));
+            $muestra->update($validated);
+            event(new MuestraActualizada($muestra));
 
-        return redirect()->route('muestras.aprobacion.coordinadora')->with('success', 'Muestra actualizada exitosamente.');
-    }
+            return redirect()->route('muestras.aprobacion.coordinadora')->with('success', 'Muestra actualizada exitosamente.');
+        }
 
        public function destroyCO($id)
        {
