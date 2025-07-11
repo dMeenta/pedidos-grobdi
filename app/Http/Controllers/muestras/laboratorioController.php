@@ -19,24 +19,22 @@ class laboratorioController extends Controller
     public function exportarExcel(Request $request)
     {
         $fechaActual = Carbon::now();
-        $fechaInicio = $fechaActual->copy()->startOfDay();
-        $fechaFin = $fechaActual->copy()->addDays(7)->endOfDay();
         $muestras = Muestras::with(['clasificacion', 'creator'])
-            ->whereBetween('fecha_hora_entrega', [$fechaInicio, $fechaFin])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        ->whereRaw('? between fecha_hora_entrega and DATE_ADD(fecha_hora_entrega, INTERVAL 7 DAY)', [$fechaActual])
+        ->orderBy('created_at', 'desc')
+        ->get();
         $headers = [
             '#',
             'Nombre de la Muestra',
             'Clasificación',
-            'Tipo de Muestra',
-            'Aprobado J. Comercial',
-            'Aprobado Coordinadora',
+            'Tipo',
+            'J. Comercial',
+            'Coordinadora',
             'Cantidad',
             'Estado',
             'Creado por',
             'Doctor',
-            'Fecha/hora Entrega'
+            'Fecha Entrega'
         ];
         return \Excel::download(
             new \App\Exports\muestras\LaboratorioExport($muestras, $headers),
@@ -51,26 +49,26 @@ class laboratorioController extends Controller
        // Pasar la variable correctamente nombrada (en singular)
        return view('muestras.laboratorio.showlab', ['muestra' => $muestra]);
     }
-
             public function estado()
     {
-        // Obtén la fecha actual
         $fechaActual = Carbon::now();
-
-        // Calcula la fecha de hace 7 días
-        $fechaInicio = $fechaActual->copy()->startOfDay();
         
-        // Calcula la fecha de 7 días a partir de la fecha actual
-        $fechaFin = $fechaActual->copy()->addDays(7)->endOfDay();
+        // Obtener el estado de la solicitud (Pendiente o Elaborado)
+        $estado = request()->estado;
 
-        // Obtén todas las muestras cuyo 'fecha_hora_entrega' esté dentro de los próximos 7 días
-        $muestras = Muestras::whereBetween('fecha_hora_entrega', [$fechaInicio, $fechaFin])
-                            ->orderBy('created_at', 'desc')
-                            ->paginate(10);
+        // Filtrar las muestras según el estado (Pendiente o Elaborado)
+        $query = Muestras::whereRaw('? between fecha_hora_entrega and DATE_ADD(fecha_hora_entrega, INTERVAL 7 DAY)', [$fechaActual]);
 
+        if ($estado) {
+            $query->where('estado', $estado);  // Filtra según el estado seleccionado
+        }
+
+        // Obtener las muestras paginadas
+        $muestras = $query->orderBy('created_at', 'desc')->paginate(10);
+
+        // Devolver la vista con las muestras
         return view('muestras.laboratorio.estado', compact('muestras'));
     }
-
     // Método para actualizar el estado
     public function actualizarEstado(Request $request, $id)
     {

@@ -35,16 +35,39 @@ class LaboratorioExport implements FromView, WithStyles
         $sheet->getStyle("A1:{$lastCol}1")->applyFromArray([
             'font' => [ 'bold' => true, 'color' => ['rgb' => 'FFFFFF'] ],
             'fill' => [ 'fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'FF7182'] ],
-            'borders' => [ 'allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'FF7182'] ] ]
+            'borders' => [ 'allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'FF7182'] ] ],
+            'alignment' => [
+            'wrapText' => true,  
+            'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER, // Centrado horizontal
+            'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER  // Centrado vertical
+        ]
         ]);
         // Datos
         $sheet->getStyle("A2:{$lastCol}" . $sheet->getHighestRow())->applyFromArray([
-            'borders' => [ 'allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'E0E0E0'] ] ]
+            'borders' => [ 'allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'FF7182'] ] ],
+            'alignment' => [
+            'wrapText' => true,  
+            'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER, 
+            'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER  
+        ]
         ]);
+        
         // Ancho de columnas
-        foreach(range('A',$lastCol) as $col) {
-            $sheet->getColumnDimension($col)->setAutoSize(true);
+        $sheet->getColumnDimension('A')->setWidth(5);   // #
+        $sheet->getColumnDimension('B')->setWidth(35);  // Nombre de la Muestra
+        $sheet->getColumnDimension('C')->setWidth(17);  // Clasificación
+        $sheet->getColumnDimension('D')->setWidth(15);  // Tipo de Muestra
+        $sheet->getColumnDimension('E')->setWidth(15);  // Aprobado J. Comercial
+        $sheet->getColumnDimension('F')->setWidth(17);  // Aprobado Coordinadora
+        $sheet->getColumnDimension('G')->setWidth(13);  // Cantidad
+        $sheet->getColumnDimension('H')->setWidth(12);  // Estado
+        $sheet->getColumnDimension('I')->setWidth(15);  // Creado por
+        $sheet->getColumnDimension('J')->setWidth(15);  // Doctor
+        $sheet->getColumnDimension('K')->setWidth(20);  // Fecha/hora Entrega
+        foreach ($sheet->getRowIterator() as $row) {
+            $sheet->getRowDimension($row->getRowIndex())->setRowHeight(-1); 
         }
+
         return [];
     }
 }

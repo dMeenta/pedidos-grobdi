@@ -23,7 +23,7 @@
                 <form method="GET" action="{{ route('proveedores.index') }}" class="form-inline" id="filterForm">
                     <div class="btn-group" role="group">
                         <a href="{{ route('proveedores.index', ['estado' => 'activo']) }}" 
-                        class="btn btn-sm {{ $estado != 'inactivo' ? 'btn_crear' : 'btn-outline-danger' }}">
+                        class="btn btn-sm {{ $estado != 'inactivo' ? 'btn_crear' : 'btn_crear' }}">
                             Activos
                         </a>
                         <a href="{{ route('proveedores.index', ['estado' => 'inactivo']) }}" 

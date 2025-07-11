@@ -10,6 +10,9 @@
     <div class="container">
     @include('messages')
         <h1 class="flex-grow-1 text-center">Estado de las Muestras<hr></h1>
+        <a title="Ver detalles" href="{{ route('muestras.createCO') }}" class="btn btn-success">
+                    <i class="fas fa-plus-circle mr-1"></i> Agregar Muestra
+            </a>
         <div class="header-tools d-flex justify-content-end align-items-center mb-2" style="gap: 10px;">
             <div id="datatable-search-wrapper" class="flex-grow-1"></div>
             <form id="exportExcelForm" method="POST" action="{{ route('muestras.exportarExcelCO') }}">
@@ -19,9 +22,6 @@
                     <i class="fas fa-file-excel"></i> Exportar Excel
                 </button>
             </form>
-            <a title="Ver detalles" href="{{ route('muestras.createCO') }}" class="btn btn-success">
-                    <i class="bi bi-plus-circle"></i> Agregar Muestra
-            </a>
         </div> 
         <div class="table-responsive">
             <table class="table table-hover" id="table_muestras">

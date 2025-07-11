@@ -8,24 +8,37 @@
 
 @section('content')    
     <div class="container">
-        @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show d-flex align-items-center" role="alert" style="background-color: #d1e7dd; color: #0f5132;">
-                <div class="text-center flex-grow-1">
-                    {{ session('success') }}
-                </div>
-                <button type="button" class="btn p-0 border-0 bg-transparent" data-bs-dismiss="alert" aria-label="Cerrar">
-                    <i class="bi bi-x-lg" style="font-size: 1.2rem; color: #0f5132;"></i>
-                </button>
-            </div>
-        @endif
+        @include('messages')
+
 
         <h1 class="flex-grow-1 text-center mb-3"> Estado de las Muestras<br></h1>
-        <form id="exportExcelFormLab" method="POST" action="{{ route('muestras.exportarExcelLAB') }}" style="display:inline;">
-            @csrf
-            <button type="submit" class="btn btn-success mb-2">
-                <i class="fas fa-file-excel"></i> Exportar Excel (7 días)
-            </button>
-        </form>
+
+        <div class="row mb-2 align-items-center">
+            <div class="col-md-6">
+                <form id="exportExcelFormLab" method="POST" action="{{ route('muestras.exportarExcelLAB') }}" style="display:inline;">
+                    @csrf
+                    <button type="submit" class="btn btn_crear mb-2">
+                        <i class="fas fa-file-excel"></i> Exportar Excel (7 días)
+                    </button>
+                </form>
+            </div>
+
+            <div class="col-md-6 d-flex justify-content-end align-items-center">
+                <form method="GET" action="{{ route('muestras.estado') }}" class="mb-0 d-inline-block" id="filterForm">
+                    <div class="btn-group" role="group">
+                        <a href="{{ route('muestras.estado', ['estado' => 'Pendiente']) }}" 
+                            class="btn btn-s {{ request()->estado == 'Pendiente' ? 'btn-danger' : 'btn-outline-danger' }}">
+                            Pendientes
+                        </a>
+
+                        <a href="{{ route('muestras.estado', ['estado' => 'Elaborado']) }}" 
+                            class="btn btn-s {{ request()->estado == 'Elaborado' ? 'btn-success' : 'btn-outline-success' }}">
+                            Elaborados
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
         <div class="table-responsive">
             <table class="table table-hover" id="table_muestras">
                 <thead>

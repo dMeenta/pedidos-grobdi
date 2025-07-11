@@ -66,6 +66,7 @@ class MuestrasController extends Controller
             'tipo_muestra' => $validated['tipo_muestra'],
             'name_doctor' => $validated['name_doctor'],
             'foto' => $fotoPath, 
+            'estado' => 'Pendiente',
             'created_by' => auth()->id(),
         ]);
             event(new MuestraCreada($muestra));

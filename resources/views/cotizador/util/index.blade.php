@@ -27,7 +27,7 @@
                 <form method="GET" action="{{ route('util.index') }}" class="mb-0" id="filterForm">
                     <div class="btn-group" role="group">
                         <a href="{{ route('util.index') }}" 
-                        class="btn btn-sm {{ request()->estado != 'inactivo' ? 'btn_crear' : 'btn-outline-danger' }}">
+                        class="btn btn-sm {{ request()->estado != 'inactivo' ? 'btn_crear' : 'btn_crear' }}">
                             Activos
                         </a>
                         <a href="{{ route('util.index', ['estado' => 'inactivo']) }}" 
