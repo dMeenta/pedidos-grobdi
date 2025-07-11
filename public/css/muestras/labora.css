@@ -111,57 +111,6 @@ input[type="checkbox"]:checked::before {
     justify-content: space-around;
 }
 /* ========== RESPONSIVIDAD ========== */
-
-/* Para pantallas grandes */
-@media (max-width: 1600px) {
-    #table_muestras {
-        font-size: 0.85em;
-    }
-
-    #table_muestras th, 
-    #table_muestras td {
-        padding: 6px 3px;
-    }
-}
-
-/* Para pantallas medianas */
-@media (max-width: 1400px) {
-    .container {
-        padding: 15px;
-    }
-
-    #table_muestras {
-        font-size: 0.8em;
-    }
-}
-
-/* Para pantallas pequeñas (tablets, móviles) */
-@media (max-width: 1200px) {
-    .table-responsive {
-        overflow-x: auto; /* Permitir scroll horizontal */
-    }
-
-    #table_muestras {
-        table-layout: auto; /* Dejar que las celdas se ajusten automáticamente */
-        width: max-content; /* El ancho de la tabla será lo mínimo necesario */
-    }
-
-    #table_muestras th, 
-    #table_muestras td {
-        white-space: nowrap; /* Evitar saltos de línea innecesarios */
-    }
-
-    /* Reduces el tamaño de las celdas y ajusta la tabla en pantallas pequeñas */
-    #table_muestras th:nth-child(9), 
-    #table_muestras td:nth-child(9) {
-        width: auto; /* Elimina el ancho fijo de la columna */
-    }
-
-    /* Si deseas ajustar aún más las celdas de observaciones */
-    table td.observaciones {
-        width: auto;
-    }
-}
 .modal-body::-webkit-scrollbar {
     width: 8px;
 }

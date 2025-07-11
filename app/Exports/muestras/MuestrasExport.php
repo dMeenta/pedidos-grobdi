@@ -30,7 +30,7 @@ class MuestrasExport implements FromView, WithStyles
         public function styles(Worksheet $sheet)
     {
         // Estilo para los encabezados
-        $sheet->getStyle('A1:E1')->applyFromArray([
+        $sheet->getStyle('A1:F1')->applyFromArray([
             'font' => [
                 'bold' => true,
                 'color' => ['rgb' => 'FFFFFF']
@@ -53,7 +53,7 @@ class MuestrasExport implements FromView, WithStyles
         ]);
 
         // Estilo para las celdas de datos
-        $sheet->getStyle('A2:E'.($sheet->getHighestRow()))->applyFromArray([
+        $sheet->getStyle('A2:F'.($sheet->getHighestRow()))->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => Border::BORDER_THIN,
@@ -73,6 +73,7 @@ class MuestrasExport implements FromView, WithStyles
         $sheet->getColumnDimension('C')->setWidth(15);
         $sheet->getColumnDimension('D')->setWidth(20);
         $sheet->getColumnDimension('E')->setWidth(20);
+        $sheet->getColumnDimension('F')->setWidth(20);
 
         // Ajustar el alto de las filas para que se ajuste al contenido
         foreach ($sheet->getRowIterator() as $row) {
