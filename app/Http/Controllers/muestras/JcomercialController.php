@@ -26,6 +26,7 @@ class JcomercialController extends Controller
                 'Clasificación',
                 'Tipo de Muestra',
                 'Día de Entrega',
+                'Doctor',
                 'Creado por'
             ]),
             'muestras_jcomercial.xlsx'

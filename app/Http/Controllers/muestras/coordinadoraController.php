@@ -34,6 +34,7 @@ class coordinadoraController extends Controller
             'Clasificación',
             'Tipo de Muestra',
             'Día de Entrega',
+            'Doctor',
             'Creado por'
         ];
         

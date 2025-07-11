@@ -5,6 +5,7 @@
             <th>Clasificación</th>
             <th>Tipo de Muestra</th>
             <th>Día y Hora de Entrega</th>
+            <th>Doctor</th>
             <th>Creado por</th>
         </tr>
     </thead>
@@ -19,6 +20,7 @@
                         {{ \Carbon\Carbon::parse($muestra->fecha_hora_entrega)->format('d/m/Y H:i') }}
                     @endif
                 </td>
+                <td>{{ $muestra->name_doctor }}</td>
                 <td>{{ $muestra->creator->name ?? $muestra->created_by }}</td>
             </tr>
         @endforeach
