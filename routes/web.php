@@ -43,6 +43,9 @@ use App\Http\Controllers\softlyn\TipoCambioController;
 use App\Http\Controllers\softlyn\MerchandiseController;
 use App\Http\Controllers\softlyn\CompraController;
 use App\Http\Controllers\softlyn\UtilController;
+use App\Models\Doctor;
+use Illuminate\Support\Facades\Http;
+
 // use App\Http\Middleware\RoleMiddleware;
 
 // use Auth;
@@ -91,7 +94,6 @@ Route::get('sincronizarpedidos',[CargarPedidosController::class,'sincronizarDoct
     ->name('pedidos.sincronizar')
     ->middleware(['checkRole:admin,jefe-operaciones']);
 
-
 Route::resource('pedidoscontabilidad', PedidosContaController::class)->middleware(['checkRole:contabilidad,admin']);
 Route::get('/pedidoscontabilidad/downloadExcel/{fechainicio}/{fechafin}', PedidosContaController::class .'@downloadExcel')
     ->name('pedidoscontabilidad.downloadExcel')
@@ -127,6 +129,25 @@ Route::middleware(['checkRole:visitador,admin'])->group(function () {
     //=============================Muestras - Modulo
     // Ruta principal que muestra todas las muestras
     Route::resource('muestras', MuestrasController::class);
+    Route::get('misrutas',[EnrutamientoController::class,'MisRutas'])->name('enrutamientolista.misrutas');
+    Route::get('/rutasdoctor/{id}', function($id) {
+        $doctor = Doctor::with(['distrito', 'especialidad', 'centroSalud'])->find($id);
+
+        if (!$doctor) {
+            return response()->json(['error' => 'Doctor no encontrado'], 404);
+        }
+        return response()->json([
+            'id' => $doctor->id,
+            'name' => $doctor->name,
+            'CMP' => $doctor->CMP,
+            'phone' => $doctor->phone,
+            'tipo_medico' => $doctor->tipo_medico,
+            'categoria_medico' => $doctor->categoria_medico,
+            'distrito' => $doctor->distrito->name ?? null,
+            'especialidad' => $doctor->especialidad->name ?? null,
+            'centro_salud' => $doctor->centroSalud->name ?? null,
+        ]);
+    });
 });
 
 

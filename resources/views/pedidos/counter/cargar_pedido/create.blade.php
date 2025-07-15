@@ -33,27 +33,32 @@
                     accept=".xlsx, .csv" 
                     id="pedidos_excel"
                     required
+                    onchange="this.form.submit()"
                 >
                 @error('archivo')
                     <p style="color: red;">{{ $archivo }}</p>
                 @enderror
             </div>
-            <button type="submit" class="btn btn-success"><i class="fas fa-file-excel"></i> Importar Pedidos Excel</button>
         </form>
-        <br>
         <br>
         <form action="{{ route('cargarpedidos.excelarticulos') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="mb-5">
                 <label for="detail_excel" class="form-label"><strong>Cargar Pedidos con articulos:</strong></label>
-                <input type="file" name="archivo" accept=".xlsx, .csv" class="form-control" id="detail_excel" required>
+                <input 
+                    type="file" 
+                    name="archivo" 
+                    accept=".xlsx, .csv" 
+                    class="form-control" 
+                    id="detail_excel" 
+                    required
+                    onchange="this.form.submit()"
+                >
                 @error('archivo')
                     <p style="color: red;">{{ $archivo }}</p>
                 @enderror
             </div>
-            <button type="submit" class="btn btn-success"><i class="fas fa-file-excel"></i> Importar pedidos articulos Excel</button>
         </form>
-        <br>
         <br>
         <div class="mb-5">
             <label class="form-label">Sincronizar Doctores - Pedidos:</label>

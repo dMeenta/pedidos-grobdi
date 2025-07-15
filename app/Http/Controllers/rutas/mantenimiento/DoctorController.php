@@ -27,7 +27,6 @@ class DoctorController extends Controller
         $search = $request->input('search');  
         if ($search) {
             $doctores = Doctor::where('name', 'like', '%' . $search . '%')
-                                ->orWhere('lastname', 'like', '%' . $search . '%')
                                 ->orderBy($ordenarPor, $direccion)->paginate(20);  // Paginación, 20 por página
         } else {
             $doctores = Doctor::orderBy($ordenarPor, $direccion)->paginate(20);
@@ -56,7 +55,6 @@ class DoctorController extends Controller
         $diasSeleccionados = $request->input('dias');
         $doctor = new Doctor();
         $doctor->name = $request->name;
-        $doctor->lastname = $request->lastname;
         $doctor->phone = $request->phone;
         $doctor->CMP = $request->cmp;
         $doctor->distrito_id = $request->distrito_id;
@@ -115,7 +113,6 @@ class DoctorController extends Controller
     {
         $doctor = Doctor::find($id);
         $doctor->name = $request->name;
-        $doctor->lastname = $request->lastname;
         $doctor->phone = $request->phone;
         $doctor->CMP = $request->cmp;
         $doctor->distrito_id = $request->distrito_id;

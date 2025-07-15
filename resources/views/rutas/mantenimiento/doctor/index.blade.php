@@ -38,14 +38,6 @@
                                 @endif
                             </a>
                         </th>
-                        <th>
-                            <a href="{{ route('doctor.index', ['sort_by' => 'lastname', 'direction' => $ordenarPor == 'lastname' && $direccion == 'asc' ? 'desc' : 'asc']) }}">
-                                Apellidos 
-                                @if ($ordenarPor == 'lastname')
-                                    {{ $direccion == 'asc' ? '↑' : '↓' }}
-                                @endif
-                            </a>
-                        </th>
                         <th>CMP</th>
                         <th>Telefono</th>
                         <th>Especialidad</th>
@@ -61,7 +53,6 @@
                 @forelse ($doctores as $doctor)
                     <tr class={{ $doctor->state == 0 ? 'table-danger': ''}}>
                         <td>{{ $doctor->name }}</td>
-                        <td>{{ $doctor->lastname }}</td>
                         <td>{{ $doctor->CMP }}</td>
                         <td>{{ $doctor->phone }}</td>
                         <td>{{ $doctor->especialidad->name }}</td>

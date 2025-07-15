@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\counter\CargarPedidosUpdateRequest;
 use App\Imports\DetailPedidosImport;
 use App\Imports\PedidosImport;
+use App\Models\Doctor;
 use App\Models\Pedidos;
 use App\Models\Zone;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -75,8 +77,60 @@ class CargarPedidosController extends Controller
         Excel::import($pedidodetailImport, $file);
         return redirect()->back()->with($pedidodetailImport->key, $pedidodetailImport->data);
     }
+    private function normalizarYOrdenarPalabras(string $nombre): Collection
+    {
+        // Asegura que esté bien codificado a UTF-8
+        if (!mb_check_encoding($nombre, 'UTF-8')) {
+            $nombre = mb_convert_encoding($nombre, 'UTF-8', 'ISO-8859-1');
+        }
+
+        // Transliterar a ASCII, eliminando tildes, Ñ -> N, etc.
+        $nombre = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $nombre);
+
+        if ($nombre === false) {
+            // Si falla la conversión, regresamos colección vacía o lanza excepción según tu lógica
+            return collect();
+        }
+
+        $nombre = strtolower($nombre); // a minúsculas
+        $nombre = preg_replace('/[^\p{L}\s]/u', '', $nombre); // elimina puntuación
+        $nombre = preg_replace('/\s+/', ' ', $nombre); // espacios múltiples a uno
+
+        return collect(explode(' ', trim($nombre)))
+            ->filter()
+            ->sort()
+            ->values();
+    }
     public function sincronizarDoctoresPedidos(){
-        return redirect()->back()->with('success','Pedidos sincronizados con doctores');
+        $pedidos = Pedidos::whereNull('doctor_id')->get();
+        $doctores = Doctor::all();
+        $contador = 0;
+        // foreach ($doctores as $doctor) {
+        //     $palabrasDoctor = $this->normalizarYOrdenarPalabras($doctor->name);
+        //     ++$contador;
+        //     if($contador == 134){
+        //         dd($doctor);
+        //     }
+        // }
+        foreach ($pedidos as $pedido) {
+            $palabrasPedido = $this->normalizarYOrdenarPalabras($pedido->doctorName);
+
+            foreach ($doctores as $doctor) {
+                $palabrasDoctor = $this->normalizarYOrdenarPalabras($doctor->name);
+
+                if ($palabrasPedido->count() === $palabrasDoctor->count() &&
+                    $palabrasPedido->values()->all() === $palabrasDoctor->values()->all()) {
+                    $pedido->doctor_id = $doctor->id;
+                    $pedido->save();
+                    // Opcional: Log o mensaje
+                    logger("Pedido #{$pedido->id} asignado a Doctor #{$doctor->id}");
+                    ++$contador;
+                    break;
+                }
+            }
+        }
+
+        return redirect()->back()->with('success','Pedidos sincronizados con doctores, cantidad: '.$contador.' de pedidos.');
     }
     public function show($pedido){
         $pedido = Pedidos::find($pedido);

@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Dashboard')
+@section('title', 'Centro de salud')
 
 @section('content_header')
     <!-- <h1>Pedidos</h1> -->
@@ -32,16 +32,17 @@
                     <div class="form-text text-danger">{{ $message }}</div>
                 @enderror
             </div>
-            <div class="col-xs-6 col-sm-6 col-md-6">
-                <label for="lastname" class="form-label"><strong>Apellidos:</strong></label>
+            <div class="col-xs-2 col-sm-2 col-md-2">
+                <label for="cmp" class="form-label"><strong>CMP:</strong></label>
                 <input 
-                    type="text" 
-                    name="lastname" 
-                    value=""
-                    class="form-control @error('lastname') is-invalid @enderror" 
-                    id="lastname" 
-                    placeholder="Ingresar apellidos del doctor">
-                @error('lastname')
+                    type="cmp" 
+                    name="cmp" 
+                    value="{{ old('cmp') }}"
+                    class="form-control @error('cmp') is-invalid @enderror" 
+                    id="cmp" 
+                    placeholder="Ingresar el nro de CMP del doctor"
+                    >
+                @error('cmp')
                     <div class="form-text text-danger">{{ $message }}</div>
                 @enderror
             </div>
@@ -55,20 +56,6 @@
                     id="phone" 
                     placeholder="Ingresar el número de telefono del doctor">
                 @error('phone')
-                    <div class="form-text text-danger">{{ $message }}</div>
-                @enderror
-            </div>
-            <div class="col-xs-4 col-sm-4 col-md-4">
-                <label for="cmp" class="form-label"><strong>CMP:</strong></label>
-                <input 
-                    type="cmp" 
-                    name="cmp" 
-                    value="{{ old('cmp') }}"
-                    class="form-control @error('cmp') is-invalid @enderror" 
-                    id="cmp" 
-                    placeholder="Ingresar el nro de CMP del dosctor"
-                    >
-                @error('cmp')
                     <div class="form-text text-danger">{{ $message }}</div>
                 @enderror
             </div>

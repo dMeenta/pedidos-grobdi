@@ -143,6 +143,22 @@ class EnrutamientoController extends Controller
         $visita_doctor->fecha = $request->fecha;
         $visita_doctor->estado_visita_id = $visita_doctor->estado_visita_id == 3 ? 5 :2;
         $visita_doctor->save();
-        return back()->with('success','Pedido modificado exitosamente');
+        return back()->with('success','Doctor Asignado exitosamente');
+    }
+    public function MisRutas(Request $request){
+        $visitas = VisitaDoctor::with('doctor')->get();
+
+        $eventos = $visitas->map(function ($visita) {
+            return [
+                'id' => $visita->doctor->id,
+                'title' => $visita->doctor->name,
+                'start' => $visita->fecha,
+            ];
+        });
+
+        $doctoresConVisita = $visitas->pluck('doctor_id');
+        $doctoresSinFecha = Doctor::whereNotIn('id', $doctoresConVisita)->get();
+
+        return view('rutas.visita.index', compact('eventos', 'doctoresSinFecha'));
     }
 }
