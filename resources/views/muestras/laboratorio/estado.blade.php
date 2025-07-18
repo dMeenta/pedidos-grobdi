@@ -9,10 +9,9 @@
 @section('content')    
     <div class="container">
         @include('messages')
-
-
-        <h1 class="flex-grow-1 text-center mb-3"> Estado de las Muestras<br></h1>
-
+        <h1 class="text-center mb-2">
+            {{ request('estado') == 'Pendiente' ? 'Muestras Pendientes' : 'Muestras Elaboradas' }}
+        </h1>
         <div class="row mb-2 align-items-center">
             <div class="col-md-6">
                 <form id="exportExcelFormLab" method="POST" action="{{ route('muestras.exportarExcelLAB') }}" style="display:inline;">
