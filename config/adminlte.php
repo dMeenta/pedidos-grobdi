@@ -197,7 +197,7 @@
         'classes_content_wrapper' => '',
         'classes_content_header' => '',
         'classes_content' => '',
-        'classes_sidebar' => 'sidebar-dark-primary elevation-4',
+        'classes_sidebar' => 'sidebar-dark-danger elevation-4',
         'classes_sidebar_nav' => '',
         'classes_topnav' => 'navbar-white navbar-light',
         'classes_topnav_nav' => 'navbar-expand',
@@ -333,7 +333,7 @@
             //sidebar Counter
             [
                 'header' => 'Counter',
-                'can' => 'counter'
+                'can' => ['counter', 'administracion']
             ],
             [
                 'text' => 'Pedidos',
@@ -343,19 +343,19 @@
                         'text' => 'Cargar pedidos',
                         'url' => 'cargarpedidos',
                         'icon' => 'fas fa-fw fa-upload',
-                        'can' => 'counter',
+                        'can' => ['counter', 'administracion']
                     ],
                     [
                         'text' => 'Historial pedidos',
                         'url' => 'historialpedidos',
                         'icon' => 'fas fa-fw fa-history',
-                        'can' => 'counter-jefe_operaciones'
+                        'can' => ['jefe_operaciones','counter', 'administracion']
                     ],
                     [
                         'text' => 'Asignar Pedidos',
                         'url' => 'asignarpedidos',
                         'icon' => 'fas fa-fw fa-user',
-                        'can' => 'counter'
+                        'can' => ['counter', 'administracion']
                     ],
                 ],
             ],

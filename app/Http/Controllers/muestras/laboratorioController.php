@@ -16,13 +16,21 @@ use App\Events\muestras\MuestraActualizada;
 
 class laboratorioController extends Controller
 {
-    public function exportarExcel(Request $request)
+        public function exportarExcel(Request $request)
     {
-        $fechaActual = Carbon::now();
-        $muestras = Muestras::with(['clasificacion', 'creator'])
-        ->whereRaw('? between fecha_hora_entrega and DATE_ADD(fecha_hora_entrega, INTERVAL 7 DAY)', [$fechaActual])
-        ->orderBy('created_at', 'desc')
-        ->get();
+        $fechaActual = Carbon::now()->startOfDay(); // hoy a las 00:00:00
+        $fechaLimite = Carbon::now()->addDays(7)->endOfDay(); // 7 días después a las 23:59:59
+
+        $estado = $request->estado;
+
+        $query = Muestras::with(['clasificacion', 'creator'])
+            ->whereBetween('fecha_hora_entrega', [$fechaActual, $fechaLimite]);
+
+        if ($estado) {
+            $query->where('estado', $estado);
+        }
+
+        $muestras = $query->orderBy('created_at', 'desc')->get();
         $headers = [
             '#',
             'Nombre de la Muestra',

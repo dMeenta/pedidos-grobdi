@@ -53,7 +53,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 
 //COUNTER
-Route::middleware(['checkRole:counter,admin'])->group(function () {
+Route::middleware(['checkRole:counter,admin,Administracion'])->group(function () {
     
     // Route::resource('cargarpedidos', PedidosController::class);
     Route::resource('cargarpedidos', CargarPedidosController::class);
@@ -71,7 +71,7 @@ Route::middleware(['checkRole:counter,admin'])->group(function () {
 //counter - jefe de operaciones -laboratorio
 Route::get('historialpedidos', HistorialPedidosController::class.'@index')
 ->name('historialpedidos.index')
-->middleware(['checkRole:counter,admin,jefe-operaciones,laboratorio']);
+->middleware(['checkRole:counter,admin,jefe-operaciones,laboratorio,Administracion']);
 Route::get('historialpedidos/{historialpedido}', HistorialPedidosController::class.'@show')
 ->name('historialpedidos.show')
 ->middleware(['checkRole:counter,admin,jefe-operaciones,laboratorio']);
