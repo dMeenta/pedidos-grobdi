@@ -16,13 +16,21 @@ use App\Events\muestras\MuestraActualizada;
 
 class laboratorioController extends Controller
 {
-    public function exportarExcel(Request $request)
+        public function exportarExcel(Request $request)
     {
-        $fechaActual = Carbon::now();
-        $muestras = Muestras::with(['clasificacion', 'creator'])
-        ->whereRaw('? between fecha_hora_entrega and DATE_ADD(fecha_hora_entrega, INTERVAL 7 DAY)', [$fechaActual])
-        ->orderBy('created_at', 'desc')
-        ->get();
+        $fechaActual = Carbon::now()->startOfDay(); // hoy a las 00:00:00
+        $fechaLimite = Carbon::now()->addDays(7)->endOfDay(); // 7 días después a las 23:59:59
+
+        $estado = $request->estado;
+
+        $query = Muestras::with(['clasificacion', 'creator'])
+            ->whereBetween('fecha_hora_entrega', [$fechaActual, $fechaLimite]);
+
+        if ($estado) {
+            $query->where('estado', $estado);
+        }
+
+        $muestras = $query->orderBy('created_at', 'desc')->get();
         $headers = [
             '#',
             'Nombre de la Muestra',
@@ -51,24 +59,22 @@ class laboratorioController extends Controller
     }
             public function estado()
     {
-        $fechaActual = Carbon::now();
-        
-        // Obtener el estado de la solicitud (Pendiente o Elaborado)
+        $fechaActual = Carbon::now()->startOfDay(); // hoy a las 00:00:00
+        $fechaLimite = Carbon::now()->addDays(7)->endOfDay(); // 7 días después a las 23:59:59
+
         $estado = request()->estado;
 
-        // Filtrar las muestras según el estado (Pendiente o Elaborado)
-        $query = Muestras::whereRaw('? between fecha_hora_entrega and DATE_ADD(fecha_hora_entrega, INTERVAL 7 DAY)', [$fechaActual]);
+        $query = Muestras::whereBetween('fecha_hora_entrega', [$fechaActual, $fechaLimite]);
 
         if ($estado) {
-            $query->where('estado', $estado);  // Filtra según el estado seleccionado
+            $query->where('estado', $estado);
         }
 
-        // Obtener las muestras paginadas
         $muestras = $query->orderBy('created_at', 'desc')->paginate(10);
 
-        // Devolver la vista con las muestras
         return view('muestras.laboratorio.estado', compact('muestras'));
     }
+
     // Método para actualizar el estado
     public function actualizarEstado(Request $request, $id)
     {
