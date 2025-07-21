@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('prioridad', function (Blueprint $table) {
+        Schema::create('categoria_doctor', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->tinyInteger('prioridad');
+            $table->decimal('monto',8,2)->nullable();
         });
     }
 
@@ -23,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('prioridad');
+        Schema::dropIfExists('categoria_doctor');
     }
 };

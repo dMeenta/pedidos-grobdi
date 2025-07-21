@@ -16,7 +16,7 @@ class DaySeeder extends Seeder
         $days = [
             ['name'=>'lunes'],
             ['name'=>'martes'],
-            ['name'=>'miercoles'],
+            ['name'=>'miércoles'],
             ['name'=>'jueves'],
             ['name'=>'viernes']
             ];

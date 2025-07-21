@@ -22,6 +22,7 @@ return new class extends Migration
             $table->foreignId('distrito_id')->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();
             $table->foreignId('especialidad_id')->constrained('especialidad')->cascadeOnDelete();
             $table->foreignId('centrosalud_id')->constrained('centrosalud')->cascadeOnDelete();
+            $table->foreignId('categoriadoctor_id')->constrained('categoria_doctor')->cascadeOnDelete();
             $table->string('categoria_medico');
             $table->string('tipo_medico');
             $table->boolean('asignado_consultorio');

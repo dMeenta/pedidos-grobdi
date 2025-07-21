@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Doctor;
 use App\Models\Enrutamiento;
 use App\Models\EnrutamientoLista;
+use App\Models\EstadoVisita;
 use App\Models\Lista;
 use App\Models\VisitaDoctor;
 use App\Models\Zone;
@@ -65,73 +66,81 @@ class EnrutamientoController extends Controller
         }
         return view('rutas.enrutamiento.enrutamientolista', compact('listas','enrutamiento','fechas_seleccionadas'));
     }
-    public function Enrutamientolistastore(Request $request){
+    public function Enrutamientolistastore(Request $request)
+    {
         $request->validate([
             'fechas' => 'required',
-            'lista_id' => 'required'
+            'lista_id' => 'required',
         ]);
-        
-        $lista = Lista::find($request->lista_id);
-        $arrayDoctor = [];
-        foreach($lista->distritos as $distrito){
-            $doctores = Doctor::where('distrito_id',$distrito->id)->get();
-            foreach ($doctores as $doctor) {
-                if($doctor->days){
-                    $turnos = [];
-                    foreach($doctor->days as $dias){
-                        $dia = $dias->name;
-                        $turno = $dias->pivot->turno;
-                        array_push($turnos,['dia'=>$dia,'turno'=>$turno]);
-                    }
-                }
-                array_push($arrayDoctor,['id'=>$doctor->id,'turno'=>$turnos]);
-            }
-        }
 
-        $rango = $request->input('fechas');
-        $fechas = explode(" to ", $rango);
-
-
+        $lista = Lista::findOrFail($request->lista_id);
+        $fechas = explode(" to ", $request->input('fechas'));
+        $startDate = Carbon::parse($fechas[0]);
+        $endDate = Carbon::parse($fechas[1]);
+        $period = CarbonPeriod::create($startDate, $endDate);
+        // Crear registro de EnrutamientoLista
         $enrutamiento_lista = new EnrutamientoLista();
-        $enrutamiento_lista->fecha_inicio = $fechas[0];
-        $enrutamiento_lista->fecha_fin = $fechas[1];
+        $enrutamiento_lista->fecha_inicio = $startDate->toDateString();
+        $enrutamiento_lista->fecha_fin = $endDate->toDateString();
         $enrutamiento_lista->lista_id = $request->lista_id;
         $enrutamiento_lista->enrutamiento_id = $request->enrutamiento_id;
         $enrutamiento_lista->save();
 
-        $startDate = Carbon::parse($fechas[0]);
-        $endDate = Carbon::parse($fechas[1]);
-        $period = CarbonPeriod::create($startDate, $endDate);
+        // Obtener todos los doctores asociados a los distritos
+        foreach ($lista->distritos as $distrito) {
+            $doctores = Doctor::where('distrito_id', $distrito->id)->get();
 
-        foreach ($arrayDoctor as $doc) {
-            $visita_doctor = new VisitaDoctor();
-            $visita_doctor->doctor_id = $doc['id'];
-            $visita_doctor->created_by = Auth::user()->id;
-            $visita_doctor->updated_by = Auth::user()->id;
-            $visita_doctor->enrutamientolista_id = $enrutamiento_lista->id;
-            if($doc['turno']){
-                foreach ($period as $date) {
-                    foreach($doc['turno'] as $turno){
-                        $nombredia = $date->translatedFormat('l');
-                        $fecha_visita = $date->translatedFormat('Y-m-d');
-                        if($nombredia == $turno['dia']){
-                            $visita_doctor->fecha = $fecha_visita;
-                            $visita_doctor->estado_visita_id = 2;
-                            break;
+            foreach ($doctores as $doctor) {
+                $turnos = [];
+
+                // Obtener días y turnos
+                if ($doctor->days) {
+                    foreach ($doctor->days as $dia) {
+                        $turnos[] = [
+                            'dia' => $dia->name,
+                            'turno' => $dia->pivot->turno,
+                        ];
+                    }
+                }
+
+                // Crear registro de VisitaDoctor
+                $visita_doctor = new VisitaDoctor();
+                $visita_doctor->doctor_id = $doctor->id;
+                $visita_doctor->created_by = Auth::id();
+                $visita_doctor->updated_by = Auth::id();
+                $visita_doctor->enrutamientolista_id = $enrutamiento_lista->id;
+
+                $fecha_asignada = false;
+
+                // Buscar la primera fecha que coincida con un día de turno
+                if (!empty($turnos)) {
+                    $contador =0;
+                    foreach ($period as $date) {
+                        $nombre_dia = $date->translatedFormat('l');
+                        ++$contador;
+                        foreach ($turnos as $turno) {
+                            if ($nombre_dia === $turno['dia']) {
+                                $visita_doctor->fecha = $date->toDateString();
+                                $visita_doctor->estado_visita_id = 2; // Asignado correctamente
+                                $fecha_asignada = true;
+                                break 2;
+                            }
                         }
                     }
-                    
                 }
-            }else{
-                $visita_doctor->estado_visita_id = 1;
-            }
-            $visita_doctor->save();
-        }
-        
 
-        return redirect()->route('enrutamiento.agregarlista',$request->enrutamiento_id);
-        // dd($request->all());
+                // Si no se asignó ninguna fecha
+                if (!$fecha_asignada) {
+                    $visita_doctor->estado_visita_id = 1; // Estado por defecto (sin turno)
+                }
+
+                $visita_doctor->save();
+            }
+        }
+
+        return redirect()->route('enrutamiento.agregarlista', $request->enrutamiento_id);
     }
+
     public function DoctoresLista(Request $request,$id){
         $doctores = VisitaDoctor::where('enrutamientolista_id',$id)->get();
         $enruta = VisitaDoctor::where('enrutamientolista_id',$id)->first();
@@ -160,5 +169,36 @@ class EnrutamientoController extends Controller
         $doctoresSinFecha = Doctor::whereNotIn('id', $doctoresConVisita)->get();
 
         return view('rutas.visita.index', compact('eventos', 'doctoresSinFecha'));
+    }
+    public function DetalleDoctorRutas(Request $request,$id){
+        $doctor = Doctor::with(['distrito', 'especialidad', 'centroSalud'])->find($id);
+        $visita = VisitaDoctor::where('doctor_id', $id)->first();
+        $estados = EstadoVisita::whereNotIn('id',[1,2])->get();
+        if (!$doctor) {
+            return response()->json(['error' => 'Doctor no encontrado'], 404);
+        }
+        return response()->json([
+            'doctor' => $doctor,
+            'visita' => $visita,
+            'estados' => $estados
+        ]);
+    }
+    public function GuardarVisita(Request $request){
+        $data = $request->validate([
+            'doctor_id' => 'required|exists:doctors,id',
+            'estado_visita_id' => 'required|exists:estado_visita,id',
+            'observaciones' => 'nullable|string',
+        ]);
+
+        $visita = VisitaDoctor::updateOrCreate(
+            ['doctor_id' => $data['doctor_id']],
+            [
+                'estado_visita_id' => $data['estado_visita_id'],
+                'observaciones' => $data['observaciones'],
+                'fecha_visita' => now(), // opcional si quieres setear la fecha actual
+            ]
+        );
+
+        return response()->json(['success' => true, 'visita_id' => $visita->id]);
     }
 }

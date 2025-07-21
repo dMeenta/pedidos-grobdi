@@ -24,8 +24,12 @@ class ListaController extends Controller
      */
     public function create()
     {
-        $zonas = Zone::all();
-        $distritos = Distrito::select('id','name')->where('provincia_id',128)->orWhere('provincia_id',67)->get();
+        $zonas = Zone::whereNotIn('id',[1,5])->get();
+        $distritos = Distrito::select('id','name')
+                        ->where('provincia_id',128)
+                        ->orWhere('provincia_id',67)
+                        ->orderBy('name')->get();
+                        
         return view('rutas.lista.create',compact('zonas','distritos'));
     }
 
@@ -61,8 +65,8 @@ class ListaController extends Controller
     public function edit(string $id)
     {
         $lista = Lista::find($id);
-        $zonas = Zone::all();
-        $distritos = Distrito::select('id','name')->where('provincia_id',128)->orWhere('provincia_id',67)->get();
+        $zonas = Zone::whereNotIn('id',[1,5])->get();
+        $distritos = Distrito::select('id','name')->where('provincia_id',128)->orWhere('provincia_id',67)->orderBy('name')->get();
 
         return view('rutas.lista.edit',compact('lista','distritos','zonas'));
     }

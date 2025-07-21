@@ -98,6 +98,7 @@ class DoctoresImport implements ToCollection, WithStartRow
                     $doctor->tipo_medico = $tipomedico;
                     $doctor->asignado_consultorio = 0;
                     $doctor->user_id = Auth::user()->id;
+                    $doctor->categoriadoctor_id = 5;
                      $doctor->save();
                      $key = "success";
                     ++$contador;

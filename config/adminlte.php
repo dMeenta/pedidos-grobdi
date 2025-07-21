@@ -527,6 +527,12 @@
                         'can' => 'supervisor',
                     ],
                     [
+                        'text' => 'Categorias',
+                        'url' => 'categoriadoctor',
+                        'icon' => 'fas fa-fw fa-medkit',
+                        'can' => 'supervisor',
+                    ],
+                    [
                         'text' => 'doctor',
                         'url' => 'doctor',
                         'icon' => 'fas fa-fw fa-user-md',

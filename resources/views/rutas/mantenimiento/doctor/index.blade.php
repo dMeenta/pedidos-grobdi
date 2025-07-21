@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Dashboard')
+@section('title', 'Doctores')
 
 @section('content_header')
     <h1>Doctores</h1>
@@ -39,12 +39,12 @@
                             </a>
                         </th>
                         <th>CMP</th>
+                        <th>Cat.</th>
                         <th>Telefono</th>
                         <th>Especialidad</th>
                         <th>Centro de salud</th>
                         <th>Distrito</th>
                         <th>Tipo Medico</th>
-                        <th>Usuario</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -54,21 +54,21 @@
                     <tr class={{ $doctor->state == 0 ? 'table-danger': ''}}>
                         <td>{{ $doctor->name }}</td>
                         <td>{{ $doctor->CMP }}</td>
+                        <td>{{ $doctor->categoriadoctor->name }}</td>
                         <td>{{ $doctor->phone }}</td>
                         <td>{{ $doctor->especialidad->name }}</td>
                         <td>{{ $doctor->centrosalud->name }}</td>
                         <td>{{ $doctor->distrito? $doctor->distrito->name:"" }}</td>
                         <td>{{ $doctor->tipo_medico }}</td>
-                        <td>{{ $doctor->user->name }}</td>
                         <td>
                             <form action="{{ route('doctor.destroy',$doctor->id) }}" method="POST">
-                                <a class="btn btn-primary btn-sm" href="{{ route('doctor.edit',$doctor->id) }}"><i class="fa-solid fa-pen-to-square"></i> Actualizar</a>
+                                <a class="btn btn-primary btn-xs" href="{{ route('doctor.edit',$doctor->id) }}"><i class="fa-solid fa-pen-to-square"></i> Actualizar</a>
                                 @csrf
                                 @method('DELETE')
                                 @if($doctor->state == 1)
-                                    <button type="submit" class="btn btn-danger btn-sm">Inhabilitar</button>
+                                    <button type="submit" class="btn btn-danger btn-xs">Inhabilitar</button>
                                 @else
-                                    <button type="submit" class="btn btn-success btn-sm">Habilitar</button>
+                                    <button type="submit" class="btn btn-success btn-xs">Habilitar</button>
                                 @endif
                             </form>
                         </td>

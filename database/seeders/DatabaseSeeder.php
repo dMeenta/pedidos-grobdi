@@ -161,6 +161,7 @@ class DatabaseSeeder extends Seeder
         $this->call(ConfiguracionesSeeder::class);
         $this->call(TipoMonedaSeeder::class);
         $this->call(VolumenesPorClasificacionSeeder::class);
+        $this->call(CategoriaDoctorSeeder::class);
 
 
     }

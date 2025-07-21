@@ -17,7 +17,7 @@ class Doctor extends Model
     ];
     public function days()
     {
-        return $this->belongsToMany(day::class, 'doctor_day')
+        return $this->belongsToMany(Day::class, 'doctor_day')
                     ->withPivot('turno');
     }
     public function distrito()
@@ -27,6 +27,10 @@ class Doctor extends Model
     public function especialidad()
     {
         return $this->belongsTo(Especialidad::class);
+    }
+    public function categoriadoctor()
+    {
+        return $this->belongsTo(CategoriaDoctor::class);
     }
     public function centrosalud()
     {

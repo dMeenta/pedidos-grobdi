@@ -36,6 +36,7 @@ use App\Http\Controllers\cotizador\ProductoFinalController;
 use App\Http\Controllers\cotizador\BaseController;
 use App\Http\Controllers\cotizador\InsumoEmpaqueController;
 use App\Http\Controllers\PedidosController;
+use App\Http\Controllers\rutas\mantenimiento\CategoriaDoctorController;
 //softlyn modulos
 use App\Http\Controllers\softlyn\VolumenController;
 use App\Http\Controllers\softlyn\ProveedorController;
@@ -43,8 +44,6 @@ use App\Http\Controllers\softlyn\TipoCambioController;
 use App\Http\Controllers\softlyn\MerchandiseController;
 use App\Http\Controllers\softlyn\CompraController;
 use App\Http\Controllers\softlyn\UtilController;
-use App\Models\Doctor;
-use Illuminate\Support\Facades\Http;
 
 // use App\Http\Middleware\RoleMiddleware;
 
@@ -130,24 +129,8 @@ Route::middleware(['checkRole:visitador,admin'])->group(function () {
     // Ruta principal que muestra todas las muestras
     Route::resource('muestras', MuestrasController::class);
     Route::get('misrutas',[EnrutamientoController::class,'MisRutas'])->name('enrutamientolista.misrutas');
-    Route::get('/rutasdoctor/{id}', function($id) {
-        $doctor = Doctor::with(['distrito', 'especialidad', 'centroSalud'])->find($id);
-
-        if (!$doctor) {
-            return response()->json(['error' => 'Doctor no encontrado'], 404);
-        }
-        return response()->json([
-            'id' => $doctor->id,
-            'name' => $doctor->name,
-            'CMP' => $doctor->CMP,
-            'phone' => $doctor->phone,
-            'tipo_medico' => $doctor->tipo_medico,
-            'categoria_medico' => $doctor->categoria_medico,
-            'distrito' => $doctor->distrito->name ?? null,
-            'especialidad' => $doctor->especialidad->name ?? null,
-            'centro_salud' => $doctor->centroSalud->name ?? null,
-        ]);
-    });
+    Route::get('/rutasdoctor/{id}',[EnrutamientoController::class,'DetalleDoctorRutas']);
+    Route::post('guardar-visita',[EnrutamientoController::class,'GuardarVisita'])->name('rutas.guardarvisita');
 });
 
 
@@ -215,13 +198,15 @@ Route::middleware(['checkRole:coordinador-lineas,admin'])->group(function () {
     Route::put('/Coordinadora/{id}/actualizar', [coordinadoraController::class, 'updateCO'])->name('muestras.updateCO');
     Route::delete('/Coordinadora/elimi/{id}', [coordinadoraController::class, 'destroyCO'])->name('muestras.destroyCO');
 });
-
+//JEFE COMERCIAL
+Route::middleware(['checkRole:jefe-comercial,admin'])->group(function () {
+    Route::resource('categoriadoctor',CategoriaDoctorController::class);
+    Route::get('/jefe-comercial', [JcomercialController::class, 'confirmar'])->name('muestras.confirmar');
+    Route::get('/jefe-comercial/{id}', [JcomercialController::class, 'showJC'])->name('muestras.showJC');
+    Route::get('/ventascliente',[PedidosController::class,'listPedCliente'])->name('pedidosxcliente.listar');
+});
+//Jcomercial - coordonadordelineas
 Route::put('/muestras/{id}/actualizar-aprobacion', [coordinadoraController::class, 'actualizarAprobacion'])->name('muestras.actualizarAprobacion')->middleware(['checkRole:jefe-comercial,coordinador-lineas,admin']);
-
-//Jcomercial
-Route::get('/jefe-comercial', [JcomercialController::class, 'confirmar'])->name('muestras.confirmar')->middleware(['checkRole:jefe-comercial,admin']);
-Route::get('/jefe-comercial/{id}', [JcomercialController::class, 'showJC'])->name('muestras.showJC')->middleware(['checkRole:jefe-comercial,admin']);
-Route::get('/ventascliente',[PedidosController::class,'listPedCliente'])->name('pedidosxcliente.listar')->middleware(['checkRole:jefe-comercial,admin']);
 //GERENCIACONTROLLER
 Route::middleware(['checkRole:gerencia-general,admin'])->group(function () {
     //Reporte gerencia - Clasificaciones
