@@ -369,9 +369,9 @@
                     'icon' => 'fas fa-cogs',
                     'submenu' => [
                         [
-                            'text' => 'Insumos',
+                            'text' => 'Materia Prima',
                             'url' => 'insumo_empaque',
-                            'icon' => 'fas fa-flask',
+                            'icon' => 'fas fa-box',
                             'can' => 'administracion',
                         ],
                         [

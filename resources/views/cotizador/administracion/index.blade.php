@@ -11,7 +11,7 @@
      @include('messages')
 
     <h1 class="text-center mb-2">
-        {{ request('estado') == 'inactivo' ? 'Insumos Inactivos' : 'Insumos' }}
+        {{ request('estado') == 'inactivo' ? 'Inactivos' : 'Materia Prima' }}
     </h1>
         @if ($errors->any())
             <div class="alert alert-danger">
