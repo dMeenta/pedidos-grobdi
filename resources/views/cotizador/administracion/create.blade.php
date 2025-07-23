@@ -14,7 +14,7 @@
                 <i class="bi bi-arrow-left-circle"></i>
             </a>
         <h1 class="mb-0">     
-            Crear Insumos
+            Crear Materia Prima
         </h1>
     </div>
     <form action="{{ route('insumo_empaque.store') }}" method="POST">

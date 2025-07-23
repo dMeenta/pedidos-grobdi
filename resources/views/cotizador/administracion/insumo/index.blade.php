@@ -8,31 +8,31 @@
 
 @section('content')
     <div class="container">
-     @include('messages')
+        @include('messages')
 
         <div class="form-check mb-3">
             <h1 class="text-center mb-2">
-                <i class="fas fa-paperclip"></i> {{ request('estado') == 'inactivo' ? 'Útiles Inactivos' : 'Útiles' }}
+                <i class="fas fa-vial"></i> {{ request('estado') == 'inactivo' ? 'Insumos Inactivos' : 'Insumos' }}
             </h1>
         </div>
         <div class="row mb-3 align-items-center">
             <div class="col-md-6">
-                <button type="button" class="btn btn_crear" data-toggle="modal" data-target="#crearUtilModal">
-                    <i class="fas fa-square-plus"></i> Crear Útiles
+                <button type="button" class="btn btn_crear" data-toggle="modal" data-target="#crearInsumoModal">
+                    <i class="fa fa-square-plus"></i> Crear Insumo
                 </button>
             </div>
-                @include('cotizador.util.create')
+            @include('cotizador.administracion.insumo.create', ['unidades' => $unidades])
 
             <div class="col-md-6 d-flex justify-content-end align-items-center">
-                <form method="GET" action="{{ route('util.index') }}" class="mb-0" id="filterForm">
+                <form method="GET" action="{{ route('insumos.index') }}" class="mb-0 d-inline-block" id="filterForm">
                     <div class="btn-group" role="group">
-                        <a href="{{ route('util.index') }}" 
-                        class="btn btn-sm {{ request()->estado != 'inactivo' ? 'btn_crear' : 'btn_crear' }}">
-                            Activos
+                        <a href="{{ route('insumos.index') }}" 
+                        class="btn btn-sm {{ request()->estado != 'inactivo' ? 'btn_crear' : 'btn-outline-danger' }}">
+                        Activos
                         </a>
-                        <a href="{{ route('util.index', ['estado' => 'inactivo']) }}" 
+                        <a href="{{ route('insumos.index', ['estado' => 'inactivo']) }}" 
                         class="btn btn-sm {{ request()->estado == 'inactivo' ? 'btn-secondary' : 'btn-outline-secondary' }}">
-                            Inactivos
+                        Inactivos
                         </a>
                     </div>
                 </form>
@@ -46,29 +46,37 @@
                     <th>Precio <br> Unitario</th>
                     <th>Precio de <br> última compra</th>
                     <th>Stock</th>
+                    <th>Unidad</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($utiles as $index => $util)
+                @foreach($insumos as $index => $insumo)
                     <tr>
                         <td>{{ $index + 1 }}</td>
-                        <td class="observaciones">{{ $util->articulo->nombre ?? 'Sin nombre' }}</td>
-                        <td>{{ $util->precio ?? 'Sin precio' }}</td>
-                        <td> S/ {{ $util->articulo->ultimaCompra?->precio ?? '--' }}</td>
-                        <td>{{ $util->articulo->stock }}</td>
+                        <td class="observaciones">{{ $insumo->articulo->nombre ?? 'Sin nombre' }}</td>
+                        <td>
+                            <p>S/ {{ $insumo->precio ?? 'Sin precio' }}</p>
+                            @if ($insumo->es_caro)
+                                <span class="badge bg-danger">Insumo caro</span>
+                            @endif
+                        </td>
+                        <td>S/ {{ $insumo->articulo->ultimaCompra?->precio ?? '--' }}</td>
+                        <td>{{ $insumo->articulo->stock }}</td>
+                        <td>{{ $insumo->unidadMedida->nombre_unidad_de_medida ?? 'Sin unidad' }}</td>
                         <td>
                             <div class="w">
-                                <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#detalleModalutil{{ $util->id}}" style="background-color: #17a2b8; border-color: #17a2b8; color: white;">
+                                <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#detalleModalinsumo{{ $insumo->id }}" style="background-color: #17a2b8; border-color: #17a2b8; color: white;">
                                     <i class="fa fa-eye"></i> Ver
                                 </button>
-                                @include('cotizador.util.show', ['item' => $util])
-                                <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#modalEditar{{ $util->articulo_id }}">
-                                    <i class="fa fa-pen"></i> Editar
+                                @include('cotizador.administracion.insumo.show', ['item' => $insumo])
+                                
+                                <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#modalEditar{{ $insumo->id }}">
+                                    <i class="fa-solid fa-pen"></i> Editar
                                 </button>
-                                @include('cotizador.util.edit', ['item' => $util])
+                                @include('cotizador.administracion.insumo.edit', ['item' => $insumo])
 
-                                <form action="{{ route('util.destroy', $util->articulo_id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas marcarlo como inactivo?')" >
+                                <form action="{{ route('insumos.destroy', $insumo->id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas marcarlo como inactivo?')" >
                                     @csrf
                                     @method('DELETE')
                                 <button type="submit" class="btn btn-danger btn-sm" style="background-color: #dc3545; border-color: #dc3545;" title="Eliminar"><i class="fa-solid fa-trash"></i>Eliminar</button>
@@ -83,9 +91,8 @@
 @stop
 
 @section('css')
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-    <link href="{{ asset('css/muestras/home.css') }}" rel="stylesheet" />
-  
+<link href="{{ asset('css/muestras/home.css') }}" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 @stop
 @section('js')
     <script>

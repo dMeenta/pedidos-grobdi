@@ -12,7 +12,7 @@
 
         <div class="form-check mb-3">
             <h1 class="text-center mb-2">
-                {{ request('estado') == 'inactivo' ? 'Mercancías Inactivas' : 'Mercancías' }}
+                <i class="fa fa-box-open"></i> {{ request('estado') == 'inactivo' ? 'Mercancías Inactivas' : 'Mercancías' }}
             </h1>
         </div>
         <div class="row mb-3 align-items-center">
@@ -55,10 +55,15 @@
                         <td>{{ $index + 1 }}</td>
                         <td class="observaciones">{{ $merchandises->articulo->nombre ?? 'Sin nombre' }}</td>
                         <td>{{ $merchandises->precio ?? 'Sin precio' }}</td>
-                        <td> S/ {{ $merchandises->ultimoLote?->precio ?? '--' }}</td>
+                        <td>S/ {{ $merchandises->articulo->ultimaCompra?->precio ?? '--' }}</td>
                         <td>{{ $merchandises->articulo->stock }}</td>
                         <td>
                             <div class="w">
+                                <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#detalleModalmer{{ $merchandises->id}}" style="background-color: #17a2b8; border-color: #17a2b8; color: white;">
+                                    <i class="fa fa-eye"></i> Ver
+                                </button>
+                                @include('cotizador.merchandise.show', ['item' => $merchandises])
+
                                 <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#modalEditar{{ $merchandises->articulo_id }}">
                                     <i class="fa-solid fa-pen"></i> Editar
                                 </button>
