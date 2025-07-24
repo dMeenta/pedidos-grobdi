@@ -570,6 +570,12 @@
                     'icon' => 'fas fa-pump-medical',
                     'can' => 'visitador'
                 ],
+                [
+                    'text' => 'Mis Rutas',
+                    'url' => 'misrutas',
+                    'icon' => 'fa fa-user-md',
+                    'can' => 'visitador'
+                ],
                 //Jefe de Operaciones
             [
                 'header' => 'Jefe de Operaciones',

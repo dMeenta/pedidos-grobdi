@@ -80,9 +80,9 @@ class DoctoresImport implements ToCollection, WithStartRow
                     $doctor->name = $value[2];
                     $doctor->CMP = $value[3];
                     $doctor->phone = $value[4];
-                    if(!isString($value[6])){
-                        $doctor->birthdate = Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($value[6]))->format('Y-m-d');
-                    }
+                    // if(!isString($value[6])){
+                    //     $doctor->birthdate = Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($value[6]))->format('Y-m-d');
+                    // }
                     $doctor->name_secretariat = $value[7];
                     $doctor->observations = $value[8];
                     $namedistrict = explode("-",$value[11]);

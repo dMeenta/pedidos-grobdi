@@ -59,7 +59,21 @@ class PedidosContaController extends Controller
         $pedidos->accountingStatus = $request->accountingStatus;
         $pedidos->bancoDestino = $request->bancoDestino;
         $pedidos->save();
-        return back()->with('success','Pedido modificado exitosamente');
+        return response()->json([
+            'id' => $pedidos->id,
+            'orderId' => $pedidos->orderId,
+            'customerName' => $pedidos->customerName,
+            'created_at' => $pedidos->created_at->format('d-m-Y'),
+            'paymentStatus' => $pedidos->paymentStatus,
+            'accountingStatus' => $pedidos->accountingStatus,
+            'voucher' => $pedidos->voucher,
+            'accountingStatusLabel' => $pedidos->accountingStatus == 1 
+                ? '<i class="fa fa-check" aria-hidden="true"></i> Revisado'
+                : '<i class="fa fa-times" aria-hidden="true"></i> Sin revisar',
+            'voucherLabel' => $pedidos->voucher == 0 
+                ? '<span class="badge rounded-pill bg-danger">Sin imagen</span>' 
+                : '<span class="badge rounded-pill bg-success">Imagen</span>'
+        ]);
     }
     public function downloadExcel($fecha_inicio,$fecha_fin){
         $dia = date('d-m-Y');

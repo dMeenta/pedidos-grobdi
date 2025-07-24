@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Dashboard')
+@section('title', 'Pedidos')
 
 
 @section('content')
@@ -51,19 +51,20 @@
   
             <tbody>
             @forelse ($pedidos as $pedido)
-                <tr>
-                    <td>{{ $pedido->orderId }}</td>
-                    <td>{{ $pedido->customerName }}</td>
-                    <td>{{ date('d-m-Y', strtotime($pedido->created_at)) }}  </td>
-                    <td>{{ $pedido->paymentStatus }}</td>
-                    @if ($pedido->accountingStatus === 0)
-                    
-                    <td><i class="fa fa-times" aria-hidden="true"></i> Sin revisar</td>
-                    @else
-                    <td><i class="fa fa-check" aria-hidden="true"></i> Revisado</td>
-                    @endif
-                    <td>
-                        @if ( $pedido->voucher == 0)
+                <tr id="pedido-row-{{ $pedido->id }}">
+                    <td class="order-id">{{ $pedido->orderId }}</td>
+                    <td class="customer-name">{{ $pedido->customerName }}</td>
+                    <td class="created-at">{{ date('d-m-Y', strtotime($pedido->created_at)) }}</td>
+                    <td class="payment-status">{{ $pedido->paymentStatus }}</td>
+                    <td class="accounting-status">
+                        @if ($pedido->accountingStatus === 0)
+                            <i class="fa fa-times" aria-hidden="true"></i> Sin revisar
+                        @else
+                            <i class="fa fa-check" aria-hidden="true"></i> Revisado
+                        @endif
+                    </td>
+                    <td class="voucher-status">
+                        @if ($pedido->voucher == 0)
                             <span class="badge rounded-pill bg-danger">Sin imagen</span>
                         @else
                             <span class="badge rounded-pill bg-success">Imagen</span>
@@ -78,7 +79,7 @@
                 <!-- Modal -->
                 <div class="modal fade" id="ModalPedido{{ $pedido->id }}" tabindex="-1" aria-labelledby="labelPedido{{ $pedido->id }}" aria-hidden="true">
                     <div class="modal-dialog modal-xl">
-                        <form action="{{ route('pedidoscontabilidad.update', $pedido->id) }}" method="POST">
+                        <form class="update-pedido-form" data-id="{{ $pedido->id }}">
                             @csrf
                             @method('PUT')
                             <div class="modal-content">
@@ -96,10 +97,16 @@
                                                 {{ $pedido->orderId }}
                                             </div>
                                         </div>
-                                        <div class="col-xs-8 col-sm-8 col-md-8">
+                                        <div class="col-xs-4 col-sm-4 col-md-4">
                                             <div class="form-group">
                                                 <strong>cliente:</strong> <br/>
                                                 {{ $pedido->customerName }}
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-4 col-sm-4 col-md-4">
+                                            <div class="form-group">
+                                                <strong>Precio:</strong> <br/>
+                                                {{ $pedido->prize }}
                                             </div>
                                         </div>
                                         <div class="col-xs-4 col-sm-4 col-md-4 mt-2">
@@ -191,6 +198,42 @@
                 '<"row"<"col-md-12"tr>>' +
                 '<"row mt-3"<"col-md-5"i><"col-md-7"p>>'
         });
+        $('.update-pedido-form').on('submit', function (e) {
+            e.preventDefault();
+
+            let form = $(this);
+            let pedidoId = form.data('id');
+            let formData = form.serialize();
+            $.ajax({
+                url: `/pedidoscontabilidad/${pedidoId}`,
+                type: 'POST',
+                data: formData,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (response) {
+                    // Cierra el modal
+                    $('#ModalPedido' + pedidoId).modal('hide');
+
+                    // Actualiza cada celda
+                    let row = $('#pedido-row-' + pedidoId);
+                    row.find('.order-id').text(response.orderId);
+                    row.find('.customer-name').text(response.customerName);
+                    row.find('.created-at').text(response.created_at);
+                    row.find('.payment-status').text(response.paymentStatus);
+                    row.find('.accounting-status').html(response.accountingStatusLabel);
+                    row.find('.voucher-status').html(response.voucherLabel);
+
+                    alert('Pedido actualizado con éxito.');
+                },
+                error: function (xhr) {
+                    console.error(xhr.responseText);
+                    alert('Ocurrió un error al guardar.');
+                }
+            });
+        });
     });
+    
+
 </script>
 @stop

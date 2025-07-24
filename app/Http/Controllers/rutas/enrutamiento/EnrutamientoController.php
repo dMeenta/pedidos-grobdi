@@ -12,6 +12,7 @@ use App\Models\VisitaDoctor;
 use App\Models\Zone;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use Illuminate\Container\Attributes\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -155,20 +156,29 @@ class EnrutamientoController extends Controller
         return back()->with('success','Doctor Asignado exitosamente');
     }
     public function MisRutas(Request $request){
-        $visitas = VisitaDoctor::with('doctor')->get();
+        // $doctoresSinFecha = VisitaDoctor::with('doctor')->get();
+        $visitas = VisitaDoctor::whereHas('enrutamientolista.enrutamiento.zone.users', function ($query) {
+            $query->where('users.id', Auth::id());
+        })->get();
+        $estados = EstadoVisita::all(['id', 'name', 'color']);
+        // dd($visitas);
 
         $eventos = $visitas->map(function ($visita) {
             return [
                 'id' => $visita->doctor->id,
                 'title' => $visita->doctor->name,
                 'start' => $visita->fecha,
+                'color' => $visita->estado_visita->color ?? '#cccccc',
             ];
         });
 
         $doctoresConVisita = $visitas->pluck('doctor_id');
-        $doctoresSinFecha = Doctor::whereNotIn('id', $doctoresConVisita)->get();
+        // $doctoresSinFecha = Doctor::whereNotIn('id', $doctoresConVisita)->get();
+        // $doctoresSinFecha = VisitaDoctor::whereHas('enrutamientolista.enrutamiento.zone.users', function ($query) {
+        //     $query->where('users.id', Auth::id());
+        // })->whereNotIn('id', $doctoresConVisita)->get();
 
-        return view('rutas.visita.index', compact('eventos', 'doctoresSinFecha'));
+        return view('rutas.visita.index', compact('eventos','estados'));
     }
     public function DetalleDoctorRutas(Request $request,$id){
         $doctor = Doctor::with(['distrito', 'especialidad', 'centroSalud'])->find($id);
@@ -185,20 +195,27 @@ class EnrutamientoController extends Controller
     }
     public function GuardarVisita(Request $request){
         $data = $request->validate([
-            'doctor_id' => 'required|exists:doctors,id',
+            'doctor_id' => 'required|exists:doctor,id',
             'estado_visita_id' => 'required|exists:estado_visita,id',
             'observaciones' => 'nullable|string',
+            'fecha_visita' => 'required|date',
         ]);
+        $visita = VisitaDoctor::findOrFail($request->visita_id);
+        $visita->estado_visita_id = $data['estado_visita_id'];
+        $visita->observaciones_visita = $data['observaciones'];
+        $visita->fecha = $data['fecha_visita'];
+        $visita->updated_by = Auth::user()->id;
+        $visita->save();
 
-        $visita = VisitaDoctor::updateOrCreate(
-            ['doctor_id' => $data['doctor_id']],
-            [
-                'estado_visita_id' => $data['estado_visita_id'],
-                'observaciones' => $data['observaciones'],
-                'fecha_visita' => now(), // opcional si quieres setear la fecha actual
-            ]
-        );
-
-        return response()->json(['success' => true, 'visita_id' => $visita->id]);
+        $doctor = Doctor::find($data['doctor_id']);
+        // logger($visita); // Guarda en logs
+        return response()->json([
+            'success' => true,
+            'visita_id' => $visita->id,
+            'doctor_id' => $doctor->id,
+            'doctor_name' => $doctor->name,
+            'fecha_visita' => $visita->fecha,
+            'color' => $visita->estado_visita->color ?? '#ccc',
+        ]);    
     }
 }
