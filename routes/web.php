@@ -35,15 +35,12 @@ use App\Http\Controllers\rutas\visita\VisitaDoctorController;
 use App\Http\Controllers\cotizador\ProductoFinalController;
 use App\Http\Controllers\cotizador\BaseController;
 use App\Http\Controllers\cotizador\InsumoEmpaqueController;
-<<<<<<< HEAD
 use App\Http\Controllers\PedidosController;
 use App\Http\Controllers\rutas\mantenimiento\CategoriaDoctorController;
-=======
 //cruds separados de envase, material e insumo
 use App\Http\Controllers\cotizador\EnvaseController;
 use App\Http\Controllers\cotizador\MaterialController;
 use App\Http\Controllers\cotizador\InsumoController;
->>>>>>> 7d400487711bb7b47e57bb48b63d79e4077b1f55
 //softlyn modulos
 use App\Http\Controllers\softlyn\VolumenController;
 use App\Http\Controllers\softlyn\ProveedorController;

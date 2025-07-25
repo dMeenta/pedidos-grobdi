@@ -104,6 +104,8 @@ class DoctoresImport implements ToCollection, WithStartRow
                     //LUNES
                     if($value[21]){
                         dd("LUNES");
+                    }else{
+                        dd("MArtes");
                     }
                     //MARTES
 
