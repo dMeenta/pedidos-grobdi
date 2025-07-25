@@ -12,7 +12,7 @@ class MerchandiseController extends Controller
     {
         $estado = request()->estado;
 
-        $merchandise = Merchandise::with(['articulo', 'ultimoLote'])->whereHas('articulo', function ($query) use ($estado) {
+        $merchandise = Merchandise::with(['articulo.ultimaCompra'])->whereHas('articulo', function ($query) use ($estado) {
             if ($estado === 'inactivo') {
                 $query->where('estado', 'inactivo');
             } else {
@@ -31,7 +31,6 @@ class MerchandiseController extends Controller
     {
         $data = $request->validate([
             'nombre' => 'required|string|max:255|unique:articulos,nombre',
-            'descripcion' => 'nullable|string',
             'precio' => 'required|numeric|min:0',
         ], [
             'nombre.unique' => 'Ya existe un artículo con ese nombre.',
@@ -40,7 +39,6 @@ class MerchandiseController extends Controller
         // Crear artículo base
         $articulo = Articulo::create([
             'nombre' => $data['nombre'],
-            'descripcion' => $data['descripcion'] ?? null,
             'tipo' => 'merchandise',
             'stock' => 0,
             'estado' => 'activo',]);
@@ -63,7 +61,6 @@ class MerchandiseController extends Controller
     {
         $data = $request->validate([
             'nombre' => 'required|string|max:255|unique:articulos,nombre,' . $id,
-            'descripcion' => 'nullable|string',
             'precio' => 'required|numeric|min:0',
             'estado' => 'nullable|in:activo,inactivo', 
         ], [
@@ -74,7 +71,6 @@ class MerchandiseController extends Controller
         $articulo = Articulo::findOrFail($id);
         $articulo->update([
             'nombre' => $data['nombre'],
-            'descripcion' => $data['descripcion'] ?? null,
             'estado' => $validated['estado'] ?? 'activo', 
         ]);
 
@@ -88,6 +84,7 @@ class MerchandiseController extends Controller
 
         return redirect()->route('merchandise.index')->with('success', 'Mercancía actualizada correctamente.');
     }
+    
             public function destroy($id)
     {
         $articulo = Articulo::findOrFail($id);

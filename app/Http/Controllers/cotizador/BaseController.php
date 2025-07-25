@@ -97,7 +97,6 @@ class BaseController extends Controller
         // Crear un nuevo artículo (registrar el nombre de la base en artículos)
         $articulo = Articulo::create([
             'nombre' => $request->nombre, 
-            'descripcion' => $request->descripcion ?? null,
             'tipo' => $tipo === 'final' ? 'base' : 'prebase',  
             'stock' => 1,  
         ]);

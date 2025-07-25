@@ -4,7 +4,7 @@
     <div class="modal-content">
       
       <div class="modal-header">
-        <h1 class="modal-title" id="crearUtilLabel"><i class="fa-solid fa-box-open"></i> Crear Útiles</h1>
+        <h1 class="modal-title" id="crearUtilLabel"><i class="fas fa-paperclip"></i> Crear Útiles</h1>
         <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -17,15 +17,9 @@
             <label for="nombre">Nombre</label>
             <input type="text" name="nombre" class="form-control" id="nombre" required>
           </div>
-
-          <div class="form-group">
-            <label for="descripcion">Descripción</label>
-            <textarea name="descripcion" class="form-control" id="descripcion"></textarea>
-          </div>
-
           <div class="form-group">
             <label for="precio">Precio Unitario</label>
-            <input type="number" name="precio" class="form-control" id="precio" min="1" step="0.0001" required>
+            <input type="number" name="precio" class="form-control" id="precio" min="0" step="0.0001" required>
           </div>
       </div>
       <div class="modal-footer">

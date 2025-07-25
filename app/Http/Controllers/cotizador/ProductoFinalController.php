@@ -75,7 +75,6 @@ class ProductoFinalController extends Controller
         $articulo = Articulo::create([
             'nombre' => $validated['nombre'],
             'tipo' => 'producto_final', 
-            'descripcion' => $request->descripcion ?? null,  
             'stock' => 1,  
         ]);
 
@@ -106,7 +105,7 @@ class ProductoFinalController extends Controller
 
         return redirect()->route('producto_final.index')->with('success', 'Producto creado correctamente');
     }
-
+ 
         public function show($id)
     {
         $producto = ProductoFinal::with(['clasificacion', 'unidadDeMedida', 'bases', 'insumos', 'articulo'])->findOrFail($id);

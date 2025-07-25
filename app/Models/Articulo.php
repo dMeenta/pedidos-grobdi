@@ -86,5 +86,10 @@ class Articulo extends Model
     {
         return $query->where('tipo', $tipo);
     }
+    public function ultimaCompra()
+{
+    return $this->hasOne(DetalleCompra::class, 'articulo_id', 'id')->latestOfMany();
+}
+
 }
 

@@ -13,7 +13,7 @@ class UtilController extends Controller
     {
         $estado = request()->estado;
 
-        $utiles = Util::with('articulo')
+        $utiles = Util::with('articulo.ultimaCompra')
             ->whereHas('articulo', function ($query) use ($estado) {
                 if ($estado === 'inactivo') {
                     $query->where('estado', 'inactivo');
@@ -38,7 +38,6 @@ class UtilController extends Controller
     {
         $data = $request->validate([
             'nombre' => 'required|string|max:255|unique:articulos,nombre',
-            'descripcion' => 'nullable|string',
             'precio' => 'required|numeric|min:0',
         ], [
             'nombre.unique' => 'Ya existe un artículo con ese nombre.',
@@ -46,7 +45,6 @@ class UtilController extends Controller
 
         $articulo = Articulo::create([
             'nombre' => $data['nombre'],
-            'descripcion' => $data['descripcion'] ?? null,
             'tipo' => 'util',
             'stock' => 0,
             'estado' => 'activo',
@@ -70,7 +68,6 @@ class UtilController extends Controller
     {
         $data = $request->validate([
             'nombre' => 'required|string|max:255|unique:articulos,nombre,' . $id,
-            'descripcion' => 'nullable|string',
             'precio' => 'required|numeric|min:0',
             'estado' => 'nullable|in:activo,inactivo',
         ], [
@@ -80,7 +77,6 @@ class UtilController extends Controller
         $articulo = Articulo::findOrFail($id);
         $articulo->update([
             'nombre' => $data['nombre'],
-            'descripcion' => $data['descripcion'] ?? null,
             'estado' => $data['estado'] ?? 'activo',
         ]);
 

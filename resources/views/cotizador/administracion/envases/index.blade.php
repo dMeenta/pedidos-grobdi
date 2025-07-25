@@ -8,31 +8,31 @@
 
 @section('content')
     <div class="container">
-     @include('messages')
+        @include('messages')
 
         <div class="form-check mb-3">
             <h1 class="text-center mb-2">
-                <i class="fas fa-paperclip"></i> {{ request('estado') == 'inactivo' ? 'Útiles Inactivos' : 'Útiles' }}
+                <i class="fas fa-pump-soap"></i> {{ request('estado') == 'inactivo' ? 'Envases Inactivos' : 'Envases' }}
             </h1>
         </div>
         <div class="row mb-3 align-items-center">
             <div class="col-md-6">
-                <button type="button" class="btn btn_crear" data-toggle="modal" data-target="#crearUtilModal">
-                    <i class="fas fa-square-plus"></i> Crear Útiles
+                <button type="button" class="btn btn_crear" data-toggle="modal" data-target="#crearEnvaseModal">
+                    <i class="fa fa-square-plus"></i> Crear Envase
                 </button>
             </div>
-                @include('cotizador.util.create')
+                @include('cotizador.administracion.envases.create')
 
             <div class="col-md-6 d-flex justify-content-end align-items-center">
-                <form method="GET" action="{{ route('util.index') }}" class="mb-0" id="filterForm">
+                <form method="GET" action="{{ route('envases.index') }}" class="mb-0 d-inline-block" id="filterForm">
                     <div class="btn-group" role="group">
-                        <a href="{{ route('util.index') }}" 
-                        class="btn btn-sm {{ request()->estado != 'inactivo' ? 'btn_crear' : 'btn_crear' }}">
-                            Activos
+                        <a href="{{ route('envases.index') }}" 
+                        class="btn btn-sm {{ request()->estado != 'inactivo' ? 'btn_crear' : 'btn-outline-danger' }}">
+                        Activos
                         </a>
-                        <a href="{{ route('util.index', ['estado' => 'inactivo']) }}" 
+                        <a href="{{ route('envases.index', ['estado' => 'inactivo']) }}" 
                         class="btn btn-sm {{ request()->estado == 'inactivo' ? 'btn-secondary' : 'btn-outline-secondary' }}">
-                            Inactivos
+                        Inactivos
                         </a>
                     </div>
                 </form>
@@ -50,25 +50,26 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($utiles as $index => $util)
+                @foreach($envases as $index => $envase)
                     <tr>
                         <td>{{ $index + 1 }}</td>
-                        <td class="observaciones">{{ $util->articulo->nombre ?? 'Sin nombre' }}</td>
-                        <td>{{ $util->precio ?? 'Sin precio' }}</td>
-                        <td> S/ {{ $util->articulo->ultimaCompra?->precio ?? '--' }}</td>
-                        <td>{{ $util->articulo->stock }}</td>
+                        <td class="observaciones">{{ $envase->articulo->nombre ?? 'Sin nombre' }}</td>
+                        <td>S/ {{ $envase->precio ?? 'Sin precio' }}</td>
+                        <td>S/ {{ $envase->articulo->ultimaCompra?->precio ?? '--' }}</td>
+                        <td>{{ $envase->articulo->stock }}</td>
                         <td>
                             <div class="w">
-                                <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#detalleModalutil{{ $util->id}}" style="background-color: #17a2b8; border-color: #17a2b8; color: white;">
+                                <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#detalleModalenvase{{ $envase->id }}" style="background-color: #17a2b8; border-color: #17a2b8; color: white;">
                                     <i class="fa fa-eye"></i> Ver
                                 </button>
-                                @include('cotizador.util.show', ['item' => $util])
-                                <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#modalEditar{{ $util->articulo_id }}">
-                                    <i class="fa fa-pen"></i> Editar
+                                @include('cotizador.administracion.envases.show', ['item' => $envase])
+                                
+                                <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#modalEditar{{ $envase->id }}">
+                                    <i class="fa-solid fa-pen"></i> Editar
                                 </button>
-                                @include('cotizador.util.edit', ['item' => $util])
+                                @include('cotizador.administracion.envases.edit', ['item' => $envase])
 
-                                <form action="{{ route('util.destroy', $util->articulo_id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas marcarlo como inactivo?')" >
+                                <form action="{{ route('envases.destroy', $envase->id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas marcarlo como inactivo?')" >
                                     @csrf
                                     @method('DELETE')
                                 <button type="submit" class="btn btn-danger btn-sm" style="background-color: #dc3545; border-color: #dc3545;" title="Eliminar"><i class="fa-solid fa-trash"></i>Eliminar</button>
@@ -83,9 +84,8 @@
 @stop
 
 @section('css')
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-    <link href="{{ asset('css/muestras/home.css') }}" rel="stylesheet" />
-  
+<link href="{{ asset('css/muestras/home.css') }}" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 @stop
 @section('js')
     <script>

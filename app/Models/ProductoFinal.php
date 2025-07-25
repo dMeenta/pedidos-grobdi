@@ -79,7 +79,12 @@ class ProductoFinal extends Model
                                         : ($config['margen_medico_estandar'] ?? 1.05),
             default => $config['margen_publico'] ?? 1.702,
         };
-
+        // $margen = match ($this->clasificacion->nombre ?? '') {
+        //             'publico' => $config['margen_publico'] ?? 1.702,
+        //             default => $tieneInsumosCaros
+        //         ? ($config['margen_medico_con_insumos_caros'] ?? 1.5)
+        //         : ($config['margen_medico_estandar'] ?? 1.05),
+        //         }; SOLO PARA PROBAR LA ACTUALIZACIÓN DE INSUMOS CAROS
         $this->update([
             'costo_total_produccion' => $costoTotalProduccion,
             'costo_total_real' => $costoTotalReal,

@@ -37,7 +37,7 @@ class Insumo extends Model
         public function productosFinales()
     {
         return $this->belongsToMany(ProductoFinal::class, 'producto_final_insumo')
-                    ->withPivot('cantidad', 'precio');
+                    ->withPivot('cantidad');
     }
     public function unidadMedida()
     {

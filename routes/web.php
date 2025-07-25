@@ -35,8 +35,15 @@ use App\Http\Controllers\rutas\visita\VisitaDoctorController;
 use App\Http\Controllers\cotizador\ProductoFinalController;
 use App\Http\Controllers\cotizador\BaseController;
 use App\Http\Controllers\cotizador\InsumoEmpaqueController;
+<<<<<<< HEAD
 use App\Http\Controllers\PedidosController;
 use App\Http\Controllers\rutas\mantenimiento\CategoriaDoctorController;
+=======
+//cruds separados de envase, material e insumo
+use App\Http\Controllers\cotizador\EnvaseController;
+use App\Http\Controllers\cotizador\MaterialController;
+use App\Http\Controllers\cotizador\InsumoController;
+>>>>>>> 7d400487711bb7b47e57bb48b63d79e4077b1f55
 //softlyn modulos
 use App\Http\Controllers\softlyn\VolumenController;
 use App\Http\Controllers\softlyn\ProveedorController;
@@ -77,14 +84,14 @@ Route::get('historialpedidos', HistorialPedidosController::class.'@index')
 ->middleware(['checkRole:counter,admin,jefe-operaciones,laboratorio,Administracion']);
 Route::get('historialpedidos/{historialpedido}', HistorialPedidosController::class.'@show')
 ->name('historialpedidos.show')
-->middleware(['checkRole:counter,admin,jefe-operaciones,laboratorio']);
+->middleware(['checkRole:counter,admin,jefe-operaciones,laboratorio,Administracion']);
 //Jefe de operaciones
 Route::delete('historialpedidos/{historialpedido}', HistorialPedidosController::class.'@destroy')
 ->name('historialpedidos.destroy')
-->middleware(['checkRole:admin,jefe-operaciones']);
+->middleware(['checkRole:admin,jefe-operaciones,Administracion']);
 Route::put('historial/{historialpedido}/actualizar', HistorialPedidosController::class.'@update')
 ->name('historialpedidos.update')
-->middleware(['checkRole:admin,jefe-operaciones']);
+->middleware(['checkRole:admin,jefe-operaciones,Administracion']);
 Route::resource('usuarios', UsuariosController::class)->middleware(['checkRole:admin,jefe-operaciones']);
 Route::put('/usuarios/changepass/{fecha}', UsuariosController::class .'@changepass')
     ->name('usuarios.changepass')
@@ -225,6 +232,10 @@ Route::middleware(['checkRole:gerencia-general,admin'])->group(function () {
 Route::middleware(['checkRole:Administracion,admin'])->group(function () {
     //Administración
     Route::resource('insumo_empaque', InsumoEmpaqueController::class);
+    // CRUDs separados para envases, material e insumos
+    Route::resource('envases', EnvaseController::class);
+    Route::resource('material', MaterialController::class);
+    Route::resource('insumos', InsumoController::class);
     //Crud proveedores
     Route::resource('proveedores', ProveedorController::class)->parameters([
             'proveedores' => 'proveedor']); 
@@ -266,3 +277,8 @@ Route::middleware(['checkRole:Administracion,admin'])->group(function () {
     Route::post('muestras/exportar-excel-co', [App\Http\Controllers\muestras\coordinadoraController::class, 'exportarExcel'])->name('muestras.exportarExcelCO');
     Route::post('muestras/exportar-excel-lab', [App\Http\Controllers\muestras\laboratorioController::class, 'exportarExcel'])->name('muestras.exportarExcelLAB');
 
+Route::middleware(['checkRole:contabilidad,admin'])->group(function () {
+//contabilidad  marcará si el insumo es caro o no
+Route::get('/insumo/marcar-caro', [InsumoController::class, 'marcarCaro'])->name('insumos.marcar-caro');
+Route::post('/insumo/marcar-caro', [InsumoController::class, 'actualizarEsCaro'])->name('insumos.actualizar-es-caro');
+});

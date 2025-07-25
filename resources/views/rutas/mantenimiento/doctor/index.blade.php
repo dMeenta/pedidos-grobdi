@@ -18,6 +18,9 @@
         @session('success')
             <div class="alert alert-success" role="alert"> {{ $value }} </div>
         @endsession
+        @session('danger')
+            <div class="alert alert-danger" role="alert"> {{ $value }} </div>
+        @endsession
         @error('archivo')
         <p style="color: red;">{{ $message }}</p>
         @enderror

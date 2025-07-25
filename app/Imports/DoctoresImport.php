@@ -24,7 +24,7 @@ class DoctoresImport implements ToCollection, WithStartRow
     public $key;
     public function startRow(): int
     {
-        return 3; // Empezamos a leer a partir de la fila 3 (después de las dos filas de cabecera)
+        return 2; // Empezamos a leer a partir de la fila 2 (después de las dos filas de cabecera)
     }
     public function collection(Collection $collection)
     {
@@ -32,6 +32,7 @@ class DoctoresImport implements ToCollection, WithStartRow
         $contador = 0;
         $contadorexist = 0;
         $contadorerror = 0;
+        $key = "danger";
         $acum = [];
         foreach ($collection as $value) {
             if($value[12]){
@@ -99,8 +100,20 @@ class DoctoresImport implements ToCollection, WithStartRow
                     $doctor->asignado_consultorio = 0;
                     $doctor->user_id = Auth::user()->id;
                     $doctor->categoriadoctor_id = 5;
-                     $doctor->save();
-                     $key = "success";
+                    $doctor->save();
+                    //LUNES
+                    if($value[21]){
+                        dd("LUNES");
+                    }
+                    //MARTES
+
+                    //MIERCOLES
+
+                    //JUEVES
+
+                    //VIERNES
+                    dd($value[22]);
+                    $key = "success";
                     ++$contador;
                 }else{
                     array_push($acum, $value[3]);

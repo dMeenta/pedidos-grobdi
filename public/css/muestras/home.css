@@ -262,3 +262,18 @@ td {
     white-space: normal !important;
     overflow-wrap: break-word !important;
 }
+.input_moderno {
+    background-color: #fff0f2 !important;  /* rosado muy suave */
+    border: 1px solid #fe495f;
+    color: #fe495f;
+    border-radius: 10px;
+    padding: 10px;
+    font-weight: 600;
+    box-shadow: 0 2px 5px rgba(254, 73, 95, 0.3);
+    outline: none;
+    transition: 0.3s ease;
+    width: 50%;
+    text-align: center;
+    margin: 0 auto;
+    pointer-events: none;
+}

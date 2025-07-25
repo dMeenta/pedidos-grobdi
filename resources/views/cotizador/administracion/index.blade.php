@@ -25,7 +25,7 @@
     <div class="row mb-3 align-items-center">
         <div class="col-md-6">
             <a href="{{ route('insumo_empaque.create') }}" class="btn btn_crear">
-                <i class="fas fa-plus"></i> Nuevo Insumo
+                <i class="fas fa-plus"></i> Nueva Materia Prima
             </a>
         </div> 
 

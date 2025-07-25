@@ -369,15 +369,26 @@
                     'icon' => 'fas fa-cogs',
                     'submenu' => [
                         [
-                            'text' => 'Materia Prima',
-                            'url' => 'insumo_empaque',
-                            'icon' => 'fas fa-box',
+                            'text' => 'Insumos',
+                            'url' => 'insumos',
+                            'icon' => 'fas fa-vial',
+                            'can' => 'administracion',
+                        ],
+                        [
+                            'text' => 'Material',
+                            'url' => 'material',
+                            'icon' => 'fas fa-cube',
+                            'can' => 'administracion',
+                        ],[
+                            'text' => 'Envases',
+                            'url' => 'envases',
+                            'icon' => 'fas fa-pump-soap',
                             'can' => 'administracion',
                         ],
                         [
                             'text' => 'Merchandise',
                             'url' => 'merchandise',
-                            'icon' => 'fas fa-clipboard-list',
+                            'icon' => 'fas fa-box-open',
                             'can' => 'administracion',
                         ],
                         [
@@ -484,6 +495,12 @@
                     'text' => 'pedidos',
                     'url' => 'pedidoscontabilidad',
                     'icon' => 'fas fa-fw fa-user',
+                    'can' => 'contabilidad'
+                ],
+                [
+                    'text' => 'Marcar Insumo Caro',
+                    'url' => '/insumo/marcar-caro',
+                    'icon' => 'fas fa-fw fa-dollar-sign',
                     'can' => 'contabilidad'
                 ],
             ['header' => 'Motorizado',

@@ -169,6 +169,7 @@ class DoctorController extends Controller
 
         // Process the Excel file
         $doctoresImport = new DoctoresImport;
+        
         $excel = Excel::import($doctoresImport, $file);
         return redirect()->back()->with($doctoresImport->key, $doctoresImport->data);
     }
