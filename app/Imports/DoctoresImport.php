@@ -103,7 +103,12 @@ class DoctoresImport implements ToCollection, WithStartRow
                     $doctor->save();
                     //LUNES
                     if($value[21]){
-                        dd("LUNES");
+                        //para saber si es turno mañana 
+                        if(strtolower($value[21]) =="m"){
+                            $diadoctor = 
+                        }else{
+
+                        }
                     }else{
                         dd("MArtes");
                     }
