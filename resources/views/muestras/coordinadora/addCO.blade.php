@@ -22,6 +22,9 @@
             <div class="form-group">
                 <label>Nombre de la Muestra</label>
                 <input type="text" name="nombre_muestra" class="form-control" required />
+                @if($errors->has('nombre_muestra'))
+                    <div class="text-success"><i class="fas fa-skull-crossbones mr-2"></i>{{ $errors->first('nombre_muestra') }}</div>
+                @endif
             </div>
 
             <!-- Campo para la foto -->
@@ -30,6 +33,9 @@
                 <div class="custom-file"> 
                     <input type="file" name="foto" id="foto" class="custom-file-input" accept="image/*">
                     <label class="custom-file-label" for="foto">Selecciona una imagen</label>
+                    @if($errors->has('foto'))
+                        <div class="text-success"><i class="fas fa-skull-crossbones mr-2"></i>{{ $errors->first('foto') }}</div>
+                    @endif
                 </div>
             </div>
 
@@ -70,6 +76,9 @@
             <div class="form-group">
                 <label>Cantidad de Muestras</label>
                 <input type="number" id="cantidad_de_muestra" name="cantidad_de_muestra" class="form-control" required min="1" />
+                @if($errors->has('cantidad_de_muestra'))
+                    <div class="text-success"><i class="fas fa-skull-crossbones mr-2"></i>{{ $errors->first('cantidad_de_muestra') }}</div>
+                @endif
             </div>
 
             <!-- Campo para observaciones -->

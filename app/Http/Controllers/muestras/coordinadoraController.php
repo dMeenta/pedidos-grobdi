@@ -130,13 +130,19 @@ class coordinadoraController extends Controller
         public function storeCO(Request $request)
     {
         $validated = $request->validate([
-            'nombre_muestra' => 'required|string|max:255',
+            'nombre_muestra' => 'required|string|max:255|unique:muestras,nombre_muestra',
             'clasificacion_id' => 'required|exists:clasificaciones,id',
             'cantidad_de_muestra' => 'required|numeric|min:1|max:10000',
             'observacion' => 'nullable|string',
             'tipo_muestra' => 'required|in:frasco original,frasco muestra',
             'name_doctor' => 'nullable|string|max:80',
             'foto' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048', // VALIDACIÓN DE IMAGEN
+        ],[
+            'nombre_muestra.unique' => 'El nombre de la muestra ya está en uso.',   
+            'cantidad_de_muestra.min' => 'La cantidad de muestra debe ser al menos 1.',
+            'cantidad_de_muestra.max' => 'La cantidad de muestra no puede exceder 10,000.',
+            'foto.image' => 'El archivo debe ser una imagen válida.',
+            'foto.mimes' => 'La imagen debe ser de tipo jpg, jpeg, png o webp.',
         ]);
 
         // Manejar la subida de la imagen si existeq
@@ -179,13 +185,19 @@ class coordinadoraController extends Controller
             public function updateCO(Request $request, $id)
         {
             $validated = $request->validate([
-                'nombre_muestra' => 'required|string|max:255',
+                'nombre_muestra' => 'required|string|max:255|unique:muestras,nombre_muestra,' . $id,
                 'clasificacion_id' => 'required|exists:clasificaciones,id',
                 'cantidad_de_muestra' => 'required|numeric|min:1|max:10000',
                 'observacion' => 'nullable|string',
                 'tipo_muestra' => 'required|in:frasco original,frasco muestra',
                 'name_doctor' => 'nullable|string|max:80',
                 'foto' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            ],[
+                'nombre_muestra.unique' => 'El nombre de la muestra ya está en uso.',   
+                'cantidad_de_muestra.min' => 'La cantidad de muestra debe ser al menos 1.',
+                'cantidad_de_muestra.max' => 'La cantidad de muestra no puede exceder 10,000.',
+                'foto.image' => 'El archivo debe ser una imagen válida.',
+                'foto.mimes' => 'La imagen debe ser de tipo jpg, jpeg, png o webp.',
             ]);
 
             $muestra = Muestras::findOrFail($id);
