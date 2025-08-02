@@ -46,8 +46,8 @@
                                         <label for="observaciones" class="form-label">Observaciones</label>
                                         <textarea name="observaciones" id="observaciones" class="form-control"></textarea>
                                     </div>
-                                    <div class="mb-3">
-                                        <label for="fecha_visita" class="form-label">Fecha de Visita</label>
+                                    <div class="mb-3" id="fecha_visita_group" style="display: none;">
+                                        <label for="fecha_visita" class="form-label">Fecha reprogramada:</label>
                                         <input type="text" id="fecha_visita" name="fecha_visita" class="form-control" placeholder="Selecciona una fecha">
                                     </div>
                                     <input type="hidden" name="doctor_id" id="doctor_id">
@@ -77,7 +77,34 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
+    <script>                    // Llenar estado
+        const estadoSelect = document.getElementById('estado');
+        const fechaGroup = document.getElementById('fecha_visita_group');
+        const fechaInput = document.getElementById('fecha_visita');
+        const estadoReprogramadoId = 5; // Cambia este valor si es diferente en tu BD
+
+        document.getElementById('form-visita').addEventListener('submit', function (e) {
+            const estado = parseInt(document.getElementById('estado').value);
+            const fecha = document.getElementById('fecha_visita').value;
+
+            if (estado === estadoReprogramadoId && fecha.trim() === '') {
+                e.preventDefault();
+                alert('Debe seleccionar una fecha para la reprogramación.');
+                document.getElementById('fecha_visita').focus();
+            }
+        });
+        // Función que muestra u oculta el campo
+        function toggleFechaField() {
+            const estadoId = parseInt(estadoSelect.value);
+            if (estadoId === estadoReprogramadoId) {
+                fechaGroup.style.display = 'block';
+            } else {
+                fechaGroup.style.display = 'none';
+                fechaInput.value = ''; // Limpiar campo si no es "Reprogramado"
+            }
+        }
+        estadoSelect.addEventListener('change', toggleFechaField);
+
         function mostrarDoctor(id) {
             
             fetch('/rutasdoctor/' + id)
@@ -86,7 +113,21 @@
                     const doctor = data.doctor;
                     const visita = data.visita;
                     const estados = data.estados;
-
+                    const turno = data.turno;
+                    const estadoActual = visita?.estado_visita_id;
+                    const estadosPermitidos = [2, 5];
+                    const fechaVisita = visita?.fecha;
+                    const hoy = new Date().toISOString().split('T')[0]; // formato YYYY-MM-DD
+                    const esHoy = fechaVisita === hoy;
+                    if (estadoActual && !estadosPermitidos.includes(estadoActual)) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Estado no editable',
+                            text: 'Solo se puede editar una visita con estado Asignado o Reprogramado.',
+                        });
+                        return;
+                    }
+                    
                     document.getElementById('info-doctor').innerHTML = `
                         <h5>${doctor.name}</h5>
                         <p><strong>CMP:</strong> ${doctor.CMP}</p>
@@ -94,29 +135,41 @@
                         <p><strong>Distrito:</strong> ${doctor.distrito?.name ?? 'No asignado'}</p>
                         <p><strong>Especialidad:</strong> ${doctor.especialidad?.name ?? 'No asignada'}</p>
                         <p><strong>Centro de Salud:</strong> ${doctor.centro_salud?.name ?? 'No asignado'}</p>
+                        <p><strong>Turno:</strong> ${turno ?? 'No asignado'}</p>
                     `;
-
-                    // Llenar estado
+                    // Select de estados según reglas
                     const estadoSelect = document.getElementById('estado');
-                    
-                    estadoSelect.innerHTML = estados.map(e => `
-                        <option value="${e.id}" ${visita?.estado_visita_id == e.id ? 'selected' : ''}>
-                            ${e.name}
-                        </option>
-                    `).join('');
+                    estadoSelect.innerHTML = ''; // limpiar
+
+                    estados.forEach(e => {
+                        if (esHoy && (e.name === 'Visitado' || e.name === 'No Visitado' || e.name === 'Reprogramado')) {
+                            estadoSelect.innerHTML += `<option value="${e.id}" ${visita?.estado_visita_id == e.id ? 'selected' : ''}>
+                                ${e.name}
+                            </option>`;
+                        } else if (!esHoy && e.name === 'Reprogramado') {
+                            estadoSelect.innerHTML += `<option value="${e.id}" ${visita?.estado_visita_id == e.id ? 'selected' : ''}>
+                                ${e.name}
+                            </option>`;
+                        }
+                    });
+
                     // Set campos ocultos
                     document.getElementById('doctor_id').value = doctor.id;
                     document.getElementById('visita_id').value = visita?.id ?? '';
                     document.getElementById('fecha_visita').value = visita?.fecha_visita ?? '';
                     document.getElementById('observaciones').value = visita?.observaciones_visita ?? '';
                     flatpickr("#fecha_visita", {
-                        dateFormat: "Y-m-d"
+                        dateFormat: "Y-m-d",
+                        minDate: data.rango.fecha_inicio,
+                        maxDate: data.rango.fecha_fin,
                     });
+                    toggleFechaField();
                     // Mostrar modal
                     const modal = new bootstrap.Modal(document.getElementById('doctorModal'));
                     modal.show();
                 });
         }
+
         let calendar;
         document.addEventListener('DOMContentLoaded', function () {
             const calendarEl = document.getElementById('calendar');
@@ -125,6 +178,7 @@
                 locale: 'es',
                 editable: true,
                 events: @json($eventos),
+                eventOrder: "turno",
                 eventClick: function(info) {
                     mostrarDoctor(info.event.id);
                 }
@@ -150,28 +204,36 @@
                 },
                 body: formData
             })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) {
+                    // Si la respuesta no es OK (por ejemplo, 404), lanza el error del JSON
+                    return res.json().then(err => { throw err });
+                }
+                return res.json();
+            })
             .then(data => {
                 if (data.success) {
                     Swal.fire({
+                        position: "top-end",
                         type: 'success',
                         title: '¡Éxito!',
                         text: 'Visita actualizada correctamente',
-                        timer: 3000,
-                        showConfirmButton: false
+                        showConfirmButton: false,
+                        timer: 2000
                     });
                     // Ocultar modal
                     const modal = bootstrap.Modal.getInstance(document.getElementById('doctorModal'));
                     modal.hide();
-                    console.log(data.doctor_id.toString());
-                    const existingEvent = calendar.getEventById(data.doctor_id.toString());
+                    
+                    const existingEvent = calendar.getEventById(data.visita_id.toString());
+                    console.log(existingEvent);
                     if (existingEvent) {
-                        existingEvent.remove();
+                        existingEvent.remove(); // borra el antiguo
                     }
 
-                    // Agregar el nuevo evento actualizado
+                    // agrega uno nuevo
                     calendar.addEvent({
-                        id: data.doctor_id.toString(),
+                        id: data.visita_id.toString(),
                         title: data.doctor_name,
                         start: data.fecha_visita,
                         color: data.color
@@ -179,8 +241,21 @@
                 }
             })
             .catch(err => {
-                console.error("Error al guardar visita:", err);
-                alert('Error al guardar');
+                // Mostrar el error devuelto por Laravel
+                if (err.error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '¡Error!',
+                        text: err.error
+                    });
+                } else {
+                    console.error("Error inesperado:", err);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ocurrió un error al guardar la visita.'
+                    });
+                }
             });
         });
 

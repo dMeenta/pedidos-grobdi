@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('visita_doctor', function (Blueprint $table) {
             $table->id();
             $table->date('fecha')->nullable();
+            $table->boolean('turno')->default(0);
+            $table->boolean('reprogramar')->default(0);
             $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
             $table->foreignId('updated_by')->constrained('users')->cascadeOnDelete();
             $table->foreignId('doctor_id')->constrained('doctor')->cascadeOnDelete();

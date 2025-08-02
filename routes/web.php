@@ -41,6 +41,7 @@ use App\Http\Controllers\rutas\mantenimiento\CategoriaDoctorController;
 use App\Http\Controllers\cotizador\EnvaseController;
 use App\Http\Controllers\cotizador\MaterialController;
 use App\Http\Controllers\cotizador\InsumoController;
+use App\Http\Controllers\rutas\enrutamiento\RutasVisitadoraController;
 //softlyn modulos
 use App\Http\Controllers\softlyn\VolumenController;
 use App\Http\Controllers\softlyn\ProveedorController;
@@ -132,9 +133,13 @@ Route::middleware(['checkRole:visitador,admin'])->group(function () {
     //=============================Muestras - Modulo
     // Ruta principal que muestra todas las muestras
     Route::resource('muestras', MuestrasController::class);
-    Route::get('misrutas',[EnrutamientoController::class,'MisRutas'])->name('enrutamientolista.misrutas');
+    Route::get('calendariovisitadora',[EnrutamientoController::class,'calendariovisitadora'])->name('enrutamientolista.calendariovisitadora');
     Route::get('/rutasdoctor/{id}',[EnrutamientoController::class,'DetalleDoctorRutas']);
     Route::post('guardar-visita',[EnrutamientoController::class,'GuardarVisita'])->name('rutas.guardarvisita');
+    Route::get('rutasvisitadora',[RutasVisitadoraController::class,'index'])->name('rutasvisitadora.index');
+    Route::get('rutasvisitadora/{id}',[RutasVisitadoraController::class,'listadoctores'])->name('rutasvisitadora.listadoctores');
+    Route::post('/rutasvisitadora/asignar', [RutasVisitadoraController::class, 'asignar'])->name('rutasvisitadora.asignar');
+
 });
 
 
@@ -185,7 +190,7 @@ Route::middleware(['checkRole:jefe-operaciones,admin'])->group(function () {
     Route::get('/jefe-operaciones', [jefe_proyectosController::class, 'precio'])->name('muestras.precio');
     Route::get('/jefe-operaciones/{id}', [jefe_proyectosController::class, 'showJO'])->name('muestras.showJO');
     Route::put('/muestras/{id}/actualizar-precio', [jefe_proyectosController::class, 'actualizarPrecio'])->name('muestras.actualizarPrecio');
-    Route::get('/pedidos/jefe_proyectos'.jefe_proyectosController::class,);
+    // Route::get('/pedidos/jefe_proyectos'.jefe_proyectosController::class,);
 });
 
 //coordinadora 

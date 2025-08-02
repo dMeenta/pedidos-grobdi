@@ -587,11 +587,24 @@
                     'icon' => 'fas fa-pump-medical',
                     'can' => 'visitador'
                 ],
+
                 [
-                    'text' => 'Mis Rutas',
-                    'url' => 'misrutas',
-                    'icon' => 'fa fa-user-md',
-                    'can' => 'visitador'
+                    'text' => 'Rutas',
+                    'icon' => 'fa fa-map-marker',
+                    'submenu' => [
+                        [
+                            'text' => 'Calendario',
+                            'url' => 'calendariovisitadora',
+                            'icon' => 'fa fa-calendar',
+                            'can' => 'visitador'
+                        ],
+                        [
+                            'text' => 'Mis rutas',
+                            'url' => 'rutasvisitadora',
+                            'icon' => 'fa fa-map',
+                            'can' => 'visitador'
+                        ],
+                    ],
                 ],
                 //Jefe de Operaciones
             [

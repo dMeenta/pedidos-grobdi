@@ -87,6 +87,27 @@ class DoctoresImport implements ToCollection, WithStartRow
                     $doctor->name_secretariat = $value[7];
                     $doctor->observations = $value[8];
                     $namedistrict = explode("-",$value[11]);
+                    if($namedistrict[0] == "CERCADO DE LIMA"){
+                        $namedistrict[0] = "LIMA";
+                    }
+                    if($namedistrict[0] == "SURCO"){
+                        $namedistrict[0] = "SANTIAGO DE SURCO";
+                    }
+                    if($namedistrict[0] == "ATE "){
+                        $namedistrict[0] = "ATE";
+                    }
+                    if($namedistrict[0] == "MAGDALENA"){
+                        $namedistrict[0] = "MAGDALENA DEL MAR";
+                    }
+                    if($namedistrict[0] == "BREÃ‘A"){
+                        $namedistrict[0] = "BREÑA";
+                    }
+                    if($namedistrict[0] == "BREÃ‘A "){
+                        $namedistrict[0] = "BREÑA";
+                    }
+                    if($namedistrict[0] == "ZARATE"){
+                        $namedistrict[0] = "SAN JUAN DE LURIGANCHO";
+                    }
                     $distrito = Distrito::where('provincia_id',128)->orWhere('provincia_id',67)->get();
                     foreach ($distrito as $distric) {
                         if($distric->name == $namedistrict[0]){
@@ -105,21 +126,47 @@ class DoctoresImport implements ToCollection, WithStartRow
                     if($value[21]){
                         //para saber si es turno mañana 
                         if(strtolower($value[21]) =="m"){
-                            $diadoctor = 
+                            $doctor->days()->attach(1,['turno'=> 0]);
                         }else{
-
+                            $doctor->days()->attach(1,['turno'=> 1]);
                         }
-                    }else{
-                        dd("MArtes");
                     }
                     //MARTES
-
+                    if($value[22]){
+                        //para saber si es turno mañana 
+                        if(strtolower($value[22]) =="m"){
+                            $doctor->days()->attach(2,['turno'=> 0]);
+                        }else{
+                            $doctor->days()->attach(2,['turno'=> 1]);
+                        }
+                    }
                     //MIERCOLES
-
+                    if($value[23]){
+                        //para saber si es turno mañana 
+                        if(strtolower($value[23]) =="m"){
+                            $doctor->days()->attach(3,['turno'=> 0]);
+                        }else{
+                            $doctor->days()->attach(3,['turno'=> 1]);
+                        }
+                    }
                     //JUEVES
-
+                    if($value[24]){
+                        //para saber si es turno mañana 
+                        if(strtolower($value[24]) =="m"){
+                            $doctor->days()->attach(4,['turno'=> 0]);
+                        }else{
+                            $doctor->days()->attach(4,['turno'=> 1]);
+                        }
+                    }
                     //VIERNES
-                    dd($value[22]);
+                    if($value[25]){
+                        //para saber si es turno mañana 
+                        if(strtolower($value[25]) =="m"){
+                            $doctor->days()->attach(5,['turno'=> 0]);
+                        }else{
+                            $doctor->days()->attach(5,['turno'=> 1]);
+                        }
+                    }
                     $key = "success";
                     ++$contador;
                 }else{

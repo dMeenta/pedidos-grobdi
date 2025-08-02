@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Dashboard')
+@section('title', 'Pedidos Motorizado')
 
 @section('content_header')
     
@@ -8,7 +8,7 @@
 @stop
 
 @section('content')
-<div class="card mt-5">
+<div class="card mt-3">
     <h2 class="card-header">Pedidos de la zona {{ Auth::user()->zones[0]->name }}</h2>
     <div class="card-body">
     <form action="{{ route('pedidosmotorizado.index') }}" method="GET">
@@ -17,7 +17,7 @@
                 <label for="fecha">Fecha:</label>
             </div>
             <div class="col-xs-2 col-sm-2 col-md-2">
-                <input class="form-control" type="date" name="fecha" id="fecha" required>
+                <input class="form-control" type="date" name="fecha" id="fecha" value="{{ request()->get('fecha') }}" required>
             </div>
             <div class="col-xs-3 col-sm-3 col-md-3">
                 <button type="submit" class="btn btn-outline-primary"><i class="fa fa-search"></i> Buscar</button>

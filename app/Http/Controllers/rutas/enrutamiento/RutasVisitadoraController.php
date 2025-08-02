@@ -1,0 +1,42 @@
+<?php
+
+namespace App\Http\Controllers\rutas\enrutamiento;
+
+use App\Http\Controllers\Controller;
+use App\Models\Enrutamiento;
+use App\Models\EnrutamientoLista;
+use App\Models\VisitaDoctor;
+use Illuminate\Http\Request;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+
+class RutasVisitadoraController extends Controller
+{
+    public function index(){
+        $primerDiaMes = Carbon::now()->startOfMonth()->toDateString();
+        $rutames = Enrutamiento::where('fecha',$primerDiaMes)->whereIn('zone_id',Auth::user()->zones->pluck('id'))->get();
+        foreach ($rutames as $ruta) {
+            $listas = EnrutamientoLista::where('enrutamiento_id',$ruta->id)->get();
+        }
+        return view('rutas.visita.misrutas',compact('listas'));
+    }
+    public function listadoctores($id){
+        $rutames = EnrutamientoLista::findOrFail($id);
+        $fecha_inicio = $rutames->fecha_inicio;
+        $fecha_fin = $rutames->fecha_fin;
+        $visitadoctores = VisitaDoctor::where('enrutamientolista_id',$id)->get();
+        return view('rutas.visita.doctoresrutas',compact('visitadoctores','fecha_inicio','fecha_fin'));
+    }
+    public function asignar(Request $request){
+        $request->validate([
+            'id' => 'required|exists:visita_doctor,id',
+            'fecha' => 'required|date',
+            'turno' => 'required',
+        ]);
+        $visita = VisitaDoctor::find($request->id);
+        $visita->fecha = $request->fecha;
+        $visita->turno = $request->turno;
+        $visita->estado_visita_id = 2;
+        $visita->save();
+    }
+}

@@ -15,6 +15,7 @@ use Carbon\CarbonPeriod;
 use Illuminate\Container\Attributes\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class EnrutamientoController extends Controller
 {
@@ -122,6 +123,7 @@ class EnrutamientoController extends Controller
                         foreach ($turnos as $turno) {
                             if ($nombre_dia === $turno['dia']) {
                                 $visita_doctor->fecha = $date->toDateString();
+                                $visita_doctor->turno = $turno['turno'];
                                 $visita_doctor->estado_visita_id = 2; // Asignado correctamente
                                 $fecha_asignada = true;
                                 break 2;
@@ -155,17 +157,17 @@ class EnrutamientoController extends Controller
         $visita_doctor->save();
         return back()->with('success','Doctor Asignado exitosamente');
     }
-    public function MisRutas(Request $request){
+    public function calendariovisitadora(Request $request){
         // $doctoresSinFecha = VisitaDoctor::with('doctor')->get();
         $visitas = VisitaDoctor::whereHas('enrutamientolista.enrutamiento.zone.users', function ($query) {
             $query->where('users.id', Auth::id());
-        })->get();
+        })->orderBy('visita_doctor.turno', 'asc')->get();
         $estados = EstadoVisita::all(['id', 'name', 'color']);
         // dd($visitas);
 
         $eventos = $visitas->map(function ($visita) {
             return [
-                'id' => $visita->doctor->id,
+                'id' => $visita->id,
                 'title' => $visita->doctor->name,
                 'start' => $visita->fecha,
                 'color' => $visita->estado_visita->color ?? '#cccccc',
@@ -178,36 +180,64 @@ class EnrutamientoController extends Controller
         //     $query->where('users.id', Auth::id());
         // })->whereNotIn('id', $doctoresConVisita)->get();
 
-        return view('rutas.visita.index', compact('eventos','estados'));
+        return view('rutas.visita.calendario', compact('eventos','estados'));
     }
     public function DetalleDoctorRutas(Request $request,$id){
-        $doctor = Doctor::with(['distrito', 'especialidad', 'centroSalud'])->find($id);
-        $visita = VisitaDoctor::where('doctor_id', $id)->first();
+        $visita = VisitaDoctor::findOrFail($id);
+        $id_doctor = $visita->doctor_id;
+        $doctor = Doctor::with(['distrito', 'especialidad', 'centroSalud'])->find($id_doctor);
         $estados = EstadoVisita::whereNotIn('id',[1,2])->get();
+        $fecha_fin = $visita->enrutamientolista->fecha_fin;
+
+        // $turno = null;
+
+        // if ($visita?->fecha) {
+        //     $diaSemana = Carbon::parse($visita->fecha)->dayOfWeek; // 0 (domingo) a 6 (sábado)
+
+        //     $turnoRaw = DB::table('doctor_day')
+        //         ->where('doctor_id', $doctor->id)
+        //         ->where('day_id', $diaSemana)
+        //         ->value('turno'); // trae directamente el campo turno
+
+                $turno = $visita->turno == 1 ? 'Tarde' : 'Mañana';
+        // }
         if (!$doctor) {
             return response()->json(['error' => 'Doctor no encontrado'], 404);
         }
         return response()->json([
             'doctor' => $doctor,
             'visita' => $visita,
-            'estados' => $estados
+            'turno' => $turno,
+            'estados' => $estados,
+            'rango'=>[
+                'fecha_inicio'=>$visita->fecha,
+                'fecha_fin'=>$fecha_fin,
+            ]
         ]);
     }
     public function GuardarVisita(Request $request){
-        $data = $request->validate([
+        $request->validate([
             'doctor_id' => 'required|exists:doctor,id',
             'estado_visita_id' => 'required|exists:estado_visita,id',
             'observaciones' => 'nullable|string',
-            'fecha_visita' => 'required|date',
         ]);
         $visita = VisitaDoctor::findOrFail($request->visita_id);
-        $visita->estado_visita_id = $data['estado_visita_id'];
-        $visita->observaciones_visita = $data['observaciones'];
-        $visita->fecha = $data['fecha_visita'];
+        if($request['estado_visita_id'] == 5){
+            if($visita->reprogramar == 1){
+                return response()->json(['error' => 'Ya no se puede reprogramar su visita, contactar con su supervisora'], 404);
+            }else{
+                $visita->reprogramar = 1;
+            }
+        }
+        $visita->estado_visita_id = $request['estado_visita_id'];
+        $visita->observaciones_visita = $request['observaciones'];
+        if($request['fecha_visita']){
+            $visita->fecha = $request['fecha_visita'];
+        }
         $visita->updated_by = Auth::user()->id;
         $visita->save();
 
-        $doctor = Doctor::find($data['doctor_id']);
+        $doctor = Doctor::find($request['doctor_id']);
         // logger($visita); // Guarda en logs
         return response()->json([
             'success' => true,
@@ -216,6 +246,9 @@ class EnrutamientoController extends Controller
             'doctor_name' => $doctor->name,
             'fecha_visita' => $visita->fecha,
             'color' => $visita->estado_visita->color ?? '#ccc',
+            'extendedProps' => [
+                'turno' => $visita->turno, // 0 = mañana, 1 = tarde
+            ],
         ]);    
     }
 }

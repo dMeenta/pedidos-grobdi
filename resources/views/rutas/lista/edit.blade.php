@@ -13,7 +13,7 @@
     <div class="card-header">
         <h3 class="card-title">Editar Lista</h3>
         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-            <a class="btn btn-primary btn-sm" href="{{ url()->previous() }}"><i class="fa fa-arrow-left"></i> Atrás</a>
+            <a class="btn btn-primary btn-sm" href="{{ route('lista.index') }}"><i class="fa fa-arrow-left"></i> Atrás</a>
         </div>
     </div>
     <!-- /.card-header -->

@@ -14,11 +14,11 @@ class EstadoVisitaSeeder extends Seeder
     public function run(): void
     {
         $esta_visitas = [
-            ['name'=>'No asignado'],
-            ['name'=>'Asignado'],
-            ['name'=>'No visitado'],
-            ['name'=>'visitado'],
-            ['name'=>'Repogramado'],
+            ['name'=>'No Asignado','color'=>'#1ae1d2'],
+            ['name'=>'Asignado','color'=>'#1a5fe1'],
+            ['name'=>'No Visitado','color'=>'#e11a1a'],
+            ['name'=>'Visitado','color'=>'#20e11a'],
+            ['name'=>'Reprogramado','color'=>'#f1c40f'],
             ];
             
             foreach ($esta_visitas as $estado_visita) {

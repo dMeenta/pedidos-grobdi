@@ -46,10 +46,14 @@
                                 </td>
                                 @if ( $doctor->estado_visita->id  == 1)
                                     <td><span class="badge bg-warning">{{ $doctor->estado_visita->name }}</span></td>
+                                @elseif($doctor->estado_visita->id == 5)
+                                    <td><span class="badge bg-secondary">{{ $doctor->estado_visita->name }}</span></td>
+                                @elseif($doctor->estado_visita->id == 3)
+                                    <td><span class="badge bg-danger">{{ $doctor->estado_visita->name }}</span></td>
                                 @else
                                     <td><span class="badge bg-primary">{{ $doctor->estado_visita->name }}</span></td>
                                 @endif
-                                <td>{{ $doctor->Observaciones_visita }}</td>
+                                <td>{{ $doctor->observaciones_visita }}</td>
                                 <td>
                                     <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-pencil-square"></i> Actualizar</button>
                                 </td>
