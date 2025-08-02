@@ -18,19 +18,9 @@ class laboratorioController extends Controller
 {
         public function exportarExcel(Request $request)
     {
-        $fechaActual = Carbon::now()->startOfDay(); // hoy a las 00:00:00
-        $fechaLimite = Carbon::now()->addDays(7)->endOfDay(); // 7 días después a las 23:59:59
-
-        $estado = $request->estado;
-
-        $query = Muestras::with(['clasificacion', 'creator'])
-            ->whereBetween('fecha_hora_entrega', [$fechaActual, $fechaLimite]);
-
-        if ($estado) {
-            $query->where('estado', $estado);
-        }
-
-        $muestras = $query->orderBy('created_at', 'desc')->get();
+        $muestras = Muestras::with(['clasificacion', 'creator'])
+        ->orderBy('created_at', 'desc')
+        ->get();
         $headers = [
             '#',
             'Nombre de la Muestra',
@@ -57,14 +47,11 @@ class laboratorioController extends Controller
        // Pasar la variable correctamente nombrada (en singular)
        return view('muestras.laboratorio.showlab', ['muestra' => $muestra]);
     }
-            public function estado()
+        public function estado()
     {
-        $fechaActual = Carbon::now()->startOfDay(); // hoy a las 00:00:00
-        $fechaLimite = Carbon::now()->addDays(7)->endOfDay(); // 7 días después a las 23:59:59
-
         $estado = request()->estado;
 
-        $query = Muestras::whereBetween('fecha_hora_entrega', [$fechaActual, $fechaLimite]);
+        $query = Muestras::query();
 
         if ($estado) {
             $query->where('estado', $estado);
