@@ -13,8 +13,7 @@ class CentroSaludController extends Controller
      */
     public function index()
     {
-        $centrosalud = CentroSalud::paginate(25);
-        // dd($centrosalud);
+        $centrosalud = CentroSalud::get();
         return view('rutas.mantenimiento.centrosalud.index',compact('centrosalud'));
     }
     public function show(){
@@ -25,6 +24,7 @@ class CentroSaludController extends Controller
         // dd($request->all());
         if ($request->ajax()) {
             $centrosalud = CentroSalud::where('name', 'like', '%' . $request->query('term') . '%')
+                ->where('state','like',1)
                 ->get(['id','name']);
             return response()->json($centrosalud);
         }
@@ -87,9 +87,16 @@ class CentroSaludController extends Controller
     public function destroy(string $id)
     {
         $centrosalud  = CentroSalud::find($id);
-        $centrosalud->delete();
+        if($centrosalud->state == 1){
+            $centrosalud->state = 0;
+            $msj = "inhabilitado";
+        }else{
+            $centrosalud->state = 1;
+            $msj = "habilitado";
+        }
+        $centrosalud->save();
 
-        return redirect()->route('centrosalud.index')
-        ->with('success', 'Centro de salud eliminado exitosamente');
+        return redirect()->back()
+        ->with('success','Centro de salud '.$msj.' correctamente');
     }
 }

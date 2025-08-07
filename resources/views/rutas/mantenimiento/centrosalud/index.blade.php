@@ -20,7 +20,7 @@
                     <div class="alert alert-success" role="alert"> {{ $value }} </div>
                 @endsession
                 <div class="table table-responsive">
-                    <table class="table table-bordered table-striped">
+                    <table id="miTabla" class="table table-bordered table-striped">
                         <thead>
                             <tr>
                                 <th>Nombre</th>
@@ -33,7 +33,7 @@
               
                         <tbody>
                         @forelse ($centrosalud as $centrosa)
-                            <tr>
+                            <tr class={{ $centrosa->state == 0 ? 'table-danger': ''}}>
                                 <td>{{ $centrosa->name }}</td>
                                 <td>{{ $centrosa->description }}</td>
                                 <td>{{ $centrosa->adress }}</td>
@@ -44,8 +44,11 @@
                          
                                         @csrf
                                         @method('DELETE')
-                            
-                                        <button type="submit" class="btn btn-xs btn-danger"><i class="fas fa-trash"></i> Eliminar</button>
+                                        @if($centrosa->state == 1)
+                                            <button type="submit" class="btn btn-danger btn-sm">Inhabilitar</button>
+                                        @else
+                                            <button type="submit" class="btn btn-success btn-sm">Habilitar</button>
+                                        @endif
                                     </form>
                                 </td>
                             </tr>
@@ -58,9 +61,6 @@
               
                     </table>
                 </div> 
-                
-                {!! $centrosalud->appends(request()->except('page'))->links() !!}
-        
             </div>
         </div> 
     </div>
@@ -68,9 +68,18 @@
 @stop
 
 @section('css')
-    {{-- Add here extra stylesheets --}}
-    {{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
 @stop
 
 @section('js')
+<script>
+    $(document).ready(function() {
+        $('#miTabla').DataTable({
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json'
+            },
+            pageLength: 25, // 👈 Número por defecto (puedes cambiar a 25, 50, etc.)
+            lengthMenu: [ [10, 25, 50, -1], [10, 25, 50, "Todos"] ] // Opciones de cantidad
+        });
+    });
+</script>
 @stop

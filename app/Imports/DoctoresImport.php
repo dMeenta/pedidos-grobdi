@@ -122,50 +122,28 @@ class DoctoresImport implements ToCollection, WithStartRow
                     $doctor->user_id = Auth::user()->id;
                     $doctor->categoriadoctor_id = 5;
                     $doctor->save();
-                    //LUNES
-                    if($value[21]){
-                        //para saber si es turno mañana 
-                        if(strtolower($value[21]) =="m"){
-                            $doctor->days()->attach(1,['turno'=> 0]);
-                        }else{
-                            $doctor->days()->attach(1,['turno'=> 1]);
-                        }
+                    // LUNES
+                    if (isset($value[21]) && !empty($value[21])) {
+                        $doctor->days()->attach(1, ['turno' => strtolower($value[21]) == 'm' ? 0 : 1]);
                     }
-                    //MARTES
-                    if($value[22]){
-                        //para saber si es turno mañana 
-                        if(strtolower($value[22]) =="m"){
-                            $doctor->days()->attach(2,['turno'=> 0]);
-                        }else{
-                            $doctor->days()->attach(2,['turno'=> 1]);
-                        }
+
+                    // MARTES
+                    if (isset($value[22]) && !empty($value[22])) {
+                        $doctor->days()->attach(2, ['turno' => strtolower($value[22]) == 'm' ? 0 : 1]);
                     }
-                    //MIERCOLES
-                    if($value[23]){
-                        //para saber si es turno mañana 
-                        if(strtolower($value[23]) =="m"){
-                            $doctor->days()->attach(3,['turno'=> 0]);
-                        }else{
-                            $doctor->days()->attach(3,['turno'=> 1]);
-                        }
+
+                    // MIÉRCOLES
+                    if (isset($value[23]) && !empty($value[23])) {
+                        $doctor->days()->attach(3, ['turno' => strtolower($value[23]) == 'm' ? 0 : 1]);
                     }
-                    //JUEVES
-                    if($value[24]){
-                        //para saber si es turno mañana 
-                        if(strtolower($value[24]) =="m"){
-                            $doctor->days()->attach(4,['turno'=> 0]);
-                        }else{
-                            $doctor->days()->attach(4,['turno'=> 1]);
-                        }
+
+                    // JUEVES
+                    if (isset($value[24]) && !empty($value[24])) {
+                        $doctor->days()->attach(4, ['turno' => strtolower($value[24]) == 'm' ? 0 : 1]);
                     }
-                    //VIERNES
-                    if($value[25]){
-                        //para saber si es turno mañana 
-                        if(strtolower($value[25]) =="m"){
-                            $doctor->days()->attach(5,['turno'=> 0]);
-                        }else{
-                            $doctor->days()->attach(5,['turno'=> 1]);
-                        }
+                    // VIERNES
+                    if (isset($value[25]) && !empty($value[25])) {
+                        $doctor->days()->attach(5, ['turno' => strtolower($value[25]) == 'm' ? 0 : 1]);
                     }
                     $key = "success";
                     ++$contador;

@@ -187,6 +187,7 @@ class EnrutamientoController extends Controller
         $id_doctor = $visita->doctor_id;
         $doctor = Doctor::with(['distrito', 'especialidad', 'centroSalud'])->find($id_doctor);
         $estados = EstadoVisita::whereNotIn('id',[1,2])->get();
+        $fecha_inicio = $visita->enrutamientolista->fecha_inicio;
         $fecha_fin = $visita->enrutamientolista->fecha_fin;
 
         // $turno = null;
@@ -210,7 +211,7 @@ class EnrutamientoController extends Controller
             'turno' => $turno,
             'estados' => $estados,
             'rango'=>[
-                'fecha_inicio'=>$visita->fecha,
+                'fecha_inicio'=>$fecha_inicio,
                 'fecha_fin'=>$fecha_fin,
             ]
         ]);
