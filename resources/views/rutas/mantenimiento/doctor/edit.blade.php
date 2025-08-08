@@ -145,6 +145,14 @@
                     <div class="form-text text-danger">Seleccione un centro de salud, si no lo encuentra debe crearlo antes</div>
                 @enderror
             </div>
+            <div class="col-xs-2 col-sm-2 col-md-2">
+                <label for="recuperacion" class="form-label"><strong>¿Es recuperacion?</strong></label>
+                <select class="form-select" aria-label="recuperacion" name="recuperacion" id="recuperacion">
+                    <option selected disabled>Seleccione</option>
+                    <option value="0" {{ $doctor->recuperacion == 0 ? 'selected': '' }}>No</option>
+                    <option value="1" {{ $doctor->recuperacion == 1 ? 'selected': '' }}>Si</option>
+                </select>
+            </div>
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <label for="tipo_medico" class="form-label"><strong>Días disponible:</strong></label>
                 @foreach ($dias as $dia)

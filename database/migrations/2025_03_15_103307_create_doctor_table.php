@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('doctor', function (Blueprint $table) {
             $table->id();
             $table->string('name',100);
+            $table->string('first_lastname',100)->nullable();
+            $table->string('second_lastname',100)->nullable();
             $table->string('type_document',50)->nullable();
             $table->string('number_document',50)->nullable();
             $table->string('CMP',50)->nullable();
@@ -31,6 +33,7 @@ return new class extends Migration
             $table->string('name_secretariat')->nullable();
             $table->string('phone_secretariat',12)->nullable();
             $table->boolean('state')->default(1);
+            $table->boolean('aprobacion_supervisora')->default(1);
             $table->foreignId('user_id')->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();
             $table->timestamps();
         });

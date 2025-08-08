@@ -139,6 +139,8 @@ Route::middleware(['checkRole:visitador,admin'])->group(function () {
     Route::get('rutasvisitadora',[RutasVisitadoraController::class,'index'])->name('rutasvisitadora.index');
     Route::get('rutasvisitadora/{id}',[RutasVisitadoraController::class,'listadoctores'])->name('rutasvisitadora.listadoctores');
     Route::post('/rutasvisitadora/asignar', [RutasVisitadoraController::class, 'asignar'])->name('rutasvisitadora.asignar');
+    Route::get('/rutasvisitadora/buscardoctor/{cmp}', [DoctorController::class, 'buscarCMP']);
+    Route::post('/rutasvisitadora/doctores', [DoctorController::class, 'guardarDoctorVisitador']);
 
 });
 

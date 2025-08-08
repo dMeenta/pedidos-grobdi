@@ -36,7 +36,7 @@ class MuestrasController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nombre_muestra' => 'required|string|max:255|unique:muestras,nombre_muestra',
+            'nombre_muestra' => 'required|string|max:255',
             'clasificacion_id' => 'required|exists:clasificaciones,id',
             'cantidad_de_muestra' => 'required|numeric|min:1|max:10000',
             'observacion' => 'nullable|string',
@@ -44,7 +44,6 @@ class MuestrasController extends Controller
             'name_doctor' => 'nullable|string|max:80',
             'foto' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048', // VALIDACIÓN DE IMAGEN
         ],[
-            'nombre_muestra.unique' => 'El nombre de la muestra ya está en uso.',   
             'cantidad_de_muestra.min' => 'La cantidad de muestra debe ser al menos 1.',
             'cantidad_de_muestra.max' => 'La cantidad de muestra no puede exceder 10,000.',
             'foto.image' => 'El archivo debe ser una imagen válida.',
