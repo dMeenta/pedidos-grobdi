@@ -114,6 +114,7 @@ Route::put('/pedidosmotorizado/fotos/{id}', [PedidosMotoController::class, 'carg
 //SUPERVISOR
 Route::middleware(['checkRole:supervisor,admin'])->group(function () {
     Route::resource('centrosalud', CentroSaludController::class);
+    Route::post('centrosalud/creacionflotante',[CentroSaludController::class,'creacionRapida'])->name('centrosalud.crearflorante');
     Route::get('centrosaludbuscar', CentroSaludController::class.'@buscar');
     Route::resource('especialidad', EspecialidadController::class);
     Route::resource('doctor', DoctorController::class);
@@ -141,7 +142,7 @@ Route::middleware(['checkRole:visitador,admin'])->group(function () {
     Route::post('/rutasvisitadora/asignar', [RutasVisitadoraController::class, 'asignar'])->name('rutasvisitadora.asignar');
     Route::get('/rutasvisitadora/buscardoctor/{cmp}', [DoctorController::class, 'buscarCMP']);
     Route::post('/rutasvisitadora/doctores', [DoctorController::class, 'guardarDoctorVisitador']);
-
+    Route::get('centrosaludbuscar', CentroSaludController::class.'@buscar')->name('centrosalud.buscar');
 });
 
 

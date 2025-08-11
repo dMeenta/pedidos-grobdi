@@ -14,7 +14,21 @@
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
         <a class="btn btn-primary btn-sm" href="{{ route('doctor.index') }}"><i class="fa fa-arrow-left"></i> Atrás</a>
     </div>
-  
+    @if ($errors->any())
+        <div class="alert alert-danger alert-dismissible fade-in-pop text-center" role="alert">
+            <span class="icon"><i class="fas fa-skull-crossbones"></i></span>
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+                <button type="button"
+                    class="close position-absolute" style="top: 0.5rem;"
+                    data-dismiss="alert" aria-label="Cerrar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    @endif
     <form action="{{ route('doctor.store') }}" method="POST">
         @csrf
   
@@ -131,15 +145,9 @@
                 </select>
             </div>
             <div class="col-xs-6 col-sm-6 col-md-6">
-            <label for="hijos" class="form-label"><strong>Centro de Salud</strong></label>
-                <input type="text" 
-                id="search" 
-                name="centrosalud_name" 
-                placeholder="Buscar centro de salud..." 
-                autocomplete="off" 
-                class="form-control @error('centrosalud_id') is-invalid @enderror">
-                <input type="hidden" id="centrosalud_id" name="centrosalud_id">
-                <ul id="suggestions" style="display: none;"></ul>
+                <label class="form-label">Centro de Salud:</label>
+                    <select id="centrosalud_id" name="centrosalud_id" class="form-control" style="width: 100%;">
+                    </select>
                 @error('centrosalud_id')
                     <div class="form-text text-danger">Seleccione un centro de salud, si no lo encuentra debe crearlo antes</div>
                 @enderror
@@ -243,40 +251,78 @@
                 $('#turno_' + diaId + ' select').val('');  // Resetea el valor del combobox
             }
         });
-    });
-    $(document).ready(function() {
-        $('#search').on('input', function() {
-            var query = $(this).val();
-            if (query.length > 2) {
+        $('#centrosalud_id').select2({
+            placeholder: 'Buscar centro de salud',
+            minimumInputLength: 2,
+            ajax: {
+                url: "{{route('centrosalud.buscar')}}",
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return { term: params.term };
+                },
+                processResults: function (data, params) {
+                    let results = data.map(item => ({
+                        id: item.id,
+                        text: item.text
+                    }));
+
+                    // Si no hay resultados, agregamos la opción de "Agregar nuevo"
+                    if (params.term && results.length === 0) {
+                        results.push({
+                            id: 'nuevo:' + params.term,
+                            text: '➕ Agregar nuevo centro: "' + params.term + '"'
+                        });
+                    }
+
+                    return { results: results };
+                },
+                cache: true
+            },
+            language: "es",
+        });
+        $('#centrosalud_id').on('select2:select', function (e) {
+            let data = e.params.data;
+
+            // Si es la opción "nuevo:..."
+            if (String(data.id).startsWith('nuevo:')) {
+                let nombreNuevo = String(data.id).replace('nuevo:', '');
+
+                if (!confirm(`¿Deseas agregar "${nombreNuevo}" como nuevo centro de salud?`)) {
+                    // cancelar -> limpiar selección
+                    $('#centrosalud_id').val(null).trigger('change');
+                    return;
+                }
+
+                // Llamada AJAX para crear el nuevo centro
                 $.ajax({
-                    url: '/centrosaludbuscar',
-                    method: 'GET',
-                    data: { term: query },
-                    success: function(data) {
-                        $('#suggestions').empty().show();
-                        if (data.length > 0) {
-                            data.forEach(function(centrosalud) {
-                                console.log(centrosalud);
-                                $('#suggestions').append('<li data-id="' + centrosalud.id + '">' + centrosalud.name + '</li>');
-                            });
+                    url: "{{ route('centrosalud.crearflorante') }}", // ruta POST para crear
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        name: nombreNuevo,
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function (res) {
+                        // res debe devolver { id: ..., text: ... }
+                        // Crear opción y seleccionarla
+                        let option = new Option(res.text, res.id, true, true);
+                        $('#centrosalud_id').append(option).trigger('change');
+                    },
+                    error: function (xhr) {
+                        // mostrar error si hay fallo de validación o servidor
+                        if (xhr.status === 422 && xhr.responseJSON?.errors) {
+                            alert(Object.values(xhr.responseJSON.errors).flat().join("\n"));
                         } else {
-                            $('#suggestions').hide();
+                            alert('Error al crear el centro de salud.');
                         }
+                        // limpiar selección si falla
+                        $('#centrosalud_id').val(null).trigger('change');
                     }
                 });
-            } else {
-                $('#suggestions').empty().hide();
             }
         });
-
-        // Cuando el usuario hace clic en una sugerencia
-        $(document).on('click', '#suggestions li', function() {
-            var centrosaludName = $(this).text();
-            var centrosaludId = $(this).data('id');
-            $('#search').val(centrosaludName);   // Rellenamos el campo de búsqueda con el nombre del centrosalud
-            $('#centrosalud_id').val(centrosaludId);  // Rellenamos el campo oculto con el ID del centrosalud
-            $('#suggestions').empty().hide();   // Ocultamos las sugerencias
-        });
     });
+
 </script>
 @stop

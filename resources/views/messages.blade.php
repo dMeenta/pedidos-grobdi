@@ -22,7 +22,7 @@
 @endif
 
 @if ($errors->any())
-        <div class="alert alert-danger alert-dismissible fade-in-pop text-center" role="alert">
+    <div class="alert alert-danger alert-dismissible fade-in-pop text-center" role="alert">
         <span class="icon"><i class="fas fa-skull-crossbones"></i></span>
             <ul>
                 @foreach ($errors->all() as $error)
@@ -34,8 +34,8 @@
                 data-dismiss="alert" aria-label="Cerrar">
             <i class="fas fa-times"></i>
         </button>
-        </div>
-    @endif
+    </div>
+@endif
 <style>
     .fade-in-pop {
         animation: fadePop 0.8s ease-out forwards;

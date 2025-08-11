@@ -16,6 +16,9 @@
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                     <a class="btn btn-primary btn-sm" href="{{ route('enrutamiento.agregarlista',$id) }}"><i class="fa fa-arrow-left"></i> Atrás</a>
                 </div>
+                <div class="mb-3">
+                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#crearDoctor">Doctores Pendientes</button>
+                </div>
                 <table class="table table-bordered table-striped mt-4">
                     <thead>
                         <tr>

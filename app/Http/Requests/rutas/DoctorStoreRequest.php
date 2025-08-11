@@ -24,7 +24,6 @@ class DoctorStoreRequest extends FormRequest
         return [
             'name' => 'required',
             'cmp' => 'required',
-            'lastname' => 'required',
             'phone' => 'required',
             'distrito_id' => 'required',
             'centrosalud_id' => 'required',

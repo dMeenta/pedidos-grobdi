@@ -19,6 +19,7 @@ class EstadoVisitaSeeder extends Seeder
             ['name'=>'No Visitado','color'=>'#e11a1a'],
             ['name'=>'Visitado','color'=>'#20e11a'],
             ['name'=>'Reprogramado','color'=>'#f1c40f'],
+            ['name'=>'Pendiente Aprobacion','color'=>'#f62dae'], 
             ];
             
             foreach ($esta_visitas as $estado_visita) {

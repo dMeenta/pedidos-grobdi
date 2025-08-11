@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\rutas\enrutamiento;
 
 use App\Http\Controllers\Controller;
+use App\Models\Day;
 use App\Models\Distrito;
 use App\Models\Enrutamiento;
 use App\Models\EnrutamientoLista;
@@ -27,10 +28,11 @@ class RutasVisitadoraController extends Controller
         $fecha_inicio = $rutames->fecha_inicio;
         $fecha_fin = $rutames->fecha_fin;
         $semana_ruta = $rutames;
+        $dias = Day::all();
         $especialidades = Especialidad::all();
         $visitadoctores = VisitaDoctor::where('enrutamientolista_id',$id)->get();
         $distritos = Distrito::select('id','name')->where('provincia_id',128)->orWhere('provincia_id',67)->orderBy('name')->get();
-        return view('rutas.visita.doctoresrutas',compact('visitadoctores','fecha_inicio','fecha_fin','semana_ruta','especialidades','distritos'));
+        return view('rutas.visita.doctoresrutas',compact('visitadoctores','fecha_inicio','fecha_fin','semana_ruta','especialidades','distritos','dias'));
     }
     public function asignar(Request $request){
         $request->validate([

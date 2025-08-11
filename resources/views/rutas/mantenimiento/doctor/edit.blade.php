@@ -264,7 +264,7 @@
                         if (data.length > 0) {
                             data.forEach(function(centrosalud) {
                                 console.log(centrosalud);
-                                $('#suggestions').append('<li data-id="' + centrosalud.id + '">' + centrosalud.name + '</li>');
+                                $('#suggestions').append('<li data-id="' + centrosalud.id + '">' + centrosalud.text + '</li>');
                             });
                         } else {
                             $('#suggestions').hide();

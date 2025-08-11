@@ -14,6 +14,7 @@ use App\Models\VisitaDoctor;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Log\Logger;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
 class DoctorController extends Controller
@@ -84,22 +85,70 @@ class DoctorController extends Controller
     }
     public function guardarDoctorVisitador(Request $request){
         Logger($request->all());
-        // $doctor = new Doctor();
-        // $doctor->cmp = $request->CMP;
-        // $doctor->first_lastname = $request->first_lastname;
-        // $doctor->second_lastname = $request->second_lastname;
-        // $doctor->name = $request->name;
-        // $doctor->especialidad_id = $request->especialidad_id;
-        // $doctor->distrito_id = $request->distrito_id;
-        // $doctor->categoriadoctor_id = 6;
-        // $doctor->aprobacion_supervisora = 0;
-        // $doctor->save();
-        // $visitadoctor = new VisitaDoctor();
-        // $visitadoctor->doctor_id = $doctor->id;
-        // $visitadoctor->enrutamientolista_id = $request->id_enrutamientolista;
-        // $visitadoctor->save();
+        // dd($request->all());
+        $request->validate([
+            'CMP' => 'required|numeric|unique:doctor,CMP',
+            'first_lastname' => 'required|string|max:100',
+            'second_lastname' => 'required|string|max:100',
+            'name' => 'required|string|max:150',
+            'phone'=>'required|numeric',
+            'categoria_medico'=>'required',
+            'distrito_id'=>'required',
+            'especialidad_id'=>'required',
+            'centrosalud_id'=>'required',
+            'dias' => 'array',
+            'fecha_visita' => 'required',
+        ],[
+            'first_lastname.required' => 'El apellido paterno es obligatorio',
+            'second_lastname.required' => 'El apellido materno es obligatorio',
+            'name.required' => 'El nombre es obligatorio',
+            'categoria_medico.required' => 'La categoria del medico es obligatorio',
+            'fecha_visita.required' => 'La fecha de visita es obligatorio',
+        ]);
+        
 
-        return response()->json(['success' => true, 'message' => 'Doctor guardado correctamente']);
+        $doctor = new Doctor();
+        $doctor->cmp = $request->CMP;
+        $doctor->first_lastname = $request->first_lastname;
+        $doctor->second_lastname = $request->second_lastname;
+        $doctor->name = $request->name;
+        $doctor->phone = $request->phone;
+        $doctor->birthdate = $request->birthdate;
+        $doctor->distrito_id = $request->distrito_id;
+        $doctor->especialidad_id = $request->especialidad_id;
+        $doctor->centrosalud_id = $request->centrosalud_id;
+        $doctor->categoriadoctor_id = 6;
+        $doctor->tipo_medico = "En Proceso";
+        $doctor->asignado_consultorio = 0;
+        $doctor->categoria_medico = $request->categoria_medico;
+        $doctor->state = 0;
+        $doctor->user_id = Auth::user()->id;
+
+        $visitadoctor = new VisitaDoctor();
+        $visitadoctor->enrutamientolista_id = $request->id_enrutamientolista;
+        $visitadoctor->fecha = $request->fecha_visita;
+        $visitadoctor->estado_visita_id = 6;
+        $visitadoctor->observaciones_visita = $request->observaciones_visita;
+        $visitadoctor->created_by = Auth::user()->id;
+        $visitadoctor->updated_by = Auth::user()->id;
+        
+        $diasSeleccionados = $request->input('dias');
+        DB::transaction(function() use ($doctor, $visitadoctor,$diasSeleccionados) {
+            $doctor->save();
+            // Crear un arreglo con los turnos seleccionados para cada día
+            $doctorday = [];
+            if($diasSeleccionados){
+                foreach ($diasSeleccionados as $dia) {
+                    array_push($doctorday, ['doctor_id' => $doctor->id,'day_id' => $dia,'turno'=> 0]) ;
+                    // dd($doctor_day);
+                }
+                $doctor->days()->attach($doctorday);
+            }
+            $visitadoctor->doctor_id = $doctor->id;
+            $visitadoctor->save();
+            
+        });
+        return response()->json(['success' => true, 'message' => 'Doctor y visita guardado correctamente']);
     }
     /**
      * Store a newly created resource in storage.
@@ -108,6 +157,8 @@ class DoctorController extends Controller
     {
         // Obtener los días seleccionados
         $diasSeleccionados = $request->input('dias');
+
+        
         $doctor = new Doctor();
         $doctor->name = $request->name;
         $doctor->phone = $request->phone;
@@ -115,10 +166,12 @@ class DoctorController extends Controller
         $doctor->distrito_id = $request->distrito_id;
         $doctor->centrosalud_id = $request->centrosalud_id;
         $doctor->especialidad_id = $request->especialidad_id;
+        $doctor->centrosalud_id = $request->centrosalud_id;
         $doctor->birthdate =  date('Y-m-d' , strtotime($request->birthdate));
         $doctor->categoria_medico = $request->categoria_medico;
         $doctor->tipo_medico = $request->tipo_medico;
         $doctor->asignado_consultorio = $request->asignado_consultorio;
+        $doctor->categoriadoctor_id = 6;
         $doctor->songs = $request->songs;
         $doctor->recuperacion = $request->recuperacion;
         $doctor->name_secretariat = $request->name_secretariat;

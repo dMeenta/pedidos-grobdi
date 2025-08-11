@@ -145,7 +145,7 @@ class EnrutamientoController extends Controller
     }
 
     public function DoctoresLista(Request $request,$id){
-        $doctores = VisitaDoctor::where('enrutamientolista_id',$id)->get();
+        $doctores = VisitaDoctor::where('enrutamientolista_id',$id)->whereNot('estado_visita_id','like',6)->get();
         $enruta = VisitaDoctor::where('enrutamientolista_id',$id)->first();
         $id = $enruta->enrutamientolista->enrutamiento->id;
         return view('rutas.enrutamiento.doctoreslista',compact('doctores','id'));

@@ -41,6 +41,8 @@
                                         <td><span class="badge bg-danger">{{ $visitadoctor->estado_visita->name }}</span></td>
                                     @elseif($visitadoctor->estado_visita->id == 4)
                                         <td><span class="badge bg-primary">{{ $visitadoctor->estado_visita->name }}</span></td>
+                                    @elseif($visitadoctor->estado_visita->id == 6)
+                                        <td><span class="badge bg-info">{{ $visitadoctor->estado_visita->name }}</span></td>
                                     @else
                                         <td><span class="badge bg-primary">{{ $visitadoctor->estado_visita->name }}</span></td>
                                     @endif
@@ -108,6 +110,7 @@
                 </button>
             </div>
             <div class="modal-body">
+                <div id="erroresDoctor" class="alert alert-danger d-none"></div>
                 <form>
                     <div class="form-group row">
                         <label class="form-label col-2">CMP:</label>
@@ -133,6 +136,13 @@
                         </div>
                     </div>
                     <div class="form-group row">
+                        <label class="col-2">Centro de Salud:</label>
+                        <div class="col-10">
+                            <select id="centrosalud_id" name="centrosalud_id" class="form-control" style="width: 100%;">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
                         <label class="col-2">Telefono:</label>
                         <div class="col-4">
                             <input type="text" class="form-control" name="phone" placeholder="Ingresar telefono celular" required>
@@ -146,6 +156,7 @@
                         <label class="col-2">Especialidad:</label>
                         <div class="col-4">
                             <select class="form-control" name="especialidad_id">
+                                <option value="" selected disabled>Seleccione</option>
                                 @foreach ( $especialidades as $especialidad)
                                 <option value="{{ $especialidad->id }}">{{ $especialidad->name }}</option>
                                 @endforeach
@@ -154,11 +165,67 @@
                         <label class="col-2">Distrito:</label>
                         <div class="col-4">
                             <select class="form-control" name="distrito_id">
+                                <option value="" selected disabled>Seleccione</option>
                                 @foreach ($distritos as $distrito)
                                 <option value="{{ $distrito->id }}">{{ $distrito->name }}</option>
                                 @endforeach
                             </select>
                         </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="categoria" class="form-label col-2"><strong>Categoría Médico:</strong></label>
+                        <div class="col-4">
+                            <select class="form-control" aria-label="categoria" name="categoria_medico">
+                                <option value="" selected disabled>Seleccione</option>
+                                <option value="empresa">Empresa</option>
+                                <option value="visitador">Visitador</option>
+                            </select>
+                        </div>
+                        <label for="hijos" class="form-label col-2"><strong>¿Tiene hijos?</strong></label>
+                        <div class="col-4">
+                            <select class="form-control" aria-label="hijos" name="songs">
+                                <option value="" selected disabled>Seleccione</option>
+                                <option value="0">No</option>
+                                <option value="1">Si</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-2">Nombre secretaria:</label>
+                        <div class="col-4">
+                            <input type="text" class="form-control" name="name_secretariat" placeholder="Ingresar el nombre de la secretaria">
+                        </div>
+                        <label class="col-2">Telefono secreataria:</label>
+                        <div class="col-4">
+                            <input type="text" class="form-control" name="phone_secretariat" placeholder="Ingresar telefono de la secretaria">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-2">Fecha de visita:</label>
+                        <div class="col-4">
+                            <input 
+                                type="date" 
+                                class="form-control" 
+                                name="fecha_visita" 
+                                placeholder="Ingresar la fecha que fue visitado" 
+                                min="{{ $fecha_inicio }}"
+                                max="{{ $fecha_fin }}"
+                            >
+                        </div>
+                        <label for="observaciones" class="form-label col-2">Observaciones</label>
+                        <textarea name="observaciones" id="observaciones" class="form-control col-4"></textarea>
+                    </div>
+                    <div class="form-group row">
+                        <label for="tipo_medico" class="form-label col-2"><strong>Días disponible:</strong></label>
+                        @foreach ($dias as $dia)
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" value="{{ $dia->id }}" id="dia_{{ $dia->id }}" name="dias[]">
+                                <label class="form-check-label" for="dia_{{ $dia->id }}">
+                                    {{ $dia->name }}
+                                </label>
+                                <br>
+                            </div>
+                        @endforeach
                     </div>
                     <input type="hidden" name="id_enrutamientolista" value="{{ $semana_ruta->id }}">
                 </form>
@@ -173,10 +240,11 @@
 @stop
 
 @section('css')
-
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 @stop
-
+    
 @section('js')
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#miTabla').DataTable({
@@ -230,7 +298,36 @@
                     }
                 });
             });
+            $('#crearDoctor').on('shown.bs.modal', function () {
+                $('#centrosalud_id').select2({
+                    dropdownParent: $('#crearDoctor'),
+                    placeholder: 'Buscar centro de salud...',
+                    allowClear: true,
+                    ajax: {
+                        url: "{{ route('centrosalud.buscar') }}",
+                        dataType: 'json',
+                        delay: 250,
+                        data: function (params) {
+                            return {
+                                term: params.term
+                            };
+                        },
+                        processResults: function (data) {
+                            return {
+                                results: data
+                            };
+                        },
+                        cache: true
+                    }
+                });
+            });
+            $('#crearDoctor').on('hidden.bs.modal', function () {
+                // Limpiar todos los inputs, selects y textarea dentro del modal
+                $(this).find('form')[0].reset();
 
+                // Si usas select2, también hay que resetearlo manualmente
+                $(this).find('select').val(null).trigger('change');
+            });
             $("#btnBuscarCMP").click(function(){
                 let cmp = $("input[name='CMP']").val();
 
@@ -258,6 +355,10 @@
             });
             // Botón guardar doctor
             $("#btnGuardarDoctor").click(function(){
+                let diasSeleccionados = [];
+                $("input[name='dias[]']:checked").each(function(){
+                    diasSeleccionados.push($(this).val());
+                });
                 let formData = {
                     CMP: $("input[name='CMP']").val(),
                     first_lastname: $("input[name='first_lastname']").val(),
@@ -265,7 +366,17 @@
                     name: $("input[name='name']").val(),
                     phone: $("input[name='phone']").val(),
                     birthdate: $("input[name='birthdate']").val(),
+                    distrito_id: $("select[name='distrito_id']").val(),
+                    especialidad_id: $("select[name='especialidad_id']").val(),
+                    categoria_medico: $("select[name='categoria_medico']").val(),
+                    songs: $("select[name='songs']").val(),
                     id_enrutamientolista: $("input[name='id_enrutamientolista']").val(),
+                    name_secretariat: $("input[name='name_secretariat']").val(),
+                    phone_secretariat: $("input[name='phone_secretariat']").val(),
+                    fecha_visita: $("input[name='fecha_visita']").val(),
+                    observaciones: $("textarea[name='observaciones']").val(),
+                    centrosalud_id: $("select[name='centrosalud_id']").val(),
+                    dias: diasSeleccionados, // Array con los días seleccionados
                     _token: "{{ csrf_token() }}" // Para Laravel
                 };
 
@@ -281,8 +392,15 @@
                             alert("No se pudo guardar el doctor");
                         }
                     },
-                    error: function(){
-                        alert("Error al guardar");
+                    error: function(xhr){
+                        if(xhr.status === 422){
+                            let errores = xhr.responseJSON.errors;
+                            let mensaje = "";
+                            for (let campo in errores) {
+                                mensaje += errores[campo].join("<br>") + "<br>";
+                            }
+                            $("#erroresDoctor").removeClass("d-none").html(mensaje);
+                        }
                     }
                 });
             });

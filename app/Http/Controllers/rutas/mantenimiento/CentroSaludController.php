@@ -24,8 +24,8 @@ class CentroSaludController extends Controller
         // dd($request->all());
         if ($request->ajax()) {
             $centrosalud = CentroSalud::where('name', 'like', '%' . $request->query('term') . '%')
-                ->where('state','like',1)
-                ->get(['id','name']);
+            ->where('state','like',1)
+            ->get(['id','name as text']);
             return response()->json($centrosalud);
         }
     }
@@ -56,7 +56,20 @@ class CentroSaludController extends Controller
         ->with('success', 'Registro completado Exitosamente');
         
     }
+    public function creacionRapida(Request $request){
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:centrosalud,name'
+        ]);
 
+        $centro = CentroSalud::create([
+            'name' => $validated['name']
+        ]);
+
+        return response()->json([
+            'id' => $centro->id,
+            'text' => $centro->name
+        ]);
+    }
 
     public function edit(string $id)
     {
