@@ -14,6 +14,7 @@ use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Container\Attributes\Log;
 use Illuminate\Http\Request;
+use Illuminate\Log\Logger;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -233,6 +234,7 @@ class EnrutamientoController extends Controller
                 $visita->reprogramar = 1;
             }
         }
+        Logger($request->all()  );
         $visita->estado_visita_id = $request['estado_visita_id'];
         $visita->observaciones_visita = $request['observaciones'];
         if($request['fecha_visita']){

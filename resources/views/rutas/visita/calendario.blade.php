@@ -189,6 +189,7 @@
                 initialView: 'dayGridMonth',
                 locale: 'es',
                 editable: true,
+                hiddenDays: [0, 6], // Oculta domingos (0) y sábados (6)
                 events: @json($eventos),
                 eventOrder: "turno",
                 eventClick: function(info) {
