@@ -16,70 +16,72 @@
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                     <a class="btn btn-primary btn-sm" href="{{ route('enrutamiento.agregarlista',$id) }}"><i class="fa fa-arrow-left"></i> Atrás</a>
                 </div>
-                <table class="table table-bordered table-striped mt-4">
-                    <thead>
-                        <tr>
-                            <th>Distrito</th>
-                            <th>Doctores</th>
-                            <th>Fecha</th>
-                            <th>Estado</th>
-                            <th>Observaciones</th>
-                            <th>Opciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($doctores as $doctor )
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped mt-4">
+                        <thead>
                             <tr>
-                                <td>{{ $doctor->doctor->distrito->name ? $doctor->doctor->distrito->name :'' }}</td>
-                                <td>{{ $doctor->doctor->name." ".$doctor->doctor->first_lastname . " " . $doctor->doctor->second_lastname }}</td> 
-                                @if ( $doctor->estado_visita->id  == 4)
-                                    <td>{{ $doctor->fecha }}</td>
-                                    <td><span class="badge bg-success">{{ $doctor->estado_visita->name }}</span></td>
-                                    <td>{{ $doctor->observaciones_visita }}</td>
-                                    <td>
-                                        <button 
-                                            type="button" 
-                                            class="btn btn-success btn-sm btn-ver-mapa"
-                                            data-lat="{{ $doctor->latitude }}"
-                                            data-lng="{{ $doctor->longitude }}"
-                                            data-nombre="{{ $doctor->doctor->name." ".$doctor->doctor->first_lastname . " " . $doctor->doctor->second_lastname }}"
-                                            data-toggle="modal"
-                                            data-target="#mapModal"
-                                        >
-                                            <i class="fa fa-map-marker" aria-hidden="true">
-
-                                            </i> 
-                                            Ver Mapa
-                                        </button>
-                                    </td>
-                                @else
-                                    <form action="{{ route('enrutamientolista.doctoresupdate',$doctor->id) }}" method="POST">
-                                        @csrf
-                                        @method('PUT')
-                                    <td>
-                                        <input min="{{ $doctor->enrutamientolista->fecha_inicio }}" max="{{ $doctor->enrutamientolista->fecha_fin }}" type="date" name="fecha" class="form-control" value="{{ $doctor->fecha }}">
-                                    </td>
-                                    @if ( $doctor->estado_visita->id  == 1)
-                                        <td><span class="badge bg-warning">{{ $doctor->estado_visita->name }}</span></td>
-                                    @elseif($doctor->estado_visita->id == 5)
-                                        <td><span class="badge bg-secondary">{{ $doctor->estado_visita->name }}</span></td>
-                                    @elseif($doctor->estado_visita->id == 3)
-                                        <td><span class="badge bg-danger">{{ $doctor->estado_visita->name }}</span></td>
-                                    @else
-                                        <td><span class="badge bg-primary">{{ $doctor->estado_visita->name }}</span></td>
-                                    @endif
-                                    <td>{{ $doctor->observaciones_visita }}</td>
-                                    <td>
-                                        <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-pencil-square"></i> Actualizar</button>
-                                    </td>
-
-                                    </form>
-                                @endif
-
+                                <th>Distrito</th>
+                                <th>Doctores</th>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                                <th>Observaciones</th>
+                                <th>Opciones</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach ($doctores as $doctor )
+                                <tr>
+                                    <td>{{ $doctor->doctor->distrito->name ? $doctor->doctor->distrito->name :'' }}</td>
+                                    <td>{{ $doctor->doctor->name." ".$doctor->doctor->first_lastname . " " . $doctor->doctor->second_lastname }}</td> 
+                                    @if ( $doctor->estado_visita->id  == 4)
+                                        <td>{{ $doctor->fecha }}</td>
+                                        <td><span class="badge bg-success">{{ $doctor->estado_visita->name }}</span></td>
+                                        <td>{{ $doctor->observaciones_visita }}</td>
+                                        <td>
+                                            <button 
+                                                type="button" 
+                                                class="btn btn-success btn-sm btn-ver-mapa"
+                                                data-lat="{{ $doctor->latitude }}"
+                                                data-lng="{{ $doctor->longitude }}"
+                                                data-nombre="{{ $doctor->doctor->name." ".$doctor->doctor->first_lastname . " " . $doctor->doctor->second_lastname }}"
+                                                data-toggle="modal"
+                                                data-target="#mapModal"
+                                            >
+                                                <i class="fa fa-map-marker" aria-hidden="true">
+    
+                                                </i> 
+                                                Ver Mapa
+                                            </button>
+                                        </td>
+                                    @else
+                                        <form action="{{ route('enrutamientolista.doctoresupdate',$doctor->id) }}" method="POST">
+                                            @csrf
+                                            @method('PUT')
+                                        <td>
+                                            <input min="{{ $doctor->enrutamientolista->fecha_inicio }}" max="{{ $doctor->enrutamientolista->fecha_fin }}" type="date" name="fecha" class="form-control" value="{{ $doctor->fecha }}">
+                                        </td>
+                                        @if ( $doctor->estado_visita->id  == 1)
+                                            <td><span class="badge bg-warning">{{ $doctor->estado_visita->name }}</span></td>
+                                        @elseif($doctor->estado_visita->id == 5)
+                                            <td><span class="badge bg-secondary">{{ $doctor->estado_visita->name }}</span></td>
+                                        @elseif($doctor->estado_visita->id == 3)
+                                            <td><span class="badge bg-danger">{{ $doctor->estado_visita->name }}</span></td>
+                                        @else
+                                            <td><span class="badge bg-primary">{{ $doctor->estado_visita->name }}</span></td>
+                                        @endif
+                                        <td>{{ $doctor->observaciones_visita }}</td>
+                                        <td>
+                                            <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-pencil-square"></i> Actualizar</button>
+                                        </td>
+    
+                                        </form>
+                                    @endif
+    
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

@@ -32,6 +32,7 @@
             <div class="alert alert-danger">{{$error}}</div>
         @endforeach
     @endif
+    <div class="table-responsive">
         <table class="table table-bordered table-striped mt-4">
             <thead>
                 <tr>
@@ -65,6 +66,7 @@
             </tbody>
   
         </table>
+    </div>
     </div>
 </div>
 <div class="modal fade" id="itemModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
