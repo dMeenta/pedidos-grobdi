@@ -22,6 +22,6 @@ class VisitaDoctor extends Model
         return $this->belongsTo(EstadoVisita::class);
     }
     public function enrutamientolista(){
-        return $this->belongsTo(EnrutamientoLista::class);
+        return $this->belongsTo(EnrutamientoLista::class,'enrutamientolista_id');
     }
 }

@@ -64,7 +64,7 @@
                                     <button class="btn btn-success mb-1 btn-sm" data-toggle="modal" data-target="#muestraModal{{ $muestra->id }}">
                                         <i class="fas fa-eye"></i>
                                     </button>
-                                    <a href="{{ route('muestras.edit', $muestra->id) }}" class="btn btn-primary mb-1 btn-sm">
+                                    <!-- <a href="{{ route('muestras.edit', $muestra->id) }}" class="btn btn-primary mb-1 btn-sm">
                                         <i class="fas fa-edit"></i>   
                                     </a>
                                     <form action="{{ route('muestras.destroy', $muestra->id) }}" method="post">
@@ -73,7 +73,7 @@
                                         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Desea eliminar esta muestra?');">
                                             <i class="fas fa-trash"></i>
                                         </button>
-                                    </form>
+                                    </form> -->
                                 </div>
                             </td>
                         </tr>

@@ -23,7 +23,7 @@
         <table class="table table-bordered table-striped mt-4">
             <thead>
                 <tr>
-                    <th>Fecha</th>
+                    <th>Fecha - Mes</th>
                     <th>Zona</th>
                     <th>Acciones</th>
                 </tr>
@@ -35,7 +35,7 @@
                     <td>{{ \Carbon\Carbon::parse($ruta->fecha)->locale('es')->monthName.', '. \Carbon\Carbon::parse($ruta->fecha)->year}}</td>
                     <td>{{ $ruta->zone->name }}</td>
                     <td>
-                        <a class="btn btn-primary btn-sm" href="{{ route('enrutamiento.agregarlista',$ruta->id) }}"><i class=" fa fa-plus"></i> Agregar Lista</a>
+                        <a class="btn btn-primary btn-sm" href="{{ route('enrutamiento.agregarlista',$ruta->id) }}"><i class=" fa fa-plus"></i> Semanas</a>
                     </td>
                 </tr>
             @empty

@@ -52,6 +52,8 @@
                                     </div>
                                     <input type="hidden" name="doctor_id" id="doctor_id">
                                     <input type="hidden" name="visita_id" id="visita_id">
+                                    <input type="hidden" name="latitude" id="latitude">
+                                    <input type="hidden" name="longitude" id="longitude">
 
                                     <div class="text-end">
                                         <button type="submit" class="btn btn-primary">Guardar Cambios</button>
@@ -172,6 +174,16 @@
 
         let calendar;
         document.addEventListener('DOMContentLoaded', function () {
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    document.getElementById('latitude').value = position.coords.latitude;
+                    document.getElementById('longitude').value = position.coords.longitude;
+                }, function(error) {
+                    console.error("Error al obtener ubicación:", error.message);
+                });
+            } else {
+                console.error("Geolocalización no es compatible con este navegador.");
+            }
             const calendarEl = document.getElementById('calendar');
             calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',

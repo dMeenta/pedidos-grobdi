@@ -55,7 +55,7 @@
                 <tbody>
                 @forelse ($doctores as $doctor)
                     <tr class={{ $doctor->state == 0 ? 'table-danger': ''}}>
-                        <td>{{ $doctor->name }}</td>
+                        <td>{{ $doctor->name }} {{ $doctor->first_lastname }} {{ $doctor->second_lastname }}</td>
                         <td>{{ $doctor->CMP }}</td>
                         <td>{{ $doctor->categoriadoctor->name }}</td>
                         <td>{{ $doctor->phone }}</td>

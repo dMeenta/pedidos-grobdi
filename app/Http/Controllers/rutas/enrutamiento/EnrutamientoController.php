@@ -50,6 +50,9 @@ class EnrutamientoController extends Controller
     }
     public function agregarLista($id){
         $enrutamiento = Enrutamiento::find($id);
+        $visitas = VisitaDoctor::whereHas('enrutamientoLista', function ($query) use ($id) {
+            $query->where('enrutamiento_id', $id);
+        })->where('estado_visita_id','like',6)->get();
         $listas = Lista::where('zone_id',$enrutamiento->zone_id)->get();
         $enrutamiento_lista = EnrutamientoLista::where('enrutamiento_id',$id)->get();
         $fechas_seleccionadas = [];
@@ -66,7 +69,7 @@ class EnrutamientoController extends Controller
                 }
             }
         }
-        return view('rutas.enrutamiento.enrutamientolista', compact('listas','enrutamiento','fechas_seleccionadas'));
+        return view('rutas.enrutamiento.enrutamientolista', compact('listas','enrutamiento','fechas_seleccionadas','visitas'));
     }
     public function Enrutamientolistastore(Request $request)
     {
@@ -168,7 +171,7 @@ class EnrutamientoController extends Controller
         $eventos = $visitas->map(function ($visita) {
             return [
                 'id' => $visita->id,
-                'title' => $visita->doctor->name,
+                'title' => $visita->doctor->name .' '.$visita->doctor->first_lastname .' '. $visita->doctor->second_lastname,
                 'start' => $visita->fecha,
                 'color' => $visita->estado_visita->color ?? '#cccccc',
             ];
@@ -235,6 +238,8 @@ class EnrutamientoController extends Controller
         if($request['fecha_visita']){
             $visita->fecha = $request['fecha_visita'];
         }
+        $visita->latitude = $request['latitude'] ?? 19.4326;
+        $visita->longitude = $request['longitude'] ?? -99.1332;
         $visita->updated_by = Auth::user()->id;
         $visita->save();
 
