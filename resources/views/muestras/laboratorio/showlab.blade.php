@@ -39,18 +39,44 @@
                             </div>
                             <div class="card-body">
                                 <p><strong class="text-danger">Aprobado por Jefe Comercial:</strong>
-                                    <span class="badge" style="background-color: {{ $muestra->aprobado_jefe_comercial ? 'green' : ($muestra->aprobado_coordinadora ? 'yellow' : 'red') }}; color: {{ ($muestra->aprobado_jefe_comercial == false && $muestra->aprobado_coordinadora == false) || $muestra->aprobado_jefe_comercial ? 'white' : 'black' }}; padding: 10px;">
-                                        {{ $muestra->aprobado_jefe_comercial ? 'Aprobado' : 'Pendiente' }}
+                                    @php
+                                    $aprobadoJefe = $muestra->aprobado_jefe_comercial;
+                                    $aprobadoCoord = $muestra->aprobado_coordinadora;
+
+                                    $badgeClass = $aprobadoJefe ? 'bg-success text-white' :
+                                    ($aprobadoCoord ? 'bg-warning text-dark' : 'bg-danger text-white');
+
+                                    $estadoTexto = $aprobadoJefe ? 'Aprobado' : 'Pendiente';
+                                    @endphp
+
+                                    <span class="badge {{ $badgeClass }} px-3 py-2">
+                                        {{ $estadoTexto }}
                                     </span>
                                 </p>
                                 <p><strong class="text-danger">Aprobado por Coordinadora:</strong>
-                                    <span class="badge" style="background-color: {{ $muestra->aprobado_coordinadora ? 'green' : ($muestra->aprobado_jefe_comercial ? 'yellow' : 'red') }}; color: {{ ($muestra->aprobado_coordinadora == false && $muestra->aprobado_jefe_comercial == false) || $muestra->aprobado_coordinadora ? 'white' : 'black' }}; padding: 10px;">
-                                        {{ $muestra->aprobado_coordinadora ? 'Aprobado' : 'Pendiente' }}
+                                    @php
+                                    $aprobadoCoord = $muestra->aprobado_coordinadora;
+                                    $aprobadoJefe = $muestra->aprobado_jefe_comercial;
+
+                                    // Lógica para color de fondo
+                                    $colorClass = $aprobadoCoord ? 'bg-success text-white' :
+                                    ($aprobadoJefe ? 'bg-warning text-dark' : 'bg-danger text-white');
+
+                                    $texto = $aprobadoCoord ? 'Aprobado' : 'Pendiente';
+                                    @endphp
+
+                                    <span class="badge {{ $colorClass }} px-3 py-2">
+                                        {{ $texto }}
                                     </span>
                                 </p>
                                 <p><strong class="text-danger">Estado:</strong>
-                                    <span class="badge" style="background-color: {{ $muestra->estado == 'Pendiente' ? 'red' : 'green' }}; color: white; padding: 10px;">
-                                        {{ $muestra->estado }}
+                                    @php
+                                    $estado = $muestra->estado;
+                                    $colorClass = $estado === 'Pendiente' ? 'bg-danger' : 'bg-success';
+                                    @endphp
+
+                                    <span class="badge {{ $colorClass }} text-white px-3 py-2">
+                                        {{ $estado }}
                                     </span>
                                 </p>
                                 <p><strong class="text-danger">Fecha y Hora Recibida:</strong></p>
@@ -62,14 +88,14 @@
                             <div class="card-footer">
                                 <strong class="text-danger">Foto Receta:</strong>
                                 @if($muestra->foto)
-                                    <button type="button" class="btn btn-sm btn-danger verFotoBtn">
-                                        <i class="fas fa-eye"></i> Ver Foto
-                                    </button>
-                                    <div class="fotoContainer mt-3" style="display: none;">
-                                        <img src="{{ asset(str_replace('public/', '', $muestra->foto)) }}" alt="Foto de la muestra" style="max-width: 100%; max-height: 500px; border-radius: 10px;">
-                                    </div>
+                                <button type="button" class="btn btn-sm btn-danger verFotoBtn">
+                                    <i class="fas fa-eye"></i> Ver Foto
+                                </button>
+                                <div class="fotoContainer mt-3" style="display: none;">
+                                    <img src="{{ asset(str_replace('public/', '', $muestra->foto)) }}" alt="Foto de la muestra" style="max-width: 100%; max-height: 500px; border-radius: 10px;">
+                                </div>
                                 @else
-                                    <span>No hay foto disponible</span>
+                                <span>No hay foto disponible</span>
                                 @endif
                             </div>
                         </div>
@@ -86,7 +112,7 @@
                                     @csrf
                                     @method('PUT')
                                     <textarea name="comentarios" class="form-control" rows="5" placeholder="Escriba un comentario...">{{ old('comentarios', $muestra->comentarios) }}</textarea>
-                                    <button type="submit" class="btn mt-3" style="background-color: #fe495f; color: white;"><i class="fas fa-save"></i>  Guardar Comentario</button>
+                                    <button type="submit" class="btn mt-3" style="background-color: #fe495f; color: white;"><i class="fas fa-save"></i> Guardar Comentario</button>
                                 </form>
                             </div>
                         </div>

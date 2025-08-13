@@ -23,9 +23,9 @@
                                 <p><strong class="text-danger">Tipo de muestra:</strong> {{ $muestra->tipo_muestra }}</p>
                                 <p><strong class="text-danger">Unidad de medida:</strong>
                                     @if($muestra->clasificacion && $muestra->clasificacion->unidadMedida)
-                                        {{ $muestra->clasificacion->unidadMedida->nombre_unidad_de_medida }}
+                                    {{ $muestra->clasificacion->unidadMedida->nombre_unidad_de_medida }}
                                     @else
-                                        No asignada
+                                    No asignada
                                     @endif
                                 </p>
                                 <p><strong class="text-danger">Cantidad:</strong> {{ $muestra->cantidad_de_muestra }}</p>
@@ -47,27 +47,48 @@
                                 <h5><i class="fas fa-clock mr-2"></i> Estado y Fechas</h5>
                             </div>
                             <div class="card-body">
-                                <p><strong class="text-danger">Aprobado por Jefe Comercial:</strong>
-                                    <span class="badge badge-pill"
-                                        style="background-color: {{ $muestra->aprobado_jefe_comercial ? 'green' : ($muestra->aprobado_coordinadora ? 'yellow' : 'red') }};
-                                               color: {{ ($muestra->aprobado_jefe_comercial == false && $muestra->aprobado_coordinadora == false) || $muestra->aprobado_jefe_comercial ? 'white' : 'black' }};
-                                               padding: 10px;">
-                                        {{ $muestra->aprobado_jefe_comercial ? 'Aprobado' : 'Pendiente' }}
+                                <p>
+                                    <strong class="text-danger">Aprobado por Jefe Comercial:</strong>
+                                    @php
+                                    $aprobadoJefe = $muestra->aprobado_jefe_comercial;
+                                    $aprobadoCoord = $muestra->aprobado_coordinadora;
+
+                                    $badgeClass = $aprobadoJefe ? 'bg-success text-white' :
+                                    ($aprobadoCoord ? 'bg-warning text-dark' : 'bg-danger text-white');
+
+                                    $estadoTexto = $aprobadoJefe ? 'Aprobado' : 'Pendiente';
+                                    @endphp
+
+                                    <span class="badge {{ $badgeClass }} px-3 py-2">
+                                        {{ $estadoTexto }}
                                     </span>
                                 </p>
 
                                 <p><strong class="text-danger">Aprobado por Coordinadora:</strong>
-                                    <span class="badge badge-pill"
-                                        style="background-color: {{ $muestra->aprobado_coordinadora ? 'green' : ($muestra->aprobado_jefe_comercial ? 'yellow' : 'red') }};
-                                               color: {{ ($muestra->aprobado_coordinadora == false && $muestra->aprobado_jefe_comercial == false) || $muestra->aprobado_coordinadora ? 'white' : 'black' }};
-                                               padding: 10px;">
-                                        {{ $muestra->aprobado_coordinadora ? 'Aprobado' : 'Pendiente' }}
+                                    @php
+                                    $aprobadoCoord = $muestra->aprobado_coordinadora;
+                                    $aprobadoJefe = $muestra->aprobado_jefe_comercial;
+
+                                    // Lógica para color de fondo
+                                    $colorClass = $aprobadoCoord ? 'bg-success text-white' :
+                                    ($aprobadoJefe ? 'bg-warning text-dark' : 'bg-danger text-white');
+
+                                    $texto = $aprobadoCoord ? 'Aprobado' : 'Pendiente';
+                                    @endphp
+
+                                    <span class="badge {{ $colorClass }} px-3 py-2">
+                                        {{ $texto }}
                                     </span>
                                 </p>
 
                                 <p><strong class="text-danger">Estado:</strong>
-                                    <span class="badge badge-pill" style="background-color: {{ $muestra->estado == 'Pendiente' ? 'red' : 'green' }}; color: white; padding: 10px;">
-                                        {{ $muestra->estado }}
+                                    @php
+                                    $estado = $muestra->estado;
+                                    $colorClass = $estado === 'Pendiente' ? 'bg-danger' : 'bg-success';
+                                    @endphp
+
+                                    <span class="badge {{ $colorClass }} text-white px-3 py-2">
+                                        {{ $estado }}
                                     </span>
                                 </p>
 
