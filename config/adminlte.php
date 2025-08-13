@@ -430,7 +430,7 @@
                 'can' => 'laboratorio'
             ],
                 [
-                    'text' => 'pedidos',
+                    'text' => 'Pedidos',
                     'url' => 'pedidoslaboratorio',
                     'icon' => 'fas fa-fw fa-user',
                     'can' => 'laboratorio'
@@ -492,7 +492,7 @@
             ['header' => 'Contabilidad',
                 'can' => 'contabilidad'],
                 [
-                    'text' => 'pedidos',
+                    'text' => 'Pedidos',
                     'url' => 'pedidoscontabilidad',
                     'icon' => 'fas fa-fw fa-user',
                     'can' => 'contabilidad'
@@ -506,7 +506,7 @@
             ['header' => 'Motorizado',
                 'can' => 'motorizados'],
                 [
-                    'text' => 'pedidos',
+                    'text' => 'Pedidos',
                     'url' => 'pedidosmotorizado',
                     'icon' => 'fas fa-fw fa-user',
                     'can' => 'motorizados'
@@ -517,7 +517,7 @@
                 'can' => 'jefe-operaciones'
             ],
                 [
-                    'text' => 'usuarios',
+                    'text' => 'Usuarios',
                     'url' => 'usuarios',
                     'icon' => 'fas fa-fw fa-user',
                     'can' => 'jefe-operaciones'
@@ -528,7 +528,7 @@
                 'can' => 'supervisor'
             ],
             [
-                'text' => 'mantenimiento',
+                'text' => 'Mantenimiento',
                 'icon' => 'fas fa-fw fa-wrench',
                 'submenu' => [
                     [
@@ -550,7 +550,7 @@
                         'can' => 'supervisor',
                     ],
                     [
-                        'text' => 'doctor',
+                        'text' => 'Doctor',
                         'url' => 'doctor',
                         'icon' => 'fas fa-fw fa-user-md',
                         'can' => 'supervisor',
@@ -655,7 +655,7 @@
                         'icon' => 'fas fa-pump-medical',
                         'submenu' => [
                             [
-                                'text' => 'clasificaciones',
+                                'text' => 'Clasificaciones',
                                 'url' => 'reporte',
                                 'icon' => 'fas fa-chart-bar',
                                 'can' => 'gerencia-general',

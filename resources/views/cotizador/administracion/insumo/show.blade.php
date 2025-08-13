@@ -29,7 +29,7 @@
                     <div class="col-md-6" style="overflow-wrap: break-word; white-space:normal;">
                         <p>
                             <strong style="color:rgb(224, 61, 80);">Estado:</strong>
-                            <span class="badge {{ $item->articulo->estado === 'activo' ? 'bg-success' : 'bg-danger' }}" style="coor: white; padding: 5px;">
+                            <span class="badge {{ $item->articulo->estado === 'activo' ? 'bg-success' : 'bg-danger' }}" style="color: white; padding: 5px;">
                                 {{ ucfirst($item->articulo->estado) }}
                             </span>
                         </p>
