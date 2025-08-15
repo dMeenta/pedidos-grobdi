@@ -3,12 +3,12 @@
 @section('title', 'Dashboard')
 
 @section('content_header')
-    
-    <!-- <h1>Pedidos</h1> -->
+
+<!-- <h1>Pedidos</h1> -->
 @stop
 
 @section('content')
-    
+
 <div class="card">
     <div class="card-header">
         <h3 class="card-title">Crear Lista</h3>
@@ -26,25 +26,33 @@
                 <input type="text" class="form-control" id="name" placeholder="Ingresar nombre" name="name">
             </div>
             <div class="form-group">
+                <label class="form-label" for="name">¿Recuperación?</label>
+                <select class="form-control @error('recovery') is-invalid @enderror" name="recovery">
+                    <option selected disabled>Seleccione una opción</option>
+                    <option value="1">Si</option>
+                    <option value="0">No</option>
+                </select>
+            </div>
+            <div class="form-group">
                 <label for="name">Zona</label>
-                <select class="form-control @error('zone_id') is-invalid @enderror" name="zone_id" >
+                <select class="form-control @error('zone_id') is-invalid @enderror" name="zone_id">
                     <option selected disabled>Seleccione una zona</option>
                     @foreach ($zonas as $zona)
-                        <option value="{{ $zona->id }}">{{ $zona->name }}</option>
+                    <option value="{{ $zona->id }}">{{ $zona->name }}</option>
                     @endforeach
                 </select>
             </div>
             <div class="form-group">
                 <label for="name">distritos</label>
                 <div class="row">
-                @foreach ($distritos as $distrito)
+                    @foreach ($distritos as $distrito)
                     <div class="col-sm-2">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="distritos[]" value="{{ $distrito->id }}" id="{{ $distrito->name }}">
                             <label class="form-check-label" for="{{ $distrito->name }}">{{ $distrito->name }}</label>
                         </div>
                     </div>
-                @endforeach
+                    @endforeach
                 </div>
             </div>
         </div>
@@ -55,29 +63,29 @@
         </div>
     </form>
 </div>
-        @error('message')
-            <p style="color: red;">{{ $message }}</p>
-        @enderror
-    <br>
-    @if(session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-        
-    @endif
-    @if(session('danger'))
-        <div class="alert alert-danger">
-            {{ session('danger') }}
-        </div>
-    @endif
+@error('message')
+<p style="color: red;">{{ $message }}</p>
+@enderror
+<br>
+@if(session('success'))
+<div class="alert alert-success">
+    {{ session('success') }}
+</div>
+
+@endif
+@if(session('danger'))
+<div class="alert alert-danger">
+    {{ session('danger') }}
+</div>
+@endif
 @stop
 
 @section('css')
-    {{-- Add here extra stylesheets --}}
-    {{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
-    <style type="text/css">
-    </style>
-    
+{{-- Add here extra stylesheets --}}
+{{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
+<style type="text/css">
+</style>
+
 @stop
 
 @section('js')

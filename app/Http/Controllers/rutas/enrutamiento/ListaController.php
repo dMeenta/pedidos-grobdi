@@ -44,6 +44,7 @@ class ListaController extends Controller
         ]);
         $lista = new Lista();
         $lista->name = $request->name;
+        $lista->recovery = $request->recovery;
         $lista->zone_id = $request->zone_id;
         $lista->save();
 

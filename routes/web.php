@@ -60,48 +60,39 @@ Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('ho
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 
-//COUNTER
+// ===================== COUNTER =====================
 Route::middleware(['checkRole:counter,admin,Administracion'])->group(function () {
-    
-    // Route::resource('cargarpedidos', PedidosController::class);
     Route::resource('cargarpedidos', CargarPedidosController::class);
-    Route::post('/cargarpedidosdetail',CargarPedidosController::class.'@cargarExcelArticulos')->name('cargarpedidos.excelarticulos');
-    Route::get('/cargarpedidos/{pedido}/uploadfile', CargarPedidosController::class .'@uploadfile')->name('cargarpedidos.uploadfile');
-    Route::put('/cargarpedidos/cargarImagen/{post}', CargarPedidosController::class .'@cargarImagen')->name('cargarpedidos.cargarImagen');
-    Route::put('/cargarpedidos/actualizarPago/{post}', CargarPedidosController::class .'@actualizarPago')->name('cargarpedidos.actualizarPago');
-    Route::put('/cargarpedidos/cargarImagenReceta/{post}', CargarPedidosController::class .'@cargarImagenReceta')->name('cargarpedidos.cargarImagenReceta');
-    Route::delete('cargarpedidos/eliminarFotoVoucher/{id}',CargarPedidosController::class.'@eliminarFotoVoucher')->name('cargarpedidos.eliminarFotoVoucher');
-    Route::put('/cargarpedidos/actualizarTurno/{id}',CargarPedidosController::class.'@actualizarTurno')->name('cargarpedidos.actualizarTurno');
+    Route::post('/cargarpedidosdetail', [CargarPedidosController::class, 'cargarExcelArticulos'])->name('cargarpedidos.excelarticulos');
+    Route::get('/cargarpedidos/{pedido}/uploadfile', [CargarPedidosController::class, 'uploadfile'])->name('cargarpedidos.uploadfile');
+    Route::put('/cargarpedidos/cargarImagen/{post}', [CargarPedidosController::class, 'cargarImagen'])->name('cargarpedidos.cargarImagen');
+    Route::put('/cargarpedidos/actualizarPago/{post}', [CargarPedidosController::class, 'actualizarPago'])->name('cargarpedidos.actualizarPago');
+    Route::put('/cargarpedidos/cargarImagenReceta/{post}', [CargarPedidosController::class, 'cargarImagenReceta'])->name('cargarpedidos.cargarImagenReceta');
+    Route::delete('cargarpedidos/eliminarFotoVoucher/{id}', [CargarPedidosController::class, 'eliminarFotoVoucher'])->name('cargarpedidos.eliminarFotoVoucher');
+    Route::put('/cargarpedidos/actualizarTurno/{id}', [CargarPedidosController::class, 'actualizarTurno'])->name('cargarpedidos.actualizarTurno');
     Route::resource('asignarpedidos', AsignarPedidoController::class);
-    Route::post('/cargarpedidos/downloadWord', CargarPedidosController::class .'@downloadWord')
-    ->name('cargarpedidos.downloadWord');
+    Route::post('/cargarpedidos/downloadWord', [CargarPedidosController::class, 'downloadWord'])->name('cargarpedidos.downloadWord');
 });
-//counter - jefe de operaciones -laboratorio
-Route::get('historialpedidos', HistorialPedidosController::class.'@index')
-->name('historialpedidos.index')
-->middleware(['checkRole:counter,admin,jefe-operaciones,laboratorio,Administracion']);
-Route::get('historialpedidos/{historialpedido}', HistorialPedidosController::class.'@show')
-->name('historialpedidos.show')
-->middleware(['checkRole:counter,admin,jefe-operaciones,laboratorio,Administracion']);
-//Jefe de operaciones
-Route::delete('historialpedidos/{historialpedido}', HistorialPedidosController::class.'@destroy')
-->name('historialpedidos.destroy')
-->middleware(['checkRole:admin,jefe-operaciones,Administracion']);
-Route::put('historial/{historialpedido}/actualizar', HistorialPedidosController::class.'@update')
-->name('historialpedidos.update')
-->middleware(['checkRole:admin,jefe-operaciones,Administracion']);
-Route::resource('usuarios', UsuariosController::class)->middleware(['checkRole:admin,jefe-operaciones']);
-Route::put('/usuarios/changepass/{fecha}', UsuariosController::class .'@changepass')
-    ->name('usuarios.changepass')
-    ->middleware(['checkRole:admin,jefe-operaciones']);
-Route::get('sincronizarpedidos',[CargarPedidosController::class,'sincronizarDoctoresPedidos'])
-    ->name('pedidos.sincronizar')
-    ->middleware(['checkRole:admin,jefe-operaciones']);
+// ===================== JEFE DE OPERACIONES =====================
+Route::middleware(['checkRole:admin,jefe-operaciones,Administracion'])->group(function () {
+    Route::get('historialpedidos', [HistorialPedidosController::class, 'index'])->name('historialpedidos.index');
+    Route::get('historialpedidos/{historialpedido}', [HistorialPedidosController::class, 'show'])->name('historialpedidos.show');
+    Route::delete('historialpedidos/{historialpedido}', [HistorialPedidosController::class, 'destroy'])->name('historialpedidos.destroy');
+    Route::put('historial/{historialpedido}/actualizar', [HistorialPedidosController::class, 'update'])->name('historialpedidos.update');
+    Route::resource('usuarios', UsuariosController::class);
+    Route::put('/usuarios/changepass/{fecha}', [UsuariosController::class, 'changepass'])->name('usuarios.changepass');
+    Route::get('sincronizarpedidos', [CargarPedidosController::class, 'sincronizarDoctoresPedidos'])->name('pedidos.sincronizar');
+});
 
-Route::resource('pedidoscontabilidad', PedidosContaController::class)->middleware(['checkRole:contabilidad,admin']);
-Route::get('/pedidoscontabilidad/downloadExcel/{fechainicio}/{fechafin}', PedidosContaController::class .'@downloadExcel')
-    ->name('pedidoscontabilidad.downloadExcel')
-    ->middleware(['checkRole:contabilidad,admin']);
+// ===================== CONTABILIDAD =====================
+Route::middleware(['checkRole:contabilidad,admin'])->group(function () {
+    Route::resource('pedidoscontabilidad', PedidosContaController::class);
+    Route::get('/pedidoscontabilidad/downloadExcel/{fechainicio}/{fechafin}', [PedidosContaController::class, 'downloadExcel'])
+        ->name('pedidoscontabilidad.downloadExcel');
+    // Marcar insumo caro
+    Route::get('/insumo/marcar-caro', [InsumoController::class, 'marcarCaro'])->name('insumos.marcar-caro');
+    Route::post('/insumo/marcar-caro', [InsumoController::class, 'actualizarEsCaro'])->name('insumos.actualizar-es-caro');
+});
 
 //ADMINISTRACION
 Route::get('formatos',FormatosController::class.'@index')->name('formatos.index');
@@ -162,29 +153,27 @@ Route::get('/distritoslimacallao', UbigeoController::class .'@ObtenerDistritosLi
 
 
 
-//laboratorio
+// ===================== LABORATORIO =====================
 Route::middleware(['checkRole:laboratorio,admin'])->group(function () {
     Route::resource('pedidoslaboratorio', PedidoslabController::class);
     Route::get('/laboratorio', [laboratorioController::class, 'estado'])->name('muestras.estado');
-    Route::put('/laboratorio/{id}/actualizar-estado', [laboratorioController::class, 'actualizarEstado'])
-        ->name('muestras.actualizarEstado');
+    Route::put('/laboratorio/{id}/actualizar-estado', [laboratorioController::class, 'actualizarEstado'])->name('muestras.actualizarEstado');
     Route::get('/laboratorio/{id}', [laboratorioController::class, 'showLab'])->name('muestras.showLab');
     Route::put('/laboratorio/{id}/actualizar-fecha', [laboratorioController::class, 'actualizarFechaEntrega'])->name('muestras.actualizarFechaEntrega');
     Route::get('/get-unidades/{clasificacionId}', [MuestrasController::class, 'getUnidadesPorClasificacion']);
     Route::put('/muestras/{id}/comentario', [laboratorioController::class, 'actualizarComentario'])->name('muestras.actualizarComentario');
-    Route::get('/pedidoslaboratorio/{fecha}/downloadWord/{turno}', PedidoslabController::class .'@downloadWord')
-    ->name('pedidoslaboratorio.downloadWord');
-    Route::get('/pedidoslaboratoriodetalles',[PedidoslabController::class,'pedidosDetalles'])->name('pedidosLaboratorio.detalles');
-    Route::put('pedidoslaboratoriodetalles/asignar/{id}/',[PedidoslabController::class,'asignarTecnicoProd'])->name('pedidosLaboratorio.asignarTecnicoProd');
-    Route::post('/pedidoslaboratoriodetalles/asignarmultiple',[PedidoslabController::class,'asignarmultipletecnico'])->name('pedidosLaboratorio.asignarmultipletecnico');
+    Route::get('/pedidoslaboratorio/{fecha}/downloadWord/{turno}', [PedidoslabController::class, 'downloadWord'])->name('pedidoslaboratorio.downloadWord');
+    Route::get('/pedidoslaboratoriodetalles', [PedidoslabController::class, 'pedidosDetalles'])->name('pedidosLaboratorio.detalles');
+    Route::put('pedidoslaboratoriodetalles/asignar/{id}/', [PedidoslabController::class, 'asignarTecnicoProd'])->name('pedidosLaboratorio.asignarTecnicoProd');
+    Route::post('/pedidoslaboratoriodetalles/asignarmultiple', [PedidoslabController::class, 'asignarmultipletecnico'])->name('pedidosLaboratorio.asignarmultipletecnico');
 
     Route::resource('presentacionfarmaceutica', PresentacionFarmaceuticaController::class);
-    Route::get('ingredientes/{base_id}',[PresentacionFarmaceuticaController::class,'listaringredientes'])->name('ingredientes.index');
-    Route::post('base',[PresentacionFarmaceuticaController::class,'guardarbases'])->name('base.store');
-    Route::post('ingredientes',[PresentacionFarmaceuticaController::class,'guardaringredientes'])->name('ingredientes.store');
-    Route::put('ingredientes/{id}',[PresentacionFarmaceuticaController::class,'actualizaringredientes'])->name('ingredientes.update');
-    Route::post('excipientes',[PresentacionFarmaceuticaController::class,'guardarexcipientes'])->name('excipientes.store');
-    Route::delete('excipientes/{id}',[PresentacionFarmaceuticaController::class,'eliminarexcipientes'])->name('excipientes.delete');
+    Route::get('ingredientes/{base_id}', [PresentacionFarmaceuticaController::class, 'listaringredientes'])->name('ingredientes.index');
+    Route::post('base', [PresentacionFarmaceuticaController::class, 'guardarbases'])->name('base.store');
+    Route::post('ingredientes', [PresentacionFarmaceuticaController::class, 'guardaringredientes'])->name('ingredientes.store');
+    Route::put('ingredientes/{id}', [PresentacionFarmaceuticaController::class, 'actualizaringredientes'])->name('ingredientes.update');
+    Route::post('excipientes', [PresentacionFarmaceuticaController::class, 'guardarexcipientes'])->name('excipientes.store');
+    Route::delete('excipientes/{id}', [PresentacionFarmaceuticaController::class, 'eliminarexcipientes'])->name('excipientes.delete');
 });
     //ROL DE TECNICA DE PRODUCCION
     Route::get('pedidosproduccion',OrdenesController::class.'@index')->name('produccion.index')->middleware(['checkRole:tecnico_produccion,admin']);

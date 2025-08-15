@@ -153,8 +153,8 @@
                 @enderror
             </div>
             <div class="col-xs-2 col-sm-2 col-md-2">
-                <label for="recuperacion" class="form-label"><strong>¿Es recuperacion?</strong></label>
-                <select class="form-select" aria-label="recuperacion" name="recuperacion" id="recuperacion">
+                <label for="recovery" class="form-label"><strong>¿Es recuperacion?</strong></label>
+                <select class="form-select" aria-label="recovery" name="recovery" id="recovery">
                     <option selected disabled>Seleccione</option>
                     <option value="0">No</option>
                     <option value="1">Si</option>

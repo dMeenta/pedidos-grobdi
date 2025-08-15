@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('lista', function (Blueprint $table) {
             $table->id();
             $table->string('name',100);
+            $table->boolean('recovery')->default(0); 
             $table->foreignId('zone_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });

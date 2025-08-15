@@ -29,6 +29,7 @@ return new class extends Migration
             $table->string('tipo_medico');
             $table->boolean('asignado_consultorio');
             $table->boolean('songs')->default(0);
+            $table->boolean('recovery')->default(0);
             $table->string('observations')->nullable();
             $table->string('name_secretariat')->nullable();
             $table->string('phone_secretariat',12)->nullable();

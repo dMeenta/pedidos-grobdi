@@ -562,13 +562,13 @@
                 'icon' => 'fas fa-list-alt',
                 'submenu' => [
                     [
-                        'text' => 'Listas',
+                        'text' => 'Lista de Semanas',
                         'url' => 'lista',
                         'icon' => 'fas fa-list',
                         'can' => 'supervisor',
                     ],
                     [
-                        'text' => 'Enrutamiento',
+                        'text' => 'Rutas',
                         'url' => 'enrutamiento',
                         'icon' => 'fas fa-calendar',
                         'can' => 'supervisor',

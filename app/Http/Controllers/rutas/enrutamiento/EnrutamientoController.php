@@ -234,7 +234,6 @@ class EnrutamientoController extends Controller
                 $visita->reprogramar = 1;
             }
         }
-        Logger($request->all()  );
         $visita->estado_visita_id = $request['estado_visita_id'];
         $visita->observaciones_visita = $request['observaciones'];
         if($request['fecha_visita']){

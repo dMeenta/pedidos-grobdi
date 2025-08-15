@@ -21,6 +21,7 @@
             <thead>
                 <tr>
                     <th>Nombre</th>
+                    <th>Recuperacion</th>
                     <th>Zona</th>
                     <th>Distritos</th>
                     <th>Acciones</th>
@@ -31,6 +32,7 @@
             @forelse ($listas as $lista)
                 <tr>
                     <td>{{ $lista->name }}</td>
+                    <td>{{ $lista->recovery ? 'Si' : 'No' }}</td>
                     <td>{{ $lista->zone->name }}</td>
                     <td>@foreach ($lista->distritos as $distrito)
                         {{$distrito->name }} <br>

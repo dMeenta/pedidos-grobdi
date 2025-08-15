@@ -146,11 +146,11 @@
                 @enderror
             </div>
             <div class="col-xs-2 col-sm-2 col-md-2">
-                <label for="recuperacion" class="form-label"><strong>¿Es recuperacion?</strong></label>
-                <select class="form-select" aria-label="recuperacion" name="recuperacion" id="recuperacion">
+                <label for="recovery" class="form-label"><strong>¿Es recuperacion?</strong></label>
+                <select class="form-select" aria-label="recovery" name="recovery" id="recovery">
                     <option selected disabled>Seleccione</option>
-                    <option value="0" {{ $doctor->recuperacion == 0 ? 'selected': '' }}>No</option>
-                    <option value="1" {{ $doctor->recuperacion == 1 ? 'selected': '' }}>Si</option>
+                    <option value="0" {{ $doctor->recovery == 0 ? 'selected': '' }}>No</option>
+                    <option value="1" {{ $doctor->recovery == 1 ? 'selected': '' }}>Si</option>
                 </select>
             </div>
             <div class="col-xs-12 col-sm-12 col-md-12">

@@ -173,7 +173,7 @@ class DoctorController extends Controller
         $doctor->asignado_consultorio = $request->asignado_consultorio;
         $doctor->categoriadoctor_id = 6;
         $doctor->songs = $request->songs;
-        $doctor->recuperacion = $request->recuperacion;
+        $doctor->recovery = $request->recovery;
         $doctor->name_secretariat = $request->name_secretariat;
         $doctor->phone_secretariat = $request->phone_secretariat;
         $doctor->observations = $request->observations;
@@ -239,7 +239,7 @@ class DoctorController extends Controller
         $doctor->name_secretariat = $request->name_secretariat;
         $doctor->phone_secretariat = $request->phone_secretariat;
         $doctor->observations = $request->observations;
-        $doctor->recuperacion = $request->recuperacion;
+        $doctor->recovery = $request->recovery;
         $doctor->user_id = Auth::user()->id;
         $doctor->save();
         $doctor->days()->detach();
