@@ -5,15 +5,14 @@ namespace App\Http\Controllers\rutas\mantenimiento;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\rutas\DoctorStoreRequest;
 use App\Imports\DoctoresImport;
+use App\Models\CategoriaDoctor;
 use App\Models\Day;
 use App\Models\Distrito;
-use App\Models\Distritos;
 use App\Models\Doctor;
 use App\Models\Especialidad;
 use App\Models\VisitaDoctor;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-use Illuminate\Log\Logger;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -29,8 +28,13 @@ class DoctorController extends Controller
 
         $search = $request->input('search');  
         if ($search) {
-            $doctores = Doctor::where('name', 'like', '%' . $search . '%')
-                                ->orderBy($ordenarPor, $direccion)->paginate(20);  // Paginación, 20 por página
+            $doctores = Doctor::where(function ($query) use ($search) {
+                $query->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('first_lastname', 'LIKE', "%{$search}%")
+                    ->orWhere('second_lastname', 'LIKE', "%{$search}%");
+            })
+            ->orderBy($ordenarPor, $direccion)
+            ->paginate(20);
         } else {
             $doctores = Doctor::orderBy($ordenarPor, $direccion)->paginate(20);
         }
@@ -81,7 +85,8 @@ class DoctorController extends Controller
         $distritos = Distrito::select('id','name')->where('provincia_id',128)->orWhere('provincia_id',67)->get();
         $especialidades = Especialidad::all();
         $dias = Day::all();
-        return view('rutas.mantenimiento.doctor.create',compact('distritos','especialidades','dias'));
+        $categorias = CategoriaDoctor::all();
+        return view('rutas.mantenimiento.doctor.create',compact('distritos','especialidades','dias','categorias'));
     }
     public function guardarDoctorVisitador(Request $request){
         Logger($request->all());
@@ -171,7 +176,7 @@ class DoctorController extends Controller
         $doctor->categoria_medico = $request->categoria_medico;
         $doctor->tipo_medico = $request->tipo_medico;
         $doctor->asignado_consultorio = $request->asignado_consultorio;
-        $doctor->categoriadoctor_id = 6;
+        $doctor->categoriadoctor_id = $request->categoria_id;
         $doctor->songs = $request->songs;
         $doctor->recovery = $request->recovery;
         $doctor->name_secretariat = $request->name_secretariat;
@@ -213,8 +218,9 @@ class DoctorController extends Controller
         }
         $distritos = Distrito::select('id','name')->where('provincia_id',128)->orWhere('provincia_id',67)->get();
         $especialidades = Especialidad::all();
+        $categorias = CategoriaDoctor::all();
         $dias = Day::all();
-        return view("rutas.mantenimiento.doctor.edit",compact('distritos','especialidades','dias', 'doctor','array_diasselect'));
+        return view("rutas.mantenimiento.doctor.edit",compact('distritos','especialidades','dias', 'doctor','array_diasselect','categorias'));
     }
 
     /**
@@ -240,6 +246,7 @@ class DoctorController extends Controller
         $doctor->phone_secretariat = $request->phone_secretariat;
         $doctor->observations = $request->observations;
         $doctor->recovery = $request->recovery;
+        $doctor->categoriadoctor_id = $request->categoria_id;
         $doctor->user_id = Auth::user()->id;
         $doctor->save();
         $doctor->days()->detach();

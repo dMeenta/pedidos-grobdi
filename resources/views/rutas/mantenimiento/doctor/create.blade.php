@@ -207,7 +207,7 @@
                     <div class="form-text text-danger">{{ $message }}</div>
                 @enderror
             </div>
-            <div class="col-xs-6 col-sm-6 col-md-6">
+            <div class="col-xs-12 col-sm-12 col-md-12">
                 <label for="observaciones" class="form-label"><strong>observaciones:</strong></label>
                 <input 
                     type="text" 
@@ -219,6 +219,15 @@
                 @error('observations')
                     <div class="form-text text-danger">{{ $message }}</div>
                 @enderror
+            </div>
+            <div class="col-xs-6 col-sm-6 col-md-6">
+                <label for="categoria_id" class="form-label"><strong>Categoria del doctor:</strong></label>
+                <select class="form-select @error('categoria_id') is-invalid @enderror" aria-label="categoria_id" name="categoria_id">
+                    <option selected disabled>Seleccione la categoria</option>
+                    @foreach ($categorias as $categoria)
+                        <option value="{{ $categoria->id }}">{{ $categoria->name }}</option>
+                    @endforeach
+                </select>
             </div>
         </div>
         <br>

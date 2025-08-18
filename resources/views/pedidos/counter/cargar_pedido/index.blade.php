@@ -12,7 +12,7 @@
     <h2 class="card-header">Pedidos del día: {{ request()->query('fecha')?request()->query('fecha'):date('Y-m-d') }}</h2>
     <div class="card-body">
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-        <a class="btn btn-success btn-sm" href="{{ route('cargarpedidos.create') }}"> <i class="fa fa-plus"></i> Registrar datos</a>
+        <a class="btn btn-success btn-sm" href="{{ route('cargarpedidos.create') }}"> <i class="fa fa-plus"></i> Cargar datos</a>
     </div>
     <br>
     <div class="row">
@@ -73,38 +73,14 @@
         @enderror
     
     <br>
-    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-        <input class="form-control" type="text" id="myInput" onkeyup="searchTable()" placeholder="Buscar...">
-    </div>
     <div class="table table-responsive">
-        <table class="table table-striped table-hover" id="myTable">
+        <table class="table table-striped table-hover" id="miTabla">
             <thead>
                 <tr>
                     <th>Nro</th>
-                    <th>
-                        <a href="{{ route('cargarpedidos.index', ['sort_by' => 'orderId', 'direction' => $ordenarPor == 'orderId' && $direccion == 'asc' ? 'desc' : 'asc','fecha'=>request()->query('fecha')?request()->query('fecha'):date('Y-m-d'),'filtro'=>request()->query('filtro')?request()->query('filtro'):'deliveryDate']) }}">
-                            Id Pedido 
-                            @if ($ordenarPor == 'orderId')
-                                {{ $direccion == 'asc' ? '↑' : '↓' }}
-                            @endif
-                        </a>
-                    </th>
-                    <th>
-                        <a href="{{ route('cargarpedidos.index', ['sort_by' => 'customerName', 'direction' => $ordenarPor == 'customerName' && $direccion == 'asc' ? 'desc' : 'asc','fecha'=>request()->query('fecha')?request()->query('fecha'):date('Y-m-d'),'filtro'=>request()->query('filtro')?request()->query('filtro'):'deliveryDate']) }}">
-                            Cliente
-                            @if ($ordenarPor == 'customerName')
-                                {{ $direccion == 'asc' ? '↑' : '↓' }}
-                            @endif
-                        </a>
-                    </th>
-                    <th>
-                        <a href="{{ route('cargarpedidos.index', ['sort_by' => 'doctorName', 'direction' => $ordenarPor == 'doctorName' && $direccion == 'asc' ? 'desc' : 'asc','fecha'=>request()->query('fecha')?request()->query('fecha'):date('Y-m-d'),'filtro'=>request()->query('filtro')?request()->query('filtro'):'deliveryDate']) }}">
-                            Doctor
-                            @if ($ordenarPor == 'doctorName')
-                                {{ $direccion == 'asc' ? '↑' : '↓' }}
-                            @endif
-                        </a>
-                    </th>
+                    <th>Id Pedido</th>
+                    <th>Cliente</th>
+                    <th>Doctor</th>
                     <th>Est. Pago</th>
                     <th>Turno</th>
                     <th>Est. Entrega</th>
@@ -112,6 +88,7 @@
                     <th width="200px">Voucher</th>
                     <th width="200px">Receta</th>
                     <th width="200px">Zona</th>
+                    <th width="200px">Usuario</th>
                     <th width="220px">Opciones</th>
                 </tr>
             </thead>
@@ -155,6 +132,7 @@
                             @endif
                         </td>
                         <td>{{ $arr->zone->name }}</td>
+                        <td>{{ $arr->user->name }}</td>
                         <td>
                             <form action="{{ route('cargarpedidos.destroy',$arr->id) }}" method="POST">
                                 <a class="btn btn-danger btn-sm" href="{{ route('cargarpedidos.uploadfile',$arr->id) }}"><i class="fa fa-upload"></i>Carga</a>
@@ -198,31 +176,14 @@
 
 @section('js')
     <script>
-    function searchTable() {
-        var input, filter, table, tr, td, i, txtValue;
-        input = document.getElementById('myInput');
-        filter = input.value.toUpperCase();
-        table = document.getElementById('myTable');
-        tr = table.getElementsByTagName('tr');
-
-        // Iterar sobre las filas de la tabla
-        for (i = 1; i < tr.length; i++) { // Empieza en 1 para no incluir el encabezado
-            td = tr[i].getElementsByTagName('td');
-            let found = false;
-            
-            // Iterar sobre las celdas de cada fila
-            for (let j = 0; j < td.length; j++) {
-                if (td[j]) {
-                    txtValue = td[j].textContent || td[j].innerText;
-                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                        found = true;
-                    }
-                }
-            }
-            
-            // Si alguna celda de la fila contiene el texto, mostrarla, sino ocultarla
-            tr[i].style.display = found ? "" : "none";
-        }
-    }
+        $(document).ready(function() {
+            $('#miTabla').DataTable({
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json'
+                },
+                pageLength: 25, // 👈 Número por defecto (puedes cambiar a 25, 50, etc.)
+                lengthMenu: [ [10, 25, 50, -1], [10, 25, 50, "Todos"] ] // Opciones de cantidad
+            });
+        });
     </script>
 @stop

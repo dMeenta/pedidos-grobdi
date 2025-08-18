@@ -340,7 +340,7 @@
                 'icon' => 'fas fa-fw fa-share',
                 'submenu' => [
                     [
-                        'text' => 'Cargar pedidos',
+                        'text' => 'Pedidos',
                         'url' => 'cargarpedidos',
                         'icon' => 'fas fa-fw fa-upload',
                         'can' => ['counter', 'administracion']

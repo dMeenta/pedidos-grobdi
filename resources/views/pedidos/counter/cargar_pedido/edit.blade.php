@@ -30,7 +30,8 @@
                     value="{{ $pedido->customerName }}"
                     class="form-control @error('customerName') is-invalid @enderror" 
                     id="inputName" 
-                    placeholder="Name">
+                    placeholder="Name"
+                    disabled>
                 @error('customerName')
                     <div class="form-text text-danger">{{ $message }}</div>
                 @enderror
@@ -57,22 +58,9 @@
                     value="{{ $pedido->doctorName }}"
                     class="form-control @error('doctorName') is-invalid @enderror" 
                     id="doctorName" 
-                    placeholder="Nombre del doctor">
+                    placeholder="Nombre del doctor"
+                    disabled>
                 @error('doctorName')
-                    <div class="form-text text-danger">{{ $message }}</div>
-                @enderror
-            </div>
-            <div class="col-xs-2 col-sm-2 col-md-2">
-                <label for="inputName" class="form-label"><strong>Precio:</strong></label>
-                <input 
-                    type="number" 
-                    name="prize" 
-                    value="{{ $pedido->prize }}"
-                    class="form-control @error('prize') is-invalid @enderror" 
-                    id="prize"
-                    step=".01"
-                    placeholder="precio">
-                @error('prize')
                     <div class="form-text text-danger">{{ $message }}</div>
                 @enderror
             </div>

@@ -22,8 +22,6 @@ class CargarPedidosController extends Controller
      */
     public function index(Request $request)
     {
-        $ordenarPor = $request->get('sort_by', 'orderId'); // campo por defecto
-        $direccion = $request->get('direction', 'asc'); // dirección por defecto
         if($request->query("fecha")){
             $request->validate([
                 'fecha' => 'required|date'
@@ -37,9 +35,8 @@ class CargarPedidosController extends Controller
         }else{
             $filtro = "deliveryDate";
         }
-        $pedidos = Pedidos::whereDate($filtro, $dia)->orderBy($ordenarPor, $direccion)
-        ->get();
-        return view('pedidos.counter.cargar_pedido.index', compact('pedidos', 'ordenarPor', 'direccion'));
+        $pedidos = Pedidos::whereDate($filtro, $dia)->get();
+        return view('pedidos.counter.cargar_pedido.index', compact('pedidos'));
     }
 
     /**
@@ -216,11 +213,8 @@ class CargarPedidosController extends Controller
         $pedidos = Pedidos::find($id);
         //para enviar el parametro de la fecha en la url
         $fecha = $pedidos->deliveryDate;
-        $pedidos->CustomerName = $request->customerName;
-        $pedidos->doctorName = $request->doctorName;
         $pedidos->address = $request->address;
         $pedidos->district = $request->district;
-        $pedidos->prize = $request->prize;
         if($pedidos->deliveryDate !== $request->deliveryDate){
             $pedidos->deliveryDate = $request->deliveryDate;
             $contador_registro = pedidos::where('deliveryDate',$request->deliveryDate)->orderBy('nroOrder','desc')->first();

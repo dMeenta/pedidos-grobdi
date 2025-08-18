@@ -168,11 +168,19 @@ class EnrutamientoController extends Controller
         })->orderBy('visita_doctor.turno', 'asc')->get();
         $estados = EstadoVisita::all(['id', 'name', 'color']);
         // dd($visitas);
-
         $eventos = $visitas->map(function ($visita) {
+            if($visita->doctor->categoriadoctor->name=='AAA'){
+                $categoriadoctor = '★★★';
+            }elseif($visita->doctor->categoriadoctor->name=='AA'){
+                $categoriadoctor = '★★';
+            }elseif($visita->doctor->categoriadoctor->name=='A'){
+                $categoriadoctor = '★';
+            }else{
+                $categoriadoctor = $visita->doctor->categoriadoctor->name;
+            }
             return [
                 'id' => $visita->id,
-                'title' => $visita->doctor->name .' '.$visita->doctor->first_lastname .' '. $visita->doctor->second_lastname,
+                'title' => $categoriadoctor.' - '.$visita->doctor->name .' '.$visita->doctor->first_lastname .' '. $visita->doctor->second_lastname,
                 'start' => $visita->fecha,
                 'color' => $visita->estado_visita->color ?? '#cccccc',
             ];

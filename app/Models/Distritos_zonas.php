@@ -24,6 +24,7 @@ class Distritos_zonas
             "Cercado de Lima",
             "El Agustino",
             "Jesús María",
+            "JESÃºS MARÃ­A",
             "La Victoria",
             "Lince",
             "Santa Anita",
@@ -53,6 +54,7 @@ class Distritos_zonas
         ];
         $recojo_tienda = [
             "RECOJO EN TIENDA",
+            "RECOJO TIENDA",
             "RETIRO EN TIENDA",
         ];
         if (in_array(strtolower($distrito), array_map('strtolower', $zona_norte)))

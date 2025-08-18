@@ -32,7 +32,7 @@
                             <tbody>
                                 @foreach ($visitadoctores as $visitadoctor)
                                 <tr>
-                                    <td>{{ $visitadoctor->doctor->name }}</td>
+                                    <td>{{ $visitadoctor->doctor->categoriadoctor->name }} - {{ $visitadoctor->doctor->name }}</td>
                                     @if ( $visitadoctor->estado_visita->id  == 1)
                                         <td><span class="badge bg-warning">{{ $visitadoctor->estado_visita->name }}</span></td>
                                     @elseif($visitadoctor->estado_visita->id == 5)
