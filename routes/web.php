@@ -119,6 +119,7 @@ Route::middleware(['checkRole:supervisor,admin'])->group(function () {
     Route::put('/enrutamientolista/doctor/{id}', [EnrutamientoController::class, 'DoctoresListaUpdate'])->name('enrutamientolista.doctoresupdate');
     Route::post('/visitadoctornuevo/{id}/aprobar', [VisitaDoctorController::class, 'aprobar']);
     Route::post('/visitadoctornuevo/{id}/rechazar', [VisitaDoctorController::class, 'rechazar']);
+    Route::resource('categoriadoctor',CategoriaDoctorController::class);
 });
 //VISITADOR
 Route::middleware(['checkRole:visitador,admin'])->group(function () {
@@ -203,7 +204,6 @@ Route::middleware(['checkRole:coordinador-lineas,admin'])->group(function () {
 });
 //JEFE COMERCIAL
 Route::middleware(['checkRole:jefe-comercial,admin'])->group(function () {
-    Route::resource('categoriadoctor',CategoriaDoctorController::class);
     Route::get('/jefe-comercial', [JcomercialController::class, 'confirmar'])->name('muestras.confirmar');
     Route::get('/jefe-comercial/{id}', [JcomercialController::class, 'showJC'])->name('muestras.showJC');
     Route::get('/ventascliente',[PedidosController::class,'listPedCliente'])->name('pedidosxcliente.listar');

@@ -21,7 +21,8 @@
                                 <tr>
                                     <th>Nombre</th>
                                     <th>Prioridad</th>
-                                    <th>Monto</th>
+                                    <th>Monto Inicial</th>
+                                    <th>Monto Final</th>
                                     <th>Actualizar</th>
                                 </tr>
                             </thead>
@@ -30,7 +31,8 @@
                                 <tr>
                                     <td>{{ $categoria->name }}</td>
                                     <td>{{ $categoria->prioridad }}</td>
-                                    <td>S/ {{ $categoria->monto }}</td>
+                                    <td>S/ {{ $categoria->monto_inicial }}</td>
+                                    <td>S/ {{ $categoria->monto_final }}</td>
                                     <td>
                                         <!-- Botón para abrir modal de edición -->
                                         <button class="btn btn-sm btn-warning" 
@@ -59,7 +61,8 @@
                                                 <div class="modal-body">
                                                     <input type="text" name="name" class="form-control mb-2" value="{{ $categoria->name }}" required>
                                                     <input type="number" name="prioridad" class="form-control mb-2" value="{{ $categoria->prioridad }}" required>
-                                                    <input type="text" name="monto" class="form-control" value="{{ $categoria->monto }}" required>
+                                                    <input type="text" name="monto_inicial" class="form-control mb-2" value="{{ $categoria->monto_inicial }}" required>
+                                                    <input type="text" name="monto_final" class="form-control mb-2" value="{{ $categoria->monto_final }}" required>
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button class="btn btn-success">Guardar</button>
@@ -90,7 +93,8 @@
                 <div class="modal-body">
                     <input type="text" name="name" class="form-control mb-2" placeholder="Nombre" required>
                     <input type="number" name="prioridad" class="form-control mb-2" placeholder="Prioridad" required>
-                    <input type="text" name="monto" class="form-control" placeholder="Monto" required>
+                    <input type="text" name="monto_inicial" class="form-control mb-2" placeholder="Monto inicial" required>
+                    <input type="text" name="monto_final" class="form-control mb-2" placeholder="Monto final" required>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-primary">Registrar</button>

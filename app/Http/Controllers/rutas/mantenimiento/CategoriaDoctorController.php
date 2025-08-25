@@ -18,10 +18,11 @@ class CategoriaDoctorController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'prioridad' => 'required|integer',
-            'monto' => 'required|numeric',
+            'monto_inicial' => 'required|numeric',
+            'monto_final' => 'required|numeric',
         ]);
 
-        CategoriaDoctor::create($request->only(['name', 'prioridad', 'monto']));
+        CategoriaDoctor::create($request->only(['name', 'prioridad', 'monto_inicial', 'monto_final']));
 
         return redirect()->route('categoriadoctor.index')
             ->with('success', 'Categoría de doctor creada exitosamente.');
@@ -33,10 +34,10 @@ class CategoriaDoctorController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'prioridad' => 'required|integer',
-            'monto' => 'required|numeric',
+            'monto_inicial' => 'required|numeric',
+            'monto_final' => 'required|numeric',
         ]);
-
-        $categoria->update($request->only(['name', 'prioridad', 'monto']));
+        $categoria->update($request->only(['name', 'prioridad', 'monto_inicial', 'monto_final']));
 
         return redirect()->route('categoriadoctor.index')
                          ->with('success', 'Categoría de doctor actualizada exitosamente.');

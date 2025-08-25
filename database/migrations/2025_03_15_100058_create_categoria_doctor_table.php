@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->tinyInteger('prioridad');
-            $table->decimal('monto',8,2)->nullable();
+            $table->decimal('monto_inicial',8,2)->nullable();
+            $table->decimal('monto_final',8,2)->nullable();
         });
     }
 

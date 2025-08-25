@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('enrutamiento_id')->constrained('enrutamiento')->cascadeOnDelete();
             $table->foreignId('lista_id')->constrained('lista')->cascadeOnDelete();
+            $table->boolean('recovery')->default(0); // Assuming 'rec' is for recovery
             $table->date('fecha_inicio');
             $table->date('fecha_fin');
             $table->timestamps();

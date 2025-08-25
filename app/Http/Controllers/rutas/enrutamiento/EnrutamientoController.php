@@ -80,7 +80,7 @@ class EnrutamientoController extends Controller
         ]);
 
         $lista = Lista::findOrFail($request->lista_id);
-        $fechas = explode(" to ", $request->input('fechas'));
+        $fechas = explode(" a ", $request->input('fechas'));
         $startDate = Carbon::parse($fechas[0]);
         $endDate = Carbon::parse($fechas[1]);
         $period = CarbonPeriod::create($startDate, $endDate);
@@ -94,7 +94,16 @@ class EnrutamientoController extends Controller
 
         // Obtener todos los doctores asociados a los distritos
         foreach ($lista->distritos as $distrito) {
-            $doctores = Doctor::where('distrito_id', $distrito->id)->get();
+            if($lista->recovery == 1){
+                $doctores = Doctor::where('distrito_id', $distrito->id)->where('recovery', 1)->get();
+            }else{
+                $doctores = Doctor::where('distrito_id', $distrito->id)->where('recovery', 0)->get();
+            }
+            
+            // Si no hay doctores, continuar con el siguiente distrito
+            if ($doctores->isEmpty()) {
+                continue;
+            }
 
             foreach ($doctores as $doctor) {
                 $turnos = [];
@@ -151,6 +160,9 @@ class EnrutamientoController extends Controller
     public function DoctoresLista(Request $request,$id){
         $doctores = VisitaDoctor::where('enrutamientolista_id',$id)->whereNot('estado_visita_id','like',6)->get();
         $enruta = VisitaDoctor::where('enrutamientolista_id',$id)->first();
+        if(!$enruta){
+            return redirect()->back()->with('danger','No hay doctores asignados a esta ruta, por favor asigne una lista');
+        }
         $id = $enruta->enrutamientolista->enrutamiento->id;
         return view('rutas.enrutamiento.doctoreslista',compact('doctores','id'));
     }

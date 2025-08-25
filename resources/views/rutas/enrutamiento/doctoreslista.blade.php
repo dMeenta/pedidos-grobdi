@@ -23,6 +23,7 @@
                                 <th>Distrito</th>
                                 <th>Doctores</th>
                                 <th>Fecha</th>
+                                <th>Fecha y Hora visitado</th>
                                 <th>Estado</th>
                                 <th>Observaciones</th>
                                 <th>Opciones</th>
@@ -35,6 +36,7 @@
                                     <td>{{ $doctor->doctor->name." ".$doctor->doctor->first_lastname . " " . $doctor->doctor->second_lastname }}</td> 
                                     @if ( $doctor->estado_visita->id  == 4)
                                         <td>{{ $doctor->fecha }}</td>
+                                        <td>{{ $doctor->updated_at }}</td>
                                         <td><span class="badge bg-success">{{ $doctor->estado_visita->name }}</span></td>
                                         <td>{{ $doctor->observaciones_visita }}</td>
                                         <td>
@@ -60,6 +62,7 @@
                                         <td>
                                             <input min="{{ $doctor->enrutamientolista->fecha_inicio }}" max="{{ $doctor->enrutamientolista->fecha_fin }}" type="date" name="fecha" class="form-control" value="{{ $doctor->fecha }}">
                                         </td>
+                                        <td></td>
                                         @if ( $doctor->estado_visita->id  == 1)
                                             <td><span class="badge bg-warning">{{ $doctor->estado_visita->name }}</span></td>
                                         @elseif($doctor->estado_visita->id == 5)
