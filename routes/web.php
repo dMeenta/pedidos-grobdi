@@ -193,11 +193,6 @@ Route::middleware(['checkRole:visitador,admin'])->group(function () {
 });
 
 
-Route::get('/diasdelmes', AsignacionSemanal::class . '@mostrarDiasDelMes')
-    ->name('mostrarDiasDelMes');
-Route::get('/prueba', function () {
-    return view('pedidos.counter.cargar_pedido.prueba');
-});
 
 Route::get('/distritoslimacallao', UbigeoController::class . '@ObtenerDistritosLimayCallao')
     ->name('distritoslimacallao');
