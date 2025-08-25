@@ -15,14 +15,16 @@ return new class extends Migration
             $table->id();
             $table->date('fecha')->nullable();
             $table->boolean('turno')->default(0);
-            $table->boolean('reprogramar')->default(0);
             $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
             $table->foreignId('updated_by')->constrained('users')->cascadeOnDelete();
             $table->foreignId('doctor_id')->constrained('doctor')->cascadeOnDelete();
             $table->foreignId('enrutamientolista_id')->constrained('enrutamiento_lista')->cascadeOnDelete();
             $table->foreignId('estado_visita_id')->constrained('estado_visita')->cascadeOnDelete();
+            $table->decimal('latitude', 10,7)->nullable();
+            $table->decimal('longitude',10,7)->nullable();
             $table->string('observaciones_visita')->nullable();
             $table->timestamps();
+            $table->boolean('reprogramar')->default(0);
         });
     }
 
