@@ -67,42 +67,6 @@ table td.observaciones {
     white-space: nowrap; /* Evita que el texto se divida en múltiples líneas */
 }
 
-/* Estilos para checkboxes */
-input[type="checkbox"] {
-    transform: scale(1.1);
-    margin: 0 auto;
-}
-
-/* Estilo base del checkbox */
-input[type="checkbox"] {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    width: 18px;
-    height: 18px;
-    border-radius: 4px;
-    border: 2px solid #dc3545;
-    display: inline-block;
-    position: relative;
-    cursor: pointer;
-    background-color: white;
-}
-
-/* Checkbox marcado */
-input[type="checkbox"]:checked {
-    border: 2px solid #28a745;
-    background-color: #94ffad;
-}
-
-input[type="checkbox"]:checked::before {
-    content: '✔';
-    font-size: 14px;
-    font-weight: bold;
-    color: white;
-    text-align: center;
-    line-height: 18px;
-    display: block;
-}
 
 .flex_acciones {
     list-style-type: none;
@@ -126,7 +90,6 @@ input[type="checkbox"]:checked::before {
 .modal-body,
 .scrollable-custom {
     scrollbar-width: thin;
-    scrollbar-color: rgb(255, 178, 187) #fcebed;
 }
 .btn_crear {
     border: 1px solid#fe495f !important;

@@ -12,13 +12,14 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\MuestrasExport;
+
 class JcomercialController extends Controller
 {
-        public function exportarExcel(Request $request)
+    public function exportarExcel(Request $request)
     {
         $muestras = Muestras::with(['clasificacion', 'creator'])
-                        ->orderByDesc('created_at')
-                        ->get();
+            ->orderByDesc('created_at')
+            ->get();
 
         return \Excel::download(
             new \App\Exports\muestras\MuestrasExport($muestras, [
@@ -36,16 +37,14 @@ class JcomercialController extends Controller
     {
         $muestras = Muestras::with(['clasificacion.unidadMedida'])->orderBy('created_at', 'desc')->get();
         return view('muestras.Jcomercial.confirmar', compact('muestras'));
-        
     }
 
     public function showJC($id)
     {
         // Cargar la muestra con su clasificación y la unidad de medida asociada
         $muestra = Muestras::with(['clasificacion.unidadMedida'])->findOrFail($id);
-        
+
         // Retornar la vista de "Detalles de Muestra" con los datos
         return view('muestras.Jcomercial.showJC', compact('muestra'));
     }
-
 }

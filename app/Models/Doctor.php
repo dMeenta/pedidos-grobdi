@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Http;
 use Symfony\Component\DomCrawler\Crawler;
+
 class Doctor extends Model
 {
     protected $table = 'doctor';
@@ -14,9 +15,12 @@ class Doctor extends Model
         'name_secretariat',
     ];
     public const TIPOMEDICO = [
-        'Comprador','Prescriptor','En Proceso'
+        'Comprador',
+        'Prescriptor',
+        'En Proceso'
     ];
-    public static function ScrappingDoctor($cmp){
+    public static function ScrappingDoctor($cmp)
+    {
         $response = Http::asForm()->post('https://aplicaciones.cmp.org.pe/conoce_a_tu_medico/datos-colegiado.php', [
             'cmp' => $cmp,
         ]);
@@ -24,7 +28,7 @@ class Doctor extends Model
         $html = $response->body();
         $crawler = new Crawler($html);
         $datos = [];
-        
+
         // dd($crawler);
         $crawler->filter('table tr')->each(function ($node) use (&$datos) {
             $columns = $node->filter('td')->each(function ($col) {
@@ -74,7 +78,7 @@ class Doctor extends Model
     public function days()
     {
         return $this->belongsToMany(Day::class, 'doctor_day')
-                    ->withPivot('turno');
+            ->withPivot('turno');
     }
     public function distrito()
     {
@@ -95,5 +99,10 @@ class Doctor extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function muestras()
+    {
+        return $this->hasMany(Muestras::class, 'id_doctor');
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\muestras;
 
 use App\Http\Controllers\Controller;
@@ -14,18 +15,20 @@ use App\Events\muestras\MuestraCreada;
 use App\Events\muestras\MuestraActualizada;
 //imprimir reportes
 use PDF;
+
 class jefe_proyectosController extends Controller
 {
-    
-         public function precio()
+
+    public function precio()
     {
-        // Obtén todas las muestras
-        $muestras = Muestras::orderBy('created_at', 'desc')->get();
+        logger(Muestras::all()->toArray());
+        // Otén todas las muestras
+        $muestras = Muestras::where([['aprobado_coordinadora', true], ['aprobado_jefe_comercial', true]])->orderBy('created_at', 'desc')->get();
         return view('muestras.jefe_proyectos.precio', compact('muestras'));
     }
 
 
-        public function actualizarPrecio(Request $request, $id)
+    public function actualizarPrecio(Request $request, $id)
     {
         // Validar que el precio es un número
         $request->validate([
@@ -57,7 +60,7 @@ class jefe_proyectosController extends Controller
     {
         // Cargar la muestra con su clasificación y la unidad de medida asociada
         $muestra = Muestras::with(['clasificacion.unidadMedida'])->findOrFail($id);
-        
+
         // Retornar la vista de "Detalles de Muestra" con los datos
         return view('muestras.jefe_proyectos.showJO', compact('muestra'));
     }
