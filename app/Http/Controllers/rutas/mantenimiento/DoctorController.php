@@ -26,22 +26,18 @@ class DoctorController extends Controller
         $ordenarPor = $request->get('sort_by', 'name'); // campo por defecto
         $direccion = $request->get('direction', 'asc'); // dirección por defecto
 
-        $search = $request->input('search');  
+        $search = $request->input('search');
         if ($search) {
-            $doctores = Doctor::where(function ($query) use ($search) {
-                $query->where('name', 'LIKE', "%{$search}%")
-                    ->orWhere('first_lastname', 'LIKE', "%{$search}%")
-                    ->orWhere('second_lastname', 'LIKE', "%{$search}%");
-            })
-            ->orderBy($ordenarPor, $direccion)
-            ->paginate(20);
+            $doctores = Doctor::where('name', 'like', '%' . $search . '%')
+                                ->orderBy($ordenarPor, $direccion)->paginate(20);  // Paginación, 20 por página
         } else {
             $doctores = Doctor::orderBy($ordenarPor, $direccion)->paginate(20);
         }
         $days = Day::all();
-        return view('rutas.mantenimiento.doctor.index',compact('doctores','days', 'ordenarPor', 'direccion'));
+        return view('rutas.mantenimiento.doctor.index', compact('doctores', 'days', 'ordenarPor', 'direccion'));
     }
-    public function buscarCMP($cmp){
+    public function buscarCMP($cmp)
+    {
         // Validar que el CMP no esté vacío y sea numérico
         if (empty($cmp) || !ctype_digit($cmp)) {
             return response()->json([
@@ -58,17 +54,16 @@ class DoctorController extends Controller
         }
         // Realizar una solicitud POST al formulario del CMP
         $datos = Doctor::ScrappingDoctor($cmp);
-        if(isset($datos[1])){
+        if (isset($datos[1])) {
             $datos = $datos[1];
-            $especialidad = isset($datos['tabla_interna'][7])?$datos['tabla_interna'][7][0]:'';
-            array_push($datos['cols'],$especialidad);
+            $especialidad = isset($datos['tabla_interna'][7]) ? $datos['tabla_interna'][7][0] : '';
+            array_push($datos['cols'], $especialidad);
             $datos = $datos['cols'];
             return response()->json([
                 'success' => true,
                 'data' => $datos
             ]);
-        }
-        else{
+        } else {
             return response()->json([
                 'success' => false,
                 'message' => 'No se encontró ningún doctor con ese CMP'
@@ -82,13 +77,13 @@ class DoctorController extends Controller
      */
     public function create()
     {
-        $distritos = Distrito::select('id','name')->where('provincia_id',128)->orWhere('provincia_id',67)->get();
+        $distritos = Distrito::select('id', 'name')->where('provincia_id', 128)->orWhere('provincia_id', 67)->get();
         $especialidades = Especialidad::all();
         $dias = Day::all();
-        $categorias = CategoriaDoctor::all();
-        return view('rutas.mantenimiento.doctor.create',compact('distritos','especialidades','dias','categorias'));
+        return view('rutas.mantenimiento.doctor.create',compact('distritos','especialidades','dias'));
     }
-    public function guardarDoctorVisitador(Request $request){
+    public function guardarDoctorVisitador(Request $request)
+    {
         Logger($request->all());
         // dd($request->all());
         $request->validate([
@@ -96,21 +91,21 @@ class DoctorController extends Controller
             'first_lastname' => 'required|string|max:100',
             'second_lastname' => 'required|string|max:100',
             'name' => 'required|string|max:150',
-            'phone'=>'required|numeric',
-            'categoria_medico'=>'required',
-            'distrito_id'=>'required',
-            'especialidad_id'=>'required',
-            'centrosalud_id'=>'required',
+            'phone' => 'required|numeric',
+            'categoria_medico' => 'required',
+            'distrito_id' => 'required',
+            'especialidad_id' => 'required',
+            'centrosalud_id' => 'required',
             'dias' => 'array',
             'fecha_visita' => 'required',
-        ],[
+        ], [
             'first_lastname.required' => 'El apellido paterno es obligatorio',
             'second_lastname.required' => 'El apellido materno es obligatorio',
             'name.required' => 'El nombre es obligatorio',
             'categoria_medico.required' => 'La categoria del medico es obligatorio',
             'fecha_visita.required' => 'La fecha de visita es obligatorio',
         ]);
-        
+
 
         $doctor = new Doctor();
         $doctor->cmp = $request->CMP;
@@ -136,22 +131,21 @@ class DoctorController extends Controller
         $visitadoctor->observaciones_visita = $request->observaciones_visita;
         $visitadoctor->created_by = Auth::user()->id;
         $visitadoctor->updated_by = Auth::user()->id;
-        
+
         $diasSeleccionados = $request->input('dias');
-        DB::transaction(function() use ($doctor, $visitadoctor,$diasSeleccionados) {
+        DB::transaction(function () use ($doctor, $visitadoctor, $diasSeleccionados) {
             $doctor->save();
             // Crear un arreglo con los turnos seleccionados para cada día
             $doctorday = [];
-            if($diasSeleccionados){
+            if ($diasSeleccionados) {
                 foreach ($diasSeleccionados as $dia) {
-                    array_push($doctorday, ['doctor_id' => $doctor->id,'day_id' => $dia,'turno'=> 0]) ;
+                    array_push($doctorday, ['doctor_id' => $doctor->id, 'day_id' => $dia, 'turno' => 0]);
                     // dd($doctor_day);
                 }
                 $doctor->days()->attach($doctorday);
             }
             $visitadoctor->doctor_id = $doctor->id;
             $visitadoctor->save();
-            
         });
         return response()->json(['success' => true, 'message' => 'Doctor y visita guardado correctamente']);
     }
@@ -163,7 +157,7 @@ class DoctorController extends Controller
         // Obtener los días seleccionados
         $diasSeleccionados = $request->input('dias');
 
-        
+
         $doctor = new Doctor();
         $doctor->name = $request->name;
         $doctor->phone = $request->phone;
@@ -172,7 +166,7 @@ class DoctorController extends Controller
         $doctor->centrosalud_id = $request->centrosalud_id;
         $doctor->especialidad_id = $request->especialidad_id;
         $doctor->centrosalud_id = $request->centrosalud_id;
-        $doctor->birthdate =  date('Y-m-d' , strtotime($request->birthdate));
+        $doctor->birthdate =  date('Y-m-d', strtotime($request->birthdate));
         $doctor->categoria_medico = $request->categoria_medico;
         $doctor->tipo_medico = $request->tipo_medico;
         $doctor->asignado_consultorio = $request->asignado_consultorio;
@@ -187,15 +181,14 @@ class DoctorController extends Controller
         $doctor->save();
         // Crear un arreglo con los turnos seleccionados para cada día
         $doctorday = [];
-        if($diasSeleccionados){
+        if ($diasSeleccionados) {
             foreach ($diasSeleccionados as $dia) {
-                array_push($doctorday, ['doctor_id' => $doctor->id,'day_id' => $dia,'turno'=> $request->input("turno_$dia")]) ;
+                array_push($doctorday, ['doctor_id' => $doctor->id, 'day_id' => $dia, 'turno' => $request->input("turno_$dia")]);
                 // dd($doctor_day);
             }
             $doctor->days()->attach($doctorday);
         }
         return redirect()->route('doctor.index');
-
     }
 
     /**
@@ -210,17 +203,17 @@ class DoctorController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit(string $id)
-    {   
+    {
         $doctor = Doctor::find($id);
         $array_diasselect = [];
-        foreach($doctor->days as $diasselec){
+        foreach ($doctor->days as $diasselec) {
             array_push($array_diasselect, $diasselec->id);
         }
-        $distritos = Distrito::select('id','name')->where('provincia_id',128)->orWhere('provincia_id',67)->get();
+        $distritos = Distrito::select('id', 'name')->where('provincia_id', 128)->orWhere('provincia_id', 67)->get();
         $especialidades = Especialidad::all();
         $categorias = CategoriaDoctor::all();
         $dias = Day::all();
-        return view("rutas.mantenimiento.doctor.edit",compact('distritos','especialidades','dias', 'doctor','array_diasselect','categorias'));
+        return view("rutas.mantenimiento.doctor.edit",compact('distritos','especialidades','dias', 'doctor','array_diasselect'));
     }
 
     /**
@@ -233,11 +226,11 @@ class DoctorController extends Controller
         $doctor->phone = $request->phone;
         $doctor->CMP = $request->cmp;
         $doctor->distrito_id = $request->distrito_id;
-        if($request->centrosalud_id){
+        if ($request->centrosalud_id) {
             $doctor->centrosalud_id = $request->centrosalud_id;
         }
         $doctor->especialidad_id = $request->especialidad_id;
-        $doctor->birthdate =  date('Y-m-d' , strtotime($request->birthdate));
+        $doctor->birthdate =  date('Y-m-d', strtotime($request->birthdate));
         $doctor->categoria_medico = $request->categoria_medico;
         $doctor->tipo_medico = $request->tipo_medico;
         $doctor->asignado_consultorio = $request->asignado_consultorio;
@@ -250,16 +243,15 @@ class DoctorController extends Controller
         $doctor->user_id = Auth::user()->id;
         $doctor->save();
         $doctor->days()->detach();
-        if($request->input('dias')){
+        if ($request->input('dias')) {
             // Crear un arreglo con los turnos seleccionados para cada día
             $diasSeleccionados = $request->input('dias');
             $doctorday = [];
             foreach ($diasSeleccionados as $dia) {
-                array_push($doctorday, ['doctor_id' => $doctor->id,'day_id' => $dia,'turno'=> $request->input("turno_$dia")]) ;
+                array_push($doctorday, ['doctor_id' => $doctor->id, 'day_id' => $dia, 'turno' => $request->input("turno_$dia")]);
                 // dd($doctor_day);
             }
             $doctor->days()->attach($doctorday);
-
         }
         return redirect()->route('doctor.index');
     }
@@ -270,17 +262,18 @@ class DoctorController extends Controller
     public function destroy(string $id)
     {
         $doctor = Doctor::find($id);
-        if($doctor->state == 1){
+        if ($doctor->state == 1) {
             $doctor->state = 0;
             $msj = "inhabilitado";
-        }else{
+        } else {
             $doctor->state = 1;
             $msj = "habilitado";
         }
         $doctor->save();
-        return redirect()->route('doctor.index')->with('success','doctor '.$msj.' correctamente');
+        return redirect()->route('doctor.index')->with('success', 'doctor ' . $msj . ' correctamente');
     }
-    public function cargadata(Request $request){
+    public function cargadata(Request $request)
+    {
         // Validate the uploaded file
         $request->validate([
             'archivo' => 'required|mimes:xls,xlsx',
@@ -290,8 +283,19 @@ class DoctorController extends Controller
 
         // Process the Excel file
         $doctoresImport = new DoctoresImport;
-        
+
         $excel = Excel::import($doctoresImport, $file);
         return redirect()->back()->with($doctoresImport->key, $doctoresImport->data);
+    }
+
+    public function showByNameLike(Request $request)
+    {
+        $query = $request->get('q');
+
+        $doctors = Doctor::where('name', 'LIKE', '%' . $query . '%')
+            ->limit(10)
+            ->get(['id', 'name']);
+
+        return response()->json($doctors);
     }
 }

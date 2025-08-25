@@ -3,7 +3,7 @@
 @section('title', 'Reporte Clasificación')
 
 @section('content_header')
-    <!-- <h1>Pedidos</h1> -->
+<!-- <h1>Pedidos</h1> -->
 @stop
 
 @section('content')
@@ -37,46 +37,47 @@
                     </thead>
                     <tbody>
                         @foreach($muestrasData as $data)
-                            <tr>
-                                <td>{{ $data['nombre_clasificacion'] }}</td>
-                                <td>{{ $data['cantidad'] }}</td>
-                                <td>{{ number_format($data['monto_total'], 2) }}</td>
-                            </tr>
+                        <tr>
+                            <td>{{ $data['nombre_clasificacion'] }}</td>
+                            <td>{{ $data['cantidad'] }}</td>
+                            <td>{{ number_format($data['monto_total'], 2) }}</td>
+                        </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
-    </div>
-    @stop
+</div>
+@stop
 
 @section('css')
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="{{ asset('css/muestras/Reporte.css') }}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<link rel="stylesheet" href="{{ asset('css/muestras/Reporte.css') }}">
 @stop
 
 @section('js')
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <script>
+<script>
+    const primaryColor = '#d6254d';
+    const secondaryColor = '#ff5475';
+    const accentColor = '#fdeba9';
 
-        // Configuración del gráfico con colores del tema
-        const primaryColor = '#d6254d';
-        const secondaryColor = '#ff5475';
-        const accentColor = '#fdeba9';
+    // Obtener los datos del backend con protección
 
-        // Obtener los datos pasados desde el controlador
-        const clasificaciones = @json($clasificacionLabels);
-        const montosTotales = @json($montosTotales);
-        const cantidadTotal = @json($cantidadTotal);
+    const clasificaciones = json($clasificacionLabels ?? []);
+    const montosTotales = json($montosTotales ?? []);
+    const cantidadTotal = json($cantidadTotal ?? []);
 
-        // Verificar si hay datos vacíos o nulos
-        if (clasificaciones.length === 0 || montosTotales.length === 0 || cantidadTotal.length === 0) {
-            alert('No se encontraron datos para mostrar.');
-        }
 
+    // Validar que los arrays no estén vacíos y tengan la misma longitud
+    if (!Array.isArray(clasificaciones) || !Array.isArray(montosTotales) || !Array.isArray(cantidadTotal) ||
+        clasificaciones.length === 0 || montosTotales.length === 0 || cantidadTotal.length === 0 ||
+        clasificaciones.length !== montosTotales.length || clasificaciones.length !== cantidadTotal.length) {
+        alert('No se encontraron datos válidos para mostrar.');
+    } else {
         // Configuración del gráfico de barras
         const ctx = document.getElementById('graficoBarras').getContext('2d');
         const graficoBarras = new Chart(ctx, {
@@ -98,7 +99,7 @@
                     y: {
                         beginAtZero: true,
                         ticks: {
-                            callback: function (value) {
+                            callback: function(value) {
                                 return 'S/ ' + value.toLocaleString();
                             }
                         }
@@ -107,9 +108,9 @@
                 plugins: {
                     tooltip: {
                         callbacks: {
-                            label: function (tooltipItem) {
-                                const index = tooltipItem.dataIndex;
-                                const monto = tooltipItem.raw;
+                            label: function(context) {
+                                const index = context.dataIndex;
+                                const monto = context.raw;
                                 const cantidad = cantidadTotal[index];
                                 return 'Cantidad: ' + cantidad + ' - Monto Total: S/ ' + monto.toLocaleString();
                             }
@@ -123,8 +124,10 @@
                         }
                     }
                 },
-                onClick: function (e) {
-                    var activePoints = graficoBarras.getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
+                onClick: function(e) {
+                    var activePoints = graficoBarras.getElementsAtEventForMode(e, 'nearest', {
+                        intersect: true
+                    }, true);
                     if (activePoints.length > 0) {
                         var firstPoint = activePoints[0];
                         var value = graficoBarras.data.datasets[firstPoint.datasetIndex].data[firstPoint.index];
@@ -134,9 +137,10 @@
             }
         });
 
-        // Función para redimensionar el gráfico al cambiar el tamaño de la ventana
+        // Redimensionar gráfico al cambiar tamaño de ventana
         window.addEventListener('resize', function() {
             graficoBarras.resize();
         });
-    </script>
+    }
+</script>
 @stop

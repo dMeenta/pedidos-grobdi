@@ -5,8 +5,8 @@ use App\Http\Controllers\ajustes\UsuariosController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 // Route::get('/', function () {
-    //     return view('home');
-    // });
+//     return view('home');
+// });
 use App\Http\Controllers\pedidos\laboratorio\PedidoslabController;
 use App\Http\Controllers\pedidos\contabilidad\PedidosContaController;
 use App\Http\Controllers\pedidos\counter\AsignarPedidoController;
@@ -55,48 +55,101 @@ use App\Http\Controllers\softlyn\UtilController;
 // use Auth;
 Auth::routes();
 
-
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
+//Modulo de Muestras refactorizado
+Route::prefix('muestras')
+    ->middleware(['checkRole:admin,visitador,coordinador-lineas,jefe-comercial,contabilidad,jefe-operaciones,laboratorio'])
+    ->group(function () {
+        Route::get("/", [MuestrasController::class, 'index'])->name('muestras.index');
+        Route::get("/export", [MuestrasController::class, 'exportExcel'])->name('muestras.exportExcel');
+        Route::delete('/disable/{id}', [MuestrasController::class, 'disableMuestra'])->name('muestras.disable')->middleware(['checkRole:admin,coordinador-lineas,jefe-comercial,jefe-operaciones']);
+        Route::get('/{id}', [MuestrasController::class, 'show'])->name('muestras.show');
 
-// ===================== COUNTER =====================
+        Route::prefix('/create')->middleware(['checkRole:admin,coordinador-lineas,visitador'])->group(function () {
+            Route::get("/form", [MuestrasController::class, 'create'])->name('muestras.create');
+            Route::post("/", [MuestrasController::class, 'store'])->name('muestras.store');
+        });
+        Route::prefix('edit')->middleware(['checkRole:admin,coordinador-lineas'])->group(function () {
+            Route::get('/{id}', [MuestrasController::class, 'edit'])->name('muestras.edit');
+            Route::put('/{id}', [MuestrasController::class, 'update'])->name('muestras.update');
+            Route::put('/{id}/update-tipo-muestra', [MuestrasController::class, 'updateTipoMuestra'])->name('muestras.updateTipoMuestra')->middleware(['checkRole:admin,coordinador-lineas']);
+            Route::put('/{id}/update-fecha-hora-entrega', [MuestrasController::class, 'updateDateTimeScheduled'])->name('muestras.updateDateTimeScheduled')->middleware(['checkRole:admin,coordinador-lineas']);
+        });
+
+        Route::prefix('laboratorio')->middleware(['checkRole:admin,laboratorio'])->group(function () {
+            Route::put('/{id}/comentario', [MuestrasController::class, 'updateComentarioLab'])->name('muestras.updateComentarioLab');
+            Route::put('/{id}/state', [MuestrasController::class, 'markAsElaborated'])->name('muestras.markAsElaborated');
+        });
+
+        Route::put('/{id}/update-price', [MuestrasController::class, 'updatePrice'])->name('muestras.update_price')->middleware(['checkRole:contabilidad,admin']);
+
+        /* ---- APROBACIONES --- */
+
+        //Coordinadora
+        Route::middleware(['checkRole:coordinador-lineas,admin'])->group(function () {
+            Route::put('/aprove-coordinador', [MuestrasController::class, 'aproveMuestraByCoordinadora']);
+        });
+        //Jefe Comercial
+        Route::middleware(['checkRole:jefe-comercial,admin'])->group(function () {
+            Route::put('/aprove-jcomercial', [MuestrasController::class, 'aproveMuestraByJefeComercial']);
+        });
+        //Jefe de Operaciones
+        Route::middleware(['checkRole:jefe-operaciones,admin'])->group(function () {
+            Route::put('/aprove-joperaciones', [MuestrasController::class, 'aproveMuestraByJefeOperaciones']);
+        });
+    });
+
+Route::get('/doctors/search', [DoctorController::class, 'showByNameLike'])->name('doctors.search')->middleware(['checkRole:admin,coordinador-lineas,visitador']);
+
+
+//COUNTER
 Route::middleware(['checkRole:counter,admin,Administracion'])->group(function () {
-    Route::resource('cargarpedidos', CargarPedidosController::class);
-    Route::post('/cargarpedidosdetail', [CargarPedidosController::class, 'cargarExcelArticulos'])->name('cargarpedidos.excelarticulos');
-    Route::get('/cargarpedidos/{pedido}/uploadfile', [CargarPedidosController::class, 'uploadfile'])->name('cargarpedidos.uploadfile');
-    Route::put('/cargarpedidos/cargarImagen/{post}', [CargarPedidosController::class, 'cargarImagen'])->name('cargarpedidos.cargarImagen');
-    Route::put('/cargarpedidos/actualizarPago/{post}', [CargarPedidosController::class, 'actualizarPago'])->name('cargarpedidos.actualizarPago');
-    Route::put('/cargarpedidos/cargarImagenReceta/{post}', [CargarPedidosController::class, 'cargarImagenReceta'])->name('cargarpedidos.cargarImagenReceta');
-    Route::delete('cargarpedidos/eliminarFotoVoucher/{id}', [CargarPedidosController::class, 'eliminarFotoVoucher'])->name('cargarpedidos.eliminarFotoVoucher');
-    Route::put('/cargarpedidos/actualizarTurno/{id}', [CargarPedidosController::class, 'actualizarTurno'])->name('cargarpedidos.actualizarTurno');
-    Route::resource('asignarpedidos', AsignarPedidoController::class);
-    Route::post('/cargarpedidos/downloadWord', [CargarPedidosController::class, 'downloadWord'])->name('cargarpedidos.downloadWord');
-});
-// ===================== JEFE DE OPERACIONES =====================
-Route::middleware(['checkRole:admin,jefe-operaciones,Administracion'])->group(function () {
-    Route::get('historialpedidos', [HistorialPedidosController::class, 'index'])->name('historialpedidos.index');
-    Route::get('historialpedidos/{historialpedido}', [HistorialPedidosController::class, 'show'])->name('historialpedidos.show');
-    Route::delete('historialpedidos/{historialpedido}', [HistorialPedidosController::class, 'destroy'])->name('historialpedidos.destroy');
-    Route::put('historial/{historialpedido}/actualizar', [HistorialPedidosController::class, 'update'])->name('historialpedidos.update');
-    Route::resource('usuarios', UsuariosController::class);
-    Route::put('/usuarios/changepass/{fecha}', [UsuariosController::class, 'changepass'])->name('usuarios.changepass');
-    Route::get('sincronizarpedidos', [CargarPedidosController::class, 'sincronizarDoctoresPedidos'])->name('pedidos.sincronizar');
-});
 
-// ===================== CONTABILIDAD =====================
-Route::middleware(['checkRole:contabilidad,admin'])->group(function () {
-    Route::resource('pedidoscontabilidad', PedidosContaController::class);
-    Route::get('/pedidoscontabilidad/downloadExcel/{fechainicio}/{fechafin}', [PedidosContaController::class, 'downloadExcel'])
-        ->name('pedidoscontabilidad.downloadExcel');
-    // Marcar insumo caro
-    Route::get('/insumo/marcar-caro', [InsumoController::class, 'marcarCaro'])->name('insumos.marcar-caro');
-    Route::post('/insumo/marcar-caro', [InsumoController::class, 'actualizarEsCaro'])->name('insumos.actualizar-es-caro');
+    // Route::resource('cargarpedidos', PedidosController::class);
+    Route::resource('cargarpedidos', CargarPedidosController::class);
+    Route::post('/cargarpedidosdetail', CargarPedidosController::class . '@cargarExcelArticulos')->name('cargarpedidos.excelarticulos');
+    Route::get('/cargarpedidos/{pedido}/uploadfile', CargarPedidosController::class . '@uploadfile')->name('cargarpedidos.uploadfile');
+    Route::put('/cargarpedidos/cargarImagen/{post}', CargarPedidosController::class . '@cargarImagen')->name('cargarpedidos.cargarImagen');
+    Route::put('/cargarpedidos/actualizarPago/{post}', CargarPedidosController::class . '@actualizarPago')->name('cargarpedidos.actualizarPago');
+    Route::put('/cargarpedidos/cargarImagenReceta/{post}', CargarPedidosController::class . '@cargarImagenReceta')->name('cargarpedidos.cargarImagenReceta');
+    Route::delete('cargarpedidos/eliminarFotoVoucher/{id}', CargarPedidosController::class . '@eliminarFotoVoucher')->name('cargarpedidos.eliminarFotoVoucher');
+    Route::put('/cargarpedidos/actualizarTurno/{id}', CargarPedidosController::class . '@actualizarTurno')->name('cargarpedidos.actualizarTurno');
+    Route::resource('asignarpedidos', AsignarPedidoController::class);
+    Route::post('/cargarpedidos/downloadWord', CargarPedidosController::class . '@downloadWord')
+        ->name('cargarpedidos.downloadWord');
 });
+//counter - jefe de operaciones -laboratorio
+Route::get('historialpedidos', HistorialPedidosController::class . '@index')
+    ->name('historialpedidos.index')
+    ->middleware(['checkRole:counter,admin,jefe-operaciones,laboratorio,Administracion']);
+Route::get('historialpedidos/{historialpedido}', HistorialPedidosController::class . '@show')
+    ->name('historialpedidos.show')
+    ->middleware(['checkRole:counter,admin,jefe-operaciones,laboratorio,Administracion']);
+//Jefe de operaciones
+Route::delete('historialpedidos/{historialpedido}', HistorialPedidosController::class . '@destroy')
+    ->name('historialpedidos.destroy')
+    ->middleware(['checkRole:admin,jefe-operaciones,Administracion']);
+Route::put('historial/{historialpedido}/actualizar', HistorialPedidosController::class . '@update')
+    ->name('historialpedidos.update')
+    ->middleware(['checkRole:admin,jefe-operaciones,Administracion']);
+Route::resource('usuarios', UsuariosController::class)->middleware(['checkRole:admin,jefe-operaciones']);
+Route::put('/usuarios/changepass/{fecha}', UsuariosController::class . '@changepass')
+    ->name('usuarios.changepass')
+    ->middleware(['checkRole:admin,jefe-operaciones']);
+Route::get('sincronizarpedidos', [CargarPedidosController::class, 'sincronizarDoctoresPedidos'])
+    ->name('pedidos.sincronizar')
+    ->middleware(['checkRole:admin,jefe-operaciones']);
+
+Route::resource('pedidoscontabilidad', PedidosContaController::class)->middleware(['checkRole:contabilidad,admin']);
+Route::get('/pedidoscontabilidad/downloadExcel/{fechainicio}/{fechafin}', PedidosContaController::class . '@downloadExcel')
+    ->name('pedidoscontabilidad.downloadExcel')
+    ->middleware(['checkRole:contabilidad,admin']);
 
 //ADMINISTRACION
-Route::get('formatos',FormatosController::class.'@index')->name('formatos.index');
-Route::post('excelhojaruta',FormatosController::class.'@excelhojaruta')->name('formatos.excelhojaruta');
+Route::get('formatos', FormatosController::class . '@index')->name('formatos.index');
+Route::post('excelhojaruta', FormatosController::class . '@excelhojaruta')->name('formatos.excelhojaruta');
 
 //MOTORIZADO
 Route::resource('pedidosmotorizado', PedidosMotoController::class)->middleware(['checkRole:motorizado,admin']);
@@ -105,8 +158,8 @@ Route::put('/pedidosmotorizado/fotos/{id}', [PedidosMotoController::class, 'carg
 //SUPERVISOR
 Route::middleware(['checkRole:supervisor,admin'])->group(function () {
     Route::resource('centrosalud', CentroSaludController::class);
-    Route::post('centrosalud/creacionflotante',[CentroSaludController::class,'creacionRapida'])->name('centrosalud.crearflorante');
-    Route::get('centrosaludbuscar', CentroSaludController::class.'@buscar');
+    Route::post('centrosalud/creacionflotante', [CentroSaludController::class, 'creacionRapida'])->name('centrosalud.crearflorante');
+    Route::get('centrosaludbuscar', CentroSaludController::class . '@buscar');
     Route::resource('especialidad', EspecialidadController::class);
     Route::resource('doctor', DoctorController::class);
     Route::post('/doctor/cargadata', [DoctorController::class, 'cargadata'])->name('doctor.cargadata');
@@ -127,26 +180,26 @@ Route::middleware(['checkRole:visitador,admin'])->group(function () {
     Route::resource('visitadoctor', VisitaDoctorController::class);
     //=============================Muestras - Modulo
     // Ruta principal que muestra todas las muestras
-    Route::resource('muestras', MuestrasController::class);
-    Route::get('calendariovisitadora',[EnrutamientoController::class,'calendariovisitadora'])->name('enrutamientolista.calendariovisitadora');
-    Route::get('/rutasdoctor/{id}',[EnrutamientoController::class,'DetalleDoctorRutas']);
-    Route::post('guardar-visita',[EnrutamientoController::class,'GuardarVisita'])->name('rutas.guardarvisita');
-    Route::get('rutasvisitadora',[RutasVisitadoraController::class,'index'])->name('rutasvisitadora.index');
-    Route::get('rutasvisitadora/{id}',[RutasVisitadoraController::class,'listadoctores'])->name('rutasvisitadora.listadoctores');
+    /* Route::resource('muestra', MuestrasController::class); */
+    Route::get('calendariovisitadora', [EnrutamientoController::class, 'calendariovisitadora'])->name('enrutamientolista.calendariovisitadora');
+    Route::get('/rutasdoctor/{id}', [EnrutamientoController::class, 'DetalleDoctorRutas']);
+    Route::post('guardar-visita', [EnrutamientoController::class, 'GuardarVisita'])->name('rutas.guardarvisita');
+    Route::get('rutasvisitadora', [RutasVisitadoraController::class, 'index'])->name('rutasvisitadora.index');
+    Route::get('rutasvisitadora/{id}', [RutasVisitadoraController::class, 'listadoctores'])->name('rutasvisitadora.listadoctores');
     Route::post('/rutasvisitadora/asignar', [RutasVisitadoraController::class, 'asignar'])->name('rutasvisitadora.asignar');
     Route::get('/rutasvisitadora/buscardoctor/{cmp}', [DoctorController::class, 'buscarCMP']);
     Route::post('/rutasvisitadora/doctores', [DoctorController::class, 'guardarDoctorVisitador']);
-    Route::get('centrosaludbuscar', CentroSaludController::class.'@buscar')->name('centrosalud.buscar');
+    Route::get('centrosaludbuscar', CentroSaludController::class . '@buscar')->name('centrosalud.buscar');
 });
 
 
-Route::get('/diasdelmes', AsignacionSemanal::class .'@mostrarDiasDelMes')
+Route::get('/diasdelmes', AsignacionSemanal::class . '@mostrarDiasDelMes')
     ->name('mostrarDiasDelMes');
 Route::get('/prueba', function () {
     return view('pedidos.counter.cargar_pedido.prueba');
 });
 
-Route::get('/distritoslimacallao', UbigeoController::class .'@ObtenerDistritosLimayCallao')
+Route::get('/distritoslimacallao', UbigeoController::class . '@ObtenerDistritosLimayCallao')
     ->name('distritoslimacallao');
 // Route::middleware(['checkRole:contabilidad'])->group(function () {
 //     Route::resource('pedidoscontabilidad', PedidosContaController::class);
@@ -162,8 +215,9 @@ Route::middleware(['checkRole:laboratorio,admin'])->group(function () {
     Route::get('/laboratorio/{id}', [laboratorioController::class, 'showLab'])->name('muestras.showLab');
     Route::put('/laboratorio/{id}/actualizar-fecha', [laboratorioController::class, 'actualizarFechaEntrega'])->name('muestras.actualizarFechaEntrega');
     Route::get('/get-unidades/{clasificacionId}', [MuestrasController::class, 'getUnidadesPorClasificacion']);
-    Route::put('/muestras/{id}/comentario', [laboratorioController::class, 'actualizarComentario'])->name('muestras.actualizarComentario');
-    Route::get('/pedidoslaboratorio/{fecha}/downloadWord/{turno}', [PedidoslabController::class, 'downloadWord'])->name('pedidoslaboratorio.downloadWord');
+
+    Route::get('/pedidoslaboratorio/{fecha}/downloadWord/{turno}', PedidoslabController::class . '@downloadWord')
+        ->name('pedidoslaboratorio.downloadWord');
     Route::get('/pedidoslaboratoriodetalles', [PedidoslabController::class, 'pedidosDetalles'])->name('pedidosLaboratorio.detalles');
     Route::put('pedidoslaboratoriodetalles/asignar/{id}/', [PedidoslabController::class, 'asignarTecnicoProd'])->name('pedidosLaboratorio.asignarTecnicoProd');
     Route::post('/pedidoslaboratoriodetalles/asignarmultiple', [PedidoslabController::class, 'asignarmultipletecnico'])->name('pedidosLaboratorio.asignarmultipletecnico');
@@ -176,15 +230,14 @@ Route::middleware(['checkRole:laboratorio,admin'])->group(function () {
     Route::post('excipientes', [PresentacionFarmaceuticaController::class, 'guardarexcipientes'])->name('excipientes.store');
     Route::delete('excipientes/{id}', [PresentacionFarmaceuticaController::class, 'eliminarexcipientes'])->name('excipientes.delete');
 });
-    //ROL DE TECNICA DE PRODUCCION
-    Route::get('pedidosproduccion',OrdenesController::class.'@index')->name('produccion.index')->middleware(['checkRole:tecnico_produccion,admin']);
-    Route::post('pedidosproduccion/{detalleId}/actualizarestado',[OrdenesController::class,'actualizarEstado'])->name('pedidosproduccion.actualizarEstado');
+//ROL DE TECNICA DE PRODUCCION
+Route::get('pedidosproduccion', OrdenesController::class . '@index')->name('produccion.index')->middleware(['checkRole:tecnico_produccion,admin']);
+Route::post('pedidosproduccion/{detalleId}/actualizarestado', [OrdenesController::class, 'actualizarEstado'])->name('pedidosproduccion.actualizarEstado');
 // Ruta para actualizar el precio de una muestra
 // Ruta para la gestión de precios en la vista de jefe de proyectos
 Route::middleware(['checkRole:jefe-operaciones,admin'])->group(function () {
     Route::get('/jefe-operaciones', [jefe_proyectosController::class, 'precio'])->name('muestras.precio');
     Route::get('/jefe-operaciones/{id}', [jefe_proyectosController::class, 'showJO'])->name('muestras.showJO');
-    Route::put('/muestras/{id}/actualizar-precio', [jefe_proyectosController::class, 'actualizarPrecio'])->name('muestras.actualizarPrecio');
     // Route::get('/pedidos/jefe_proyectos'.jefe_proyectosController::class,);
 });
 
@@ -193,7 +246,7 @@ Route::middleware(['checkRole:jefe-operaciones,admin'])->group(function () {
 
 Route::middleware(['checkRole:coordinador-lineas,admin'])->group(function () {
     Route::get('/Coordinadora', [coordinadoraController::class, 'aprobacionCoordinadora'])->name('muestras.aprobacion.coordinadora');
-    Route::put('/muestras/{id}/actualizar-fecha', [coordinadoraController::class, 'actualizarFechaEntrega'])->name('muestras.actualizarFechaEntrega');
+    /* Route::put('/muestras/{id}/actualizar-fecha', [coordinadoraController::class, 'actualizarFechaEntrega'])->name('muestras.actualizarFechaEntrega'); */
     //crud
     Route::get('/Coordinadora/{id}', [coordinadoraController::class, 'showCo'])->name('muestras.showCo');
     Route::get('/coordinadora/agregar', [coordinadoraController::class, 'createCO'])->name('muestras.createCO');
@@ -201,15 +254,18 @@ Route::middleware(['checkRole:coordinador-lineas,admin'])->group(function () {
     Route::get('/Coordinadora/{id}/edit', [coordinadoraController::class, 'editCO'])->name('muestras.editCO');
     Route::put('/Coordinadora/{id}/actualizar', [coordinadoraController::class, 'updateCO'])->name('muestras.updateCO');
     Route::delete('/Coordinadora/elimi/{id}', [coordinadoraController::class, 'destroyCO'])->name('muestras.destroyCO');
+    Route::put('/muestras/{id}/actualizar-tipo-muestra', [coordinadoraController::class, 'actualizarTipoMuestra'])->name('muestras.actualizarTipoMuestra');
 });
 //JEFE COMERCIAL
 Route::middleware(['checkRole:jefe-comercial,admin'])->group(function () {
+    Route::resource('categoriadoctor', CategoriaDoctorController::class);
     Route::get('/jefe-comercial', [JcomercialController::class, 'confirmar'])->name('muestras.confirmar');
     Route::get('/jefe-comercial/{id}', [JcomercialController::class, 'showJC'])->name('muestras.showJC');
-    Route::get('/ventascliente',[PedidosController::class,'listPedCliente'])->name('pedidosxcliente.listar');
+    Route::get('/ventascliente', [PedidosController::class, 'listPedCliente'])->name('pedidosxcliente.listar');
+    Route::put('/muestras/jefe-comercial/aprobar', [JcomercialController::class, 'acceptMuestraByJefeComercial'])->name('muestras.acceptMuestraByJefeComercial')->middleware(['checkRole:jefe-comercial,admin']);
 });
 //Jcomercial - coordonadordelineas
-Route::put('/muestras/{id}/actualizar-aprobacion', [coordinadoraController::class, 'actualizarAprobacion'])->name('muestras.actualizarAprobacion')->middleware(['checkRole:jefe-comercial,coordinador-lineas,admin']);
+Route::put('/muestras/coordinadora/aprobar', [coordinadoraController::class, 'acceptMuestraByCoordinadora'])->name('muestras.acceptMuestraByCoordinadora')->middleware(['checkRole:coordinador-lineas,admin']);
 //GERENCIACONTROLLER
 Route::middleware(['checkRole:gerencia-general,admin'])->group(function () {
     //Reporte gerencia - Clasificaciones
@@ -234,7 +290,8 @@ Route::middleware(['checkRole:Administracion,admin'])->group(function () {
     Route::resource('insumos', InsumoController::class);
     //Crud proveedores
     Route::resource('proveedores', ProveedorController::class)->parameters([
-            'proveedores' => 'proveedor']); 
+        'proveedores' => 'proveedor'
+    ]);
     //Crud tipo de cambio- EL PRINCIPAL ES RESUMEN-TIPO-CAMBIO!!!
     Route::resource('tipo_cambio', TipoCambioController::class);
     Route::get('/resumen-tipo-cambio', [TipoCambioController::class, 'resumenTipoCambio'])->name('tipo_cambio.resumen');
@@ -269,12 +326,14 @@ Route::middleware(['checkRole:Administracion,admin'])->group(function () {
 });
 
 // Ruta principal que muestra todas las muestras
-    Route::post('muestras/exportar-excel-jc', [App\Http\Controllers\muestras\JcomercialController::class, 'exportarExcel'])->name('muestras.exportarExcelJC');
-    Route::post('muestras/exportar-excel-co', [App\Http\Controllers\muestras\coordinadoraController::class, 'exportarExcel'])->name('muestras.exportarExcelCO');
-    Route::post('muestras/exportar-excel-lab', [App\Http\Controllers\muestras\laboratorioController::class, 'exportarExcel'])->name('muestras.exportarExcelLAB');
+Route::post('muestras/exportar-excel-jc', [App\Http\Controllers\muestras\JcomercialController::class, 'exportarExcel'])->name('muestras.exportarExcelJC');
+Route::get('muestras/exportar-excel-co', [App\Http\Controllers\muestras\coordinadoraController::class, 'exportarExcel'])->name('muestras.exportarExcelCO');
+Route::post('muestras/exportar-excel-lab', [App\Http\Controllers\muestras\laboratorioController::class, 'exportarExcel'])->name('muestras.exportarExcelLAB');
 
 Route::middleware(['checkRole:contabilidad,admin'])->group(function () {
-//contabilidad  marcará si el insumo es caro o no
-Route::get('/insumo/marcar-caro', [InsumoController::class, 'marcarCaro'])->name('insumos.marcar-caro');
-Route::post('/insumo/marcar-caro', [InsumoController::class, 'actualizarEsCaro'])->name('insumos.actualizar-es-caro');
+    //contabilidad  marcará si el insumo es caro o no
+    Route::get('/insumo/marcar-caro', [InsumoController::class, 'marcarCaro'])->name('insumos.marcar-caro');
+    Route::get('/contabilidad/muestras', [jefe_proyectosController::class, 'precio'])->name('muestras.precio');
+    Route::post('/insumo/marcar-caro', [InsumoController::class, 'actualizarEsCaro'])->name('insumos.actualizar-es-caro');
+    Route::put('/muestras/{id}/actualizar-precio', [jefe_proyectosController::class, 'actualizarPrecio'])->name('muestras.actualizarPrecio');
 });

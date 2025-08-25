@@ -12,7 +12,7 @@
                 <td style="border:1px solid #ddd; padding:8px; font-size:13px;">{{ $index + 1 }}</td>
                 <td style="border:1px solid #ddd; padding:8px; font-size:13px;">{{ $muestra->nombre_muestra }}</td>
                 <td style="border:1px solid #ddd; padding:8px; font-size:13px;">{{ $muestra->clasificacion->nombre_clasificacion ?? 'Sin clasificación' }}</td>
-                <td style="border:1px solid #ddd; padding:8px; font-size:13px;">{{ $muestra->tipo_muestra ?? 'No asignado' }}</td>
+                <td style="border:1px solid #ddd; padding:8px; font-size:13px;">{{ $muestra->tipo_frasco ?? 'No asignado' }}</td>
                 <td style="border:1px solid #ddd; padding:8px; font-size:13px; text-align:center;">
                     @if(isset($muestra->aprobado_jefe_comercial))
                         {{ $muestra->aprobado_jefe_comercial ? 'Sí' : 'No' }}

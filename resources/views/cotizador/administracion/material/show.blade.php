@@ -20,9 +20,10 @@
                     </div>
                     <div class="col-md-6" style="overflow-wrap: break-word; white-space: normal;">
                         <p><strong style="color:rgb(224, 61, 80);">Estado:</strong>
-                            <span class="badge" style="background-color: {{ $item->articulo->estado === 'activo' ? 'green' : 'gray' }}; color: white; padding: 5px;">
+                            <span class="badge {{ $item->articulo->estado === 'activo' ? 'bg-success' : 'bg-secondary' }}" style="color: white; padding: 5px;">
                                 {{ ucfirst($item->articulo->estado) }}
                             </span>
+
                         </p>
                         <p><strong style="color:rgb(224, 61, 80);">Precio de Última compra:</strong><br> S/ {{ $item->articulo->ultimaCompra?->precio ?? '--' }}</p>
                         <p><strong style="color:rgb(224, 61, 80);">Unidad de Medida:</strong><br>und</p>

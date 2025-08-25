@@ -1,40 +1,40 @@
 @if(Session::has('success'))
-    <div class="alert alert-success alert-dismissible fade-in-pop text-center" role="alert">
-        <span class="icon">🧪</span>{{ Session::get('success') }}
-        <button type="button"
-                class="close position-absolute" style="top: 0.5rem;"
-                data-dismiss="alert" aria-label="Cerrar">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
+<div class="alert alert-success alert-dismissible fade-in-pop text-center" role="alert">
+    <span class="icon">🧪</span>{{ Session::get('success') }}
+    <button type="button"
+        class="close position-absolute" style="top:0.5rem;"
+        data-dismiss="alert" aria-label="Cerrar">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
 @endif
 
 @if(Session::has('error'))
-    <div class="alert alert-danger alert-dismissible fade-in-pop text-center" role="alert">
-        <span class="icon">⚠️</span>
-        <strong>¡Atención!</strong> {{ Session::get('error') }}
-        <button type="button"
-                class="close position-absolute" style="top: 0.5rem;"
-                data-dismiss="alert" aria-label="Cerrar">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
+<div class="alert alert-danger alert-dismissible fade-in-pop text-center" role="alert">
+    <span class="icon">⚠️</span>
+    <strong>¡Atención!</strong> {{ Session::get('error') }}
+    <button type="button"
+        class="close position-absolute" style="top: 0.5rem;"
+        data-dismiss="alert" aria-label="Cerrar">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
 @endif
 
 @if ($errors->any())
-    <div class="alert alert-danger alert-dismissible fade-in-pop text-center" role="alert">
-        <span class="icon"><i class="fas fa-skull-crossbones"></i></span>
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-            <button type="button"
-                class="close position-absolute" style="top: 0.5rem;"
-                data-dismiss="alert" aria-label="Cerrar">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
+<div class="alert alert-danger alert-dismissible fade-in-pop text-center" role="alert">
+    <span class="icon"><i class="fas fa-skull-crossbones"></i></span>
+    <ul>
+        @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+    <button type="button"
+        class="close position-absolute" style="top: 0.5rem;"
+        data-dismiss="alert" aria-label="Cerrar">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
 @endif
 <style>
     .fade-in-pop {
@@ -109,9 +109,9 @@
             visibility: hidden;
         }
     }
-    
-    @media(max-width: 400px){
-        .alert{
+
+    @media(max-width: 400px) {
+        .alert {
             min-width: unset;
             width: 90 vw;
             padding: 1 rem;

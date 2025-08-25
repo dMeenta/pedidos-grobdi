@@ -11,7 +11,7 @@
                 </button>
             </div>
 
-         <div class="modal-body" style="color: #333; max-height: 70vh; overflow-y: auto;">
+            <div class="modal-body" style="color: #333; max-height: 70vh; overflow-y: auto;">
                 <div class="row">
                     <div class="col-md-6" style="word-wrap: break-word; overflow-wrap: break-word;">
                         <p style="white-space: normal;"><strong style="color:#e03d50;">Razón Social:</strong> {{ $proveedor->razon_social }}</p>
@@ -26,9 +26,15 @@
                         <p style="white-space: normal;"><strong style="color:#e03d50;">Teléfono 2:</strong> {{ $proveedor->telefono_2 ?? 'No se registró un segundo teléfono' }}</p>
                         <p style="white-space: normal;"><strong style="color:#e03d50;">Persona de Contacto:</strong> {{ $proveedor->persona_contacto ?? 'No se registró una persina de contacto' }}</p>
                         <p style="white-space: normal;"><strong style="color:#e03d50;">Estado:</strong>
-                            <span class="badge badge-pill" style="background-color: {{ $proveedor->estado == 'activo' ? '#28a745' : '#6c757d' }}; color: white; padding: 8px 12px;">
-                                {{ ucfirst($proveedor->estado) }}
+                            @php
+                            $estado = $proveedor->estado ?? 'inactivo';
+                            @endphp
+
+                            <span class="badge badge-pill {{ $estado == 'activo' ? 'badge-activo' : 'badge-inactivo' }}">
+                                {{ ucfirst($estado) }}
                             </span>
+
+
                         </p>
                     </div>
                 </div>

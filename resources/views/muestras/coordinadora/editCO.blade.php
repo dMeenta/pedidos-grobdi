@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+
 <div class="container">
     <h1 class="text-center position-relative">
         <a class="position-absolute text-secondary" style="left: 0;" title="Volver" href="{{ route('muestras.aprobacion.coordinadora') }}">
@@ -98,8 +99,8 @@
         <div class="form-group">
             <label>Tipo de Muestra</label>
             <select name="tipo_muestra" class="form-control" required>
-                <option value="frasco original" {{ $muestra->tipo_muestra == 'frasco original' ? 'selected' : '' }}>Frasco Original</option>
-                <option value="frasco muestra" {{ $muestra->tipo_muestra == 'frasco muestra' ? 'selected' : '' }}>Frasco Muestra</option>
+                <option value="frasco original" {{ trim(strtolower($muestra->tipo_muestra)) === 'frasco original' ? 'selected' : '' }}>Frasco Original</option>
+                <option value="frasco muestra" {{ trim(strtolower($muestra->tipo_muestra)) === 'frasco muestra' ? 'selected' : '' }}>Frasco Muestra</option>
             </select>
         </div>
 

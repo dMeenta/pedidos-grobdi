@@ -53,7 +53,7 @@ class UsuariosController extends Controller
 
         return redirect()->route('usuarios.index');
     }
-
+// dsada
     /**
      * Display the specified resource.
      */

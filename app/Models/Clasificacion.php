@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\UnidadMedida; 
+use App\Models\UnidadMedida;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -19,9 +19,9 @@ class Clasificacion extends Model
     protected $table = 'clasificaciones';
 
 
-    public function unidadMedida() 
+    public function unidadMedida()
     {
-        return $this->belongsTo(UnidadMedida::class, 'unidad_de_medida_id'); 
+        return $this->belongsTo(UnidadMedida::class, 'unidad_de_medida_id');
     }
 
     public function muestras()
@@ -35,5 +35,9 @@ class Clasificacion extends Model
     public function bases()
     {
         return $this->hasMany(Base::class);
+    }
+    public function presentaciones()
+    {
+        return $this->hasMany(ClasificacionPresentacion::class);
     }
 }
