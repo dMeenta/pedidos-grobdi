@@ -115,15 +115,19 @@ class MuestrasController extends Controller
             $query->where('nombre_muestra', 'like', "%{$search}%");
         }
 
-
         $filterBy = $request->filter_by_date;
         $dateSince = $request->date_since;
         $dateTo = $request->date_to;
 
         if ($filterBy && $dateSince && $dateTo) {
+
             $column = $request->filter_by_date === 'entrega' ? 'datetime_scheduled' : 'created_at';
 
-            $query->whereBetween($column, [$request->date_since, $request->date_to]);
+            $query->whereDate($column, '>=', $request->date_since);
+            $query->whereDate($column, '<=', $request->date_to);
+        }
+
+        if ($request->filled('date_to')) {
         }
 
         if ($request->filled('lab_state')) {

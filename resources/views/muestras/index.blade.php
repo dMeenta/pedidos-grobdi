@@ -316,21 +316,20 @@ $currentParams = request()->except(['page','state']);
                 type: 'GET',
                 success: function(response) {
                     const muestra = response.data;
-                    const muestraClasificacion = muestra.clasificacion;
                     if (!muestra.state) {
                         $('#modal_title').text('Detalles de la Muestra - DESHABILITADA');
                     } else {
                         $('#modal_title').text('Detalles de la Muestra');
                     }
                     $('#nombre_muestra').text(muestra.nombre_muestra);
-                    $('#clasificacion_muestra').text(`${muestraClasificacion ? muestraClasificacion.nombre_clasificacion : 'No disponible'}`);
-                    $('#unidad_medida').text(muestraClasificacion.unidad_medida.nombre_unidad_de_medida ?? 'No disponible');
+                    $('#clasificacion_muestra').text(`${muestra.clasificacion ? muestra.clasificacion.nombre_clasificacion : 'No disponible'}`);
+                    $('#unidad_medida').text(muestra.clasificacion.unidad_medida.nombre_unidad_de_medida ?? 'No disponible');
                     $('#tipo_frasco').text(muestra.tipo_frasco);
                     if (muestra.tipo_frasco == 'Frasco Muestra') {
                         $('#presentacion_frasco').hide();
                     } else {
                         $('#presentacion_frasco').show();
-                        $('#presentacion_frasco_original').text(`${muestra.clasificacion_presentacion.quantity} ${muestraClasificacion.unidad_medida.nombre_unidad_de_medida}`)
+                        $('#presentacion_frasco_original').text(`${muestra.clasificacion_presentacion?.quantity} ${muestra.clasificacion.unidad_medida.nombre_unidad_de_medida}`)
                     }
                     $('#tipo_muestra').text(muestra.tipo_muestra ? muestra.tipo_muestra.name : 'No disponible');
                     $('#cantidad_muestra').text(muestra.cantidad_de_muestra);
