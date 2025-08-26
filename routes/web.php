@@ -19,6 +19,7 @@ use App\Http\Controllers\rutas\mantenimiento\EspecialidadController;
 
 //Modulo - MUESTRAS
 use App\Http\Controllers\muestras\MuestrasController;
+use App\Http\Controllers\muestras\gerenciaController;
 
 use App\Http\Controllers\pedidos\laboratorio\PresentacionFarmaceuticaController;
 use App\Http\Controllers\pedidos\produccion\OrdenesController;
