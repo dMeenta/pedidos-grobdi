@@ -4,7 +4,6 @@ namespace App\Exports\muestras;
 
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
-use App\Models\Muestras;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -12,6 +11,7 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Events\AfterSheet;
+use Illuminate\Support\Facades\DB;
 
 class MuestrasExport implements FromQuery, WithHeadings, WithMapping, WithChunkReading, WithStyles, WithColumnWidths, WithEvents
 {
@@ -28,45 +28,60 @@ class MuestrasExport implements FromQuery, WithHeadings, WithMapping, WithChunkR
 
     public function query()
     {
-        $query = Muestras::query()
-            ->with([
-                'tipoMuestra:id,name',
-                'clasificacion:id,nombre_clasificacion,unidad_de_medida_id',
-                'clasificacion.unidadMedida:id,nombre_unidad_de_medida',
-                'doctor:id,name',
-                'creator:id,name',
-                'clasificacionPresentacion:id,quantity',
-            ])
-            ->select([
-                'id',
-                'nombre_muestra',
-                'observacion',
-                'lab_state',
-                'comentarios',
-                'tipo_frasco',
-                'id_tipo_muestra',
-                'clasificacion_id',
-                'clasificacion_presentacion_id',
-                'id_doctor',
-                'name_doctor',
-                'cantidad_de_muestra',
-                'precio',
-                'datetime_scheduled',
-                'created_by',
-                'aprobado_coordinadora',
-                'aprobado_jefe_comercial'
-            ])
-            ->where('state', true)
-            ->orderBy('created_at', 'desc');
+        $columns = [
+            'muestras.id',
+            'muestras.nombre_muestra',
+            'muestras.observacion',
+            'muestras.lab_state',
+            'muestras.comentarios',
+            'muestras.tipo_frasco',
+            'tipo_muestras.name as tipo_muestra',
+            'clasificaciones.nombre_clasificacion as clasificacion',
+            'clasificacion_presentaciones.quantity as presentacion',
+            'unidad_de_medida.nombre_unidad_de_medida as unidad_de_medida',
+            'doctor.name as doctor',
+            'muestras.name_doctor',
+            'muestras.cantidad_de_muestra as cantidad',
+            'muestras.datetime_scheduled',
+            'users.name as creator',
+            'muestras.aprobado_coordinadora',
+            'muestras.aprobado_jefe_comercial'
+        ];
+
+        if (in_array($this->userRole, $this->allowedRolesToSeePrices)) {
+            $columns[] = 'muestras.precio';
+        }
+
+        $query = DB::table('muestras')
+            ->leftJoin(
+                'tipo_muestras',
+                'muestras.id_tipo_muestra',
+                '=',
+                'tipo_muestras.id'
+            )
+            ->leftJoin('clasificacion_presentaciones', 'muestras.clasificacion_presentacion_id', '=', 'clasificacion_presentaciones.id')
+            ->leftJoin('clasificaciones', 'muestras.clasificacion_id', '=', 'clasificaciones.id')
+            ->leftJoin('doctor', 'muestras.id_doctor', '=', 'doctor.id')
+            ->leftJoin('users', 'muestras.created_by', '=', 'users.id')
+            ->leftJoin('unidad_de_medida', 'clasificaciones.unidad_de_medida_id', '=', 'unidad_de_medida.id')
+            ->select($columns)
+            ->where('muestras.state', true)
+            ->orderBy('muestras.created_at', 'desc');
 
         if (in_array($this->userRole, ['admin', 'coordinador-lineas'])) {
         } elseif ($this->userRole === 'visitador') {
             $query->where('created_by', $this->userId);
         } elseif ($this->userRole === 'jefe-comercial') {
             $query->where('aprobado_coordinadora', true);
-        } else {
+        } else if ($this->userRole === 'laboratorio') {
             $query->where('aprobado_coordinadora', true)
-                ->where('aprobado_jefe_comercial', true);
+                ->where('aprobado_jefe_comercial', true)
+                ->where('aprobado_jefe_operaciones', true);
+        } else {
+            $query->where([
+                'aprobado_coordinadora' => true,
+                'aprobado_jefe_comercial' => true
+            ]);
         }
 
         return $query;
@@ -81,21 +96,21 @@ class MuestrasExport implements FromQuery, WithHeadings, WithMapping, WithChunkR
             $muestra->lab_state ? 'ELABORADA' : 'PENDIENTE',
             $muestra->comentarios,
             $muestra->tipo_frasco,
-            optional($muestra->tipoMuestra)->name,
-            $muestra->clasificacion->nombre_clasificacion,
-            $muestra->clasificacion->unidadMedida->nombre_unidad_de_medida,
-            optional($muestra->clasificacionPresentacion)->quantity,
-            $muestra->doctor->name ?? ($muestra->name_doctor ? $muestra->name_doctor : ''),
-            $muestra->cantidad_de_muestra,
+            $muestra->tipo_muestra ?? '',
+            $muestra->clasificacion,
+            $muestra->presentacion ?? '',
+            $muestra->unidad_de_medida,
+            $muestra->doctor ?? ($muestra->name_doctor ? $muestra->name_doctor : ''),
+            $muestra->cantidad,
         ];
 
         if (in_array($this->userRole, $this->allowedRolesToSeePrices)) {
             $row[] = $muestra->precio;
-            $row[] = $muestra->precio * $muestra->cantidad_de_muestra;
+            $row[] = $muestra->precio * $muestra->cantidad;
         }
 
         $row[] = \Carbon\Carbon::parse($muestra->datetime_scheduled)->format('d/m/Y H:i');
-        $row[] = $muestra->creator ? $muestra->creator->name : 'Desconocido';
+        $row[] = $muestra->creator ?? 'Desconocido';
 
         return $row;
     }
@@ -111,8 +126,8 @@ class MuestrasExport implements FromQuery, WithHeadings, WithMapping, WithChunkR
             'Tipo de Frasco',
             'Tipo de Muestra',
             'Clasificación',
-            'Unidad de medida',
             'Presentación del Frasco',
+            'Unidad de medida',
             'Doctor',
             'Cantidad',
         ];
