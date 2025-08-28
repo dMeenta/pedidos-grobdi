@@ -367,18 +367,18 @@ class MuestrasController extends Controller
             return redirect()->route('muestras.index')->with('error', 'No se puede realizar esta acción una vez inhabilitada la muestra.');
         }
 
+        if ($muestra->aprobado_coordinadora) {
+            return redirect()->route('muestras.index')->with('error', 'No se puede cambiar la fecha de entrega una vez aprobada.');
+        }
+
         $request->validate([
             'datetime_scheduled' => 'required|date|after_or_equal:' . Carbon::now()->format('Y-m-d\TH:i'),
         ]);
 
-        if (!$muestra->aprobado_coordinadora || !$muestra->aprobado_jefe_comercial || !$muestra->aprobado_jefe_operaciones) {
-            $muestra->datetime_scheduled = $request->datetime_scheduled;
-            $muestra->save();
+        $muestra->datetime_scheduled = $request->datetime_scheduled;
+        $muestra->save();
 
-            return redirect()->route('muestras.index')->with('success', 'Fecha de entrega actualizada correctamente.');
-        } else {
-            return redirect()->route('muestras.index')->with('error', 'No se puede cambiar la fecha de entrega una vez aprobada.');
-        }
+        return redirect()->route('muestras.index')->with('success', 'Fecha de entrega actualizada correctamente.');
     }
 
     /* --- LABORATORIO --- */

@@ -80,7 +80,7 @@ $currentParams = request()->except(['page','state']);
         <table class="table table-hover" id="table_muestras">
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th class="px-3">ID</th>
                     <th>Nombre de la Muestra</th>
                     <th>Clasificación</th>
                     <th>Tipo de Frasco</th>
@@ -107,7 +107,7 @@ $currentParams = request()->except(['page','state']);
                 @foreach($muestras as $index => $muestra)
                 <tr id="muestra_{{ $muestra->id }}">
                     <td>{{ $muestra->id }}</td>
-                    <td class="observaciones">{{ $muestra->nombre_muestra }}</td>
+                    <td>{{ $muestra->nombre_muestra }}</td>
                     <td>
                         @php
                         $isSetClasificacion = $muestra->clasificacion;
