@@ -28,14 +28,14 @@ $currentParams = request()->except(['page','state']);
     </div>
     <hr>
     <div class="row my-3">
-        <form method="GET" action="{{ route('muestras.index') }}" class="col-12 col-lg-9 d-flex flex-column flex-md-row mb-3 mb-lg-0">
+        <form method="GET" action="{{ route('muestras.index') }}" class="col-12 col-xl-8 d-flex flex-column flex-md-row mb-3 mb-lg-0">
             <input
                 type="text"
                 name="search"
                 value="{{ request('search') }}"
                 placeholder="Buscar por nombre..."
                 class="form-control">
-            <select class="custom-select mx-md-2 my-2 my-md-0" name="filter_by_date">
+            <select class="custom-select mx-md-1 my-2 my-md-0" name="filter_by_date">
                 <option value="registro" {{ request('filter_by_date') == 'registro' ? 'selected' : '' }}>
                     Por fecha de registro
                 </option>
@@ -47,7 +47,7 @@ $currentParams = request()->except(['page','state']);
                 type="date"
                 name="date_since"
                 value="{{ request('date_since') }}"
-                class="form-control mb-2 mb-md-0 mr-md-2"
+                class="form-control mb-2 mb-md-0 mr-md-1"
                 placeholder="Desde">
             <input
                 type="date"
@@ -57,7 +57,7 @@ $currentParams = request()->except(['page','state']);
                 placeholder="Hasta">
             <button type="submit" class="btn btn-primary ml-md-2">Buscar</button>
         </form>
-        <div class="btn-group col-12 col-lg-3" role="group">
+        <div class="btn-group col-12 col-xl-4" role="group">
             <a href="{{ route('muestras.index', array_merge($currentParams, ['lab_state' => 'Pendiente'])) }}"
                 class="btn btn-s {{ request('lab_state') == 'Pendiente' ? 'btn-danger' : 'btn-outline-danger' }}">
                 Pendientes
