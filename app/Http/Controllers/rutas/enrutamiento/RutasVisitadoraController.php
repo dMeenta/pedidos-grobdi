@@ -18,6 +18,7 @@ class RutasVisitadoraController extends Controller
     public function index(){
         $primerDiaMes = Carbon::now()->startOfMonth()->toDateString();
         $rutames = Enrutamiento::where('fecha',$primerDiaMes)->whereIn('zone_id',Auth::user()->zones->pluck('id'))->get();
+        $listas  = [];
         foreach ($rutames as $ruta) {
             $listas = EnrutamientoLista::where('enrutamiento_id',$ruta->id)->get();
         }

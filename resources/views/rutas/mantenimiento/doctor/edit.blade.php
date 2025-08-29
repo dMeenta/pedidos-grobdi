@@ -228,6 +228,7 @@
                     @endforeach
                 </select>
             </div>
+            <input type="hidden" name="previous_url" value="{{ url()->previous() }}">
         </div>
         <br>
         <button type="submit" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> Registrar</button>

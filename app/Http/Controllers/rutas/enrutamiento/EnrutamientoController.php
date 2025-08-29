@@ -31,7 +31,7 @@ class EnrutamientoController extends Controller
             'fecha_mes' => 'required',
         ]);
         // dd($request->fecha_mes.'-00');
-        $zonas = Zone::whereIn('name',['norte','sur','centro'])->get();
+        $zonas = Zone::whereNotIn('name',['Recojo en tienda','Otros'])->get();
         $existe_fecha = Enrutamiento::where('fecha',$request->fecha_mes.'-01')->first();
         if(!$existe_fecha){
             foreach ($zonas as $zona) {
@@ -57,6 +57,7 @@ class EnrutamientoController extends Controller
         $listas = Lista::where('zone_id',$enrutamiento->zone_id)->get();
         $enrutamiento_lista = EnrutamientoLista::where('enrutamiento_id',$id)->get();
         $fechas_seleccionadas = [];
+        $fecha_fin = Carbon::parse($enrutamiento->fecha)->endOfMonth()->toDateString();
         if($enrutamiento_lista){
             foreach($enrutamiento_lista as $ruta_lista){
                 $rangoInicio = Carbon::parse($ruta_lista->fecha_inicio);
@@ -70,7 +71,7 @@ class EnrutamientoController extends Controller
                 }
             }
         }
-        return view('rutas.enrutamiento.enrutamientolista', compact('listas','enrutamiento','fechas_seleccionadas','visitas'));
+        return view('rutas.enrutamiento.enrutamientolista', compact('listas','enrutamiento','fechas_seleccionadas','visitas','fecha_fin'));
     }
     public function Enrutamientolistastore(Request $request)
     {
@@ -95,9 +96,9 @@ class EnrutamientoController extends Controller
         // Obtener todos los doctores asociados a los distritos
         foreach ($lista->distritos as $distrito) {
             if($lista->recovery == 1){
-                $doctores = Doctor::where('distrito_id', $distrito->id)->where('recovery', 1)->get();
+                $doctores = Doctor::where('distrito_id', $distrito->id)->where('recovery', 1)->where('state', 1)->get();
             }else{
-                $doctores = Doctor::where('distrito_id', $distrito->id)->where('recovery', 0)->get();
+                $doctores = Doctor::where('distrito_id', $distrito->id)->where('recovery', 0)->where('state', 1)->get();
             }
             
             // Si no hay doctores, continuar con el siguiente distrito

@@ -79,8 +79,9 @@ class DoctorController extends Controller
     {
         $distritos = Distrito::select('id', 'name')->where('provincia_id', 128)->orWhere('provincia_id', 67)->get();
         $especialidades = Especialidad::all();
+        $categorias = CategoriaDoctor::all();
         $dias = Day::all();
-        return view('rutas.mantenimiento.doctor.create',compact('distritos','especialidades','dias'));
+        return view('rutas.mantenimiento.doctor.create',compact('distritos','especialidades','dias','categorias'));
     }
     public function guardarDoctorVisitador(Request $request)
     {
@@ -213,7 +214,7 @@ class DoctorController extends Controller
         $especialidades = Especialidad::all();
         $categorias = CategoriaDoctor::all();
         $dias = Day::all();
-        return view("rutas.mantenimiento.doctor.edit",compact('distritos','especialidades','dias', 'doctor','array_diasselect'));
+        return view("rutas.mantenimiento.doctor.edit",compact('distritos','especialidades','dias', 'doctor','array_diasselect','categorias'));
     }
 
     /**
@@ -253,7 +254,8 @@ class DoctorController extends Controller
             }
             $doctor->days()->attach($doctorday);
         }
-        return redirect()->route('doctor.index');
+        // dd($request->input('previous_url'));
+        return redirect($request->input('previous_url'))->with('success', 'doctor actualizado correctamente');;
     }
 
     /**

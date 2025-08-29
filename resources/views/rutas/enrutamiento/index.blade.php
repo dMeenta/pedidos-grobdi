@@ -40,7 +40,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="6">No hay información que mostrar</td>
+                    <td colspan="3">No hay información que mostrar</td>
                 </tr>
             @endforelse
             </tbody>
