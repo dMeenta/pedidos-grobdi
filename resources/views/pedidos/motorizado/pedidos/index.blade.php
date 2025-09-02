@@ -9,7 +9,14 @@
 
 @section('content')
 <div class="card mt-3">
-    <h2 class="card-header">Pedidos de la zona {{ Auth::user()->zones[0]->name }}</h2>
+    <h2 class="card-header">
+        Pedidos de la zona 
+        @if(Auth::user()->zones && Auth::user()->zones->count() > 0)
+            {{ Auth::user()->zones[0]->name }}
+        @else
+            <span class="text-danger">Sin zona asignada</span>
+        @endif
+    </h2>
     <div class="card-body">
     <form action="{{ route('pedidosmotorizado.index') }}" method="GET">
         <div class="row">
