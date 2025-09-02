@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Doctor;
 use App\Models\VisitaDoctor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class VisitaDoctorController extends Controller
 {
@@ -32,5 +34,115 @@ class VisitaDoctorController extends Controller
 
 
         return response()->json(['success' => true]);
+    }
+
+    public function mapa()
+    {
+        $columns = [
+            'visita_doctor.id',
+            'visita_doctor.longitude',
+            'visita_doctor.latitude',
+            'categoria_doctor.name as categoria_doctor',
+            'doctor.id as doctor_id',
+            'doctor.name as doctor_name',
+            'doctor.first_lastname as doctor_first_lastname',
+            'doctor.second_lastname as doctor_second_lastname',
+            'visita_doctor.fecha',
+            'estado_visita.color as estado_color',
+            'estado_visita.name as estado',
+        ];
+
+        $data = DB::table('visita_doctor')
+            ->leftJoin('enrutamiento_lista', 'visita_doctor.enrutamientolista_id', '=', 'enrutamiento_lista.id')
+            ->leftJoin('enrutamiento', 'enrutamiento_lista.enrutamiento_id', '=', 'enrutamiento.id')
+            ->leftJoin('zones', 'enrutamiento.zone_id', '=', 'zones.id')
+            ->leftJoin('user_zones', 'zones.id', '=', 'user_zones.zone_id')
+            ->leftJoin('users', 'user_zones.user_id', '=', 'users.id')
+            ->leftJoin('estado_visita', 'visita_doctor.estado_visita_id', '=', 'estado_visita.id')
+            ->leftJoin('doctor', 'visita_doctor.doctor_id', '=', 'doctor.id')
+            ->leftJoin('categoria_doctor', 'doctor.categoriadoctor_id', '=', 'categoria_doctor.id')
+            ->select($columns)
+            ->orderBy('visita_doctor.turno', 'asc')
+            ->whereIn('estado_visita.id', [2, 5])
+            ->where('users.id', '=', Auth::id())
+            ->whereDate('visita_doctor.fecha', '=', now()->toDateString())
+            ->get();
+
+        return view('rutas.mapa', compact('data'));
+    }
+
+    public function FindDetalleVisitaByID($id)
+    {
+        $columns = [
+            'visita_doctor.id',
+            'visita_doctor.longitude',
+            'visita_doctor.latitude',
+            'doctor.name as doctor_name',
+            'doctor.cmp as doctor_cmp',
+            'doctor.first_lastname as doctor_first_lastname',
+            'doctor.second_lastname as doctor_second_lastname',
+            'doctor.phone as doctor_phone',
+            'distritos.name as doctor_distrito',
+            'especialidad.name as doctor_especialidad',
+            'visita_doctor.fecha',
+            'visita_doctor.turno',
+            'centrosalud.name as doctor_centro_salud',
+            'estado_visita.color as estado_color',
+            'estado_visita.name as estado',
+            'enrutamiento_lista.fecha_inicio',
+            'enrutamiento_lista.fecha_fin',
+        ];
+
+        $data = DB::table('visita_doctor')
+            ->leftJoin('doctor', 'visita_doctor.doctor_id', '=', 'doctor.id')
+            ->leftJoin('centrosalud', 'doctor.centrosalud_id', '=', 'centrosalud.id')
+            ->leftJoin('distritos', 'doctor.distrito_id', '=', 'distritos.id')
+            ->leftJoin('especialidad', 'doctor.especialidad_id', '=', 'especialidad.id')
+            ->leftJoin('estado_visita', 'visita_doctor.estado_visita_id', '=', 'estado_visita.id')
+            ->leftJoin('enrutamiento_lista', 'visita_doctor.enrutamientolista_id', '=', 'enrutamiento_lista.id')
+            ->select($columns)
+            ->where('visita_doctor.id', '=', $id)
+            ->first();
+
+        return response()->json(['success' => true, 'data' => $data]);
+    }
+
+    public function updateVisitaDoctor(Request $request, $id)
+    {
+        $visita = VisitaDoctor::findOrFail($id);
+
+        $request->validate([
+            'estado_visita' => 'required|exists:estado_visita,id',
+            'observaciones_visita' => 'nullable|string',
+        ]);
+
+        if ($visita->fecha != now()->toDateString()) {
+            return response()->json(['success' => false, 'message' => 'La visita no se puede actualizar porque no corresponde al día de hoy'], 401);
+        }
+
+        if ($request['estado_visita'] == 5) {
+            if ($visita->reprogramar == 1) {
+                return response()->json(['success' => false, 'message' => 'La visita no se puede reprogramar más de una vez. Ponerse en contacto con su supervisora'], 400);
+            }
+            $visita->reprogramar = 1;
+
+            if (!$request['fecha_visita_reprogramada']) {
+                return response()->json(['success' => false, 'message' => 'La visita no se puede reprogramar sin asignarle una nueva fecha'], 400);
+            }
+            $nuevaFecha = $request['fecha_visita_reprogramada'];
+
+            if ($nuevaFecha <= now()->toDateString()) {
+                return response()->json(['success' => false, 'message' => 'La fecha de la visita debe ser un día posterior a la establecida'], 400);
+            }
+            $visita->fecha = $nuevaFecha;
+        }
+
+        $visita->estado_visita_id = $request['estado_visita'];
+        $visita->observaciones_visita = $request['observaciones'];
+
+        $visita->updated_by = Auth::user()->id;
+        $visita->save();
+
+        return response()->json(['success' => true, 'message' => "La visita con ID: $id fue actualizada correctamente"]);
     }
 }

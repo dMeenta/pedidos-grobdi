@@ -170,7 +170,7 @@ Route::middleware(['checkRole:supervisor,admin'])->group(function () {
     Route::put('/enrutamientolista/doctor/{id}', [EnrutamientoController::class, 'DoctoresListaUpdate'])->name('enrutamientolista.doctoresupdate');
     Route::post('/visitadoctornuevo/{id}/aprobar', [VisitaDoctorController::class, 'aprobar']);
     Route::post('/visitadoctornuevo/{id}/rechazar', [VisitaDoctorController::class, 'rechazar']);
-    Route::resource('categoriadoctor',CategoriaDoctorController::class);
+    Route::resource('categoriadoctor', CategoriaDoctorController::class);
 });
 //VISITADOR
 Route::middleware(['checkRole:visitador,admin'])->group(function () {
@@ -180,6 +180,8 @@ Route::middleware(['checkRole:visitador,admin'])->group(function () {
 
     Route::get('calendariovisitadora', [EnrutamientoController::class, 'calendariovisitadora'])->name('enrutamientolista.calendariovisitadora');
     Route::get('/rutasdoctor/{id}', [EnrutamientoController::class, 'DetalleDoctorRutas']);
+    Route::get('/detalle-visita-doctor/{id}', [VisitaDoctorController::class, 'FindDetalleVisitaByID']);
+    Route::put('/update-visita-doctor/{id}', [VisitaDoctorController::class, 'UpdateVisitaDoctor'])->name('rutas.guardarvisita');
     Route::post('guardar-visita', [EnrutamientoController::class, 'GuardarVisita'])->name('rutas.guardarvisita');
     Route::get('rutasvisitadora', [RutasVisitadoraController::class, 'index'])->name('rutasvisitadora.index');
     Route::get('rutasvisitadora/{id}', [RutasVisitadoraController::class, 'listadoctores'])->name('rutasvisitadora.listadoctores');
@@ -187,6 +189,8 @@ Route::middleware(['checkRole:visitador,admin'])->group(function () {
     Route::get('/rutasvisitadora/buscardoctor/{cmp}', [DoctorController::class, 'buscarCMP']);
     Route::post('/rutasvisitadora/doctores', [DoctorController::class, 'guardarDoctorVisitador']);
     Route::get('centrosaludbuscar', CentroSaludController::class . '@buscar')->name('centrosalud.buscar');
+
+    Route::get('ruta-mapa', [VisitaDoctorController::class, 'mapa'])->name('ruta.mapa');
 });
 
 
