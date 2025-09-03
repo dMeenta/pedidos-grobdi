@@ -26,6 +26,9 @@ class Pedidos extends Model
         'zone_id',
         'voucher',
         'receta',
+        'estado_laboratorio',
+        'observacion_laboratorio',
+        'fecha_reprogramacion',
     ];
     public function user()
     {

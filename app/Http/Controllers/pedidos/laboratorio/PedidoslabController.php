@@ -25,16 +25,30 @@ class PedidoslabController extends Controller
         }else{
             $fecha = date('Y-m-d');
         }
+        
+        // Obtener todas las zonas para el filtro
+        $zonas = Zone::orderBy('name')->get();
+        
+        // Construir query base
+        $query = Pedidos::where('deliveryDate', $fecha);
+        
+        // Filtro por turno
         if($request->turno){
             $turno = $request->turno;
-            $pedidos = Pedidos::where('deliveryDate', $fecha)->where('turno',$turno)->orderBy('nroOrder','asc')
-            ->latest()->get();
+            $query = $query->where('turno', $turno);
         }else{
             $turno = 0;
-            $pedidos = Pedidos::where('deliveryDate', $fecha)->where('turno',0)->orderBy('nroOrder','asc')
-            ->latest()->get();
+            $query = $query->where('turno', 0);
         }
-        return view('pedidos.laboratorio.index', compact('pedidos','turno'));
+        
+        // Filtro por zona
+        if($request->zona_id && $request->zona_id != ''){
+            $query = $query->where('zone_id', $request->zona_id);
+        }
+        
+        $pedidos = $query->orderBy('nroOrder','asc')->latest()->get();
+        
+        return view('pedidos.laboratorio.index', compact('pedidos','turno','zonas'));
     }
     
     public function show($id){
@@ -171,10 +185,44 @@ class PedidoslabController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $pedidos = Pedidos::find($id);
-        $pedidos->update(attributes: request()->all());
+        $request->validate([
+            'estado_laboratorio' => 'required|in:pendiente,aprobado,reprogramado',
+            'observacion_laboratorio' => 'nullable|string|max:500',
+            'fecha_reprogramacion' => 'nullable|date|after:today',
+        ]);
+
+        $pedido = Pedidos::findOrFail($id);
+        
+        // Si es reprogramado, la fecha de reprogramación es obligatoria
+        if ($request->estado_laboratorio === 'reprogramado' && !$request->fecha_reprogramacion) {
+            return back()->with('error', 'La fecha de reprogramación es obligatoria cuando el estado es "Reprogramado".');
+        }
+        
+        // Actualizar campos
+        $updateData = [
+            'estado_laboratorio' => $request->estado_laboratorio,
+            'observacion_laboratorio' => $request->observacion_laboratorio,
+        ];
+        
+        // Solo actualizar productionStatus si es aprobado
+        if ($request->estado_laboratorio === 'aprobado') {
+            $updateData['productionStatus'] = 1;
+        }
+        
+        // Solo agregar fecha de reprogramación si es reprogramado
+        if ($request->estado_laboratorio === 'reprogramado') {
+            $updateData['fecha_reprogramacion'] = $request->fecha_reprogramacion;
+        }
+        
+        $pedido->update($updateData);
+        
+        $mensaje = match($request->estado_laboratorio) {
+            'aprobado' => 'Pedido aprobado exitosamente',
+            'reprogramado' => 'Pedido reprogramado exitosamente',
+            default => 'Estado del pedido actualizado exitosamente'
+        };
           
-        return back()->with('success','Pedido modificado exitosamente');
+        return back()->with('success', $mensaje);
     }
     public function DownloadWord($fecha,$turno){
         $fecha_format = Carbon::parse($fecha)->format('d-m-Y');
