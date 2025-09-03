@@ -55,8 +55,6 @@ return 'white';
     </div>
     <div class="col-12 col-xl-9 p-0" id="map-container">
         <div id="map" style="height: 400px; margin-bottom: 15px;"></div>
-        <input type="hidden" name="latitude" id="latitude" value="-12.071693261380643">
-        <input type="hidden" name="longitude" id="longitude" value="-77.05072388037252">
     </div>
     @endif
 </div>
@@ -153,11 +151,11 @@ return 'white';
 
             visitas.forEach(visita => {
                 if (visita &&
-                    !isNaN(parseFloat(visita.latitude)) &&
-                    !isNaN(parseFloat(visita.longitude))) {
+                    !isNaN(parseFloat(visita.centrosalud_lat)) &&
+                    !isNaN(parseFloat(visita.centrosalud_lng))) {
                     const position = {
-                        lat: parseFloat(visita.latitude),
-                        lng: parseFloat(visita.longitude)
+                        lat: parseFloat(visita.centrosalud_lat),
+                        lng: parseFloat(visita.centrosalud_lng)
                     }
 
                     const marker = new google.maps.Marker({
@@ -178,7 +176,7 @@ return 'white';
             <small class="fs-7">${visita.estado}</small>
             </div>
             <div class="d-flex justify-content-between align-items-end mt-2">
-            <button class="btn btn-sm btn-primary py-0 route-btn" data-lat=${visita.latitude} data-lng=${visita.longitude} >Como llegar</button>
+            <button class="btn btn-sm btn-primary py-0 route-btn" data-lat=${visita.centrosalud_lat} data-lng=${visita.centrosalud_lng} >Como llegar</button>
             <button class="btn btn-sm btn-primary py-0 details-btn" data-id=${visita.id} data-toggle="modal" data-target="#detailsModal">Ver más</button>
             </div>
         </div>
@@ -189,6 +187,7 @@ return 'white';
                             activeInfoWindow.close();
                         }
                         infoWindow.open(map, marker);
+                        console.log(position);
                         activeInfoWindow = infoWindow;
                     });
                 }
@@ -207,10 +206,10 @@ return 'white';
                 const visitaId = $(this).data('id');
                 const visita = visitas.find(v => v.id == visitaId);
 
-                if (visita && visita.latitude && visita.longitude) {
+                if (visita && visita.centrosalud_lat && visita.centrosalud_lng) {
                     const position = {
-                        lat: parseFloat(visita.latitude),
-                        lng: parseFloat(visita.longitude)
+                        lat: parseFloat(visita.centrosalud_lat),
+                        lng: parseFloat(visita.centrosalud_lng)
                     };
 
                     map.setCenter(position);
@@ -262,7 +261,11 @@ return 'white';
                     $('#doctor-distrito').text(visitaDetails.doctor_distrito);
                     $('#doctor-especialidad').text(visitaDetails.doctor_especialidad);
                     const centroSalud = $('#doctor-centro_de_salud');
-                    centroSalud.text(visitaDetails.doctor_centro_salud).attr('href', `https://www.google.com/maps?q=${visitaDetails.latitude},${visitaDetails.longitude}`);
+                    centroSalud.text(visitaDetails.doctor_centro_salud)
+                    if (visitaDetails.centrosalud_lat && visitaDetails.centrosalud_lng) {
+                        centroSalud.attr('href', `https://google.com/maps?q=${visitaDetails.centrosalud_lat},${visitaDetails.centrosalud_lng}`);
+                    }
+                    console.log(centroSalud.attr('href'));
                     const turnoText = visitaDetails.turno ? (visitaDetails.turno == 1 ? 'Tarde' : 'Mañana') : 'No asignado';
                     $('#doctor-turno').text(turnoText);
                     $('#state-badge').text(visitaDetails.estado).removeClass('text-bg-primary text-bg-warning').addClass(visitaDetails.estado == 'Asignado' ? 'text-bg-primary' : 'text-bg-warning');
@@ -316,6 +319,30 @@ return 'white';
                 formData.fecha_visita_reprogramada = fechaVisita;
             }
 
+            if (estadoVisita == 4) {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
+
+                        formData.update_latitude = latitude;
+                        formData.update_longitude = longitude;
+
+                        sendForm(visitaId, formData);
+                    }, function(error) {
+                        toastr.error('No se pudo obtener la ubicación. Asegurate de habilitar los servicios de ubicación');
+                        btnSubmit.prop('disabled', false);
+                    });
+                } else {
+                    toastr.error('La geolocalización no está disponible en tu navegador');
+                    btnSubmit.prop('disabled', false);
+                }
+            } else {
+                sendForm(visitaId, formData);
+            }
+        });
+
+        function sendForm(visitaId, formData) {
             $.ajax({
                 url: `/update-visita-doctor/${visitaId}`,
                 method: 'POST',
@@ -341,7 +368,7 @@ return 'white';
                     btnSubmit.prop('disabled', false);
                 }
             });
-        });
+        }
 
         $(document).on("click", ".route-btn", function() {
             const destino = {

@@ -40,8 +40,8 @@ class VisitaDoctorController extends Controller
     {
         $columns = [
             'visita_doctor.id',
-            'visita_doctor.longitude',
-            'visita_doctor.latitude',
+            'centrosalud.latitude as centrosalud_lat',
+            'centrosalud.longitude as centrosalud_lng',
             'categoria_doctor.name as categoria_doctor',
             'doctor.id as doctor_id',
             'doctor.name as doctor_name',
@@ -60,6 +60,7 @@ class VisitaDoctorController extends Controller
             ->leftJoin('users', 'user_zones.user_id', '=', 'users.id')
             ->leftJoin('estado_visita', 'visita_doctor.estado_visita_id', '=', 'estado_visita.id')
             ->leftJoin('doctor', 'visita_doctor.doctor_id', '=', 'doctor.id')
+            ->leftJoin('centrosalud', 'doctor.centrosalud_id', '=', 'centrosalud.id')
             ->leftJoin('categoria_doctor', 'doctor.categoriadoctor_id', '=', 'categoria_doctor.id')
             ->select($columns)
             ->orderBy('visita_doctor.turno', 'asc')
@@ -75,8 +76,8 @@ class VisitaDoctorController extends Controller
     {
         $columns = [
             'visita_doctor.id',
-            'visita_doctor.longitude',
-            'visita_doctor.latitude',
+            'centrosalud.latitude as centrosalud_lat',
+            'centrosalud.longitude as centrosalud_lng',
             'doctor.name as doctor_name',
             'doctor.cmp as doctor_cmp',
             'doctor.first_lastname as doctor_first_lastname',
@@ -135,6 +136,14 @@ class VisitaDoctorController extends Controller
                 return response()->json(['success' => false, 'message' => 'La fecha de la visita debe ser un día posterior a la establecida'], 400);
             }
             $visita->fecha = $nuevaFecha;
+        }
+
+        if ($request['estado_visita'] == 4) {
+            if (!($request['update_longitude'] && $request['update_latitude'])) {
+                return response()->json(['success' => false, 'message' => 'Debe activar su ubicación para marcar como VISITADO.'], 400);
+            }
+            $visita->latitude = $request['update_latitude'];
+            $visita->longitude = $request['update_longitude'];
         }
 
         $visita->estado_visita_id = $request['estado_visita'];
