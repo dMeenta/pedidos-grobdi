@@ -30,13 +30,13 @@ return 'white';
 
 @endphp
 
-<div class="row gap-3 gap-lg-0" style=" background-color: white;">
+<div class="row gap-3 gap-lg-0 position-relative" style=" background-color: white;">
     @if ($data->isEmpty())
     <div class="d-flex justify-content-center align-items-center w-100 py-5">
         <h3>No hay visitas pendientes para el día de hoy</h3>
     </div>
     @else
-    <div class="col-12 col-xl-3 px-0 overflow-y-scroll" style="max-height: 400px;">
+    <div class="col-12 col-xl-3 px-0 overflow-y-scroll visita-list">
         @foreach ($data as $visita)
         <div data-id="{{ $visita->id }}" role="button"
             class="visita-btn d-flex justify-content-between align-items-center px-2 py-2 border"
@@ -54,7 +54,11 @@ return 'white';
         @endforeach
     </div>
     <div class="col-12 col-xl-9 p-0" id="map-container">
-        <div id="map" style="height: 400px; margin-bottom: 15px;"></div>
+        <div id="map"></div>
+    </div>
+    <div id="info-panel">
+        <span id="close-panel">&times;</span>
+        <div id="panel-content" style="height: 100%;"></div>
     </div>
     @endif
 </div>
@@ -69,6 +73,70 @@ return 'white';
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+<style>
+    .visita-list {
+        height: 60dvh;
+    }
+
+    #map {
+        height: 60dvh;
+    }
+
+
+    @media (max-width: 1200px) {
+        .visita-list {
+            height: 15dvh;
+        }
+
+        #map {
+            height: 70dvh;
+        }
+    }
+
+
+    /* Panel inferior oculto inicialmente */
+    #info-panel {
+        position: fixed;
+        bottom: -100%;
+        /* escondido fuera de la pantalla */
+        left: 0;
+        width: 100%;
+        height: 50%;
+        /* hasta la mitad de la pantalla */
+        background: white;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+        border-top-left-radius: 15px;
+        border-top-right-radius: 15px;
+        transition: bottom 0.4s ease-in-out;
+        z-index: 1000;
+        overflow-y: auto;
+        padding: 15px;
+    }
+
+    @media (min-width: 992px) {
+        #info-panel {
+            left: 250px;
+            /* ancho del sidebar */
+            width: calc(100% - 250px);
+        }
+    }
+
+    #info-panel.active {
+        bottom: 0;
+        /* se desliza hacia arriba */
+    }
+
+    #close-panel {
+        position: absolute;
+        top: 8px;
+        right: 15px;
+        cursor: pointer;
+        font-size: 20px;
+        font-weight: bold;
+        color: #333;
+        z-index: 999;
+    }
+</style>
 @stop
 
 @section('js')
@@ -78,9 +146,17 @@ return 'white';
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 <script>
     $(document).ready(() => {
+        const infoPanel = $('#info-panel');
+        const panelContent = $('#panel-content');
+        const closePanel = $('#close-panel');
         const estadoSelect = $('#estado-visita');
         const fechaInput = $('#fecha-visita');
+        fechaInput.prop('disabled', true);
         const btnSubmit = $('#submit-btn');
+
+        closePanel.on('click', () => {
+            infoPanel.removeClass('active');
+        })
 
         estadoSelect.on('change', function() {
             if (Number.parseInt(estadoSelect.val()) !== 5) {
@@ -93,30 +169,49 @@ return 'white';
         })
 
         const visitas = JSON.parse('@json($data)');
+        const groupedVisitasByCentroSaludId = visitas.reduce((acc, visita) => {
+            const id = visita.centrosalud_id;
+            if (!acc[id]) {
+                acc[id] = {
+                    name: visita.centrosalud_name,
+                    coords: {
+                        lat: visita.centrosalud_lat,
+                        lng: visita.centrosalud_lng,
+                    },
+                    visitas: []
+                };
+            }
+            acc[id].visitas.push(visita);
+            return acc;
+        }, {});
+
         let map;
         let markers = [];
         let directionsService;
         let directionsRenderer;
         let userPosition = null;
-        let activeInfoWindow = null;
 
         initMap();
 
         function initMap() {
             const defaultCoords = {
-                lat: -12.071693261380643,
-                lng: -77.05072388037252
+                lat: -12.0715225,
+                lng: -77.0506430
             };
 
+            userPosition = defaultCoords;
+
+            // Crear mapa con centro en defaultCoords
             map = new google.maps.Map(document.getElementById("map"), {
-                center: defaultCoords,
-                zoom: 13,
+                center: userPosition,
+                zoom: 14,
             });
 
             directionsService = new google.maps.DirectionsService();
             directionsRenderer = new google.maps.DirectionsRenderer();
             directionsRenderer.setMap(map);
 
+            // Intentar obtener ubicación del usuario
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
@@ -142,56 +237,116 @@ return 'white';
                         map.setCenter(userPosition);
                     },
                     (error) => {
-                        console.warn("No se pudo obtener ubicación:", error);
+                        console.warn("No se pudo obtener ubicación, usando defaultCoords", error);
+
+                        new google.maps.Marker({
+                            position: userPosition,
+                            map,
+                            title: "Tu ubicación",
+                            icon: {
+                                path: google.maps.SymbolPath.CIRCLE,
+                                scale: 8,
+                                fillColor: "blue",
+                                fillOpacity: 0.8,
+                                strokeWeight: 2,
+                                strokeColor: "white",
+                            }
+                        });
+
+                        map.setCenter(userPosition);
                     }
                 );
+            } else {
+                console.warn("Geolocalización no soportada, usando defaultCoords");
+
+                new google.maps.Marker({
+                    position: userPosition,
+                    map,
+                    title: "Tu ubicación",
+                    icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 8,
+                        fillColor: "blue",
+                        fillOpacity: 0.8,
+                        strokeWeight: 2,
+                        strokeColor: "white",
+                    }
+                });
             }
 
             const bounds = new google.maps.LatLngBounds();
 
-            visitas.forEach(visita => {
-                if (visita &&
-                    !isNaN(parseFloat(visita.centrosalud_lat)) &&
-                    !isNaN(parseFloat(visita.centrosalud_lng))) {
+            Object.entries(groupedVisitasByCentroSaludId).map(([id, group]) => {
+                const {
+                    lat,
+                    lng
+                } = group.coords;
+                if (
+                    group &&
+                    !isNaN(parseFloat(lat)) &&
+                    !isNaN(parseFloat(lng))
+                ) {
                     const position = {
-                        lat: parseFloat(visita.centrosalud_lat),
-                        lng: parseFloat(visita.centrosalud_lng)
-                    }
+                        lat: parseFloat(lat),
+                        lng: parseFloat(lng)
+                    };
 
                     const marker = new google.maps.Marker({
                         position,
                         map,
-                        title: `${visita.categoria_doctor} - ${visita.doctor_name} ${visita.doctor_first_lastname} ${visita.doctor_second_lastname}`
+                        title: group.name
                     });
 
                     markers.push(marker);
                     bounds.extend(position);
 
-                    const infoWindow = new google.maps.InfoWindow({
-                        content: `
-        <div style="max-width: 300px;">
-            <img src="/images/logo.jpg" alt="Imagen del lugar" style="width: 100%; border-radius: 5px; margin-bottom: 5px;">
-            <div class="d-flex justify-content-between align-items-end">
-            <strong>${visita.doctor_name} ${visita.doctor_first_lastname || ''} ${visita.doctor_second_lastname || ''}</strong><br>
-            <small class="fs-7">${visita.estado}</small>
-            </div>
-            <div class="d-flex justify-content-between align-items-end mt-2">
-            <button class="btn btn-sm btn-primary py-0 route-btn" data-lat=${visita.centrosalud_lat} data-lng=${visita.centrosalud_lng} >Como llegar</button>
-            <button class="btn btn-sm btn-primary py-0 details-btn" data-id=${visita.id} data-toggle="modal" data-target="#detailsModal">Ver más</button>
-            </div>
-        </div>
-    `
-                    });
-                    marker.addListener('click', () => {
-                        if (activeInfoWindow) {
-                            activeInfoWindow.close();
-                        }
-                        infoWindow.open(map, marker);
-                        console.log(position);
-                        activeInfoWindow = infoWindow;
+                    marker.addListener("click", () => {
+                        panelContent.html(`
+                            <div class="d-flex flex-column justify-content-between" style="height: 100%;">
+                                <div class="border-bottom border-dark text-center pb-2">
+                                    <strong>${group.name}</strong>
+                                </div>
+                                <div class="overflow-y-auto py-2" style="flex: 1;">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                            <th scope="col">Doctor</th>
+                                            <th scope="col" class="text-center">Estado</th>
+                                            <th scope="col"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        ${group.visitas.map(visita => `
+                                            <tr data-id="${visita.id}">
+                                                <th>${visita.doctor_name} ${visita.doctor_first_lastname ?? ''} ${visita.doctor_second_lastname ?? ''}</th>
+                                                <td style="align-content: center;">
+                                                    <div class="d-flex justify-content-center" style="width:100%; height=full">
+                                                        <div class="rounded-circle" style="width:1rem; height:1rem; background-color: ${visita.estado_color}"></div>
+                                                    </div>
+                                                </td>
+                                                <td class="text-end">
+                                                    <button class="btn btn-sm btn-primary py-0 details-btn" data-id=${visita.id} 
+                                                        data-toggle="modal" data-target="#detailsModal">
+                                                            Ver más
+                                                    </button>
+                                                </td>
+                                            </tr>`).join("")}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <button class="btn btn-primary route-btn py-2" data-lat=${lat} data-lng=${lng}>
+                                    Como llegar
+                                </button>
+                            </div>`);
+
+                        infoPanel.addClass("active");
+
+                        map.panTo(position);
+                        map.setZoom(16);
+                        map.panBy(0, 150);
                     });
                 }
-            });
+            })
 
             if (!bounds.isEmpty()) {
                 map.fitBounds(bounds);
@@ -265,7 +420,6 @@ return 'white';
                     if (visitaDetails.centrosalud_lat && visitaDetails.centrosalud_lng) {
                         centroSalud.attr('href', `https://google.com/maps?q=${visitaDetails.centrosalud_lat},${visitaDetails.centrosalud_lng}`);
                     }
-                    console.log(centroSalud.attr('href'));
                     const turnoText = visitaDetails.turno ? (visitaDetails.turno == 1 ? 'Tarde' : 'Mañana') : 'No asignado';
                     $('#doctor-turno').text(turnoText);
                     $('#state-badge').text(visitaDetails.estado).removeClass('text-bg-primary text-bg-warning').addClass(visitaDetails.estado == 'Asignado' ? 'text-bg-primary' : 'text-bg-warning');
@@ -351,6 +505,7 @@ return 'white';
                     if (response.success) {
                         toastr.success(response.message);
                         $(`.visita-btn[data-id="${visitaId}"]`).remove();
+                        $(`tr[data-id="${visitaId}"]`).remove();
                         $('button[data-dismiss="modal"]').click();
                         form.trigger("reset");
                         btnSubmit.prop('disabled', false);
@@ -389,17 +544,13 @@ return 'white';
                 (response, status) => {
                     if (status === google.maps.DirectionsStatus.OK) {
                         directionsRenderer.setDirections(response);
-                        if (activeInfoWindow) {
-                            activeInfoWindow.close();
-                            activeInfoWindow = null;
-                        }
+                        closePanel.click();
                     } else {
                         alert("No se pudo calcular la ruta: " + status);
                     }
                 }
             );
         });
-
     });
 </script>
 @stop
