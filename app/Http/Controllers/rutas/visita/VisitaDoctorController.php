@@ -40,6 +40,8 @@ class VisitaDoctorController extends Controller
     {
         $columns = [
             'visita_doctor.id',
+            'centrosalud.name as centrosalud_name',
+            'centrosalud.id as centrosalud_id',
             'centrosalud.latitude as centrosalud_lat',
             'centrosalud.longitude as centrosalud_lng',
             'categoria_doctor.name as categoria_doctor',
@@ -121,7 +123,9 @@ class VisitaDoctorController extends Controller
             return response()->json(['success' => false, 'message' => 'La visita no se puede actualizar porque no corresponde al día de hoy'], 401);
         }
 
-        if ($request['estado_visita'] == 5) {
+        $reqEstado = $request['estado_visita'];
+
+        if ($reqEstado == 5) {
             if ($visita->reprogramar == 1) {
                 return response()->json(['success' => false, 'message' => 'La visita no se puede reprogramar más de una vez. Ponerse en contacto con su supervisora'], 400);
             }
@@ -138,12 +142,16 @@ class VisitaDoctorController extends Controller
             $visita->fecha = $nuevaFecha;
         }
 
-        if ($request['estado_visita'] == 4) {
+        if ($reqEstado == 4) {
             if (!($request['update_longitude'] && $request['update_latitude'])) {
                 return response()->json(['success' => false, 'message' => 'Debe activar su ubicación para marcar como VISITADO.'], 400);
             }
             $visita->latitude = $request['update_latitude'];
             $visita->longitude = $request['update_longitude'];
+        }
+
+        if ($visita->estado_visita_id === 3 || $visita->estado_visita_id == 4) {
+            return response()->json(['success' => false, 'message' => 'No se puede actualizar el estado una vez marcado como VISITADO o NO VISITADO.'], 400);
         }
 
         $visita->estado_visita_id = $request['estado_visita'];
