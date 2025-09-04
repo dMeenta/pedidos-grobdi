@@ -19,10 +19,9 @@ class DetailPedidosPreviewImport implements ToCollection
         $row_no_encontrados = 0;
         $row_existentes = 0;
         $row_modificados = 0;
-    $formato_incorrecto = false; // deprecated path: we'll skip bad rows instead of failing
+        $formato_incorrecto = false; 
         $detalle = "DETALLADO DE ARTÍCULOS:\n";
 
-        // Build a dynamic column map similar to the analyzer
         $colMap = [
             'numero' => 0,
             'articulo' => 1,
@@ -83,6 +82,17 @@ class DetailPedidosPreviewImport implements ToCollection
             $unit = isset($row[$colMap['precio']]) ? round((float)$row[$colMap['precio']], 3) : 0.0;
             $sub = isset($row[$colMap['subtotal']]) ? round((float)$row[$colMap['subtotal']], 3) : round($cantidad * $unit, 3);
 
+            // Check production status validation rules
+            // Skip modifications if pedido is in "Preparado" status (2)
+            if ($pedido->productionStatus === 2) {
+                // Skip this row - no changes allowed for "Preparado" orders
+                $detalle .= 'Pedido: '.$pedido->orderId.' '.$articulo.' cantidad:'.$cantidad.' (pedido preparado - sin cambios)'."\n";
+                $row_existentes++;
+                continue;
+            }
+            
+            // Only allow changes if status is PENDIENTE (0) or allow progression to En Preparación (1)
+
             $pedido_exist = DetailPedidos::where('pedidos_id', $pedido->id)
                 ->whereRaw('UPPER(TRIM(articulo)) = UPPER(TRIM(?))', [$articulo])
                 ->first();
@@ -97,7 +107,14 @@ class DetailPedidosPreviewImport implements ToCollection
                 $detallePedido->created_at = now();
                 $detallePedido->save();
 
+                // Update pedido status and timestamp
                 $pedido->last_data_update = now();
+                
+                // If pedido is currently PENDIENTE (0), update to En Preparación (1)
+                if ($pedido->productionStatus == 0) {
+                    $pedido->productionStatus = 1; // En Preparación
+                }
+                
                 $pedido->save();
 
                 $row_nuevos++;
@@ -109,7 +126,15 @@ class DetailPedidosPreviewImport implements ToCollection
 
                 if ($hasChanges) {
                     $pedido_exist->save();
+                    
+                    // Update pedido status and timestamp
                     $pedido->last_data_update = now();
+                    
+                    // If pedido is currently PENDIENTE (0), update to En Preparación (1)
+                    if ($pedido->productionStatus == 0) {
+                        $pedido->productionStatus = 1; // En Preparación
+                    }
+                    
                     $pedido->save();
                     $row_modificados++;
                 } else {

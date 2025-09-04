@@ -24,11 +24,10 @@ class DoctoresImport implements ToCollection, WithStartRow
     public $key;
     public function startRow(): int
     {
-        return 2; // Empezamos a leer a partir de la fila 2 (después de las dos filas de cabecera)
+        return 2;
     }
     public function collection(Collection $collection)
     {
-        // $mensaje = "";
         $contador = 0;
         $contadorexist = 0;
         $contadorerror = 0;

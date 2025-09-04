@@ -511,6 +511,12 @@ class CargarPedidosController extends Controller
             }
             if (!$pedido) continue;
 
+            // Validación del estado de producción
+            // Si el pedido ya está preparado (productionStatus = 2), no permitir modificaciones
+            if ($pedido->productionStatus == 2) {
+                continue; // Saltar este pedido en el análisis ya que no se pueden hacer cambios
+            }
+
             $articulo = trim((string)$row[$artIdx]);
             $cantidad = (float)($row[$cantIdx] ?? 0);
             $unit = isset($row[$precioIdx]) ? round((float)$row[$precioIdx], 3) : 0.0;

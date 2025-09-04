@@ -54,7 +54,17 @@ class PedidosPreviewImport implements ToCollection
                     $pedidos->paymentStatus = 'PENDIENTE';
                     $pedidos->paymentMethod = $row[10];
                     $pedidos->deliveryDate = $fecha;
-                    $pedidos->productionStatus = $row[12] !== 'PENDIENTE' ? 1 : 0;
+                    
+                    // Apply production status rules for new orders
+                    $excelStatus = strtoupper(trim($row[12]));
+                    if ($excelStatus === 'PENDIENTE') {
+                        $pedidos->productionStatus = 0; // PENDIENTE
+                    } elseif (in_array($excelStatus, ['APROBADO', 'PREPARADO'])) {
+                        $pedidos->productionStatus = 1; // En Preparación (Aprobado in DB)
+                    } else {
+                        $pedidos->productionStatus = 0; // Default to PENDIENTE
+                    }
+                    
                     $pedidos->deliveryStatus = "Pendiente";
                     $pedidos->accountingStatus = 0;
                     
@@ -134,11 +144,29 @@ class PedidosPreviewImport implements ToCollection
                         $hasChanges = true;
                     }
                     
-                    $new_productionStatus = $row[12] !== 'PENDIENTE' ? 1 : 0;
-                    if($pedido_exist->productionStatus != $new_productionStatus) {
-                        $pedido_exist->productionStatus = $new_productionStatus;
-                        $hasChanges = true;
+                    // Apply production status validation rules
+                    $excelStatus = strtoupper(trim($row[12]));
+                    $currentStatus = $pedido_exist->productionStatus;
+                    
+                    // Only allow changes if current status is not "Preparado" (status 2)
+                    if ($currentStatus !== 2) {
+                        $newStatus = null;
+                        
+                        if ($excelStatus === 'PENDIENTE') {
+                            $newStatus = 0; // PENDIENTE
+                        } elseif (in_array($excelStatus, ['APROBADO', 'PREPARADO'])) {
+                            // Only change to "En Preparación" if not already "Preparado"
+                            if ($currentStatus !== 1) {
+                                $newStatus = 1; // En Preparación (Aprobado in DB)
+                            }
+                        }
+                        
+                        if ($newStatus !== null && $currentStatus !== $newStatus) {
+                            $pedido_exist->productionStatus = $newStatus;
+                            $hasChanges = true;
+                        }
                     }
+                    // If status is "Preparado" (2), no changes are made to productionStatus
                     
                     if($hasChanges) {
                         $pedido_exist->last_data_update = now(); // Registrar fecha de actualización
