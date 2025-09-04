@@ -11,6 +11,7 @@ use App\Models\PresentacionFarmaceutica;
 use App\Models\User;
 use App\Models\Zone;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -316,5 +317,131 @@ class PedidoslabController extends Controller
             $objWriter->save('docs\pedidos-'.$fecha.'.docx');
         }
         return response()->download(public_path('docs\pedidos-'.$fecha.'.docx'));
+    }
+
+    /**
+     * Cambio masivo de estado de pedidos a Preparado
+     */
+    public function cambioMasivo(Request $request)
+    {
+        try {
+            // Log para debug - datos recibidos
+            Log::info('Cambio masivo - datos recibidos', [
+                'all_data' => $request->all(),
+                'method' => $request->method(),
+                'has_csrf' => $request->has('_token'),
+                'user' => Auth::user()->name ?? 'Sistema'
+            ]);
+
+            // Validación paso a paso para mejor diagnóstico
+            if (!$request->has('pedidos_ids') || empty($request->pedidos_ids)) {
+                Log::error('Cambio masivo - falta pedidos_ids', ['request' => $request->all()]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se enviaron los IDs de pedidos'
+                ], 422);
+            }
+
+            if (!$request->has('accion_masiva') || $request->accion_masiva !== 'preparado') {
+                Log::error('Cambio masivo - falta accion_masiva', ['request' => $request->all()]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Acción masiva no válida'
+                ], 422);
+            }
+
+            // Convertir string de IDs a array
+            $pedidosIds = array_filter(explode(',', $request->pedidos_ids));
+            
+            if (empty($pedidosIds)) {
+                Log::error('Cambio masivo - IDs vacíos', ['pedidos_ids' => $request->pedidos_ids]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se seleccionaron pedidos válidos'
+                ], 422);
+            }
+
+            Log::info('Cambio masivo - IDs procesados', ['pedidos_ids' => $pedidosIds]);
+
+            // Buscar pedidos que existen y NO están preparados
+            $pedidos = Pedidos::whereIn('id', $pedidosIds)
+                             ->whereIn('productionStatus', [0, 2]) // Pendientes (0) y Reprogramados (2)
+                             ->get();
+
+            Log::info('Cambio masivo - pedidos encontrados', [
+                'total_solicitados' => count($pedidosIds),
+                'encontrados' => $pedidos->count(),
+                'pedidos_data' => $pedidos->map(function($p) {
+                    return [
+                        'id' => $p->id,
+                        'orderId' => $p->orderId,
+                        'status' => $p->productionStatus
+                    ];
+                })->toArray()
+            ]);
+
+            if ($pedidos->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se encontraron pedidos pendientes o reprogramados para actualizar'
+                ], 422);
+            }
+
+            $cantidadActualizada = 0;
+            
+            // Usar transacción para asegurar consistencia
+            DB::beginTransaction();
+            
+            foreach ($pedidos as $pedido) {
+                $updateData = [
+                    'productionStatus' => 1, // Cambiar a Preparado
+                    'fecha_reprogramacion' => null, // Limpiar fecha de reprogramación si existía
+                ];
+                
+                // Agregar observación si se proporcionó
+                if ($request->observacion_masiva) {
+                    $updateData['observacion_laboratorio'] = $request->observacion_masiva;
+                }
+                
+                $pedido->update($updateData);
+                $cantidadActualizada++;
+            }
+            
+            DB::commit();
+            
+            // Log de la acción
+            Log::info('Cambio masivo de estado realizado', [
+                'usuario' => Auth::user()->name ?? 'Sistema',
+                'pedidos_actualizados' => $cantidadActualizada,
+                'pedidos_ids' => $pedidosIds,
+                'observacion' => $request->observacion_masiva
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => "Se actualizaron {$cantidadActualizada} pedido(s) a estado Preparado exitosamente",
+                'cantidadActualizada' => $cantidadActualizada
+            ]);
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación: ' . implode(', ', $e->validator->errors()->all())
+            ], 422);
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            Log::error('Error en cambio masivo de estado', [
+                'error' => $e->getMessage(),
+                'pedidos_ids' => $request->pedidos_ids ?? 'no definido',
+                'usuario' => Auth::user()->name ?? 'Sistema'
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Ocurrió un error inesperado. Por favor, intente nuevamente.'
+            ], 500);
+        }
     }
 }
