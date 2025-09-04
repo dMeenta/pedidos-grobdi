@@ -44,6 +44,11 @@ class DetailPedidosImport implements ToCollection
                         $detallePedido->sub_total = $row[19];
                         $detallePedido->created_at = Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[21]))->format('Y-m-d H:i:s');
                         $detallePedido->save();
+                        
+                        // Update the pedido's last_data_update timestamp
+                        $pedido->last_data_update = now();
+                        $pedido->save();
+                        
                         ++$row_nuevos;
                     }else{
                         $msj = $msj.'Pedido: '.$row[3].' '.$row[16].' cantidad:'.$row[17]."\n";

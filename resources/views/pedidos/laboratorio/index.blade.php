@@ -78,9 +78,9 @@
                         <td>{{ $pedido->zone->name }}  </td>
     
                         <td>
-                        @if ($pedido->estado_laboratorio === 'aprobado') 
+                        @if ($pedido->productionStatus === 1) 
                             <span class="badge bg-success">Aprobado</span>
-                        @elseif ($pedido->estado_laboratorio === 'reprogramado')
+                        @elseif ($pedido->productionStatus === 2)
                             <span class="badge bg-info">Reprogramado</span>
                             @if($pedido->fecha_reprogramacion)
                                 <br><small>{{ \Carbon\Carbon::parse($pedido->fecha_reprogramacion)->format('d/m/Y') }}</small>
@@ -90,7 +90,7 @@
                         @endif
                         </td>
                         <td>
-                        @if ($pedido->estado_laboratorio === 'pendiente') 
+                        @if ($pedido->productionStatus === 0) 
                             <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#estadoModal{{ $pedido->id }}">
                                 <i class="fa fa-edit"></i> Actualizar
                             </button>
@@ -138,15 +138,15 @@
                                             </div>
                                             <div class="modal-body">
                                                 <div class="form-group">
-                                                    <label for="estado_laboratorio{{ $pedido->id }}">Estado:</label>
-                                                    <select class="form-control" name="estado_laboratorio" id="estado_laboratorio{{ $pedido->id }}" required>
-                                                        <option value="pendiente" {{ $pedido->estado_laboratorio === 'pendiente' ? 'selected' : '' }}>Pendiente</option>
-                                                        <option value="aprobado" {{ $pedido->estado_laboratorio === 'aprobado' ? 'selected' : '' }}>Aprobado</option>
-                                                        <option value="reprogramado" {{ $pedido->estado_laboratorio === 'reprogramado' ? 'selected' : '' }}>Reprogramado</option>
+                                                    <label for="productionStatus{{ $pedido->id }}">Estado:</label>
+                                                    <select class="form-control" name="productionStatus" id="productionStatus{{ $pedido->id }}" required>
+                                                        <option value="0" {{ $pedido->productionStatus === 0 ? 'selected' : '' }}>Pendiente</option>
+                                                        <option value="1" {{ $pedido->productionStatus === 1 ? 'selected' : '' }}>Aprobado</option>
+                                                        <option value="2" {{ $pedido->productionStatus === 2 ? 'selected' : '' }}>Reprogramado</option>
                                                     </select>
                                                 </div>
                                                 
-                                                <div class="form-group fecha-reprogramacion-group{{ $pedido->id }}" style="display: {{ $pedido->estado_laboratorio === 'reprogramado' ? 'block' : 'none' }};">
+                                                <div class="form-group fecha-reprogramacion-group{{ $pedido->id }}" style="display: {{ $pedido->productionStatus === 2 ? 'block' : 'none' }};">
                                                     <label for="fecha_reprogramacion{{ $pedido->id }}">Fecha de Reprogramación:</label>
                                                     <input type="date" class="form-control" name="fecha_reprogramacion" id="fecha_reprogramacion{{ $pedido->id }}" 
                                                            value="{{ $pedido->fecha_reprogramacion }}" min="{{ date('Y-m-d', strtotime('+1 day')) }}">
@@ -270,12 +270,12 @@
                     // Agregar información del estado
                     let estadoTexto = '';
                     let estadoClass = '';
-                    switch(pedido.estado_laboratorio) {
-                        case 'aprobado':
+                    switch(pedido.productionStatus) {
+                        case 1:
                             estadoTexto = 'Aprobado';
                             estadoClass = 'success';
                             break;
-                        case 'reprogramado':
+                        case 2:
                             estadoTexto = 'Reprogramado';
                             estadoClass = 'info';
                             break;
@@ -295,25 +295,88 @@
                         </li>`);
                     }
                     
-                    // Agregar detalles de productos
-                    pedido.detailpedidos.forEach(detalle => {
+                    // Agregar detalles de productos con su estado individual
+                    if(pedido.productos_procesados && pedido.productos_procesados.length > 0) {
+                        pedido.productos_procesados.forEach(detalle => {
+                            let estadoProducto = '';
+                            let estadoProductoClass = '';
+                            
+                            switch(detalle.estado_produccion) {
+                                case 1:
+                                    estadoProducto = 'Aprobado';
+                                    estadoProductoClass = 'success';
+                                    break;
+                                case 2:
+                                    estadoProducto = 'Reprogramado';
+                                    estadoProductoClass = 'info';
+                                    break;
+                                default:
+                                    estadoProducto = 'Pendiente';
+                                    estadoProductoClass = 'warning';
+                            }
+                            
+                            $('#detalle-lista').append(`<li class="list-group-item">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Producto:</label> ${detalle.articulo}
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>Cantidad:</label> ${detalle.cantidad}
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>Estado:</label> <span class="badge bg-${estadoProductoClass}">${estadoProducto}</span>
+                                    </div>
+                                </div>
+                            </li>`);
+                        });
+                    } else if(pedido.detailpedidos && pedido.detailpedidos.length > 0) {
+                        // Fallback para pedidos sin productos_procesados
+                        pedido.detailpedidos.forEach(detalle => {
+                            $('#detalle-lista').append(`<li class="list-group-item">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Producto:</label> ${detalle.articulo}
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>Cantidad:</label> ${detalle.cantidad}
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>Estado:</label> <span class="badge bg-secondary">No disponible</span>
+                                    </div>
+                                </div>
+                            </li>`);
+                        });
+                    } else {
                         $('#detalle-lista').append(`<li class="list-group-item">
-                            <label>Producto:</label> ${detalle.articulo} | <label>Cantidad:</label> ${detalle.cantidad} 
+                            No hay productos disponibles para este pedido.
                         </li>`);
-                    });
+                    }
+                    $('#detalleModal').modal('show');
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error al cargar detalles:', error);
+                    console.error('Status:', status);
+                    console.error('Response:', xhr.responseText);
+                    
+                    $('#detalle-lista').empty();
+                    $('#detalle-lista').append(`<li class="list-group-item">
+                        <div class="alert alert-danger">
+                            Error al cargar los detalles del pedido. Por favor, intente nuevamente.
+                        </div>
+                    </li>`);
                     $('#detalleModal').modal('show');
                 }
             });
         });
         
         // Funcionalidad para mostrar/ocultar fecha de reprogramación
-        $('[id^="estado_laboratorio"]').change(function() {
-            const pedidoId = $(this).attr('id').replace('estado_laboratorio', '');
+        $('[id^="productionStatus"]').change(function() {
+            const pedidoId = $(this).attr('id').replace('productionStatus', '');
             const selectedValue = $(this).val();
             const fechaGroup = $(`.fecha-reprogramacion-group${pedidoId}`);
             const fechaInput = $(`#fecha_reprogramacion${pedidoId}`);
             
-            if (selectedValue === 'reprogramado') {
+            if (selectedValue == '2') {
                 fechaGroup.show();
                 fechaInput.attr('required', true);
             } else {

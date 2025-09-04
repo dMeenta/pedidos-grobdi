@@ -26,9 +26,16 @@ class Pedidos extends Model
         'zone_id',
         'voucher',
         'receta',
-        'estado_laboratorio',
         'observacion_laboratorio',
         'fecha_reprogramacion',
+        'last_data_update',
+    ];
+
+    protected $casts = [
+        'last_data_update' => 'datetime',
+        'deliveryDate' => 'date',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
     public function user()
     {

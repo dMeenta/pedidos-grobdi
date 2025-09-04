@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Models\Zone;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PedidoslabController extends Controller
 {
@@ -52,31 +53,60 @@ class PedidoslabController extends Controller
     }
     
     public function show($id){
+        try {
+            Log::info("Buscando pedido con ID: $id");
+            
+            $pedido = Pedidos::with(['detailpedidos' => function ($query) {
+                $query->where('articulo', 'not like', '%bolsa%')
+                    ->where('articulo', 'not like', '%delivery%');
+            }])->findOrFail($id);
 
-        $pedido = Pedidos::with(['detailpedidos' => function ($query) {
-            $query->where('articulo', 'not like', '%bolsa%')
-                ->where('articulo', 'not like', '%delivery%');
-        }])->findOrFail($id);
+            Log::info("Pedido encontrado con " . $pedido->detailpedidos->count() . " detalles");
 
-        $bases = Bases::lista();
-        // dd($pedido->detailpedidos);
-        $array_pedido = [];
-        foreach($pedido->detailpedidos as $detalle){
-            foreach ($bases as $base => $contenido) {
-                // dd($base);
-                if(strpos($detalle->articulo,$base)!==false){
-                    // dd($contenido['clasificacion']);
-                    array_push($array_pedido,[
-                        'articulo'=>$detalle->articulo,
-                        'cantidad'=>$detalle->cantidad,
-                        'clasificacion'=>$contenido['clasificacion']]);
-                }else{
-                    $mensaje = "No se encontró base para este producto";
+            $bases = Bases::lista();
+            // dd($pedido->detailpedidos);
+            $array_pedido = [];
+            
+            // Verificar si hay detailpedidos antes de iterar
+            if ($pedido->detailpedidos && $pedido->detailpedidos->count() > 0) {
+                foreach($pedido->detailpedidos as $detalle){
+                    $found = false;
+                    foreach ($bases as $base => $contenido) {
+                        if(strpos($detalle->articulo,$base)!==false){
+                            array_push($array_pedido,[
+                                'articulo'=>$detalle->articulo,
+                                'cantidad'=>$detalle->cantidad,
+                                'clasificacion'=>$contenido['clasificacion'],
+                                'estado_produccion' => $detalle->estado_produccion ?? 0
+                            ]);
+                            $found = true;
+                            break;
+                        }
+                    }
+                    
+                    // Si no se encontró en bases, agregar sin clasificación
+                    if (!$found) {
+                        array_push($array_pedido,[
+                            'articulo'=>$detalle->articulo,
+                            'cantidad'=>$detalle->cantidad,
+                            'clasificacion'=>'Sin clasificación',
+                            'estado_produccion' => $detalle->estado_produccion ?? 0
+                        ]);
+                    }
                 }
             }
+            
+            Log::info("Productos procesados: " . count($array_pedido));
+            
+            // Agregar array_pedido al objeto de respuesta
+            $pedido->productos_procesados = $array_pedido;
+            
+            return response()->json($pedido);
+        } catch (\Exception $e) {
+            Log::error('Error en show de PedidoslabController: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            return response()->json(['error' => 'Error al cargar el detalle del pedido'], 500);
         }
-        // dd($array_pedido);
-        return response()->json($pedido);
     }
     public function pedidosDetalles(Request $request){
         // dd($request->all());
@@ -186,39 +216,38 @@ class PedidoslabController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'estado_laboratorio' => 'required|in:pendiente,aprobado,reprogramado',
+            'productionStatus' => 'required|in:0,1,2',
             'observacion_laboratorio' => 'nullable|string|max:500',
             'fecha_reprogramacion' => 'nullable|date|after:today',
         ]);
 
         $pedido = Pedidos::findOrFail($id);
         
-        // Si es reprogramado, la fecha de reprogramación es obligatoria
-        if ($request->estado_laboratorio === 'reprogramado' && !$request->fecha_reprogramacion) {
+        // Si es reprogramado (2), la fecha de reprogramación es obligatoria
+        if ($request->productionStatus == 2 && !$request->fecha_reprogramacion) {
             return back()->with('error', 'La fecha de reprogramación es obligatoria cuando el estado es "Reprogramado".');
         }
         
         // Actualizar campos
         $updateData = [
-            'estado_laboratorio' => $request->estado_laboratorio,
+            'productionStatus' => $request->productionStatus,
             'observacion_laboratorio' => $request->observacion_laboratorio,
         ];
         
-        // Solo actualizar productionStatus si es aprobado
-        if ($request->estado_laboratorio === 'aprobado') {
-            $updateData['productionStatus'] = 1;
-        }
-        
-        // Solo agregar fecha de reprogramación si es reprogramado
-        if ($request->estado_laboratorio === 'reprogramado') {
+        // Solo agregar fecha de reprogramación si es reprogramado (2)
+        if ($request->productionStatus == 2) {
             $updateData['fecha_reprogramacion'] = $request->fecha_reprogramacion;
+        } else {
+            // Limpiar fecha de reprogramación si no es reprogramado
+            $updateData['fecha_reprogramacion'] = null;
         }
         
         $pedido->update($updateData);
         
-        $mensaje = match($request->estado_laboratorio) {
-            'aprobado' => 'Pedido aprobado exitosamente',
-            'reprogramado' => 'Pedido reprogramado exitosamente',
+        $mensaje = match($request->productionStatus) {
+            1 => 'Pedido aprobado exitosamente',
+            2 => 'Pedido reprogramado exitosamente', 
+            0 => 'Pedido marcado como pendiente',
             default => 'Estado del pedido actualizado exitosamente'
         };
           

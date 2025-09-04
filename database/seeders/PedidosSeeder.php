@@ -113,13 +113,13 @@ class PedidosSeeder extends Seeder
             ['address' => 'Jirón Junín 456, Cercado de Lima', 'district' => 'Cercado de Lima'],
         ];
 
-        // Estados de laboratorio variados
+        // Estados de laboratorio variados usando productionStatus
         $estadosLaboratorio = [
-            ['estado' => 'pendiente', 'observacion' => null, 'fecha_reprogramacion' => null],
-            ['estado' => 'aprobado', 'observacion' => 'Producto elaborado correctamente según especificaciones', 'fecha_reprogramacion' => null],
-            ['estado' => 'reprogramado', 'observacion' => 'Falta de insumos, necesario reprogramar', 'fecha_reprogramacion' => Carbon::today()->addDays(2)->format('Y-m-d')],
-            ['estado' => 'reprogramado', 'observacion' => 'Cliente solicitó cambio de fecha', 'fecha_reprogramacion' => Carbon::today()->addDays(1)->format('Y-m-d')],
-            ['estado' => 'aprobado', 'observacion' => 'Elaborado con fórmula mejorada', 'fecha_reprogramacion' => null],
+            ['productionStatus' => 0, 'observacion' => null, 'fecha_reprogramacion' => null],
+            ['productionStatus' => 1, 'observacion' => 'Producto elaborado correctamente según especificaciones', 'fecha_reprogramacion' => null],
+            ['productionStatus' => 2, 'observacion' => 'Falta de insumos, necesario reprogramar', 'fecha_reprogramacion' => Carbon::today()->addDays(2)->format('Y-m-d')],
+            ['productionStatus' => 2, 'observacion' => 'Cliente solicitó cambio de fecha', 'fecha_reprogramacion' => Carbon::today()->addDays(1)->format('Y-m-d')],
+            ['productionStatus' => 1, 'observacion' => 'Elaborado con fórmula mejorada', 'fecha_reprogramacion' => null],
         ];
 
         // Crear pedidos para hoy, ayer y mañana
@@ -155,14 +155,13 @@ class PedidosSeeder extends Seeder
                     'district' => $direccion['district'],
                     'prize' => 0, // Se calculará después
                     'paymentStatus' => ['pagado', 'pendiente'][array_rand(['pagado', 'pendiente'])],
-                    'productionStatus' => $estadoLab['estado'] === 'aprobado' ? 1 : 0,
+                    'productionStatus' => $estadoLab['productionStatus'],
                     'accountingStatus' => rand(0, 1),
                     'turno' => rand(0, 1), // 0 = mañana, 1 = tarde
                     'deliveryDate' => $fecha->format('Y-m-d'),
                     'deliveryStatus' => ['pendiente', 'en_ruta', 'entregado'][array_rand(['pendiente', 'en_ruta', 'entregado'])],
                     'user_id' => $laboratorioUser->id,
                     'zone_id' => $zona->id,
-                    'estado_laboratorio' => $estadoLab['estado'],
                     'observacion_laboratorio' => $estadoLab['observacion'],
                     'fecha_reprogramacion' => $estadoLab['fecha_reprogramacion'],
                 ]);
@@ -178,13 +177,16 @@ class PedidosSeeder extends Seeder
                     $subtotal = $producto['precio'] * $cantidad;
                     $totalPedido += $subtotal;
                     
+                    // Estado individual del producto (puede ser diferente al estado general del pedido)
+                    $estadoIndividualProducto = rand(0, 2);
+                    
                     DetailPedidos::create([
                         'pedidos_id' => $pedido->id,
                         'articulo' => $producto['articulo'],
                         'cantidad' => $cantidad,
                         'unit_prize' => $producto['precio'],
                         'sub_total' => $subtotal,
-                        'estado_produccion' => $estadoLab['estado'] === 'aprobado' ? 1 : 0,
+                        'estado_produccion' => $estadoIndividualProducto,
                     ]);
                 }
                 
