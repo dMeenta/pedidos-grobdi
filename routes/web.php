@@ -153,6 +153,8 @@ Route::post('excelhojaruta', FormatosController::class . '@excelhojaruta')->name
 Route::resource('pedidosmotorizado', PedidosMotoController::class)->middleware(['checkRole:motorizado,admin']);
 Route::put('/pedidosmotorizado/fotos/{id}', [PedidosMotoController::class, 'cargarFotos'])->name('pedidosmotorizado.cargarfotos')->middleware(['checkRole:motorizado,admin']);
 
+Route::put('/pedidos-motorizado/{id}', [PedidosMotoController::class, 'updatePedidoByMotorizado'])->name('pedidosmotorizado.updatePedidoByMotorizado')->middleware(['checkRole:motorizado,admin']);
+
 //SUPERVISOR
 Route::middleware(['checkRole:supervisor,admin'])->group(function () {
     Route::resource('centrosalud', CentroSaludController::class);
