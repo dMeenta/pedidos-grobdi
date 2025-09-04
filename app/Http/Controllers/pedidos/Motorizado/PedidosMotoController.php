@@ -17,23 +17,20 @@ class PedidosMotoController extends Controller
 {
     public function index(Request $request)
     {
-        $user_id = Auth::user()->id;
-        $user = User::with('zones')->where('id', $user_id)->get();
-        $zonas = [];
-        foreach ($user[0]->zones as $zone) {
-            $zonas[] = $zone->id;
-        }
-        if ($request->query("fecha")) {
-            $request->validate([
-                'fecha' => 'required|date'
-            ]);
-            $fecha = Carbon::parse($request->fecha)->startOfDay();
-        } else {
-            $fecha = date('Y-m-d');
-        }
-        $pedidos_zona = Pedidos::whereIn("zone_id", $zonas)->where('deliveryDate', $fecha)->get();
-        return view('pedidos.motorizado.pedidos.index', compact("pedidos_zona"))->with('i', 0);
+        $user = Auth::user();
+
+        $zones = $user->zones->pluck('id');
+
+        $fechaPedidos = $request->query("fecha") ? Carbon::parse($request->validate(['fecha' => 'required|date'])['fecha'])->startOfDay() : now()->toDateString();
+
+        $pedidos_zona = Pedidos::whereIn('zone_id', $zones)
+            ->whereDate('deliveryDate', $fechaPedidos)
+            ->where('productionStatus', true)
+            ->get();
+
+        return view('pedidos.motorizado.pedidos.index', ['pedidos_zona' => $pedidos_zona, 'i' => 0]);
     }
+
     public function edit($pedido)
     {
         $pedido = Pedidos::find($pedido);
