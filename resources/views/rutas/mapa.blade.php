@@ -36,10 +36,10 @@ return 'white';
         <h3>No hay visitas pendientes para el día de hoy</h3>
     </div>
     @else
-    <div class="col-12 col-xl-3 px-0 overflow-y-scroll visita-list">
+    <div class="col-12 col-xl-3 px-0 overflow-y-scroll visita-list px-1" style="background-color: #dddfe2ff;">
         @foreach ($data as $visita)
         <div data-id="{{ $visita->id }}" role="button"
-            class="visita-btn d-flex justify-content-between align-items-center px-2 py-2 border"
+            class="visita-btn d-flex justify-content-between align-items-center px-2 py-2 border shadow"
             style="background-color: {{ $visita->estado_color }};
             color: {{ getBtnFontColor($visita->estado) }};">
             <span class=" text-truncate">
@@ -75,21 +75,21 @@ return 'white';
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
 <style>
     .visita-list {
-        height: 60dvh;
+        height: 80dvh;
     }
 
     #map {
-        height: 60dvh;
+        height: 80dvh;
     }
 
 
     @media (max-width: 1200px) {
         .visita-list {
-            height: 15dvh;
+            height: 30dvh;
         }
 
         #map {
-            height: 70dvh;
+            height: 60dvh;
         }
     }
 
@@ -123,7 +123,6 @@ return 'white';
 
     #info-panel.active {
         bottom: 0;
-        /* se desliza hacia arriba */
     }
 
     #close-panel {
@@ -301,6 +300,7 @@ return 'white';
                     bounds.extend(position);
 
                     marker.addListener("click", () => {
+                        console.log(group);
                         panelContent.html(`
                             <div class="d-flex flex-column justify-content-between" style="height: 100%;">
                                 <div class="border-bottom border-dark text-center pb-2">
@@ -410,6 +410,7 @@ return 'white';
                     }
 
                     const visitaDetails = response.data;
+
                     $('#doctor-name').text(visitaDetails.doctor_name);
                     $('#doctor-cmp').text(visitaDetails.doctor_cmp);
                     $('#doctor-phone').text(visitaDetails.doctor_phone);
@@ -419,6 +420,9 @@ return 'white';
                     centroSalud.text(visitaDetails.doctor_centro_salud)
                     if (visitaDetails.centrosalud_lat && visitaDetails.centrosalud_lng) {
                         centroSalud.attr('href', `https://google.com/maps?q=${visitaDetails.centrosalud_lat},${visitaDetails.centrosalud_lng}`);
+                    } else {
+                        centroSalud.removeAttr('href')
+                        toastr.error("Este centro de salud no tiene coordenadas")
                     }
                     const turnoText = visitaDetails.turno ? (visitaDetails.turno == 1 ? 'Tarde' : 'Mañana') : 'No asignado';
                     $('#doctor-turno').text(turnoText);
@@ -507,6 +511,7 @@ return 'white';
                         $(`.visita-btn[data-id="${visitaId}"]`).remove();
                         $(`tr[data-id="${visitaId}"]`).remove();
                         $('button[data-dismiss="modal"]').click();
+
                         form.trigger("reset");
                         btnSubmit.prop('disabled', false);
                     } else {

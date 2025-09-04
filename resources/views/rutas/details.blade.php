@@ -46,9 +46,6 @@
                     </li>
                     <li class="list-group-item">
                         <form id="form-visita" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            @method("PUT")
-
                             <div class="row gap-1 gap-md-0 mb-2">
                                 <div class="col-12 col-md-6">
                                     <label for="estado-visita">Estado de la Visita:</label>
