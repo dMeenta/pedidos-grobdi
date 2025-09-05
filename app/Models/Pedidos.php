@@ -12,6 +12,7 @@ class Pedidos extends Model
         'customerName',
         'customerNumber',
         'doctorName',
+        'id_doctor',
         'address',
         'turno',
         'reference',
@@ -48,5 +49,10 @@ class Pedidos extends Model
     public function detailpedidos()
     {
         return $this->hasMany(DetailPedidos::class);
+    }
+    
+    public function doctor()
+    {
+        return $this->belongsTo(Doctor::class, 'id_doctor');
     }
 }

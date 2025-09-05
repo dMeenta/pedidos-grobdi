@@ -760,6 +760,22 @@ class CargarPedidosController extends Controller
             'La sincronización de doctores-pedidos requiere configuración adicional de la base de datos.');
     }
 
+    public function searchDoctores(Request $request)
+    {
+        $search = $request->get('search', '');
+        
+        $doctores = Doctor::where('state', 1)
+            ->where(function($query) use ($search) {
+                $query->where('name', 'LIKE', '%' . $search . '%')
+                      ->orWhere('name_softlynn', 'LIKE', '%' . $search . '%');
+            })
+            ->orderBy('name')
+            ->limit(10)
+            ->get(['id', 'name', 'name_softlynn']);
+
+        return response()->json($doctores);
+    }
+
     public function show($pedido){
         $pedido = Pedidos::find($pedido);
         return view('pedidos.counter.cargar_pedido.show', compact('pedido'));
@@ -770,7 +786,18 @@ class CargarPedidosController extends Controller
     public function edit($pedido){
         $pedido = Pedidos::find($pedido);
         $zonas = Zone::all();
-        return view('pedidos.counter.cargar_pedido.edit',compact('pedido','zonas'));
+        $doctores = Doctor::where('state', 1)->orderBy('name')->get();
+        
+        // Debug temporal - puedes quitar esto después
+        logger('Pedido data for edit:', [
+            'id' => $pedido->id,
+            'deliveryDate' => $pedido->deliveryDate,
+            'deliveryDate_raw' => $pedido->getRawOriginal('deliveryDate'),
+            'doctorName' => $pedido->doctorName,
+            'id_doctor' => $pedido->id_doctor,
+        ]);
+        
+        return view('pedidos.counter.cargar_pedido.edit',compact('pedido','zonas','doctores'));
     }
 
     public function DownloadWord(Request $request){
@@ -845,13 +872,20 @@ class CargarPedidosController extends Controller
         //para enviar el parametro de la fecha en la url
         $fecha = $pedidos->deliveryDate;
         // Access validated payload
-    $address = $request->address ?? ($request['address'] ?? null);
-    $district = $request->district ?? ($request['district'] ?? null);
-    $deliveryDateNew = $request->deliveryDate ?? ($request['deliveryDate'] ?? null);
-    $zoneId = $request->zone_id ?? ($request['zone_id'] ?? null);
+        $address = $request->address ?? ($request['address'] ?? null);
+        $district = $request->district ?? ($request['district'] ?? null);
+        $deliveryDateNew = $request->deliveryDate ?? ($request['deliveryDate'] ?? null);
+        $zoneId = $request->zone_id ?? ($request['zone_id'] ?? null);
+        $customerNumber = $request->customerNumber ?? ($request['customerNumber'] ?? null);
+        $idDoctor = $request->id_doctor ?? ($request['id_doctor'] ?? null);
+        $doctorName = $request->doctorName ?? ($request['doctorName'] ?? null);
 
         $pedidos->address = $address;
         $pedidos->district = $district;
+        $pedidos->customerNumber = $customerNumber;
+        $pedidos->id_doctor = $idDoctor;
+        $pedidos->doctorName = $doctorName;
+        
         if($pedidos->deliveryDate !== $deliveryDateNew){
             $pedidos->deliveryDate = $deliveryDateNew;
             $contador_registro = Pedidos::where('deliveryDate',$deliveryDateNew)->orderBy('nroOrder','desc')->first();
@@ -862,14 +896,9 @@ class CargarPedidosController extends Controller
             $nroOrder = $ultimo_nro +1;
             $pedidos->nroOrder = $nroOrder;
             $pedidos->deliveryStatus = "Reprogramado";
-            // if(date("H:i:s") < "15:00:00" ){
-            //     $pedidos->turno = 0;
-            // }else{
-            //     $pedidos->turno = 1;
-            // }
             $pedidos->turno = 0;
         }
-    $pedidos->zone_id = $zoneId;
+        $pedidos->zone_id = $zoneId;
         $pedidos->user_id = Auth::user()->id;
         $pedidos->save();
         return redirect()->route('cargarpedidos.index',$fecha)

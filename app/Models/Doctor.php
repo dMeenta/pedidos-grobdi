@@ -13,6 +13,7 @@ class Doctor extends Model
     protected $fillable = [
         'especialidad_id',
         'name_secretariat',
+        'name_softlynn',
     ];
     public const TIPOMEDICO = [
         'Comprador',
@@ -104,5 +105,10 @@ class Doctor extends Model
     public function muestras()
     {
         return $this->hasMany(Muestras::class, 'id_doctor');
+    }
+    
+    public function pedidos()
+    {
+        return $this->hasMany(Pedidos::class, 'id_doctor');
     }
 }
