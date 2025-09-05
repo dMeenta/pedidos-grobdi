@@ -1,0 +1,91 @@
+flowchart TD
+    Start[Usuario sube archivo Excel desde vista create] --> ValidateFile[Validar archivo: mimes xlsx/xls, tamaño]
+    ValidateFile --> SaveTemp[Guardar archivo temporal en storage/app/temp/ con nombre único]
+    SaveTemp --> ChooseType{¿Tipo de importación?}
+    
+    ChooseType -->|Pedidos| UploadPedidos[Redirigir a preview con filename]
+    ChooseType -->|Detalles| UploadDetalles[Redirigir a previewArticulos con filename]
+    
+    UploadPedidos --> PreviewPedidos[Preview: Leer Excel con PedidosPreviewImport]
+    UploadDetalles --> PreviewDetalles[Preview: Leer Excel con DetailPedidosPreviewImport]
+    
+    PreviewPedidos --> DetectFormatP[Detectar formato: antiguo o nuevo]
+    PreviewDetalles --> DetectFormatD[Detectar formato: antiguo o nuevo]
+    
+    DetectFormatP --> ProcessRowsP[Procesar filas: for each row, buscar pedido en BD]
+    DetectFormatD --> ProcessRowsD[Procesar filas: for each row, extraer numero_pedido]
+    
+    ProcessRowsP --> QueryPedidoP[Consulta BD: Pedidos::where orderId or nroOrder]
+    ProcessRowsD --> QueryPedidoD[Consulta BD: Pedidos::where orderId or nroOrder]
+    
+    QueryPedidoP --> CompareChangesP[Comparar cambios: customerName, address, etc. Detectar nuevos/modificados]
+    QueryPedidoD --> MatchFoundD{Pedido encontrado?}
+    
+    MatchFoundD -->|Sí| QueryDetailD[Consulta BD: DetailPedidos::where pedidos_id and articulo match]
+    MatchFoundD -->|No| MarkErrorD[Marcar como pedido no encontrado, continuar con otras filas]
+    
+    QueryDetailD --> CompareChangesD[Comparar cambios: cantidad, precio, subtotal. Detectar nuevos/modificados]
+    
+    CompareChangesP --> GenerateSummaryP[Generar resumen: nuevos, modificados, sin cambios]
+    CompareChangesD --> GenerateSummaryD[Generar resumen: similares + errores de match]
+    
+    GenerateSummaryP --> ShowPreviewP[Mostrar vista preview con cambios y filename]
+    GenerateSummaryD --> ShowPreviewD[Mostrar vista preview-articulos con cambios y filename]
+    
+    ShowPreviewP --> UserDecisionP{Usuario decide}
+    ShowPreviewD --> UserDecisionD{Usuario decide}
+    
+    UserDecisionP -->|Confirmar| ConfirmChangesP[Confirm: Usar PedidosImport para aplicar cambios]
+    UserDecisionP -->|Cancelar| CancelChangesP[Cancel: Eliminar archivo temporal, redirigir]
+    
+    UserDecisionD -->|Confirmar| ConfirmChangesD[Confirm: Usar DetailPedidosImport para aplicar cambios]
+    UserDecisionD -->|Cancelar| CancelChangesD[Cancel: Eliminar archivo temporal, redirigir]
+    
+    ConfirmChangesP --> ApplyChangesP[Crear/Actualizar Pedidos: save con created_at, zone_id, etc.]
+    ConfirmChangesD --> ApplyChangesD[Crear/Actualizar DetailPedidos: save con pedidos_id, subtotal, etc.]
+    
+    ApplyChangesP --> UpdateTimestampP[Actualizar last_data_update en Pedidos]
+    ApplyChangesD --> UpdateTimestampD[Actualizar last_data_update en Pedidos]
+    
+    UpdateTimestampP --> EndSuccessP[Fin: Mensaje éxito, redirigir]
+    UpdateTimestampD --> EndSuccessD[Fin: Mensaje éxito, redirigir]
+    
+    CancelChangesP --> EndCancel[Fin: Mensaje cancelado]
+    CancelChangesD --> EndCancel
+    
+    subgraph "Flujo Detallado de Pedidos"
+        UploadPedidos
+        PreviewPedidos
+        DetectFormatP
+        ProcessRowsP
+        QueryPedidoP
+        CompareChangesP
+        GenerateSummaryP
+        ShowPreviewP
+        UserDecisionP
+        ConfirmChangesP
+        ApplyChangesP
+        UpdateTimestampP
+        EndSuccessP
+        CancelChangesP
+    end
+    
+    subgraph "Flujo Detallado de Detalles de Pedidos"
+        UploadDetalles
+        PreviewDetalles
+        DetectFormatD
+        ProcessRowsD
+        QueryPedidoD
+        MatchFoundD
+        QueryDetailD
+        CompareChangesD
+        GenerateSummaryD
+        ShowPreviewD
+        UserDecisionD
+        ConfirmChangesD
+        ApplyChangesD
+        UpdateTimestampD
+        EndSuccessD
+        CancelChangesD
+        MarkErrorD
+    end

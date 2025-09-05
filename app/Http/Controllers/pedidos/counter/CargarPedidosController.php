@@ -759,9 +759,6 @@ class CargarPedidosController extends Controller
             ->values();
     }
     public function sincronizarDoctoresPedidos(){
-        // Note: This function is currently disabled because the pedidos table 
-        // doesn't have a doctor_id column. The relationship between pedidos 
-        // and doctors needs to be established first.
         
         return redirect()->route('cargarpedidos.index')->with('warning', 
             'La sincronización de doctores-pedidos requiere configuración adicional de la base de datos.');
