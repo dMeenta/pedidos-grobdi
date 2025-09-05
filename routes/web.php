@@ -127,6 +127,10 @@ Route::middleware(['checkRole:counter,admin,Administracion'])->group(function ()
     Route::post('/cargarpedidos/cancel/articulos', CargarPedidosController::class . '@cancelArticulos')->name('cargarpedidos.cancel-articulos');
     
     Route::get('/pedidos/sincronizar', CargarPedidosController::class . '@sincronizarDoctoresPedidos')->name('pedidos.sincronizar');
+    Route::get('/api/doctores/search', CargarPedidosController::class . '@searchDoctores')->name('api.doctores.search');
+    
+    // Incluir ruta de prueba
+    require __DIR__.'/test.php';
     
     Route::resource('asignarpedidos', AsignarPedidoController::class);
     Route::post('/cargarpedidos/downloadWord', CargarPedidosController::class . '@downloadWord')
