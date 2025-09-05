@@ -17,7 +17,7 @@
         <form action="{{ route('pedidoslaboratorio.index') }}" method="GET">
             <div class="row">
                 <div class="col-xs-1 col-sm-1 col-md-1">
-                    <label for="fecha">Fecha:</label>
+                    <label for="fecha">Fecha Entrega:</label>
                 </div>
                 <div class="col-xs-2 col-sm-2 col-md-2">
                     <input class="form-control" type="date" name="fecha" id="fecha" value="{{ request()->fecha }}" required>

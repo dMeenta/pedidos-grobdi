@@ -353,9 +353,16 @@ class CargarPedidosController extends Controller
             $filePath = Storage::path('temp/' . $fileName);
             Log::info('File path', ['filePath' => $filePath]);
             
-            // Analyze changes for articles
-            $changes = $this->analyzeArticulosChanges($filePath);
-            Log::info('Changes analyzed', ['stats' => $changes['stats']]);
+            // Use the DetailPedidosPreviewImport class instead of the old method
+            $previewImport = new DetailPedidosPreviewImport();
+            Excel::import($previewImport, $filePath);
+            
+            $changes = $previewImport->data;
+            $key = $previewImport->key;
+            
+            // Always show the preview, even with duplicates
+            // The view will handle disabling the confirm button if there are duplicates
+            Log::info('Changes analyzed using DetailPedidosPreviewImport', ['key' => $key]);
 
             return view('pedidos.counter.cargar_pedido.preview-articulos', compact('changes', 'fileName'));
         } catch (\Exception $e) {
@@ -763,15 +770,23 @@ class CargarPedidosController extends Controller
     public function searchDoctores(Request $request)
     {
         $search = $request->get('search', '');
-        
+
         $doctores = Doctor::where('state', 1)
-            ->where(function($query) use ($search) {
-                $query->where('name', 'LIKE', '%' . $search . '%')
-                      ->orWhere('name_softlynn', 'LIKE', '%' . $search . '%');
+            ->when($search !== '', function ($q) use ($search) {
+                $q->where(function ($query) use ($search) {
+                    $like = '%' . $search . '%';
+                    $query->where('name_softlynn', 'LIKE', $like)
+                          ->orWhere('name', 'LIKE', $like)
+                          ->orWhere('first_lastname', 'LIKE', $like)
+                          ->orWhere('second_lastname', 'LIKE', $like)
+                          ->orWhereRaw("CONCAT(COALESCE(name,''),' ',COALESCE(first_lastname,''),' ',COALESCE(second_lastname,'')) LIKE ?", [$like]);
+                });
             })
+            // Prefer records with name_softlynn first in ordering, then by name
+            ->orderByRaw("CASE WHEN name_softlynn IS NULL OR name_softlynn = '' THEN 1 ELSE 0 END")
             ->orderBy('name')
             ->limit(10)
-            ->get(['id', 'name', 'name_softlynn']);
+            ->get(['id', 'name', 'first_lastname', 'second_lastname', 'name_softlynn']);
 
         return response()->json($doctores);
     }

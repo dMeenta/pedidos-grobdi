@@ -186,7 +186,14 @@
                 }
 
                 doctors.forEach(function(doctor) {
-                    const displayName = doctor.name_softlynn || doctor.name;
+                    // Construir nombre a mostrar: priorizar name_softlynn; si no, concatenar name + apellidos
+                    let displayName = doctor.name_softlynn && doctor.name_softlynn.trim() !== ''
+                        ? doctor.name_softlynn
+                        : [doctor.name, doctor.first_lastname, doctor.second_lastname]
+                            .filter(Boolean)
+                            .join(' ')
+                            .replace(/\s+/g, ' ')
+                            .trim();
                     const item = $(`
                         <a href="#" class="list-group-item list-group-item-action doctor-item" 
                            data-id="${doctor.id}" 
