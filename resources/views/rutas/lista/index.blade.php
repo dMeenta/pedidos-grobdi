@@ -33,7 +33,7 @@
                 <tr>
                     <td>{{ $lista->name }}</td>
                     <td>{{ $lista->recovery ? 'Si' : 'No' }}</td>
-                    <td>{{ $lista->zone->name }}</td>
+                    <td>{{ $lista->zone->name?? '' }}</td>
                     <td>@foreach ($lista->distritos as $distrito)
                         {{$distrito->name }} <br>
                     @endforeach</td>

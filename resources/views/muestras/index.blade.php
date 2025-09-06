@@ -7,7 +7,7 @@
 
 @php
 $role = auth()->check() ? auth()->user()->role->name : null;
-$currentParams = request()->except(['page','state']);
+$currentParams = request()->except(['page']);
 @endphp
 
 @section('content')
@@ -22,58 +22,104 @@ $currentParams = request()->except(['page','state']);
             </a>
             @endif
             <a class="btn btn-s btn-outline-success my-1" href="{{ route('muestras.exportExcel') }}">
-                <i class="fas fa-file-excel mr-1"></i> Exportar Excel
+                <i class="fas fa-file-excel mr-1"></i>Exportar Excel
             </a>
         </div>
     </div>
     <hr>
     <div class="row my-3">
-        <form method="GET" action="{{ route('muestras.index') }}" class="col-12 col-xl-8 d-flex flex-column flex-md-row mb-3 mb-lg-0">
-            <input
-                type="text"
-                name="search"
-                value="{{ request('search') }}"
-                placeholder="Buscar por nombre..."
-                class="form-control">
-            <select class="custom-select mx-md-1 my-2 my-md-0" name="filter_by_date">
-                <option value="registro" {{ request('filter_by_date') == 'registro' ? 'selected' : '' }}>
-                    Por fecha de registro
-                </option>
-                <option value="entrega" {{ request('filter_by_date') == 'entrega' ? 'selected' : '' }}>
-                    Por fecha de entrega
-                </option>
-            </select>
-            <input
-                type="date"
-                name="date_since"
-                value="{{ request('date_since') }}"
-                class="form-control mb-2 mb-md-0 mr-md-1"
-                placeholder="Desde">
-            <input
-                type="date"
-                name="date_to"
-                value="{{ request('date_to') }}"
-                class="form-control mb-2 mb-md-0"
-                placeholder="Hasta">
-            <button type="submit" class="btn btn-primary ml-md-2">Buscar</button>
-        </form>
-        <div class="btn-group col-12 col-xl-4" role="group">
-            <a href="{{ route('muestras.index', array_merge($currentParams, ['lab_state' => 'Pendiente'])) }}"
-                class="btn btn-s {{ request('lab_state') == 'Pendiente' ? 'btn-danger' : 'btn-outline-danger' }}">
-                Pendientes
-            </a>
-            <a href="{{ route('muestras.index')}}"
-                class="btn btn-s {{ count(request()->query()) === 0 ? 'btn-primary' : 'btn-outline-primary' }}">
-                Todas
-            </a>
-            <a href="{{ route('muestras.index', ['state' => 'false']) }}"
-                class="btn btn-s {{ request('state') === 'false' ? 'btn-secondary' : 'btn-outline-secondary' }}">
-                Inhabilitadas
-            </a>
-            <a href="{{ route('muestras.index', array_merge($currentParams, ['lab_state' => 'Elaborado'])) }}"
-                class="btn btn-s {{ request('lab_state') == 'Elaborado' ? 'btn-success' : 'btn-outline-success' }}">
-                Elaboradas
-            </a>
+        <div class="col-12">
+            <form method="GET" action="{{ route('muestras.index') }}" class="d-flex flex-column flex-md-row">
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Buscar por nombre..."
+                    class="form-control">
+                <select class="custom-select mx-md-2 my-2 my-md-0" name="filter_by_date">
+                    <option value="registro" {{ request('filter_by_date') == 'registro' ? 'selected' : '' }}>
+                        Por fecha de registro
+                    </option>
+                    <option value="entrega" {{ request('filter_by_date') == 'entrega' ? 'selected' : '' }}>
+                        Por fecha de entrega
+                    </option>
+                </select>
+                <input
+                    type="date"
+                    name="date_since"
+                    value="{{ request('date_since') }}"
+                    class="form-control mb-2 mb-md-0 mr-md-2"
+                    placeholder="Desde">
+                <input
+                    type="date"
+                    name="date_to"
+                    value="{{ request('date_to') }}"
+                    class="form-control mb-2 mb-md-0"
+                    placeholder="Hasta">
+                <button type="submit" class="btn btn-primary ml-md-2">Buscar</button>
+            </form>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-12 col-xl-6 mb-3">
+            <form id="orderForm" class="row" action="{{ route('muestras.index') }}" method="GET">
+                <div class="col-xl-2 col-3 align-content-center">
+                    <h5 class="m-0">
+                        <strong>
+                            Ordenar por
+                        </strong>
+                    </h5>
+                </div>
+                <div class="col-9 col-xl-10">
+                    <select class="custom-select rounded-0" id="orderSelect"
+                        onchange="window.location = this.value;">
+                        <option value="{{ route('muestras.index', array_merge($currentParams, ['order_by' => 'fecha_registro'])) }}"
+                            {{ request('order_by') == 'fecha_registro' ? 'selected' : '' }}>
+                            Fecha de Registro
+                        </option>
+                        <option value="{{ route('muestras.index', array_merge($currentParams, ['order_by' => 'fecha_entrega'])) }}"
+                            {{ request('order_by') == 'fecha_entrega' ? 'selected' : '' }}>
+                            Fecha de Entrega
+                        </option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="col-12 col-xl-6">
+            <form id="filterForm" class="d-flex gap-2" action="{{ route('muestras.index') }}" method="GET">
+                <div class="col-2 col-md-3 col-lg-4 align-content-center">
+                    <h5 class="m-0 text-truncate">
+                        <strong>
+                            Estado de Laboratorio
+                        </strong>
+                    </h5>
+                </div>
+                <div class="col-10 col-md-9 col-lg-8">
+                    <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
+                        {{-- Pendientes --}}
+                        <label class="btn {{ request('lab_state') == 'Pendiente' ? 'btn-info active' : 'btn-outline-secondary' }}">
+                            <input type="radio" name="lab_state" value="Pendiente"
+                                onchange="document.getElementById('filterForm').submit();"
+                                {{ request('lab_state') == 'Pendiente' ? 'checked' : '' }}>
+                            Pendientes
+                        </label>
+                        {{-- Todas (sin lab_state) --}}
+                        <label class="btn {{ request()->has('lab_state') ? 'btn-outline-secondary' : 'btn-info active' }}">
+                            <input type="radio" name="lab_state" value=""
+                                onchange="window.location='{{ route('muestras.index') }}';"
+                                {{ !request()->has('lab_state') ? 'checked' : '' }}>
+                            Todas
+                        </label>
+                        {{-- Elaboradas --}}
+                        <label class=" btn {{ request('lab_state') == 'Elaborado' ? 'btn-info active' : 'btn-outline-secondary' }}">
+                            <input type="radio" name="lab_state" value="Elaborado"
+                                onchange="document.getElementById('filterForm').submit();"
+                                {{ request('lab_state') == 'Elaborado' ? 'checked' : '' }}>
+                            Elaboradas
+                        </label>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
     <div class="table-responsive">
@@ -263,13 +309,15 @@ $currentParams = request()->except(['page','state']);
             </tbody>
         </table>
     </div>
-    <div>
-        @include('deleteModal')
-        @include('muestras.details')
-    </div>
-    <div class="d-flex justify-content-end mt-3">
-        {!! $muestras->appends(request()->except('page'))->links() !!}
-    </div>
+</div>
+
+<div>
+    @include('deleteModal')
+    @include('muestras.details')
+</div>
+<div class="d-flex justify-content-end mt-3">
+    {!! $muestras->appends(request()->except('page'))->links() !!}
+</div>
 </div>
 @stop
 

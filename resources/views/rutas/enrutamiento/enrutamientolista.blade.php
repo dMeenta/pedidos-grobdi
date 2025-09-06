@@ -165,12 +165,22 @@
 
     const fechasDesactivadas = @json($fechas_seleccionadas);
     const fecha_inicio = @json($enrutamiento->fecha);
-    console.log(fecha_inicio);
+    const fecha_fin = @json($fecha_fin);
+
+    console.log(fecha_fin);
     flatpickr("#dateRangePicker", {
         mode: "range",
         dateFormat: "Y-m-d",
         disable: fechasDesactivadas,
         minDate: fecha_inicio,
+        maxDate: fecha_fin,
+        disable: [
+            function(date) {
+                // Desactiva sábados (6) y domingos (0)
+                return (date.getDay() === 0 || date.getDay() === 6);
+            },
+            ...fechasDesactivadas // Si ya tienes fechas específicas desactivadas
+        ],
         locale: "es" // Esto cambia el idioma a español
     });
 

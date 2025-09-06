@@ -5,6 +5,7 @@ namespace App\Http\Controllers\rutas\mantenimiento;
 use App\Http\Controllers\Controller;
 use App\Models\CentroSalud;
 use Illuminate\Http\Request;
+use Illuminate\Log\Logger;
 
 class CentroSaludController extends Controller
 {
@@ -22,6 +23,7 @@ class CentroSaludController extends Controller
     public function buscar(Request $request)
     {
         // dd($request->all());
+        Logger($request->all());
         if ($request->ajax()) {
             $centrosalud = CentroSalud::where('name', 'like', '%' . $request->query('term') . '%')
             ->where('state','like',1)
