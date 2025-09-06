@@ -402,8 +402,8 @@ class CargarPedidosController extends Controller
                     ->with('warning', 'No hay cambios para aplicar.');
             }
 
-            // Import articles using DetailPedidosPreviewImport (with modification support)
-            $detailImport = new DetailPedidosPreviewImport;
+            // Import articles using the writer import to persist changes and return a string message
+            $detailImport = new DetailPedidosImport;
             Excel::import($detailImport, $filePath);
 
             // Clean up temp file
@@ -440,17 +440,19 @@ class CargarPedidosController extends Controller
         $data = Excel::toArray(new SimpleArrayImport, $filePath);
         $rows = $data[0] ?? [];
 
-        // Column map with safe defaults (new layout)
+        // Column map with correct positions for your Excel format
         $colMap = [
-            'numero' => 0,
-            'articulo' => 1,
-            'cantidad' => 2,
-            'precio' => 3,
-            'subtotal' => 4,
+            'numero' => 3,    // Columna D: Numero
+            'articulo' => 16, // Columna Q: Articulo  
+            'cantidad' => 17, // Columna R: Cantidad
+            'precio' => 18,   // Columna S: PrecioUnitario
+            'subtotal' => 19, // Columna T: SubTotal
         ];
-        if (!empty($rows)) {
-            $first = $rows[0] ?? [];
-            $headers = array_map(function ($v) { return is_string($v) ? strtolower(trim($v)) : $v; }, $first);
+        
+        // Try to detect headers from row 1 (index 1, since row 2 has headers)
+        if (!empty($rows) && isset($rows[1])) {
+            $headerRow = $rows[1] ?? [];
+            $headers = array_map(function ($v) { return is_string($v) ? strtolower(trim($v)) : $v; }, $headerRow);
             $nameToKey = [
                 'numero' => ['numero', 'número', 'pedido', 'nro', 'nro pedido'],
                 'articulo' => ['articulo', 'artículo', 'producto', 'item'],
@@ -467,17 +469,6 @@ class CargarPedidosController extends Controller
                     }
                 }
             }
-            if (!is_int($colMap['numero'])) {
-                $colMap['numero'] = isset($first[0]) && preg_match('/^\d+$/', (string)$first[0]) ? 0 : 3;
-            }
-            $colMap['articulo'] = is_int($colMap['articulo']) ? $colMap['articulo'] : 1;
-            $colMap['cantidad'] = is_int($colMap['cantidad']) ? $colMap['cantidad'] : 2;
-            $colMap['precio'] = is_int($colMap['precio']) ? $colMap['precio'] : 3;
-            $colMap['subtotal'] = is_int($colMap['subtotal']) ? $colMap['subtotal'] : 4;
-        }
-        // Ensure valid integers
-        foreach (['numero'=>0,'articulo'=>1,'cantidad'=>2,'precio'=>3,'subtotal'=>4] as $k=>$def) {
-            if (!isset($colMap[$k]) || !is_int($colMap[$k])) $colMap[$k] = $def;
         }
 
         $stats = [
@@ -494,7 +485,9 @@ class CargarPedidosController extends Controller
         $unchanged = [];
         $seenExcelRows = [];
 
+        // Start from row 3 (index 2) since headers are in row 2 (index 1)
         foreach ($rows as $index => $row) {
+            if ($index < 2) continue; // Skip rows 1 and 2 (headers)
             if (!is_array($row) || count($row) === 0) continue;
 
             $numeroIdx = (int)$colMap['numero'];

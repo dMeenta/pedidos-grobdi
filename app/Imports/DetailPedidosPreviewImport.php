@@ -16,6 +16,16 @@ class DetailPedidosPreviewImport implements ToCollection
     public $changes = [];
     public $stats = [];
 
+    /**
+     * Método collection requerido por la interfaz ToCollection
+     * 
+     * Este método procesa la colección de filas del archivo Excel para generar
+     * una vista previa de los cambios que se realizarían en los detalles de pedidos.
+     * Detecta duplicados, valida datos y genera estadísticas sin modificar la base de datos.
+     * 
+     * @param Collection $rows Colección de filas del archivo Excel
+     * @return void
+     */
     public function collection(Collection $rows)
     {
         $this->initializeCounters();
@@ -54,6 +64,14 @@ class DetailPedidosPreviewImport implements ToCollection
         $this->finalizeResults();
     }
 
+    /**
+     * Inicializa los contadores para el proceso de vista previa
+     * 
+     * Este método reinicia todas las estadísticas y contadores utilizados
+     * para rastrear el progreso y resultados del análisis de vista previa.
+     * 
+     * @return void
+     */
     private function initializeCounters()
     {
         $this->stats = [
@@ -66,67 +84,58 @@ class DetailPedidosPreviewImport implements ToCollection
         ];
     }
 
+    /**
+     * Detecta el formato de columnas del archivo Excel
+     * 
+     * Este método analiza las primeras filas del archivo para determinar
+     * automáticamente el formato y mapeo de columnas utilizado, permitiendo
+     * manejar diferentes formatos de archivo Excel de manera flexible.
+     * 
+     * @param array $rows Array de filas del archivo Excel
+     * @return array Mapeo de columnas detectado
+     */
     private function detectColumns(array $rows)
     {
-        // Default column mapping for the new Excel format (0-4) and old format compatibility
+        // Default to the new compact format (A..E => 0..4)
         $colMap = [
-            'numero' => 0,      // Column A - Numero de pedido
-            'articulo' => 1,    // Column B - Articulo
-            'cantidad' => 2,    // Column C - Cantidad
-            'precio' => 3,      // Column D - Precio unitario
-            'subtotal' => 4,    // Column E - Sub total
+            'numero' => 0,
+            'articulo' => 1,
+            'cantidad' => 2,
+            'precio' => 3,
+            'subtotal' => 4,
         ];
 
-        // Check if we're dealing with the old format (where data starts at different columns)
-        if (count($rows) > 0) {
-            $firstDataRow = null;
-            
-            // Find the first data row (skip headers)
-            foreach ($rows as $row) {
-                if (!is_array($row)) {
-                    $row = $row->toArray();
-                }
-                
-                // Skip empty rows
-                if (empty(array_filter($row, fn($v) => $v !== null && trim((string)$v) !== ''))) {
-                    continue;
-                }
-                
-                // Check if this might be a header row
-                $firstCol = isset($row[0]) ? strtolower(trim((string)$row[0])) : '';
-                $thirdCol = isset($row[2]) ? strtolower(trim((string)$row[2])) : '';
-                
-                if (in_array($firstCol, ['numero', 'número', 'pedido', 'nro']) || 
-                    in_array($thirdCol, ['pedido', 'numero', 'número'])) {
-                    continue; // Skip header row
-                }
-                
-                $firstDataRow = $row;
-                break;
+        if (count($rows) === 0) {
+            return $colMap;
+        }
+
+        // Heuristics: scan the first ~10 rows to detect the old sheet where col[2] == 'PEDIDO'
+        // and the real data lives in D/Q/R/S/T => 3/16/17/18/19
+        $maxProbe = min(10, count($rows));
+        for ($i = 0; $i < $maxProbe; $i++) {
+            $row = $rows[$i];
+            if (!is_array($row)) { $row = $row->toArray(); }
+
+            // Skip completely empty rows
+            if (empty(array_filter($row, fn($v) => $v !== null && trim((string)$v) !== ''))) {
+                continue;
             }
-            
-            // Check if we're using the old format (column 2 = "PEDIDO", column 3 = pedido ID)
-            if ($firstDataRow && isset($firstDataRow[2]) && 
-                strtoupper(trim((string)$firstDataRow[2])) === 'PEDIDO') {
-                
-                Log::info('Detected old Excel format', [
-                    'sample_row' => array_slice($firstDataRow, 0, 25) // Show first 25 columns for debugging
-                ]);
-                
-                $colMap = [
-                    'numero' => 3,      // Column D - Pedido ID (after "PEDIDO")
-                    'articulo' => 16,   // Column Q - Articulo
-                    'cantidad' => 17,   // Column R - Cantidad
-                    'precio' => 18,     // Column S - Precio unitario  
-                    'subtotal' => 19,   // Column T - Sub total
+
+            $col2 = isset($row[2]) ? strtoupper(trim((string)$row[2])) : '';
+            $hasOldArticleCol = array_key_exists(16, $row) && trim((string)($row[16] ?? '')) !== '';
+            if ($col2 === 'PEDIDO' && $hasOldArticleCol) {
+                Log::info('Detected old Excel format (D/Q/R/S/T mapping)');
+                return [
+                    'numero' => 3,
+                    'articulo' => 16,
+                    'cantidad' => 17,
+                    'precio' => 18,
+                    'subtotal' => 19,
                 ];
-            } else {
-                Log::info('Using new Excel format', [
-                    'sample_row' => $firstDataRow ? array_slice($firstDataRow, 0, 10) : 'NO_DATA_ROW_FOUND'
-                ]);
             }
         }
 
+        Log::info('Using new Excel format (A..E mapping)');
         return $colMap;
     }
 
@@ -137,6 +146,8 @@ class DetailPedidosPreviewImport implements ToCollection
         $has_duplicates = false;
 
         foreach ($rows as $rowIndex => $row) {
+            // Skip the first two rows as headers if present
+            if ($rowIndex < 2) { continue; }
             if (!is_array($row)) { 
                 $row = $row->toArray(); 
             }
@@ -307,6 +318,11 @@ class DetailPedidosPreviewImport implements ToCollection
             $row = $row->toArray(); 
         }
 
+        // Skip the first two rows as headers if present
+        if ($rowIndex < 2) {
+            return;
+        }
+
         if ($this->shouldSkipRow($row, $colMap)) {
             return;
         }
@@ -349,6 +365,15 @@ class DetailPedidosPreviewImport implements ToCollection
     $this->processArticle($row, $rowIndex, $colMap, $pedido);
     }
 
+    /**
+     * Busca un pedido por su ID de orden
+     * 
+     * Este método busca un pedido existente en la base de datos utilizando
+     * primero el orderId y luego el nroOrder como alternativa si no se encuentra.
+     * 
+     * @param string $pedidoIdRaw El ID del pedido a buscar
+     * @return Pedidos|null El pedido encontrado o null si no existe
+     */
     private function findPedido(string $pedidoIdRaw)
     {
         // Try by orderId
@@ -368,6 +393,18 @@ class DetailPedidosPreviewImport implements ToCollection
         return $pedido;
     }
 
+    /**
+     * Procesa un artículo específico del pedido
+     * 
+     * Este método analiza un artículo individual, determina si es nuevo o existente,
+     * calcula las modificaciones necesarias y actualiza las estadísticas correspondientes.
+     * 
+     * @param array $row La fila de datos que contiene el artículo
+     * @param int $rowIndex El índice de la fila en el archivo
+     * @param array $colMap El mapeo de columnas
+     * @param mixed $pedido El pedido al que pertenece el artículo
+     * @return void
+     */
     private function processArticle(array $row, int $rowIndex, array $colMap, $pedido)
     {
         $articulo = isset($row[$colMap['articulo']]) ? trim((string)$row[$colMap['articulo']]) : '';
@@ -390,14 +427,30 @@ class DetailPedidosPreviewImport implements ToCollection
         }
     }
 
+    /**
+     * Agrega un nuevo artículo a la lista de cambios
+     * 
+     * Este método registra un artículo nuevo que será creado durante la importación,
+     * incluyendo toda la información necesaria para su creación.
+     * 
+     * @param array $row La fila de datos del artículo
+     * @param int $rowIndex El índice de la fila
+     * @param array $colMap El mapeo de columnas
+     * @param mixed $pedido El pedido al que pertenece
+     * @param string $articulo El nombre del artículo
+     * @param float $cantidad La cantidad del artículo
+     * @param float $unit El precio unitario
+     * @param float $sub El subtotal
+     * @return void
+     */
     private function addNewArticle($row, int $rowIndex, array $colMap, $pedido, string $articulo, float $cantidad, float $unit, float $sub)
     {
-        $this->stats['new_count']++;
-        $this->changes['new'][] = [
+    $this->stats['new_count']++;
+    $this->changes['new'][] = [
             'row_index' => $rowIndex + 1,
             'data' => [
-                'pedido_id' => $pedido->orderId ?? $pedido->nroOrder,
-                'pedido_cliente' => $pedido->customer_name ?? 'N/A',
+        'pedido_id' => $pedido->orderId ?? $pedido->nroOrder,
+        'pedido_cliente' => $pedido->customerName ?? $pedido->customer_name ?? 'N/A',
                 'articulo' => $articulo,
                 'cantidad' => $cantidad,
                 'unit_prize' => $unit,
@@ -406,6 +459,22 @@ class DetailPedidosPreviewImport implements ToCollection
         ];
     }
 
+    /**
+     * Verifica las modificaciones necesarias en un artículo existente
+     * 
+     * Este método compara los valores actuales de un artículo con los nuevos valores
+     * del archivo Excel y determina qué campos necesitan ser actualizados.
+     * 
+     * @param array $row La fila de datos nueva
+     * @param int $rowIndex El índice de la fila
+     * @param array $colMap El mapeo de columnas
+     * @param mixed $pedido El pedido al que pertenece
+     * @param mixed $existing El artículo existente en la base de datos
+     * @param float $cantidad La nueva cantidad
+     * @param float $unit El nuevo precio unitario
+     * @param float $sub El nuevo subtotal
+     * @return void
+     */
     private function checkModifications($row, int $rowIndex, array $colMap, $pedido, $existing, float $cantidad, float $unit, float $sub)
     {
         $modifications = [];
@@ -445,7 +514,7 @@ class DetailPedidosPreviewImport implements ToCollection
                 'modifications' => $modifications,
                 'existing' => [
                     'pedido_id' => $pedido->orderId ?? $pedido->nroOrder,
-                    'pedido_cliente' => $pedido->customer_name ?? 'N/A',
+                    'pedido_cliente' => $pedido->customerName ?? $pedido->customer_name ?? 'N/A',
                     'articulo' => $existing->articulo,
                     'cantidad' => (float)$existing->cantidad,
                     'unit_prize' => round((float)$existing->unit_prize, 3),
@@ -454,7 +523,7 @@ class DetailPedidosPreviewImport implements ToCollection
                 ],
                 'new' => [
                     'pedido_id' => $pedido->orderId ?? $pedido->nroOrder,
-                    'pedido_cliente' => $pedido->customer_name ?? 'N/A',
+                    'pedido_cliente' => $pedido->customerName ?? $pedido->customer_name ?? 'N/A',
                     'articulo' => trim((string)$row[$colMap['articulo']]),
                     'cantidad' => $cantidad,
                     'unit_prize' => $unit,
@@ -471,6 +540,14 @@ class DetailPedidosPreviewImport implements ToCollection
         }
     }
 
+    /**
+     * Finaliza los resultados del análisis de vista previa
+     * 
+     * Este método completa el proceso de vista previa, genera el resumen final,
+     * actualiza las estadísticas y prepara los datos para ser retornados al usuario.
+     * 
+     * @return void
+     */
     private function finalizeResults()
     {
         $this->changes['stats'] = $this->stats;

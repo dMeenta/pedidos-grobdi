@@ -15,6 +15,16 @@ class PedidosPreviewImport implements ToCollection
     public $data;
     public $key;
 
+    /**
+     * Método collection requerido por la interfaz ToCollection
+     * 
+     * Este método procesa la colección de filas del archivo Excel para generar
+     * una vista previa de los cambios que se realizarían en los pedidos.
+     * Simula la creación o actualización de pedidos sin modificar la base de datos real.
+     * 
+     * @param Collection $rows Colección de filas del archivo Excel
+     * @return void
+     */
     public function collection(Collection $rows)
     {
         $rows_existentes = 0;
