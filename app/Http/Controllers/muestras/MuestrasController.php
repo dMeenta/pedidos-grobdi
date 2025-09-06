@@ -138,7 +138,7 @@ class MuestrasController extends Controller
             switch (strtolower($request->order_by)) {
                 case 'fecha_entrega':
                     $query->orderByRaw('CASE WHEN datetime_scheduled IS NULL THEN 0 ELSE 1 END ASC')
-                        ->orderBy('datetime_scheduled', 'asc');
+                        ->orderBy('datetime_scheduled', 'desc');
                     break;
                 default:
                     $query->orderBy('created_at', 'desc');
