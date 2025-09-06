@@ -61,10 +61,6 @@
     <div class="card-body">
         {{-- Show error message if there was one --}}
         @if($errorMessage)
-        <div class="alert alert-danger">
-            <h5 class="mb-2"><i class="fas fa-exclamation-triangle"></i> Error en el procesamiento</h5>
-            <p class="mb-0">{{ $errorMessageText }}</p>
-        </div>
         @endif
         <div class="d-grid gap-2 d-md-flex justify-content-md-between mb-3">
             <a class="btn btn-secondary btn-sm" href="{{ route('cargarpedidos.create') }}">
@@ -74,7 +70,7 @@
                 <form action="{{ route('cargarpedidos.confirm-articulos') }}" method="POST" class="d-inline" id="confirmFormTop">
                     @csrf
                     <input type="hidden" name="filename" value="{{ $fileName }}">
-                    <button type="button" class="btn btn-success btn-sm" onclick="confirmChanges()" {{ ($errorMessage || (count(($changes['new'] ?? [])) == 0 && count(($changes['modified'] ?? [])) == 0)) ? 'disabled' : '' }}>
+                    <button type="button" class="btn btn-success btn-sm" onclick="confirmChanges()" {{ ($errorMessage || (count(($changes['new'] ?? [])) == 0 && count(($changes['modified'] ?? [])) == 0) || (isset($changes['duplicates']) && count(($changes['duplicates'] ?? []))>0)) ? 'disabled' : '' }}>
                         <i class="fas fa-check"></i> Aprobar Cambios
                     </button>
                 </form>
