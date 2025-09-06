@@ -601,6 +601,12 @@ return [
                     'icon' => 'fa fa-map',
                     'can' => 'visitador'
                 ],
+                [
+                    'text' => 'Mapa de Rutas',
+                    'url' => 'ruta-mapa',
+                    'icon' => 'fa fa-map',
+                    'can' => 'visitador'
+                ],
             ],
         ],
         //Jefe de Operaciones
