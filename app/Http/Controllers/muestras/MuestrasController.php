@@ -371,11 +371,11 @@ class MuestrasController extends Controller
     {
         $muestra = Muestras::find($id);
         if (!$muestra->state) {
-            return redirect()->route('muestras.index')->with('error', 'No se puede realizar esta acción una vez inhabilitada la muestra.');
+            return redirect()->to(url()->previous())->with('error', 'No se puede realizar esta acción una vez inhabilitada la muestra.');
         }
 
         if ($muestra->aprobado_coordinadora) {
-            return redirect()->route('muestras.index')->with('error', 'No se puede cambiar la fecha de entrega una vez aprobada.');
+            return redirect()->to(url()->previous())->with('error', 'No se puede cambiar la fecha de entrega una vez aprobada.');
         }
 
         $request->validate([
@@ -385,7 +385,7 @@ class MuestrasController extends Controller
         $muestra->datetime_scheduled = $request->datetime_scheduled;
         $muestra->save();
 
-        return redirect()->route('muestras.index')->with('success', 'Fecha de entrega actualizada correctamente.');
+        return redirect()->to(url()->previous())->with('success', 'Fecha de entrega actualizada correctamente.');
     }
 
     /* --- LABORATORIO --- */
