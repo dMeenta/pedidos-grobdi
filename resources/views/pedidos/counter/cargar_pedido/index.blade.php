@@ -195,7 +195,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body text-center" id="detailsDeliveryStateContent">
+            <div class="modal-body text-center p-3" id="detailsDeliveryStateContent">
             </div>
         </div>
     </div>
@@ -232,6 +232,7 @@
         $(document).on('click', '.btn-show-details', function() {
             const imgUrl = $(this).data('img');
             const datetime = $(this).data('datetime');
+            const nombre = $(this).data('nombre')
             const lat = $(this).data('lat');
             const lng = $(this).data('lng');
 
@@ -239,11 +240,10 @@
 
             detailsContent.html(`
             <img src="${imgUrl}" class="img-fluid rounded mb-3" style="max-height:60vh;">
-                <p><strong>Fecha y hora:</strong> ${datetime}</p>
-                <a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank">
+                ${datetime ? `<p><strong>Fecha y hora:</strong> ${datetime}</p>` : `<p><strong>Nombre del receptor: </strong> ${nombre}</p>` }
+                ${lat && lng ? `<a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank">
                         Ver ubicación de la foto
-                    </a>`);
-
+                    </a>` : ''}`);
             $('#deliveryPhotoModal').modal('show');
         });
 
@@ -297,11 +297,13 @@
                                             Ver Más
                                         </button>` : '—'}
                                     </td>
-                                    <td>
-                                        ${estado.foto_entrega_url ? `
+                                    <td class="text-center">
+                                        ${estado.receptor_info ? `
                                         <button class="btn btn-info btn-sm btn-show-details" 
-                                            data-img="${estado.foto_entrega_url}">
-                                            Ver Foto
+                                            data-img="${estado.receptor_info.firma}"
+                                            data-nombre="${estado.receptor_info.nombre}"
+                                            >
+                                            Ver Más
                                         </button>` : '—'}
                                     </td>
                                 </tr>`).join("")}
