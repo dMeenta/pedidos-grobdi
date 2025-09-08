@@ -24,74 +24,80 @@
             @csrf
             @method('PUT')
             <ul class="list-group list-group-flush">
-                <div class="list-group-item pb-2">
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="row fs-5">
-                                <div class="col-12 col-sm-4">
-                                    <label for="state" class="form-label">Estado del pedido:</label>
-                                </div>
-                                <div class="col-12 col-sm-4">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="state" id="stateReprogramado" required
-                                            value="Reprogramado" {{ $pedido->deliveryStatus === 'Reprogramado' ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="stateReprogramado">
-                                            Reprogramado
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-sm-4">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="state" id="stateEntregado" required
-                                            value="Entregado" {{ $pedido->deliveryStatus === 'Entregado' ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="stateEntregado">
-                                            Entregado
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
+                {{-- Foto del domicilio SIEMPRE PRIMERO --}}
                 <div class="list-group-item py-2">
                     <div class="row">
                         <div class="col-12">
                             <label>Foto del domicilio</label>
                             <div class="custom-file">
-                                <input type="file" class="custom-file-input" accept="image/*" type="file" capture="camera" name="foto_domicilio" id="foto_domicilio">
+                                <input type="file" class="custom-file-input" accept="image/*" capture="camera"
+                                    name="foto_domicilio" id="foto_domicilio" required>
                                 <label class="custom-file-label" for="foto_domicilio">Subir foto de la llegada al domicilio</label>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="list-group-item py-2">
-                    <div class="row">
-                        <div class="col-12">
-                            <label>Foto del pedido entregado</label>
-                            <div class="custom-file">
-                                <input type="file" class="custom-file-input" accept="image/*" type="file" capture="camera" name="foto_entrega" id="foto_entrega">
-                                <label class=" custom-file-label" for="foto_entrega">Subir foto de la recepción del pedido</label>
+
+                {{-- Radios (deshabilitados hasta que haya foto de domicilio) --}}
+                <div class="list-group-item pb-2" id="radios-wrapper" style="display:none;">
+                    <div class="row fs-5">
+                        <div class="col-12 col-sm-4">
+                            <label for="state" class="form-label">Estado del pedido:</label>
+                        </div>
+                        <div class="col-12 col-sm-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="state" id="stateReprogramado"
+                                    value="Reprogramado">
+                                <label class="form-check-label" for="stateReprogramado">
+                                    Reprogramado
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="state" id="stateEntregado"
+                                    value="Entregado">
+                                <label class="form-check-label" for="stateEntregado">
+                                    Entregado
+                                </label>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                {{-- Foto del pedido entregado (se muestra solo si Entregado) --}}
+                <div class="list-group-item py-2" id="foto-entrega-wrapper" style="display:none;">
+                    <div class="row">
+                        <div class="col-12">
+                            <label>Foto del pedido entregado</label>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" accept="image/*" capture="camera"
+                                    name="foto_entrega" id="foto_entrega">
+                                <label class="custom-file-label" for="foto_entrega">Subir foto de la recepción del pedido</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Observaciones --}}
                 <div class="list-group-item py-2">
                     <div class="row">
                         <div class="mb-3">
                             <label for="inputDetail" class="form-label">Observaciones:</label>
-                            <textarea
-                                class="form-control"
-                                style="height:150px"
-                                id="inputDetail"
+                            <textarea class="form-control" style="height:150px" id="inputDetail"
                                 name="detailMotorizado"
                                 placeholder="ingresar observaciones o detalles">{{ $pedido->detailMotorizado }}</textarea>
                         </div>
                     </div>
                 </div>
             </ul>
+
             <div class="pb-2 px-3">
                 <div class="row">
-                    <button id="btn-submit" type="submit" class="btn btn-success w-full"><i class="fas fa-save"></i> Actualizar</button>
+                    <button id="btn-submit" type="submit" class="btn btn-success w-full" disabled>
+                        <i class="fas fa-save"></i> Actualizar
+                    </button>
                 </div>
             </div>
         </form>
@@ -120,29 +126,19 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     let photosData = {};
+    const btnSubmit = $('#btn-submit');
+
     $(document).ready(function() {
         initGeolocation();
 
-        $('input[name="state"]').on('change', function() {
-            if ($('#stateReprogramado').is(':checked')) {
-                $('label[for="foto_entrega"]').text('No se requiere foto de entrega.');
-                $('#foto_entrega').prop('disabled', true).val('')
-            } else {
-                $('#foto_entrega').prop('disabled', false)
-                $('label[for="foto_entrega"]').text('Subir foto de la recepción del pedido.');
-            }
-        })
+        async function getPhotoData(id, input) {
+            let fileName = input.val().split('\\').pop();
 
-        $('#foto_domicilio, #foto_entrega').on('change', async function() {
-            let fileName = $(this).val().split('\\').pop();
             if (fileName) {
-                $(this).next('.custom-file-label').text(fileName);
-                let id = $(this).attr('id');
-                let fieldName = 'datetime_' + id;
+                input.next('.custom-file-label').text(fileName);
 
-                let timestamp = getCurrentTimestamp();
-
-                photosData[fieldName] = timestamp;
+                const timestamp = getCurrentTimestamp();
+                photosData['datetime_' + id] = timestamp;
 
                 try {
                     let location = await getLocation();
@@ -152,12 +148,34 @@
                     toastr.error("Error al obtener la ubicación: " + error.message);
                 }
             } else {
-                $(this).next('.custom-file-label').text('Seleccionar archivo');
+                input.next('.custom-file-label').text('Tomar foto');
             }
-        });
-    })
+        }
 
-    const btnSubmit = $('#btn-submit');
+        $('#foto_domicilio').on('change', async function() {
+            const input = $(this);
+            await getPhotoData(input.attr('id'), input);
+            $('#radios-wrapper').slideDown();
+        });
+
+        $('#foto_entrega').on('change', async function() {
+            const input = $(this);
+            await getPhotoData(input.attr('id'), input);
+        });
+
+        $('input[name="state"]').on('change', function() {
+            if ($('#stateEntregado').is(':checked')) {
+                $('#foto-entrega-wrapper').slideDown();
+                $('#foto_entrega').prop('required', true);
+            } else {
+                $('#foto-entrega-wrapper').slideUp();
+                $('#foto_entrega').prop('required', false).val('Subir foto de la recepción del pedido');
+            }
+            btnSubmit.prop('disabled', false);
+        })
+
+
+    })
 
     $('#updateForm').on('submit', async function(e) {
         e.preventDefault()
