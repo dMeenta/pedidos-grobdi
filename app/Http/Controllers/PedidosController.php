@@ -290,9 +290,9 @@ class PedidosController extends Controller
                         'datetime' => $state->datetime_foto_domicilio->format('d/m/Y H:i'),
                         'location' => $state->getFotoData(Location::TYPE_FOTO_DOMICILIO)
                     ] : null,
-                    'foto_entrega' => $state->foto_domicilio ? [
-                        'url' => asset($state->foto_domicilio),
-                        'datetime' => $state->datetime_foto_domicilio->format('d/m/Y H:i'),
+                    'foto_entrega' => $state->foto_entrega ? [
+                        'url' => asset($state->foto_entrega),
+                        'datetime' => $state->datetime_foto_entrega->format('d/m/Y H:i'),
                         'location' => $state->getFotoData(Location::TYPE_FOTO_ENTREGA)
                     ] : null,
                 ];
