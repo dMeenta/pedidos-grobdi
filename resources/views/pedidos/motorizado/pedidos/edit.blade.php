@@ -58,8 +58,8 @@
                         <div class="col-12">
                             <label>Foto del domicilio</label>
                             <div class="custom-file">
-                                <input type="file" class="custom-file-input" accept="image/*" type="file" capture="camera" name="fotoDomicilio" id="fotoDomicilio">
-                                <label class="custom-file-label" for="fotoDomicilio">Subir foto de la llegada al domicilio</label>
+                                <input type="file" class="custom-file-input" accept="image/*" type="file" capture="camera" name="foto_domicilio" id="foto_domicilio">
+                                <label class="custom-file-label" for="foto_domicilio">Subir foto de la llegada al domicilio</label>
                             </div>
                         </div>
                     </div>
@@ -69,8 +69,8 @@
                         <div class="col-12">
                             <label>Foto del pedido entregado</label>
                             <div class="custom-file">
-                                <input type="file" class="custom-file-input" accept="image/*" type="file" capture="camera" name="fotoEntrega" id="fotoEntrega">
-                                <label class=" custom-file-label" for="fotoEntrega">Subir foto de la recepción del pedido</label>
+                                <input type="file" class="custom-file-input" accept="image/*" type="file" capture="camera" name="foto_entrega" id="foto_entrega">
+                                <label class=" custom-file-label" for="foto_entrega">Subir foto de la recepción del pedido</label>
                             </div>
                         </div>
                     </div>
@@ -119,21 +119,38 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    let photosData = {};
     $(document).ready(function() {
+        initGeolocation();
+
         $('input[name="state"]').on('change', function() {
             if ($('#stateReprogramado').is(':checked')) {
-                $('label[for="fotoEntrega"]').text('No se requiere foto de entrega.');
-                $('#fotoEntrega').prop('disabled', true).val('')
+                $('label[for="foto_entrega"]').text('No se requiere foto de entrega.');
+                $('#foto_entrega').prop('disabled', true).val('')
             } else {
-                $('#fotoEntrega').prop('disabled', false)
-                $('label[for="fotoEntrega"]').text('Subir foto de la recepción del pedido.');
+                $('#foto_entrega').prop('disabled', false)
+                $('label[for="foto_entrega"]').text('Subir foto de la recepción del pedido.');
             }
         })
 
-        $('#fotoDomicilio, #fotoEntrega').on('change', function() {
+        $('#foto_domicilio, #foto_entrega').on('change', async function() {
             let fileName = $(this).val().split('\\').pop();
             if (fileName) {
                 $(this).next('.custom-file-label').text(fileName);
+                let id = $(this).attr('id');
+                let fieldName = 'datetime_' + id;
+
+                let timestamp = getCurrentTimestamp();
+
+                photosData[fieldName] = timestamp;
+
+                try {
+                    let location = await getLocation();
+                    photosData['lat_' + id] = location.latitude;
+                    photosData['lng_' + id] = location.longitude;
+                } catch (error) {
+                    toastr.error("Error al obtener la ubicación: " + error.message);
+                }
             } else {
                 $(this).next('.custom-file-label').text('Seleccionar archivo');
             }
@@ -142,27 +159,58 @@
 
     const btnSubmit = $('#btn-submit');
 
-    $('#updateForm').on('submit', function(e) {
+    $('#updateForm').on('submit', async function(e) {
         e.preventDefault()
         btnSubmit.prop('disabled', true);
 
         let formData = new FormData(this);
 
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function(position) {
-                formData.append('latitude', position.coords.latitude);
-                formData.append('longitude', position.coords.longitude);
-
-                sendForm(formData);
-            }, function(error) {
-                toastr.error('No se pudo obtener la ubicación. Asegurate de habilitar los servicios de ubicación');
-                btnSubmit.prop('disabled', false);
-            });
-        } else {
-            toastr.error('La geolocalización no está disponible en tu navegador');
-            btnSubmit.prop('disabled', false);
+        for (const [key, value] of Object.entries(photosData)) {
+            formData.append(key, value);
         }
+
+        await sendForm(formData);
+
+        btnSubmit.prop('disabled', false);
     });
+
+    async function initGeolocation() {
+        try {
+            let location = await getLocation();
+        } catch (error) {
+            toastr.error("Error al obtener ubicación: " + error.message);
+        }
+    }
+
+    function getLocation() {
+        return new Promise((resolve, reject) => {
+            if (!navigator.geolocation) {
+                reject(new Error("La geolocalización no está disponible en tu navegador"));
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    resolve({
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude
+                    });
+                },
+                (error) => reject(error), {
+                    enableHighAccuracy: true
+                }
+            );
+        });
+    }
+
+    function getCurrentTimestamp() {
+        let now = new Date();
+        return now.getFullYear() + '-' +
+            String(now.getMonth() + 1).padStart(2, '0') + '-' +
+            String(now.getDate()).padStart(2, '0') + ' ' +
+            String(now.getHours()).padStart(2, '0') + ':' +
+            String(now.getMinutes()).padStart(2, '0') + ':' +
+            String(now.getSeconds()).padStart(2, '0');
+    }
 
     function sendForm(formData) {
         $.ajax({
@@ -176,9 +224,11 @@
                     toastr.error(response.message || 'Ocurrió un problema al actualizar el pedido');
                     btnSubmit.prop('disabled', false);
                 }
-
                 toastr.success(response.message || 'Pedido actualizado correctamente');
                 btnSubmit.prop('disabled', false);
+                setTimeout(() => {
+                    window.location.href = "{{ route('pedidosmotorizado.index') }}";
+                }, 1000);
             },
             error: function(xhr) {
                 let res = xhr.responseJSON;

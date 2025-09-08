@@ -5,6 +5,7 @@ namespace App\Http\Controllers\pedidos\Motorizado;
 use App\Events\PedidosNotification;
 use App\Http\Controllers\Controller;
 use App\Models\PedidosDeliveryState;
+use App\Models\Location;
 use App\Models\Pedidos;
 use App\Models\User;
 use Carbon\Carbon;
@@ -25,7 +26,9 @@ class PedidosMotoController extends Controller
 
         $pedidos_zona = Pedidos::whereIn('zone_id', $zones)
             ->whereDate('deliveryDate', $fechaPedidos)
-            ->where('productionStatus', true)
+            ->whereDoesntHave('currentDeliveryState', function ($q) {
+                $q->where('state', 'entregado');
+            })
             ->get();
 
         return view('pedidos.motorizado.pedidos.index', ['pedidos_zona' => $pedidos_zona, 'i' => 0]);
@@ -61,11 +64,11 @@ class PedidosMotoController extends Controller
     {
         $pedido = Pedidos::findOrFail($id);
 
-        if ($request->state == 'Entregado' && (!$request->hasFile('fotoEntrega'))) {
+        if ($request->state == 'Entregado' && (!$request->hasFile('foto_entrega'))) {
             return response()->json(['success' => false, 'message' => 'Para marcar el pedido como ENTREGADO, necesita subir una foto del momento de la entrega'], 400);
         }
 
-        if (!$request->hasFile('fotoDomicilio')) {
+        if (!$request->hasFile('foto_domicilio')) {
             return response()->json(['success' => false, 'message' => 'No se puede cambiar el estado del pedido sin una foto del domicilio.'], 400);
         }
 
@@ -78,6 +81,23 @@ class PedidosMotoController extends Controller
             }
         };
 
+        $fields = [
+            'foto_domicilio' => [
+                'folder' => 'images/fotoDomicilio',
+                'type' => Location::TYPE_FOTO_DOMICILIO,
+                'lat_field' => 'lat_foto_domicilio',
+                'lng_field' => 'lng_foto_domicilio',
+            ],
+            'foto_entrega' => [
+                'folder' => 'images/fotos_entrega',
+                'type' => Location::TYPE_FOTO_ENTREGA,
+                'lat_field' => 'lat_foto_entrega',
+                'lng_field' => 'lng_foto_entrega',
+            ],
+        ];
+
+        $fieldsToProcess = ($request->state == 'Entregado') ? $fields : ['foto_domicilio' => $fields['foto_domicilio']];
+
         $pedidoEstado = new PedidosDeliveryState();
 
         $pedidoEstado->pedido_id = $pedido->id;
@@ -85,50 +105,39 @@ class PedidosMotoController extends Controller
         $pedidoEstado->motorizado_id = Auth::id();
         $pedidoEstado->observacion = $request->detailMotorizado;
 
-        $fields = [
-            'fotoDomicilio' => [
-                'folder' => 'images/fotoDomicilio',
-                'db_field' => 'foto_domicilio',
-            ],
-            'fotoEntrega' => [
-                'folder' => 'images/fotos_entrega',
-                'db_field' => 'foto_entrega',
-            ],
-        ];
+        foreach ($fieldsToProcess as $inputName => $config) {
 
-        foreach ($fields as $inputName => $config) {
-            if ($request->hasFile($inputName)) {
-                $imagen = $request->file($inputName);
+            $imagen = $request->file($inputName);
 
-                $extension = '.' . $imagen->getClientOriginalExtension();
+            $extension = '.' . $imagen->getClientOriginalExtension();
 
-                $imageName = $pedido->orderId . '_' . time() . $extension;
+            $imageName = $pedido->orderId . '_' . time() . $extension;
 
-                $img = Image::read($imagen->getRealPath());
+            $img = Image::read($imagen->getRealPath());
 
-                $img->resize(800, 700, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                });
+            $img->resize(800, 700, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            });
 
-                $path = public_path($config['folder'] . '/' . $imageName);
+            $path = public_path($config['folder'] . '/' . $imageName);
 
-                $img->save($path);
+            $img->save($path);
 
-                $pedidoEstado->{$config['db_field']} = $config['folder'] . '/' . $imageName;
-            }
-        }
+            $pedidoEstado->{$inputName} = $config['folder'] . '/' . $imageName;
 
-        if (!$request->latitude || !$request->longitude) {
-            return response()->json(['success' => false, 'message' => 'Se requiere su ubicación actual para actualizar el estado del pedido.'], 400);
+            $pedidoEstado->{'datetime_' . $inputName} = $request->input('datetime_' . $inputName);
         }
 
         $pedidoEstado->save();
 
-        $pedidoEstado->location()->create([
-            'latitude' => $request->latitude,
-            'longitude' => $request->longitude,
-        ]);
+        foreach ($fieldsToProcess as $inputName => $config) {
+            $pedidoEstado->location()->create([
+                'type' => $config['type'],
+                'latitude' => $request->input($config['lat_field']),
+                'longitude' => $request->input($config['lng_field']),
+            ]);
+        }
 
         return response()->json(['success' => true, 'message' => 'Pedido actualizado exitosamente.'], 200);
     }

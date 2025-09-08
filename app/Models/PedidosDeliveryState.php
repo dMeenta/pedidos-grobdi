@@ -3,10 +3,21 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class PedidosDeliveryState extends Model
 {
+
+    const UPDATED_AT = null;
+
     protected $table = 'pedidos_delivery_state';
+
+    protected $appends = ['created_at_formatted'];
+
+    protected $casts = [
+        'datetime_foto_domicilio' => 'datetime',
+        'datetime_foto_entrega'   => 'datetime',
+    ];
 
     protected $fillable = [
         'pedido_id',
@@ -22,6 +33,22 @@ class PedidosDeliveryState extends Model
 
     public function location()
     {
-        return $this->morphOne(Location::class, 'locationable');
+        return $this->morphMany(Location::class, 'locationable');
+    }
+
+    public function getCreatedAtFormattedAttribute()
+    {
+        return $this->created_at ? Carbon::parse($this->created_at)->format('d/m/Y H:i') : null;
+    }
+
+    public function getFotoData(string $locationType)
+    {
+
+        $location = $this->location()->firstWhere('type', $locationType);
+
+        return [
+            'lat' => $location->latitude,
+            'lng' => $location->longitude
+        ];
     }
 }
