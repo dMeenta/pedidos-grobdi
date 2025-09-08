@@ -26,15 +26,14 @@ class DetailPedidosImport extends BaseImport implements WithStartRow
     /**
      * Define la fila inicial para comenzar el procesamiento
      * 
-     * Este método indica que el procesamiento debe comenzar desde la fila 3
-     * del archivo Excel, omitiendo las primeras dos filas que generalmente
-     * contienen encabezados o información no relevante.
+     * Este método indica que el procesamiento debe comenzar desde la fila 2
+     * del archivo Excel para poder leer las cabeceras en la fila 2.
      * 
-     * @return int El número de fila inicial (3)
+     * @return int El número de fila inicial (2)
      */
     public function startRow(): int
     {
-        return 3; // Comenzar desde la fila 3 (después de la cabecera en fila 2)
+        return 2; // Comenzar desde la fila 2 para incluir cabeceras
     }
     
     /**
@@ -97,9 +96,9 @@ class DetailPedidosImport extends BaseImport implements WithStartRow
             }
         }
 
-        // Try to map by header names in second row (index 1)
-        if (isset($rows[1]) && is_array($rows[1])) {
-            $headers = array_map(fn($v) => is_string($v) ? strtolower(trim($v)) : $v, $rows[1]);
+        // Intentar mapear por nombres de encabezado en la primera fila (índice 0, que es la fila 2 de Excel)
+        if (isset($rows[0]) && is_array($rows[0])) {
+            $headers = array_map(fn($v) => is_string($v) ? strtolower(trim($v)) : $v, $rows[0]);
             $aliases = [
                 'numero' => ['numero', 'número', 'pedido', 'nro', 'nro pedido'],
                 'articulo' => ['articulo', 'artículo', 'producto', 'item'],
@@ -134,8 +133,8 @@ class DetailPedidosImport extends BaseImport implements WithStartRow
      */
     protected function processRow(array $row, int $index, array $colMap): void
     {
-        // Skip first two header rows explicitly
-        if ($index < 2) {
+        // Omitir la fila de encabezado (índice 0 = fila 2 en Excel)
+        if ($index < 1) {
             $this->incrementStat('skipped');
             return;
         }
