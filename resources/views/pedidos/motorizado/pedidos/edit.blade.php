@@ -24,8 +24,6 @@
             @csrf
             @method('PUT')
             <ul class="list-group list-group-flush">
-
-                {{-- Foto del domicilio SIEMPRE PRIMERO --}}
                 <div class="list-group-item py-2">
                     <div class="row">
                         <div class="col-12">
@@ -38,8 +36,6 @@
                         </div>
                     </div>
                 </div>
-
-                {{-- Radios (deshabilitados hasta que haya foto de domicilio) --}}
                 <div class="list-group-item pb-2" id="radios-wrapper" style="display:none;">
                     <div class="row fs-5">
                         <div class="col-12 col-sm-4">
@@ -65,8 +61,6 @@
                         </div>
                     </div>
                 </div>
-
-                {{-- Foto del pedido entregado (se muestra solo si Entregado) --}}
                 <div class="list-group-item py-2" id="foto-entrega-wrapper" style="display:none;">
                     <div class="row">
                         <div class="col-12">
@@ -79,8 +73,6 @@
                         </div>
                     </div>
                 </div>
-
-                {{-- Observaciones --}}
                 <div class="list-group-item py-2">
                     <div class="row">
                         <div class="mb-3">
@@ -91,8 +83,21 @@
                         </div>
                     </div>
                 </div>
+                <div class="list-group-item py-2" id="receptor-wrapper" style="display:none;">
+                    <div class="row">
+                        <div class="col-12">
+                            <label class="form-label">Datos del receptor del pedido</label>
+                            <div class="form-group mt-2">
+                                <label for="receptor_nombre">Nombre completo del receptor del pedido:</label>
+                                <input type="text" class="form-control mb-2" id="receptor_nombre" name="receptor_nombre" placeholder="Ingrese el nombre completo del receptor">
+                            </div>
+                            <button id="btn-limpiar" class="btn btn-warning mb-2 w-100">
+                                <i class="fas fa-eraser mr-1"></i>Borrar firma</button>
+                            <canvas id="firmaReceptorCanvas" style="width: 100%; height: 300px; border: 2px solid #ced4da; border-radius: 8px;"></canvas>
+                        </div>
+                    </div>
+                </div>
             </ul>
-
             <div class="pb-2 px-3">
                 <div class="row">
                     <button id="btn-submit" type="submit" class="btn btn-success w-full" disabled>
@@ -109,6 +114,7 @@
 @section('css')
 {{-- Add here extra stylesheets --}}
 {{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
+
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://getbootstrap.com/docs/5.3/assets/css/docs.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
@@ -117,6 +123,11 @@
         display: block;
         margin: 20px auto;
         max-width: 90%;
+    }
+
+    #firmaReceptorCanvas {
+        border: 1px solid black;
+        touch-action: none;
     }
 </style>
 @stop
@@ -130,6 +141,12 @@
 
     $(document).ready(function() {
         initGeolocation();
+
+        function checkEnableSubmit() {
+            const fotoDomicilioLoaded = $('#foto_domicilio').val() !== '';
+            const stateSelected = $('input[name="state"]:checked').length > 0;
+            btnSubmit.prop('disabled', !(fotoDomicilioLoaded && stateSelected));
+        }
 
         async function getPhotoData(id, input) {
             let fileName = input.val().split('\\').pop();
@@ -153,28 +170,35 @@
         }
 
         $('#foto_domicilio').on('change', async function() {
-            const input = $(this);
-            await getPhotoData(input.attr('id'), input);
+            await getPhotoData($(this).attr('id'), $(this));
             $('#radios-wrapper').slideDown();
+            checkEnableSubmit();
         });
 
         $('#foto_entrega').on('change', async function() {
-            const input = $(this);
-            await getPhotoData(input.attr('id'), input);
+            await getPhotoData($(this).attr('id'), $(this));
         });
+
+        function checkEnableSubmit() {
+            const fotoDomicilioLoaded = $('#foto_domicilio').val() !== '';
+            const stateSelected = $('input[name="state"]:checked').length > 0;
+            btnSubmit.prop('disabled', !(fotoDomicilioLoaded && stateSelected));
+        }
 
         $('input[name="state"]').on('change', function() {
             if ($('#stateEntregado').is(':checked')) {
                 $('#foto-entrega-wrapper').slideDown();
+                $('#receptor-wrapper').slideDown();
                 $('#foto_entrega').prop('required', true);
+                $('#receptor_nombre').prop('required', true);
             } else {
                 $('#foto-entrega-wrapper').slideUp();
-                $('#foto_entrega').prop('required', false).val('Subir foto de la recepción del pedido');
+                $('#receptor-wrapper').slideUp();
+                $('#foto_entrega').prop('required', false).val('');
+                $('#receptor_nombre').prop('required', false).val('');
             }
-            btnSubmit.prop('disabled', false);
-        })
-
-
+            checkEnableSubmit();
+        });
     })
 
     $('#updateForm').on('submit', async function(e) {
@@ -182,6 +206,11 @@
         btnSubmit.prop('disabled', true);
 
         let formData = new FormData(this);
+
+        if (canvas) {
+            const imagenBase64 = canvas.toDataURL('image/png');
+            formData.append('receptor_firma', imagenBase64);
+        }
 
         for (const [key, value] of Object.entries(photosData)) {
             formData.append(key, value);
@@ -256,5 +285,80 @@
             }
         })
     };
+
+    let canvas = document.getElementById('firmaReceptorCanvas');
+    let ctx = canvas.getContext('2d');
+    let isDrawing = false;
+    let detalleId = null;
+    let token = $('meta[name="csrf-token"]').attr('content');
+
+    function getPosition(e) {
+        const rect = canvas.getBoundingClientRect();
+        let clientX, clientY;
+
+        if (e.touches && e.touches.length > 0) {
+            clientX = e.touches[0].clientX;
+            clientY = e.touches[0].clientY;
+        } else {
+            clientX = e.clientX;
+            clientY = e.clientY;
+        }
+
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+
+        return {
+            x: (clientX - rect.left) * scaleX,
+            y: (clientY - rect.top) * scaleY
+        };
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+        isDrawing = true;
+        const pos = getPosition(e);
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
+    });
+    canvas.addEventListener('mouseup', () => {
+        isDrawing = false;
+        ctx.closePath();
+    });
+    canvas.addEventListener('mousemove', (e) => {
+        if (!isDrawing) return;
+        const pos = getPosition(e);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = 'black';
+        ctx.stroke();
+    });
+
+    canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        isDrawing = true;
+        const pos = getPosition(e);
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
+    });
+    canvas.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        isDrawing = false;
+        ctx.closePath();
+    });
+    canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        if (!isDrawing) return;
+        const pos = getPosition(e);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = 'black';
+        ctx.stroke();
+    });
+
+    $('#btn-limpiar').click((e) => {
+        e.preventDefault();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    });
 </script>
 @stop

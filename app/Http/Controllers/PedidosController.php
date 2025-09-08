@@ -295,6 +295,10 @@ class PedidosController extends Controller
                         'datetime' => $state->datetime_foto_entrega->format('d/m/Y H:i'),
                         'location' => $state->getFotoData(Location::TYPE_FOTO_ENTREGA)
                     ] : null,
+                    'receptor_info' => $state->receptor_firma && $state->receptor_nombre ? [
+                        'nombre' => $state->receptor_nombre,
+                        'firma' => asset($state->receptor_firma),
+                    ] : null
                 ];
             });
 

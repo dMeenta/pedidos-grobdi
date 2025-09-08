@@ -62,21 +62,25 @@ class PedidosMotoController extends Controller
     {
         $pedido = Pedidos::findOrFail($id);
 
-        if ($request->state == 'Entregado' && (!$request->hasFile('foto_entrega'))) {
-            return response()->json(['success' => false, 'message' => 'Para marcar el pedido como ENTREGADO, necesita subir una foto del momento de la entrega'], 400);
+        $isEntregadoState = $request->state == 'Entregado';
+
+        $rules = [
+            'foto_domicilio' => 'required|image'
+        ];
+
+        if ($isEntregadoState) {
+            $rules['foto_entrega'] = 'required|image';
+            $rules['receptor_nombre'] = 'required|string';
+            $rules['receptor_firma'] = 'required|string';
         }
 
-        if (!$request->hasFile('foto_domicilio')) {
-            return response()->json(['success' => false, 'message' => 'No se puede cambiar el estado del pedido sin una foto del domicilio.'], 400);
-        }
+        $request->validate($rules);
 
-        if ($pedido->currentDeliveryState) {
-            if (trim(strtolower($pedido->currentDeliveryState->state)) === 'entregado') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No se puede actualizar el estado del pedido porque ya fue marcado como ENTREGADO'
-                ], 400);
-            }
+        if ($pedido->currentDeliveryState && trim(strtolower($pedido->currentDeliveryState->state)) === 'entregado') {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se puede actualizar el estado del pedido porque ya fue marcado como ENTREGADO'
+            ], 400);
         };
 
         $fields = [
@@ -94,7 +98,7 @@ class PedidosMotoController extends Controller
             ],
         ];
 
-        $fieldsToProcess = ($request->state == 'Entregado') ? $fields : ['foto_domicilio' => $fields['foto_domicilio']];
+        $fieldsToProcess = $isEntregadoState ? $fields : ['foto_domicilio' => $fields['foto_domicilio']];
 
         $pedidoEstado = new PedidosDeliveryState();
 
@@ -104,37 +108,60 @@ class PedidosMotoController extends Controller
         $pedidoEstado->observacion = $request->detailMotorizado;
 
         foreach ($fieldsToProcess as $inputName => $config) {
-
             $imagen = $request->file($inputName);
-
             $extension = '.' . $imagen->getClientOriginalExtension();
-
-            $imageName = $pedido->orderId . '_' . time() . $extension;
+            $imgName = $pedido->orderId . '_' . time() . $extension;
 
             $img = Image::read($imagen->getRealPath());
-
             $img->resize(800, 700, function ($constraint) {
                 $constraint->aspectRatio();
                 $constraint->upsize();
             });
 
-            $path = public_path($config['folder'] . '/' . $imageName);
-
+            $path = public_path($config['folder'] . '/' . $imgName);
             $img->save($path);
 
-            $pedidoEstado->{$inputName} = $config['folder'] . '/' . $imageName;
-
+            $pedidoEstado->{$inputName} = $config['folder'] . '/' . $imgName;
             $pedidoEstado->{'datetime_' . $inputName} = $request->input('datetime_' . $inputName);
         }
+
+        if ($isEntregadoState) {
+            $pedidoEstado->receptor_nombre = $request->input('receptor_nombre');
+
+            $firmaData = $request->input('receptor_firma');
+            if ($firmaData) {
+                $firma = str_replace('data:image/png;base64,', '', $firmaData);
+                $firma = str_replace(' ', '+', $firma);
+                $firmaName = 'firma_receptor_' . $pedido->orderId . '_' . time() . '.png';
+                $firmaFolder = 'images/firma_receptor';
+
+                // Crear la carpeta si no existe
+                if (!file_exists(public_path($firmaFolder))) {
+                    mkdir(public_path($firmaFolder), 0755, true);
+                }
+
+                $firmaPath = $firmaFolder . '/' . $firmaName;
+
+                file_put_contents(public_path($firmaPath), base64_decode($firma));
+
+                $pedidoEstado->receptor_firma = $firmaPath;
+            }
+        }
+
 
         $pedidoEstado->save();
 
         foreach ($fieldsToProcess as $inputName => $config) {
-            $pedidoEstado->location()->create([
-                'type' => $config['type'],
-                'latitude' => $request->input($config['lat_field']),
-                'longitude' => $request->input($config['lng_field']),
-            ]);
+            $lat = $request->input($config['lat_field']);
+            $lng = $request->input($config['lng_field']);
+
+            if ($lat && $lng) {
+                $pedidoEstado->location()->create([
+                    'type' => $config['type'],
+                    'latitude' => $lat,
+                    'longitude' => $lng,
+                ]);
+            }
         }
 
         return response()->json(['success' => true, 'message' => 'Pedido actualizado exitosamente.'], 200);
