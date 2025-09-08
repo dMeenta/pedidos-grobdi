@@ -15,6 +15,7 @@ use App\Models\Pedidos;
 use App\Models\Zone;
 use App\Models\Distritos_zonas;
 use App\Models\User;
+use App\Services\PedidoImportService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -25,144 +26,76 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class CargarPedidosController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    protected $pedidoImportService;
+
+    public function __construct(PedidoImportService $pedidoImportService)
+    {
+        $this->pedidoImportService = $pedidoImportService;
+    }
+
     public function index(Request $request)
     {
         if($request->query("fecha")){
-            $request->validate([
-                'fecha' => 'required|date'
-            ]);
+            $request->validate(['fecha' => 'required|date']);
             $dia = Carbon::parse($request->fecha)->startOfDay();
         }else{
             $dia = now()->format('Y-m-d');
         }
-        if($request->filtro){
-            $filtro = $request->filtro;
-        }else{
-            $filtro = "deliveryDate";
-        }
+        $filtro = $request->filtro ?: "deliveryDate";
         $pedidos = Pedidos::whereDate($filtro, $dia)->get();
         return view('pedidos.counter.cargar_pedido.index', compact('pedidos'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create(){
         return view('pedidos.counter.cargar_pedido.create');
     }
 
     public function store(Request $request)
     {
-        // Validate the uploaded file
-        $request->validate([
-            'archivo' => 'required|mimes:xlsx,xls',
-        ]);
-
-        try {
-            // Get the uploaded file
-            $file = $request->file('archivo');
-
-            // Store file temporarily for preview using Storage facade
-            $fileName = 'temp_pedidos_' . time() . '.' . $file->getClientOriginalExtension();
-            $storedPath = Storage::putFileAs('temp', $file, $fileName);
-            
-            if ($storedPath) {
-                // Verify file was stored correctly
-                if (Storage::exists('temp/' . $fileName)) {
-                    // Redirect to preview
-                    return redirect()->route('cargarpedidos.preview', ['filename' => $fileName]);
-                } else {
-                    return redirect()->back()->with('danger', 'Error: El archivo no se guardó correctamente.');
-                }
-            } else {
-                return redirect()->back()->with('danger', 'Error al subir el archivo. Inténtalo nuevamente.');
-            }
-        } catch (\Exception $e) {
-            return redirect()->back()->with('danger', 'Error al procesar el archivo: ' . $e->getMessage());
-        }
+        return $this->pedidoImportService->storeFile($request);
     }
 
     public function preview(Request $request)
     {
         $fileName = $request->get('filename');
-        
-        if (!$fileName || !Storage::exists('temp/' . $fileName)) {
-            return redirect()->route('cargarpedidos.create')
-                ->with('danger', 'Archivo no encontrado. Por favor, sube el archivo nuevamente.');
-        }
-
-        try {
-            // Get full path to the file
-            $filePath = Storage::path('temp/' . $fileName);
-            
-            // Read Excel file using a simple array import for compatibility (.xlsx/.xls)
-            $data = Excel::toArray(new SimpleArrayImport, $filePath)[0] ?? [];
-            
-            // Analyze changes
-            $changes = $this->analyzeChanges($data);
-
-            return view('pedidos.counter.cargar_pedido.preview', compact('changes', 'fileName'));
-        } catch (\Exception $e) {
-            // Delete temporary file if there's an error
-            if (Storage::exists('temp/' . $fileName)) {
-                Storage::delete('temp/' . $fileName);
-            }
-            
-            return redirect()->route('cargarpedidos.create')
-                ->with('danger', 'Error al procesar el archivo: ' . $e->getMessage());
-        }
+        return $this->pedidoImportService->previewFile($fileName);
     }
 
     public function confirmChanges(Request $request)
     {
         $fileName = $request->get('filename');
-        
-        if (!$fileName || !Storage::exists('temp/' . $fileName)) {
-            return redirect()->route('cargarpedidos.create')
-                ->with('danger', 'Archivo no encontrado. Por favor, sube el archivo nuevamente.');
-        }
-
-        try {
-            // Get full path to the file
-            $filePath = Storage::path('temp/' . $fileName);
-
-            // Process the Excel file with the preview import (that handles updates)
-            $pedidoImport = new PedidosPreviewImport;
-            Excel::import($pedidoImport, $filePath);
-
-            // Delete temporary file
-            Storage::delete('temp/' . $fileName);
-
-            return redirect()->route('cargarpedidos.index')
-                ->with($pedidoImport->key, $pedidoImport->data);
-        } catch (\Exception $e) {
-            // Delete temporary file if there's an error
-            if (Storage::exists('temp/' . $fileName)) {
-                Storage::delete('temp/' . $fileName);
-            }
-            
-            return redirect()->route('cargarpedidos.create')
-                ->with('danger', 'Error al procesar el archivo: ' . $e->getMessage());
-        }
+        return $this->pedidoImportService->confirmChanges($fileName);
     }
 
     public function cancelChanges(Request $request)
     {
         $fileName = $request->get('filename');
-        
-        if ($fileName && Storage::exists('temp/' . $fileName)) {
-            Storage::delete('temp/' . $fileName);
-        }
-
-        // Clean up old temporary files (older than 1 hour)
-        $this->cleanupTempFiles();
-
-        return redirect()->route('cargarpedidos.create')
-            ->with('warning', 'Importación cancelada');
+        return $this->pedidoImportService->cancelChanges($fileName);
     }
+
+    // Other methods can be moved to service similarly...
+    // For brevity, keeping some here, but ideally move all logic to service.
+
+    public function show($pedido){
+        $pedido = Pedidos::find($pedido);
+        return view('pedidos.counter.cargar_pedido.show', compact('pedido'));
+    }
+
+    public function edit($pedido){
+        $pedido = Pedidos::find($pedido);
+        $zonas = Zone::all();
+        $doctores = Doctor::where('state', 1)->orderBy('name')->get();
+        return view('pedidos.counter.cargar_pedido.edit', compact('pedido','zonas','doctores'));
+    }
+
+    public function update(CargarPedidosUpdateRequest $request, $id)
+    {
+        $fecha = $this->pedidoImportService->updatePedido($request, $id);
+        return redirect()->route('cargarpedidos.index',$fecha)
+                        ->with('success','Pedido modificado exitosamente');
+    }
+
+    // Other methods...
 
     private function cleanupTempFiles()
     {
@@ -781,30 +714,6 @@ class CargarPedidosController extends Controller
         return response()->json($doctores);
     }
 
-    public function show($pedido){
-        $pedido = Pedidos::find($pedido);
-        return view('pedidos.counter.cargar_pedido.show', compact('pedido'));
-    }
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit($pedido){
-        $pedido = Pedidos::find($pedido);
-        $zonas = Zone::all();
-        $doctores = Doctor::where('state', 1)->orderBy('name')->get();
-        
-        // Debug temporal - puedes quitar esto después
-        logger('Pedido data for edit:', [
-            'id' => $pedido->id,
-            'deliveryDate' => $pedido->deliveryDate,
-            'deliveryDate_raw' => $pedido->getRawOriginal('deliveryDate'),
-            'doctorName' => $pedido->doctorName,
-            'id_doctor' => $pedido->id_doctor,
-        ]);
-        
-        return view('pedidos.counter.cargar_pedido.edit',compact('pedido','zonas','doctores'));
-    }
-
     public function DownloadWord(Request $request){
         $fecha = $request->fecha;
         $fecha_format = Carbon::parse($fecha)->format('d-m-Y');
@@ -871,49 +780,9 @@ class CargarPedidosController extends Controller
         }
         return response()->download(public_path('docs\pedidos-'.$fecha.'.docx'));
     }
-    public function update(CargarPedidosUpdateRequest $request, $id)
-    {
-        $pedidos = Pedidos::find($id);
-        //para enviar el parametro de la fecha en la url
-        $fecha = $pedidos->deliveryDate;
-        // Access validated payload
-        $address = $request->address ?? ($request['address'] ?? null);
-        $district = $request->district ?? ($request['district'] ?? null);
-        $deliveryDateNew = $request->deliveryDate ?? ($request['deliveryDate'] ?? null);
-        $zoneId = $request->zone_id ?? ($request['zone_id'] ?? null);
-        $customerNumber = $request->customerNumber ?? ($request['customerNumber'] ?? null);
-        $idDoctor = $request->id_doctor ?? ($request['id_doctor'] ?? null);
-        $doctorName = $request->doctorName ?? ($request['doctorName'] ?? null);
-
-        $pedidos->address = $address;
-        $pedidos->district = $district;
-        $pedidos->customerNumber = $customerNumber;
-        $pedidos->id_doctor = $idDoctor;
-        $pedidos->doctorName = $doctorName;
-        
-        if($pedidos->deliveryDate !== $deliveryDateNew){
-            $pedidos->deliveryDate = $deliveryDateNew;
-            $contador_registro = Pedidos::where('deliveryDate',$deliveryDateNew)->orderBy('nroOrder','desc')->first();
-            $ultimo_nro = 0;
-            if($contador_registro){
-                $ultimo_nro = $contador_registro->nroOrder;
-            }
-            $nroOrder = $ultimo_nro +1;
-            $pedidos->nroOrder = $nroOrder;
-            $pedidos->deliveryStatus = "Reprogramado";
-            $pedidos->turno = 0;
-        }
-        $pedidos->zone_id = $zoneId;
-        $pedidos->user_id = Auth::user()->id;
-        $pedidos->save();
-        return redirect()->route('cargarpedidos.index',$fecha)
-                        ->with('success','Pedido modificado exitosamente');
-    }
     public function actualizarTurno(Request $request, $id)
     {
-        $pedidos = Pedidos::find($id);
-        $pedidos->update(attributes: request()->all());
-          
+        $this->pedidoImportService->actualizarTurno($request, $id);
         return back()->with('success','Turno modificado exitosamente');
     }
     public function uploadfile(Pedidos $pedido){
@@ -927,15 +796,7 @@ class CargarPedidosController extends Controller
         return view('pedidos.counter.cargar_pedido.uploadfile', compact('pedido','array_voucher','recetas'));
     }
     public function actualizarPago(Request $request, $id){
-        
-        $request->validate([
-            'paymentStatus' => 'required',
-            'paymentMethod' => 'required',
-        ]);
-        $pedidos = Pedidos::find($id);
-        $pedidos->paymentStatus = $request->paymentStatus;
-        $pedidos->paymentMethod = $request->paymentMethod;
-        $pedidos->save();
+        $this->pedidoImportService->actualizarPago($request, $id);
         return back()->with('success','Pedido modificado exitosamente');
     }
     public function cargarImagen(Request $request, $id){
