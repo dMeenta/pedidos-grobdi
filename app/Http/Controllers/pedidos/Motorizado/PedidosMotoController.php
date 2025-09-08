@@ -9,6 +9,7 @@ use App\Models\Pedidos;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Log\Logger;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Laravel\Facades\Image;
 use Intervention\Image\Typography\FontFactory;
@@ -59,7 +60,7 @@ class PedidosMotoController extends Controller
 
     public function updatePedidoByMotorizado(Request $request, $id)
     {
-        $pedido = Pedidos::findOrFail($id);
+        $pedido = Pedidos::findOrFail(id: $id);
 
         if ($request->state == 'Entregado' && (!$request->hasFile('fotoEntrega'))) {
             return response()->json(['success' => false, 'message' => 'Para marcar el pedido como ENTREGADO, necesita subir una foto del momento de la entrega'], 400);
@@ -77,7 +78,8 @@ class PedidosMotoController extends Controller
                 ], 400);
             }
         };
-
+        Logger($pedido);
+        Logger($request->all());
         $pedidoEstado = new PedidosDeliveryState();
 
         $pedidoEstado->pedido_id = $pedido->id;
