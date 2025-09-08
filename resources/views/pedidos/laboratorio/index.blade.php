@@ -120,9 +120,13 @@
                             <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#estadoModal{{ $pedido->id }}">
                                 <i class="fa fa-edit"></i> Actualizar
                             </button>
-                        @else
+                        @elseif ($pedido->productionStatus === 2)
                             <button type="button" class="btn btn-outline-secondary btn-sm" data-toggle="modal" data-target="#estadoModal{{ $pedido->id }}">
                                 <i class="fa fa-eye"></i> Ver/Editar
+                            </button>
+                        @else
+                            <button type="button" class="btn btn-outline-secondary btn-sm" disabled>
+                                <i class="fa fa-eye"></i> Ver
                             </button>
                         @endif
                         </td>
@@ -165,7 +169,7 @@
                                             <div class="modal-body">
                                                 <div class="form-group">
                                                     <label for="productionStatus{{ $pedido->id }}">Estado:</label>
-                                                    <select class="form-control" name="productionStatus" id="productionStatus{{ $pedido->id }}" required>
+                                                    <select class="form-control" name="productionStatus" id="productionStatus{{ $pedido->id }}" required {{ $pedido->productionStatus === 1 ? 'disabled' : '' }}>
                                                         <option value="0" {{ $pedido->productionStatus === 0 ? 'selected' : '' }}>Pendiente</option>
                                                         <option value="1" {{ $pedido->productionStatus === 1 ? 'selected' : '' }}>Preparado</option>
                                                         <option value="2" {{ $pedido->productionStatus === 2 ? 'selected' : '' }}>Reprogramado</option>
@@ -175,13 +179,13 @@
                                                 <div class="form-group fecha-reprogramacion-group{{ $pedido->id }}" style="display: {{ $pedido->productionStatus === 2 ? 'block' : 'none' }};">
                                                     <label for="fecha_reprogramacion{{ $pedido->id }}">Fecha de Reprogramación:</label>
                                                     <input type="date" class="form-control" name="fecha_reprogramacion" id="fecha_reprogramacion{{ $pedido->id }}" 
-                                                           value="{{ $pedido->fecha_reprogramacion }}" min="{{ date('Y-m-d', strtotime('+1 day')) }}">
+                                                           value="{{ $pedido->fecha_reprogramacion }}" min="{{ date('Y-m-d', strtotime('+1 day')) }}" {{ $pedido->productionStatus === 1 ? 'disabled' : '' }}>
                                                 </div>
                                                 
                                                 <div class="form-group">
                                                     <label for="observacion_laboratorio{{ $pedido->id }}">Observación:</label>
                                                     <textarea class="form-control" name="observacion_laboratorio" id="observacion_laboratorio{{ $pedido->id }}" 
-                                                              rows="3" maxlength="500" placeholder="Escriba una observación (opcional)">{{ $pedido->observacion_laboratorio }}</textarea>
+                                                              rows="3" maxlength="500" placeholder="Escriba una observación (opcional)" {{ $pedido->productionStatus === 1 ? 'disabled' : '' }}>{{ $pedido->observacion_laboratorio }}</textarea>
                                                     <small class="form-text text-muted">Máximo 500 caracteres</small>
                                                 </div>
                                                 
@@ -193,7 +197,9 @@
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                                @if($pedido->productionStatus !== 1)
+                                                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                                @endif
                                             </div>
                                         </form>
                                     </div>
