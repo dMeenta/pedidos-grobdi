@@ -236,8 +236,6 @@ return 'white';
                         map.setCenter(userPosition);
                     },
                     (error) => {
-                        console.warn("No se pudo obtener ubicación, usando defaultCoords", error);
-
                         new google.maps.Marker({
                             position: userPosition,
                             map,
@@ -256,8 +254,6 @@ return 'white';
                     }
                 );
             } else {
-                console.warn("Geolocalización no soportada, usando defaultCoords");
-
                 new google.maps.Marker({
                     position: userPosition,
                     map,
@@ -300,7 +296,6 @@ return 'white';
                     bounds.extend(position);
 
                     marker.addListener("click", () => {
-                        console.log(group);
                         panelContent.html(`
                             <div class="d-flex flex-column justify-content-between" style="height: 100%;">
                                 <div class="border-bottom border-dark text-center pb-2">
@@ -318,7 +313,7 @@ return 'white';
                                         <tbody>
                                         ${group.visitas.map(visita => `
                                             <tr data-id="${visita.id}">
-                                                <th>${visita.doctor_name} ${visita.doctor_first_lastname ?? ''} ${visita.doctor_second_lastname ?? ''}</th>
+                                                <td>${visita.doctor_name} ${visita.doctor_first_lastname ?? ''} ${visita.doctor_second_lastname ?? ''}</td>
                                                 <td style="align-content: center;">
                                                     <div class="d-flex justify-content-center" style="width:100%; height=full">
                                                         <div class="rounded-circle" style="width:1rem; height:1rem; background-color: ${visita.estado_color}"></div>
@@ -405,7 +400,6 @@ return 'white';
                 type: 'GET',
                 success: function(response) {
                     if (!response.success) {
-                        console.error(response);
                         toastr.error(response.message || 'Hubo un error al cargar los dastos de la visita');
                     }
 
