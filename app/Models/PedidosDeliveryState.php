@@ -43,8 +43,11 @@ class PedidosDeliveryState extends Model
 
     public function getFotoData(string $locationType)
     {
-
         $location = $this->location()->firstWhere('type', $locationType);
+
+        if (!$location) {
+            return null;
+        }
 
         return [
             'lat' => $location->latitude,

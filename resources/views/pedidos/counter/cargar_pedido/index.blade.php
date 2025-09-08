@@ -282,18 +282,18 @@
                                     <td class="text-center">${estado.foto_domicilio ? `
                                         <button class="btn btn-info btn-sm btn-show-details" 
                                             data-img="${estado.foto_domicilio.url}"
-                                            data-datetime="${estado.foto_domicilio.datetime || ''}"
-                                            data-lat="${estado.foto_domicilio.location.lat || ''}"
-                                            data-lng="${estado.foto_domicilio.location.lng || ''}">
+                                            data-datetime="${estado.foto_domicilio.datetime}"
+                                            data-lat="${estado.foto_domicilio.location.lat}"
+                                            data-lng="${estado.foto_domicilio.location.lng}">
                                             Ver Más
                                         </button>` : '—'}
                                     </td>
                                     <td class="text-center">${estado.foto_entrega ? `
                                         <button class="btn btn-info btn-sm btn-show-details" 
                                             data-img="${estado.foto_entrega.url}"
-                                            data-datetime="${estado.foto_entrega.datetime || ''}"
-                                            data-lat="${estado.foto_entrega.location.lat || ''}"
-                                            data-lng="${estado.foto_entrega.location.lng || ''}">
+                                            data-datetime="${estado.foto_entrega.datetime}"
+                                            data-lat="${estado.foto_entrega.location.lat}"
+                                            data-lng="${estado.foto_entrega.location.lng}">
                                             Ver Más
                                         </button>` : '—'}
                                     </td>
