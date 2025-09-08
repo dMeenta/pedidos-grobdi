@@ -57,11 +57,11 @@ class DetailPedidosImport extends BaseImport implements WithStartRow
     }
 
     /**
-     * Detect columns dynamically (supports new A..E and old D/Q/R/S/T formats)
+     * Detecta columnas dinámicamente (soporta formatos nuevo A..E y antiguo D/Q/R/S/T)
      */
     protected function detectColumns(array $rows): array
     {
-        // Default to NEW compact format (A..E => 0..4)
+        // Por defecto, usar el formato NUEVO compacto (A..E => 0..4)
         $colMap = [
             'numero' => 0,
             'articulo' => 1,
@@ -145,38 +145,38 @@ class DetailPedidosImport extends BaseImport implements WithStartRow
             return;
         }
         
-    $pedidoId = trim((string)($row[$colMap['numero']] ?? ''));
-    $articulo = trim((string)($row[$colMap['articulo']] ?? ''));
-    $cantidad = (float)($row[$colMap['cantidad']] ?? 0);
+        $pedidoId = trim((string)($row[$colMap['numero']] ?? ''));
+        $articulo = trim((string)($row[$colMap['articulo']] ?? ''));
+        $cantidad = (float)($row[$colMap['cantidad']] ?? 0);
         $precioUnitario = isset($colMap['precio_unitario']) ? round((float)($row[$colMap['precio_unitario']] ?? 0), 2) : 0.0;
         $subtotal = isset($colMap['subtotal']) ? round((float)($row[$colMap['subtotal']] ?? 0), 2) : 0.0;
         if ($subtotal === 0.0 && $cantidad > 0 && $precioUnitario > 0) {
             $subtotal = round($cantidad * $precioUnitario, 2);
         }
         
-        // Skip if essential data is missing
+        // Omitir si faltan datos esenciales
         if (empty($pedidoId) || empty($articulo)) {
             $this->incrementStat('errors');
             return;
         }
         
         try {
-            // Find the pedido
+            // Buscar el pedido
             $pedido = $this->detailService->findPedido($pedidoId);
             if (!$pedido) {
                 $this->incrementStat('errors');
                 return;
             }
             
-            // Skip if pedido is already prepared (productionStatus = 2)
+            // Omitir si el pedido ya está preparado (productionStatus = 2)
             if ($pedido->productionStatus == 2) {
                 $this->incrementStat('skipped');
                 return;
             }
             
-            // Check if detail already exists using pedidos_id (not pedido_id)
-            // Rule: only skip if there's already a detail with SAME articulo + cantidad + precio.
-            // If any of these differ, create a NEW detail (do NOT update existing).
+            // Verificar si el detalle ya existe usando pedidos_id (no pedido_id)
+            // Regla: solo omitir si ya existe un detalle con el MISMO artículo + cantidad + precio.
+            // Si alguno de estos difiere, crear un NUEVO detalle (NO actualizar el existente).
             $newUnit = round((float)$precioUnitario, 2);
             $newSub = round((float)$subtotal, 2);
 
@@ -187,14 +187,14 @@ class DetailPedidosImport extends BaseImport implements WithStartRow
                 ->exists();
 
             if ($exactExists) {
-                // Exact same line already exists -> skip
+                // La misma línea exacta ya existe -> omitir
                 $this->incrementStat('skipped');
                 return;
             }
 
-            // Create new detail (different cantidad or precio or doesn't exist)
+            // Crear nuevo detalle (difiere cantidad o precio o no existe)
             $detailData = [
-                'pedidos_id' => $pedido->id,  // Note: using pedidos_id as per existing schema
+                'pedidos_id' => $pedido->id,  // Nota: usando pedidos_id según el esquema existente
                 'articulo' => $articulo,
                 'cantidad' => $cantidad,
                 'unit_prize' => $newUnit,
@@ -207,7 +207,7 @@ class DetailPedidosImport extends BaseImport implements WithStartRow
             
         } catch (\Exception $e) {
             $this->incrementStat('errors');
-            // Error logged automatically by framework
+            // El error se registra automáticamente por el framework
         }
     }
 }

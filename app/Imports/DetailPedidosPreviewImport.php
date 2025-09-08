@@ -96,7 +96,7 @@ class DetailPedidosPreviewImport implements ToCollection
      */
     private function detectColumns(array $rows)
     {
-        // Default to the new compact format (A..E => 0..4)
+        // Por defecto, usar el formato compacto nuevo (A..E => 0..4)
         $colMap = [
             'numero' => 0,
             'articulo' => 1,
@@ -109,14 +109,15 @@ class DetailPedidosPreviewImport implements ToCollection
             return $colMap;
         }
 
-        // Heuristics: scan the first ~10 rows to detect the old sheet where col[2] == 'PEDIDO'
-        // and the real data lives in D/Q/R/S/T => 3/16/17/18/19
+            // Heurística: escanea las primeras ~10 filas para detectar el formato antiguo donde col[2] == 'PEDIDO'
+            // y los datos reales están en D/Q/R/S/T => 3/16/17/18/19
         $maxProbe = min(10, count($rows));
         for ($i = 0; $i < $maxProbe; $i++) {
             $row = $rows[$i];
             if (!is_array($row)) { $row = $row->toArray(); }
 
-            // Skip completely empty rows
+            // Omitir filas completamente vacías
+
             if (empty(array_filter($row, fn($v) => $v !== null && trim((string)$v) !== ''))) {
                 continue;
             }
@@ -146,25 +147,26 @@ class DetailPedidosPreviewImport implements ToCollection
         $has_duplicates = false;
 
         foreach ($rows as $rowIndex => $row) {
-            // Skip the first two rows as headers if present
+            // Omitir las dos primeras filas como encabezados si están presentes
+
             if ($rowIndex < 2) { continue; }
             if (!is_array($row)) { 
                 $row = $row->toArray(); 
             }
 
-            // Skip empty lines and headers
+            // Omitir líneas vacías y encabezados
             if ($this->shouldSkipRow($row, $colMap)) {
                 continue;
             }
 
-            // Read using detected column map only
+            // Leer usando el mapeo de columnas detectado solamente
             $pedidoIdRaw = isset($row[$colMap['numero']]) ? trim((string)$row[$colMap['numero']]) : '';
             $articulo = isset($row[$colMap['articulo']]) ? trim((string)$row[$colMap['articulo']]) : '';
             $cantidad = isset($row[$colMap['cantidad']]) ? (float)$row[$colMap['cantidad']] : 0;
-            // Use 2-decimal precision to match import logic
+            // Usar precisión de 2 decimales para coincidir con la lógica de importación
             $precio = isset($row[$colMap['precio']]) ? round((float)$row[$colMap['precio']], 2) : 0;
             
-            // Debug logging for specific problematic rows
+            // Registro de depuración para filas problemáticas específicas
             if ($rowIndex >= 9 && $rowIndex <= 11) {
                 Log::info('Debugging specific row data', [
                     'row_index' => $rowIndex,
@@ -179,12 +181,13 @@ class DetailPedidosPreviewImport implements ToCollection
                 ]);
             }
             
-            // Skip rows with missing critical data
+            // Omitir filas con datos críticos faltantes
             if (empty($pedidoIdRaw) || empty($articulo)) {
                 continue;
             }
 
-            // Log what we're processing for debugging
+            // Registrar lo que estamos procesando para depuración
+
             Log::info('Processing row for duplicates', [
                 'row_index' => $rowIndex,
                 'pedido_id' => $pedidoIdRaw,
@@ -194,8 +197,8 @@ class DetailPedidosPreviewImport implements ToCollection
                 'col_map' => $colMap
             ]);
 
-            // Create unique key including pedido + articulo + cantidad + precio
-            // Two rows are only duplicates if ALL these values are exactly the same
+            // Crear clave única incluyendo pedido + artículo + cantidad + precio
+            // Dos filas solo son duplicadas si TODOS estos valores son exactamente iguales
             $normalizedKey = strtoupper(trim($pedidoIdRaw)) . '|' . 
                            strtoupper(trim($articulo)) . '|' . 
                            $cantidad . '|' . 
@@ -223,7 +226,7 @@ class DetailPedidosPreviewImport implements ToCollection
                     'precio' => $precio
                 ]);
                 
-                // Add original row if not already in duplicates
+                // Agregar la fila original si aún no está en duplicados
                 $originalRowIndex = $seen[$normalizedKey];
                 $alreadyAdded = false;
                 foreach ($duplicates as $dup) {
@@ -237,7 +240,7 @@ class DetailPedidosPreviewImport implements ToCollection
                     $duplicates[] = $this->formatDuplicateRow($rows[$originalRowIndex], $originalRowIndex + 1, $colMap);
                 }
                 
-                // Add current duplicate
+                // Agregar el duplicado actual
                 $duplicates[] = $this->formatDuplicateRow($row, $rowIndex + 1, $colMap);
             } else {
                 $seen[$normalizedKey] = $rowIndex;
@@ -283,13 +286,14 @@ class DetailPedidosPreviewImport implements ToCollection
 
     private function shouldSkipRow(array $row, array $colMap)
     {
-        // Skip completely empty lines
+        // Omitir líneas completamente vacías
         $nonEmptyValues = array_filter($row, fn($v) => $v !== null && trim((string)$v) !== '');
         if (empty($nonEmptyValues)) {
             return true;
         }
 
-        // Skip header rows - check for header keywords in multiple columns
+        // Omitir filas de encabezado - verifica palabras clave de encabezado en varias columnas
+
         $numeroRaw = isset($row[$colMap['numero']]) ? 
             strtolower(trim((string)$row[$colMap['numero']])) : '';
         $articuloRaw = isset($row[$colMap['articulo']]) ? 
@@ -297,12 +301,13 @@ class DetailPedidosPreviewImport implements ToCollection
         
         $headerKeywords = ['numero', 'número', 'pedido', 'order', 'nro', 'articulo', 'artículo', 'producto', 'item'];
         
-        // If pedido column contains header keywords OR articulo column contains header keywords
+        // Si la columna de pedido contiene palabras clave de encabezado O la columna de artículo contiene palabras clave de encabezado
+
         if (in_array($numeroRaw, $headerKeywords) || in_array($articuloRaw, $headerKeywords)) {
             return true;
         }
         
-        // For old format, check if column 2 contains "PEDIDO" but column 3 is header-like
+        // Para el formato antiguo, verifica si la columna 2 contiene "PEDIDO" pero la columna 3 parece encabezado
         if (isset($row[2]) && strtoupper(trim((string)$row[2])) === 'PEDIDO') {
             $col3 = isset($row[3]) ? strtolower(trim((string)$row[3])) : '';
             if (in_array($col3, ['numero', 'número', 'pedido', 'order', 'nro'])) {
@@ -319,7 +324,7 @@ class DetailPedidosPreviewImport implements ToCollection
             $row = $row->toArray(); 
         }
 
-        // Skip the first two rows as headers if present
+        // Omitir las dos primeras filas como encabezados si están presentes
         if ($rowIndex < 2) {
             return;
         }
@@ -328,12 +333,12 @@ class DetailPedidosPreviewImport implements ToCollection
             return;
         }
 
-    // Extract and validate data using detected columns
+    // Extraer y validar datos usando las columnas detectadas
     $pedidoIdRaw = isset($row[$colMap['numero']]) ? trim((string)$row[$colMap['numero']]) : '';
     $articulo    = isset($row[$colMap['articulo']]) ? trim((string)$row[$colMap['articulo']]) : '';
     $cantidad    = isset($row[$colMap['cantidad']]) ? (float)$row[$colMap['cantidad']] : 0;
         
-        // Skip rows with empty critical data
+        // Omitir filas con datos críticos vacíos
         if (empty($pedidoIdRaw) || empty($articulo) || $cantidad <= 0) {
             return;
         }
@@ -352,7 +357,7 @@ class DetailPedidosPreviewImport implements ToCollection
             return;
         }
 
-        // Check if order is prepared (status 2)
+        // Verificar si el pedido está preparado (estado 2)
         if ($pedido->productionStatus === 2) {
             $this->stats['prepared_orders_count']++;
             $this->changes['prepared_orders'][] = [
@@ -377,13 +382,14 @@ class DetailPedidosPreviewImport implements ToCollection
      */
     private function findPedido(string $pedidoIdRaw)
     {
-        // Try by orderId
+        // Intentar buscar por orderId
         $pedido = Pedidos::where('orderId', $pedidoIdRaw)->first();
         if (!$pedido && is_numeric($pedidoIdRaw)) {
             $pedido = Pedidos::where('orderId', (int)$pedidoIdRaw)->first();
         }
         
-        // Try by nroOrder if not found
+        // Intentar buscar por nroOrder si no se encuentra por orderId
+
         if (!$pedido) {
             $pedido = Pedidos::where('nroOrder', $pedidoIdRaw)->first();
             if (!$pedido && is_numeric($pedidoIdRaw)) {
@@ -415,7 +421,7 @@ class DetailPedidosPreviewImport implements ToCollection
         $sub = isset($row[$colMap['subtotal']]) && $row[$colMap['subtotal']] !== '' ? 
             round((float)$row[$colMap['subtotal']], 2) : 
             round($cantidad * $unit, 2);
-        // Rule: only consider as NO CHANGE when there is an exact same line (articulo + cantidad + unit)
+        // Regla: solo considerar como SIN CAMBIOS cuando existe una línea exactamente igual (artículo + cantidad + precio unitario)
         $exactExists = DetailPedidos::where('pedidos_id', $pedido->id)
             ->whereRaw('UPPER(TRIM(articulo)) = UPPER(TRIM(?))', [$articulo])
             ->where('cantidad', $cantidad)
@@ -434,7 +440,7 @@ class DetailPedidosPreviewImport implements ToCollection
             return;
         }
 
-        // Otherwise, treat as NEW detail to be added (even if another line with same articulo exists)
+        // De lo contrario, tratar como un detalle NUEVO para agregar (incluso si existe otra línea con el mismo artículo)
         $this->addNewArticle($row, $rowIndex, $colMap, $pedido, $articulo, $cantidad, $unit, $sub);
     }
 
