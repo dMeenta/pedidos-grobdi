@@ -324,16 +324,8 @@ class CargarPedidosController extends Controller
 
             $filePath = Storage::path('temp/' . $fileName);
 
-            // Enforce no-duplicate and must-have-changes rules before import
-            $pre = $this->analyzeArticulosChanges($filePath);
-            if (($pre['stats']['duplicates_excel_count'] ?? 0) > 0) {
-                return redirect()->route('cargarpedidos.preview-articulos', ['filename' => $fileName])
-                    ->with('danger', 'Hay filas duplicadas en el Excel. Corrígelas antes de confirmar.');
-            }
-            if ((count($pre['new']) + count($pre['modified'])) === 0) {
-                return redirect()->route('cargarpedidos.preview-articulos', ['filename' => $fileName])
-                    ->with('warning', 'No hay cambios para aplicar.');
-            }
+
+            // Importar directamente; el import gestiona si hay cambios o no
 
             // Import articles using the writer import to persist changes and return a string message
             $detailImport = new DetailPedidosImport;

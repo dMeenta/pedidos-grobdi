@@ -21,7 +21,20 @@ class DetailPedidosImportService
      */
     public function findPedido(string $orderId): ?Pedidos
     {
-        return Pedidos::where('orderId', $orderId)->first();
+        // Try by orderId (string)
+        $pedido = Pedidos::where('orderId', $orderId)->first();
+        // Try numeric cast for orderId
+        if (!$pedido && is_numeric($orderId)) {
+            $pedido = Pedidos::where('orderId', (int)$orderId)->first();
+        }
+        // Fallback to nroOrder (string and numeric)
+        if (!$pedido) {
+            $pedido = Pedidos::where('nroOrder', $orderId)->first();
+            if (!$pedido && is_numeric($orderId)) {
+                $pedido = Pedidos::where('nroOrder', (int)$orderId)->first();
+            }
+        }
+        return $pedido;
     }
     
     /**

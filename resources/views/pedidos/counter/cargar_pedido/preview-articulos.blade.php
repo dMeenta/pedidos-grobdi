@@ -248,8 +248,8 @@
                                 <td>{{ $newArticle['data']['pedido_cliente'] }}</td>
                                 <td>{{ $newArticle['data']['articulo'] }}</td>
                                 <td>{{ $newArticle['data']['cantidad'] }}</td>
-                                <td>S/ {{ $newArticle['data']['unit_prize'] }}</td>
-                                <td>S/ {{ $newArticle['data']['sub_total'] }}</td>
+                                <td>S/ {{ number_format($newArticle['data']['unit_prize'], 2) }}</td>
+                                <td>S/ {{ number_format($newArticle['data']['sub_total'], 2) }}</td>
                                 <td><span class="badge badge-success">{{ now()->format('Y-m-d H:i:s') }}</span></td>
                             </tr>
                             @endforeach
@@ -330,8 +330,8 @@
                                                 <tr><td><strong>Cliente:</strong></td><td>{{ $modifiedArticle['existing']['pedido_cliente'] }}</td></tr>
                                                 <tr><td><strong>Artículo:</strong></td><td>{{ $modifiedArticle['existing']['articulo'] }}</td></tr>
                                                 <tr><td><strong>Cantidad:</strong></td><td>{{ $modifiedArticle['existing']['cantidad'] }}</td></tr>
-                                                <tr><td><strong>Precio Unit.:</strong></td><td>S/ {{ $modifiedArticle['existing']['unit_prize'] }}</td></tr>
-                                                <tr><td><strong>Sub Total:</strong></td><td>S/ {{ $modifiedArticle['existing']['sub_total'] }}</td></tr>
+                                                <tr><td><strong>Precio Unit.:</strong></td><td>S/ {{ number_format($modifiedArticle['existing']['unit_prize'], 2) }}</td></tr>
+                                                <tr><td><strong>Sub Total:</strong></td><td>S/ {{ number_format($modifiedArticle['existing']['sub_total'], 2) }}</td></tr>
                                                 <tr><td><strong>Última Actualización:</strong></td><td>{{ $modifiedArticle['existing']['last_data_update'] }}</td></tr>
                                             </table>
                                         </div>
@@ -344,8 +344,8 @@
                                                 <tr><td><strong>Cliente:</strong></td><td>{{ $modifiedArticle['new']['pedido_cliente'] }}</td></tr>
                                                 <tr><td><strong>Artículo:</strong></td><td>{{ $modifiedArticle['new']['articulo'] }}</td></tr>
                                                 <tr><td><strong>Cantidad:</strong></td><td>{{ $modifiedArticle['new']['cantidad'] }}</td></tr>
-                                                <tr><td><strong>Precio Unit.:</strong></td><td>S/ {{ $modifiedArticle['new']['unit_prize'] }}</td></tr>
-                                                <tr><td><strong>Sub Total:</strong></td><td>S/ {{ $modifiedArticle['new']['sub_total'] }}</td></tr>
+                                                <tr><td><strong>Precio Unit.:</strong></td><td>S/ {{ number_format($modifiedArticle['new']['unit_prize'], 2) }}</td></tr>
+                                                <tr><td><strong>Sub Total:</strong></td><td>S/ {{ number_format($modifiedArticle['new']['sub_total'], 2) }}</td></tr>
                                                 <tr><td><strong>Será actualizado:</strong></td><td><span class="badge badge-success">{{ now()->format('Y-m-d H:i:s') }}</span></td></tr>
                                             </table>
                                         </div>

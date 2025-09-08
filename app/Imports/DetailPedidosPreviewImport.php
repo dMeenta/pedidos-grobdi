@@ -259,8 +259,8 @@ class DetailPedidosPreviewImport implements ToCollection
         $pedidoId = isset($row[$colMap['numero']]) ? trim((string)$row[$colMap['numero']]) : '';
         $articulo = isset($row[$colMap['articulo']]) ? trim((string)$row[$colMap['articulo']]) : '';
         $cantidad = isset($row[$colMap['cantidad']]) ? (float)$row[$colMap['cantidad']] : 0;
-        $precio = isset($row[$colMap['precio']]) ? round((float)$row[$colMap['precio']], 3) : 0;
-        $subtotal = isset($row[$colMap['subtotal']]) ? round((float)$row[$colMap['subtotal']], 3) : 0;
+    $precio = isset($row[$colMap['precio']]) ? round((float)$row[$colMap['precio']], 2) : 0;
+    $subtotal = isset($row[$colMap['subtotal']]) ? round((float)$row[$colMap['subtotal']], 2) : 0;
         
         return [
             'row_index' => $rowIndex,
@@ -410,10 +410,10 @@ class DetailPedidosPreviewImport implements ToCollection
         $articulo = isset($row[$colMap['articulo']]) ? trim((string)$row[$colMap['articulo']]) : '';
         $cantidad = isset($row[$colMap['cantidad']]) ? (float)$row[$colMap['cantidad']] : 0;
         $unit = isset($row[$colMap['precio']]) && $row[$colMap['precio']] !== '' ? 
-            round((float)$row[$colMap['precio']], 3) : 0.0;
+            round((float)$row[$colMap['precio']], 2) : 0.0;
         $sub = isset($row[$colMap['subtotal']]) && $row[$colMap['subtotal']] !== '' ? 
-            round((float)$row[$colMap['subtotal']], 3) : 
-            round($cantidad * $unit, 3);
+            round((float)$row[$colMap['subtotal']], 2) : 
+            round($cantidad * $unit, 2);
 
         // Find existing article in database using case-insensitive comparison
         $existing = DetailPedidos::where('pedidos_id', $pedido->id)
@@ -488,20 +488,20 @@ class DetailPedidosPreviewImport implements ToCollection
             ];
         }
 
-        if (round((float)$existing->unit_prize, 3) !== $unit) {
+    if (round((float)$existing->unit_prize, 2) !== $unit) {
             $modifications[] = [
                 'field' => 'unit_prize', 
                 'label' => 'Precio Unitario',
-                'old_value' => 'S/ ' . round((float)$existing->unit_prize, 3),
+                'old_value' => 'S/ ' . round((float)$existing->unit_prize, 2),
                 'new_value' => 'S/ ' . $unit,
             ];
         }
 
-        if (round((float)$existing->sub_total, 3) !== $sub) {
+    if (round((float)$existing->sub_total, 2) !== $sub) {
             $modifications[] = [
                 'field' => 'sub_total',
                 'label' => 'Sub Total',
-                'old_value' => 'S/ ' . round((float)$existing->sub_total, 3),
+                'old_value' => 'S/ ' . round((float)$existing->sub_total, 2),
                 'new_value' => 'S/ ' . $sub,
             ];
         }
@@ -517,8 +517,8 @@ class DetailPedidosPreviewImport implements ToCollection
                     'pedido_cliente' => $pedido->customerName ?? $pedido->customer_name ?? 'N/A',
                     'articulo' => $existing->articulo,
                     'cantidad' => (float)$existing->cantidad,
-                    'unit_prize' => round((float)$existing->unit_prize, 3),
-                    'sub_total' => round((float)$existing->sub_total, 3),
+                    'unit_prize' => round((float)$existing->unit_prize, 2),
+                    'sub_total' => round((float)$existing->sub_total, 2),
                     'last_data_update' => $existing->updated_at ? $existing->updated_at->format('Y-m-d H:i:s') : 'N/A',
                 ],
                 'new' => [
