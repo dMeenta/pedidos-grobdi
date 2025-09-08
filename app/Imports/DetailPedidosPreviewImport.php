@@ -161,7 +161,8 @@ class DetailPedidosPreviewImport implements ToCollection
             $pedidoIdRaw = isset($row[$colMap['numero']]) ? trim((string)$row[$colMap['numero']]) : '';
             $articulo = isset($row[$colMap['articulo']]) ? trim((string)$row[$colMap['articulo']]) : '';
             $cantidad = isset($row[$colMap['cantidad']]) ? (float)$row[$colMap['cantidad']] : 0;
-            $precio = isset($row[$colMap['precio']]) ? round((float)$row[$colMap['precio']], 3) : 0;
+            // Use 2-decimal precision to match import logic
+            $precio = isset($row[$colMap['precio']]) ? round((float)$row[$colMap['precio']], 2) : 0;
             
             // Debug logging for specific problematic rows
             if ($rowIndex >= 9 && $rowIndex <= 11) {
@@ -414,17 +415,27 @@ class DetailPedidosPreviewImport implements ToCollection
         $sub = isset($row[$colMap['subtotal']]) && $row[$colMap['subtotal']] !== '' ? 
             round((float)$row[$colMap['subtotal']], 2) : 
             round($cantidad * $unit, 2);
-
-        // Find existing article in database using case-insensitive comparison
-        $existing = DetailPedidos::where('pedidos_id', $pedido->id)
+        // Rule: only consider as NO CHANGE when there is an exact same line (articulo + cantidad + unit)
+        $exactExists = DetailPedidos::where('pedidos_id', $pedido->id)
             ->whereRaw('UPPER(TRIM(articulo)) = UPPER(TRIM(?))', [$articulo])
-            ->first();
+            ->where('cantidad', $cantidad)
+            ->whereRaw('ROUND(unit_prize, 2) = ?', [$unit])
+            ->exists();
 
-        if (!$existing) {
-            $this->addNewArticle($row, $rowIndex, $colMap, $pedido, $articulo, $cantidad, $unit, $sub);
-        } else {
-            $this->checkModifications($row, $rowIndex, $colMap, $pedido, $existing, $cantidad, $unit, $sub);
+        if ($exactExists) {
+            $this->stats['no_changes_count']++;
+            $this->changes['no_changes'][] = [
+                'row_index' => $rowIndex + 1,
+                'pedido_id' => $pedido->orderId ?? $pedido->nroOrder,
+                'articulo' => $articulo,
+                'cantidad' => $cantidad,
+                'unit_prize' => $unit,
+            ];
+            return;
         }
+
+        // Otherwise, treat as NEW detail to be added (even if another line with same articulo exists)
+        $this->addNewArticle($row, $rowIndex, $colMap, $pedido, $articulo, $cantidad, $unit, $sub);
     }
 
     /**

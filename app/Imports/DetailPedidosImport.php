@@ -175,38 +175,30 @@ class DetailPedidosImport extends BaseImport implements WithStartRow
             }
             
             // Check if detail already exists using pedidos_id (not pedido_id)
-            $existingDetail = DetailPedidos::where('pedidos_id', $pedido->id)
-                ->whereRaw('UPPER(TRIM(articulo)) = UPPER(TRIM(?))', [$articulo])
-                ->first();
-                
-            if ($existingDetail) {
-                // Normalize values for comparison (round monetary values to 3 decimals)
-                $currCantidad = (float)$existingDetail->cantidad;
-                $currUnit = round((float)$existingDetail->unit_prize, 2);
-                $currSub = round((float)$existingDetail->sub_total, 2);
-                $newUnit = round((float)$precioUnitario, 2);
-                $newSub = round((float)$subtotal, 2);
+            // Rule: only skip if there's already a detail with SAME articulo + cantidad + precio.
+            // If any of these differ, create a NEW detail (do NOT update existing).
+            $newUnit = round((float)$precioUnitario, 2);
+            $newSub = round((float)$subtotal, 2);
 
-                $needsUpdate = ($currCantidad != $cantidad) || (abs($currUnit - $newUnit) >= 0.005) || (abs($currSub - $newSub) >= 0.005);
-                if ($needsUpdate) {
-                    $existingDetail->cantidad = $cantidad;
-                    $existingDetail->unit_prize = $newUnit;
-                    $existingDetail->sub_total = $newSub;
-                    $existingDetail->save();
-                    $this->incrementStat('updated');
-                } else {
-                    $this->incrementStat('skipped');
-                }
+            $exactExists = DetailPedidos::where('pedidos_id', $pedido->id)
+                ->whereRaw('UPPER(TRIM(articulo)) = UPPER(TRIM(?))', [$articulo])
+                ->where('cantidad', $cantidad)
+                ->whereRaw('ROUND(unit_prize, 2) = ?', [$newUnit])
+                ->exists();
+
+            if ($exactExists) {
+                // Exact same line already exists -> skip
+                $this->incrementStat('skipped');
                 return;
             }
-            
-            // Create new detail
+
+            // Create new detail (different cantidad or precio or doesn't exist)
             $detailData = [
                 'pedidos_id' => $pedido->id,  // Note: using pedidos_id as per existing schema
                 'articulo' => $articulo,
                 'cantidad' => $cantidad,
-                'unit_prize' => $precioUnitario,
-                'sub_total' => $subtotal,
+                'unit_prize' => $newUnit,
+                'sub_total' => $newSub,
             ];
             
             $this->detailService->createDetailWithCorrectSchema($detailData);
