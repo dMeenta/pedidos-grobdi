@@ -118,6 +118,7 @@ class DoctoresImport extends BaseImport
             // Prepare doctor data
             $doctorData = [
                 'name' => trim($row[$colMap['name']] ?? ''),
+                'name_softlynn' => trim($row[$colMap['name']] ?? ''),
                 'CMP' => $cmp,
                 'phone' => trim($row[$colMap['phone']] ?? '') ?: null,
                 'name_secretariat' => trim($row[$colMap['name_secretariat']] ?? '') ?: null,
