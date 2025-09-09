@@ -87,8 +87,7 @@ class MuestrasController extends Controller
     {
         $user = Auth::user();
 
-        $query = Muestras::with(['clasificacion.unidadMedida', 'tipoMuestra', 'doctor', 'clasificacionPresentacion'])
-            ->orderBy('created_at', 'desc');
+        $query = Muestras::with(['clasificacion.unidadMedida', 'tipoMuestra', 'doctor', 'clasificacionPresentacion']);
 
         // Filtros por rol
         if ($user->hasRole('admin') || $user->hasRole('coordinador-lineas')) {
@@ -134,13 +133,21 @@ class MuestrasController extends Controller
             $estado = $request->lab_state === 'Elaborado' ? true : false;
             $query->where('lab_state', $estado);
         }
-        // Solo mostrar muestras activas por defecto
-        if (!$request->filled('state')) {
-            $query->where('state', true);
+
+        if ($request->filled('order_by')) {
+            switch (strtolower($request->order_by)) {
+                case 'fecha_entrega':
+                    $query->orderByRaw('CASE WHEN datetime_scheduled IS NULL THEN 0 ELSE 1 END ASC')
+                        ->orderBy('datetime_scheduled', 'desc');
+                    break;
+                default:
+                    $query->orderBy('created_at', 'desc');
+                    break;
+            }
         } else {
-            $estado = $request->input('state') === 'false' ? 0 : 1;
-            $query->where('state', $estado);
+            $query->orderBy('created_at', 'desc');
         }
+
 
         // Paginar solo una vez al final
         $muestras = $query->paginate(10)->appends($request->except('page'));
@@ -364,11 +371,11 @@ class MuestrasController extends Controller
     {
         $muestra = Muestras::find($id);
         if (!$muestra->state) {
-            return redirect()->route('muestras.index')->with('error', 'No se puede realizar esta acción una vez inhabilitada la muestra.');
+            return redirect()->to(url()->previous())->with('error', 'No se puede realizar esta acción una vez inhabilitada la muestra.');
         }
 
         if ($muestra->aprobado_coordinadora) {
-            return redirect()->route('muestras.index')->with('error', 'No se puede cambiar la fecha de entrega una vez aprobada.');
+            return redirect()->to(url()->previous())->with('error', 'No se puede cambiar la fecha de entrega una vez aprobada.');
         }
 
         $request->validate([
@@ -378,7 +385,7 @@ class MuestrasController extends Controller
         $muestra->datetime_scheduled = $request->datetime_scheduled;
         $muestra->save();
 
-        return redirect()->route('muestras.index')->with('success', 'Fecha de entrega actualizada correctamente.');
+        return redirect()->to(url()->previous())->with('success', 'Fecha de entrega actualizada correctamente.');
     }
 
     /* --- LABORATORIO --- */

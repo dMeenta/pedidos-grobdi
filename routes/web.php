@@ -105,6 +105,8 @@ Route::get('/doctors/search', [DoctorController::class, 'showByNameLike'])->name
 //COUNTER
 Route::middleware(['checkRole:counter,admin,Administracion'])->group(function () {
 
+    Route::get('pedido/{id}/state', [PedidosController::class, 'showDeliveryStates'])->name('pedidos.showDeliveryStates');
+
     // Route::resource('cargarpedidos', PedidosController::class);
     Route::resource('cargarpedidos', CargarPedidosController::class);
     Route::post('/cargarpedidosdetail', CargarPedidosController::class . '@cargarExcelArticulos')->name('cargarpedidos.excelarticulos');
@@ -170,8 +172,9 @@ Route::post('excelhojaruta', FormatosController::class . '@excelhojaruta')->name
 //MOTORIZADO
 Route::resource('pedidosmotorizado', PedidosMotoController::class)->middleware(['checkRole:motorizado,admin']);
 Route::put('/pedidosmotorizado/fotos/{id}', [PedidosMotoController::class, 'cargarFotos'])->name('pedidosmotorizado.cargarfotos')->middleware(['checkRole:motorizado,admin']);
-//supervisor - visitador
-Route::get('centrosaludbuscar', CentroSaludController::class . '@buscar')->name('centrosalud.buscar')->middleware(['checkRole:supervisor,visitador,admin']);
+
+Route::put('/pedidos-motorizado/{id}', [PedidosMotoController::class, 'updatePedidoByMotorizado'])->name('pedidosmotorizado.updatePedidoByMotorizado')->middleware(['checkRole:motorizado,admin']);
+
 //SUPERVISOR
 Route::middleware(['checkRole:supervisor,admin'])->group(function () {
     Route::resource('centrosalud', CentroSaludController::class);
@@ -188,7 +191,7 @@ Route::middleware(['checkRole:supervisor,admin'])->group(function () {
     Route::put('/enrutamientolista/doctor/{id}', [EnrutamientoController::class, 'DoctoresListaUpdate'])->name('enrutamientolista.doctoresupdate');
     Route::post('/visitadoctornuevo/{id}/aprobar', [VisitaDoctorController::class, 'aprobar']);
     Route::post('/visitadoctornuevo/{id}/rechazar', [VisitaDoctorController::class, 'rechazar']);
-    Route::resource('categoriadoctor',CategoriaDoctorController::class);
+    Route::resource('categoriadoctor', CategoriaDoctorController::class);
 });
 //VISITADOR
 Route::middleware(['checkRole:visitador,admin'])->group(function () {
@@ -198,13 +201,17 @@ Route::middleware(['checkRole:visitador,admin'])->group(function () {
 
     Route::get('calendariovisitadora', [EnrutamientoController::class, 'calendariovisitadora'])->name('enrutamientolista.calendariovisitadora');
     Route::get('/rutasdoctor/{id}', [EnrutamientoController::class, 'DetalleDoctorRutas']);
+    Route::get('/detalle-visita-doctor/{id}', [VisitaDoctorController::class, 'FindDetalleVisitaByID']);
+    Route::put('/update-visita-doctor/{id}', [VisitaDoctorController::class, 'UpdateVisitaDoctor'])->name('rutas.guardarvisita');
     Route::post('guardar-visita', [EnrutamientoController::class, 'GuardarVisita'])->name('rutas.guardarvisita');
     Route::get('rutasvisitadora', [RutasVisitadoraController::class, 'index'])->name('rutasvisitadora.index');
     Route::get('rutasvisitadora/{id}', [RutasVisitadoraController::class, 'listadoctores'])->name('rutasvisitadora.listadoctores');
     Route::post('/rutasvisitadora/asignar', [RutasVisitadoraController::class, 'asignar'])->name('rutasvisitadora.asignar');
     Route::get('/rutasvisitadora/buscardoctor/{cmp}', [DoctorController::class, 'buscarCMP']);
     Route::post('/rutasvisitadora/doctores', [DoctorController::class, 'guardarDoctorVisitador']);
-    
+    Route::get('centrosaludbuscar', CentroSaludController::class . '@buscar')->name('centrosalud.buscar');
+
+    Route::get('ruta-mapa', [VisitaDoctorController::class, 'mapa'])->name('ruta.mapa');
 });
 
 
