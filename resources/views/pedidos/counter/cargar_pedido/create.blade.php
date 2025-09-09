@@ -63,7 +63,9 @@
         <br>
         <div class="mb-5">
             <label class="form-label">Sincronizar Doctores - Pedidos:</label>
-            <a class="btn btn-outline-primary" href="{{ route('pedidos.sincronizar') }}"><i class="fa fa-sync-alt"></i> Sincronizar</a>
+            <button class="btn btn-outline-primary" type="button" id="sincronizarBtn">
+                <i class="fa fa-sync-alt"></i> Sincronizar
+            </button>
         </div>
         @if(session('success'))
             <div class="alert alert-success">
@@ -218,6 +220,7 @@
 
 @section('js')
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script> 
         console.log("Hi, I'm using the Laravel-AdminLTE package!"); 
         
@@ -333,7 +336,139 @@
                     $('#loadingArticulosModal').modal('hide');
                 }
             @endif
+            
+            // Manejar clic en botón de sincronización
+            $('#sincronizarBtn').on('click', function() {
+                sincronizarDoctoresPedidos();
+            });
         });
+        
+        function sincronizarDoctoresPedidos() {
+            // Mostrar SweetAlert de carga
+            Swal.fire({
+                title: 'Sincronizando',
+                html: `
+                    <div class="d-flex flex-column align-items-center">
+                        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="sr-only">Sincronizando...</span>
+                        </div>
+                        <h5 class="mb-3">
+                            <i class="fas fa-user-md mr-2"></i>
+                            Sincronizando doctores con pedidos
+                        </h5>
+                        <p class="text-muted mb-2">
+                            <i class="fas fa-search mr-1"></i>
+                            Comparando nombres de doctores...
+                        </p>
+                        <p class="text-info">
+                            <i class="fas fa-clock mr-1"></i>
+                            Este proceso puede tomar unos segundos
+                        </p>
+                    </div>
+                `,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                customClass: {
+                    popup: 'swal2-lg'
+                }
+            });
+            
+            // Realizar petición AJAX
+            $.ajax({
+                url: '{{ route("pedidos.sincronizar") }}',
+                type: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    Swal.close();
+                    
+                    if (response.success) {
+                        let icon = 'success';
+                        let title = '¡Sincronización Exitosa!';
+                        
+                        if (response.type === 'warning') {
+                            icon = 'warning';
+                            title = 'Sincronización Completada con Advertencias';
+                        } else if (response.type === 'info') {
+                            icon = 'info';
+                            title = 'Información';
+                        }
+                        
+                        let htmlContent = `
+                            <div class="text-left">
+                                <p class="mb-3">${response.message}</p>
+                        `;
+                        
+                        if (response.data && response.data.procesados > 0) {
+                            htmlContent += `
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <div class="card border-primary">
+                                            <div class="card-body py-2">
+                                                <h4 class="text-primary mb-1">${response.data.procesados}</h4>
+                                                <small class="text-muted">Procesados</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="card border-success">
+                                            <div class="card-body py-2">
+                                                <h4 class="text-success mb-1">${response.data.sincronizados}</h4>
+                                                <small class="text-muted">Sincronizados</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="card border-warning">
+                                            <div class="card-body py-2">
+                                                <h4 class="text-warning mb-1">${response.data.no_encontrados}</h4>
+                                                <small class="text-muted">No encontrados</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        htmlContent += '</div>';
+                        
+                        Swal.fire({
+                            icon: icon,
+                            title: title,
+                            html: htmlContent,
+                            confirmButtonText: 'Aceptar',
+                            customClass: {
+                                popup: 'swal2-lg'
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error en la Sincronización',
+                            text: response.message || 'Ocurrió un error durante la sincronización.',
+                            confirmButtonText: 'Aceptar'
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    Swal.close();
+                    
+                    let errorMessage = 'Error de conexión durante la sincronización.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+                    
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error de Conexión',
+                        text: errorMessage,
+                        confirmButtonText: 'Aceptar'
+                    });
+                }
+            });
+        }
     </script>
     
     <style>
