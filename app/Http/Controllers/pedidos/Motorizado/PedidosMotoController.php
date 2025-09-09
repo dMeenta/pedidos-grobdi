@@ -62,6 +62,10 @@ class PedidosMotoController extends Controller
     {
         $pedido = Pedidos::findOrFail($id);
 
+        if (!$request->lat_foto_domicilio || !$request->lng_foto_domicilio) {
+            return response()->json(['success' => false, 'message' => 'Se requiere la ubicación para actualizar el estado del pedido'], 400);
+        }
+
         $isEntregadoState = $request->state == 'Entregado';
 
         $rules = [
@@ -72,6 +76,10 @@ class PedidosMotoController extends Controller
             $rules['foto_entrega'] = 'required|image';
             $rules['receptor_nombre'] = 'required|string';
             $rules['receptor_firma'] = 'required|string';
+
+            if (!$request->lat_foto_entrega || !$request->lng_foto_entrega) {
+                return response()->json(['success' => false, 'message' => 'Se requiere la ubicación para actualizar el estado del pedido'], 400);
+            }
         }
 
         $request->validate($rules);
@@ -147,7 +155,6 @@ class PedidosMotoController extends Controller
                 $pedidoEstado->receptor_firma = $firmaPath;
             }
         }
-
 
         $pedidoEstado->save();
 
