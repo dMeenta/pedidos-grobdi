@@ -55,4 +55,14 @@ class Pedidos extends Model
     {
         return $this->belongsTo(Doctor::class, 'id_doctor');
     }
+    
+    public function deliveryStates()
+    {
+        return $this->hasMany(PedidosDeliveryState::class, 'pedido_id');
+    }
+    
+    public function currentDeliveryState()
+    {
+        return $this->hasOne(PedidosDeliveryState::class, 'pedido_id')->latestOfMany();
+    }
 }

@@ -7,8 +7,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class VisitaDoctor extends Model
 {
+    // 0 = mañana, 1 = tarde
     protected $table = 'visita_doctor';
-    
+
     public function doctor()
     {
         return $this->belongsTo(Doctor::class);
@@ -21,7 +22,8 @@ class VisitaDoctor extends Model
     {
         return $this->belongsTo(EstadoVisita::class);
     }
-    public function enrutamientolista(){
-        return $this->belongsTo(EnrutamientoLista::class,'enrutamientolista_id');
+    public function enrutamientolista()
+    {
+        return $this->belongsTo(EnrutamientoLista::class, 'enrutamientolista_id');
     }
 }

@@ -77,16 +77,18 @@ class ListaController extends Controller
      */
     public function update(Request $request, $id)
     {
+        
         $lista =  Lista::find($id);
         $request->validate([
             'name' => 'required',
             'zone_id' => 'required',
+            'recovery' => 'required',
         ]);
         $lista->update([
             'name' => $request->name,
-            'zone_id' => $request->zone_id
+            'zone_id' => $request->zone_id,
+            'recovery' => $request->recovery
         ]);
-
         $lista->distritos()->sync($request->distritos);
         return redirect()->route('lista.index');
     }

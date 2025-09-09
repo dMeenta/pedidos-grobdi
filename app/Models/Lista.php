@@ -9,7 +9,8 @@ class Lista extends Model
     protected $table = 'lista';
     protected $fillable = [
         'name',
-        'zone_id'
+        'zone_id',
+        'recovery'
     ];
     public function distritos()
     {
