@@ -40,11 +40,11 @@ class Pedidos extends Model
     ];
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class); 
     }
     public function zone()
     {
-        return $this->belongsTo(Zone::class);
+        return $this->belongsTo(Zone::class); 
     }
     public function detailpedidos()
     {
@@ -55,10 +55,12 @@ class Pedidos extends Model
     {
         return $this->belongsTo(Doctor::class, 'id_doctor');
     }
+    
     public function deliveryStates()
     {
         return $this->hasMany(PedidosDeliveryState::class, 'pedido_id');
     }
+    
     public function currentDeliveryState()
     {
         return $this->hasOne(PedidosDeliveryState::class, 'pedido_id')->latestOfMany();

@@ -36,6 +36,7 @@ class DetailPedidosPreviewImport implements ToCollection
             'not_found' => [],
             'prepared_orders' => [],
             'duplicates' => [],
+            'to_delete' => [], // NUEVO: artículos que se van a eliminar
             'stats' => []
         ];
 
@@ -57,9 +58,15 @@ class DetailPedidosPreviewImport implements ToCollection
             // Don't return here - continue processing to show preview with duplicates highlighted
         }
 
+        // NUEVO: Recopilar todos los pedidos únicos del Excel para detectar eliminaciones
+        $excelPedidos = $this->collectExcelOrders($originalRows, $colMap);
+
         foreach ($originalRows as $rowIndex => $row) {
             $this->processRow($row, $rowIndex, $colMap);
         }
+
+        // NUEVO: Detectar artículos que deben ser eliminados
+        $this->detectArticlesToDelete($excelPedidos);
 
         $this->finalizeResults();
     }
@@ -80,6 +87,7 @@ class DetailPedidosPreviewImport implements ToCollection
             'no_changes_count' => 0,
             'not_found_count' => 0,
             'prepared_orders_count' => 0,
+            'to_delete_count' => 0, // NUEVO: contador de artículos a eliminar
             'total_count' => 0
         ];
     }
@@ -571,7 +579,7 @@ class DetailPedidosPreviewImport implements ToCollection
 
         $processedSum = $this->stats['new_count'] + $this->stats['modified_count'] + 
                         $this->stats['no_changes_count'] + $this->stats['not_found_count'] + 
-                        $this->stats['prepared_orders_count'];
+                        $this->stats['prepared_orders_count'] + $this->stats['to_delete_count']; // NUEVO: incluir eliminaciones
 
         // If nothing processed but there are duplicates detected, still return preview so user can correct Excel
         if ($processedSum === 0 && !empty($this->changes['duplicates'])) {
@@ -592,16 +600,140 @@ class DetailPedidosPreviewImport implements ToCollection
         $summary .= "Artículos nuevos: {$this->stats['new_count']}\n";
         $summary .= "Artículos modificados: {$this->stats['modified_count']}\n";
         $summary .= "Sin cambios: {$this->stats['no_changes_count']}\n";
+        $summary .= "Artículos a eliminar: {$this->stats['to_delete_count']}\n"; // NUEVO
         $summary .= "Pedidos no encontrados: {$this->stats['not_found_count']}\n";
         $summary .= "Pedidos preparados (sin cambios): {$this->stats['prepared_orders_count']}\n";
         $summary .= "Total filas procesadas: {$this->stats['total_count']}\n";
 
         $this->data = $this->changes;
         
-        if ($this->stats['new_count'] + $this->stats['modified_count'] > 0) {
+        if ($this->stats['new_count'] + $this->stats['modified_count'] + $this->stats['to_delete_count'] > 0) {
             $this->key = $this->stats['not_found_count'] > 0 ? 'warning' : 'success';
         } else {
             $this->key = $this->stats['not_found_count'] > 0 ? 'warning' : 'info';
         }
+    }
+
+    /**
+     * Recopila todos los pedidos únicos del Excel con sus artículos
+     * 
+     * Este método analiza todas las filas del Excel y agrupa los artículos
+     * por pedido para poder comparar después con la base de datos.
+     * 
+     * @param array $rows Filas del Excel
+     * @param array $colMap Mapeo de columnas
+     * @return array Array asociativo [pedidoId => [artículos]]
+     */
+    private function collectExcelOrders(array $rows, array $colMap): array
+    {
+        $excelPedidos = [];
+        
+        foreach ($rows as $rowIndex => $row) {
+            // Omitir las dos primeras filas como encabezados si están presentes
+            if ($rowIndex < 2) {
+                continue;
+            }
+            
+            if (!is_array($row)) {
+                $row = $row->toArray();
+            }
+            
+            if ($this->shouldSkipRow($row, $colMap)) {
+                continue;
+            }
+            
+            $pedidoIdRaw = isset($row[$colMap['numero']]) ? trim((string)$row[$colMap['numero']]) : '';
+            $articulo = isset($row[$colMap['articulo']]) ? trim((string)$row[$colMap['articulo']]) : '';
+            $cantidad = isset($row[$colMap['cantidad']]) ? (float)$row[$colMap['cantidad']] : 0;
+            $unit = isset($row[$colMap['precio']]) && $row[$colMap['precio']] !== '' ? 
+                round((float)$row[$colMap['precio']], 2) : 0.0;
+            
+            // Omitir filas con datos críticos vacíos
+            if (empty($pedidoIdRaw) || empty($articulo) || $cantidad <= 0) {
+                continue;
+            }
+            
+            // Normalizar pedido ID
+            $pedidoKey = strtoupper(trim($pedidoIdRaw));
+            
+            if (!isset($excelPedidos[$pedidoKey])) {
+                $excelPedidos[$pedidoKey] = [];
+            }
+            
+            // Crear clave única para el artículo (artículo + cantidad + precio)
+            $articleKey = strtoupper(trim($articulo)) . '|' . $cantidad . '|' . $unit;
+            
+            $excelPedidos[$pedidoKey][$articleKey] = [
+                'articulo' => $articulo,
+                'cantidad' => $cantidad,
+                'unit_prize' => $unit,
+            ];
+        }
+        
+        Log::info('Excel orders collected', [
+            'pedidos_count' => count($excelPedidos),
+            'pedidos_keys' => array_keys($excelPedidos)
+        ]);
+        
+        return $excelPedidos;
+    }
+
+    /**
+     * Detecta artículos existentes en BD que deben ser eliminados
+     * 
+     * Este método compara los artículos actuales de cada pedido en la base de datos
+     * con los artículos que vienen en el nuevo Excel. Los que están en BD pero no
+     * en Excel se marcan para eliminación.
+     * 
+     * @param array $excelPedidos Pedidos del Excel con sus artículos
+     * @return void
+     */
+    private function detectArticlesToDelete(array $excelPedidos): void
+    {
+        foreach ($excelPedidos as $pedidoKey => $excelArticles) {
+            // Buscar el pedido en BD
+            $pedido = $this->findPedido($pedidoKey);
+            
+            if (!$pedido) {
+                continue; // Ya se maneja en not_found
+            }
+            
+            // Omitir pedidos preparados
+            if ($pedido->productionStatus === 2) {
+                continue; // Ya se maneja en prepared_orders
+            }
+            
+            // Obtener todos los artículos actuales de este pedido en BD
+            $currentArticles = DetailPedidos::where('pedidos_id', $pedido->id)->get();
+            
+            foreach ($currentArticles as $currentArticle) {
+                // Crear clave única para comparar con Excel
+                $currentKey = strtoupper(trim($currentArticle->articulo)) . '|' . 
+                             $currentArticle->cantidad . '|' . 
+                             round((float)$currentArticle->unit_prize, 2);
+                
+                // Si este artículo NO está en el Excel, marcarlo para eliminación
+                if (!isset($excelArticles[$currentKey])) {
+                    $this->stats['to_delete_count']++;
+                    $this->changes['to_delete'][] = [
+                        'id' => $currentArticle->id,
+                        'pedido_id' => $pedido->orderId ?? $pedido->nroOrder,
+                        'pedido_cliente' => $pedido->customerName ?? $pedido->customer_name ?? 'N/A',
+                        'articulo' => $currentArticle->articulo,
+                        'cantidad' => $currentArticle->cantidad,
+                        'unit_prize' => round((float)$currentArticle->unit_prize, 2),
+                        'sub_total' => round((float)$currentArticle->sub_total, 2),
+                        'current_bd_data' => [
+                            'created_at' => $currentArticle->created_at,
+                            'updated_at' => $currentArticle->updated_at,
+                        ]
+                    ];
+                }
+            }
+        }
+        
+        Log::info('Articles to delete detected', [
+            'count' => $this->stats['to_delete_count']
+        ]);
     }
 }

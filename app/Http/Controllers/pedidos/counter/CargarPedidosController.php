@@ -16,6 +16,7 @@ use App\Models\Zone;
 use App\Models\Distritos_zonas;
 use App\Models\User;
 use App\Services\PedidoImportService;
+use App\Services\DoctorSyncService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -27,10 +28,12 @@ use Maatwebsite\Excel\Facades\Excel;
 class CargarPedidosController extends Controller
 {
     protected $pedidoImportService;
+    protected $doctorSyncService;
 
-    public function __construct(PedidoImportService $pedidoImportService)
+    public function __construct(PedidoImportService $pedidoImportService, DoctorSyncService $doctorSyncService)
     {
         $this->pedidoImportService = $pedidoImportService;
+        $this->doctorSyncService = $doctorSyncService;
     }
 
     public function index(Request $request)
@@ -677,9 +680,44 @@ class CargarPedidosController extends Controller
             ->values();
     }
     public function sincronizarDoctoresPedidos(){
-        
-        return redirect()->route('cargarpedidos.index')->with('warning', 
-            'La sincronización de doctores-pedidos requiere configuración adicional de la base de datos.');
+        try {
+            $resultados = $this->doctorSyncService->sincronizarDoctoresPedidos();
+            
+            $mensaje = "Sincronización completada: {$resultados['sincronizados']} pedidos sincronizados de {$resultados['procesados']} procesados.";
+            
+            if ($resultados['no_encontrados'] > 0) {
+                $mensaje .= " {$resultados['no_encontrados']} doctores no encontrados.";
+            }
+            
+            if ($resultados['errores'] > 0) {
+                $mensaje .= " {$resultados['errores']} errores ocurridos.";
+            }
+            
+            $tipo = 'success';
+            if ($resultados['sincronizados'] === 0 && $resultados['procesados'] > 0) {
+                $tipo = 'warning';
+                $mensaje = 'No se pudo sincronizar ningún pedido. Verifique que los nombres de doctores coincidan.';
+            } elseif ($resultados['procesados'] === 0) {
+                $mensaje = 'No hay pedidos sin doctor asignado para sincronizar.';
+                $tipo = 'info';
+            }
+            
+            return response()->json([
+                'success' => true,
+                'message' => $mensaje,
+                'type' => $tipo,
+                'data' => $resultados
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error en sincronización de doctores: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al sincronizar doctores: ' . $e->getMessage(),
+                'type' => 'error'
+            ], 500);
+        }
     }
 
     public function searchDoctores(Request $request)

@@ -11,6 +11,7 @@ use Maatwebsite\Excel\Concerns\WithStartRow;
 class DetailPedidosImport extends BaseImport implements WithStartRow
 {
     protected DetailPedidosImportService $detailService;
+    private array $excelPedidos = []; // NUEVO: Para trackear pedidos del Excel
     
     /**
      * Constructor de la clase DetailPedidosImport
@@ -160,6 +161,9 @@ class DetailPedidosImport extends BaseImport implements WithStartRow
             return;
         }
         
+        // NUEVO: Trackear artículos del Excel para posterior eliminación
+        $this->trackExcelArticle($pedidoId, $articulo, $cantidad, $precioUnitario);
+        
         try {
             // Buscar el pedido
             $pedido = $this->detailService->findPedido($pedidoId);
@@ -208,6 +212,98 @@ class DetailPedidosImport extends BaseImport implements WithStartRow
         } catch (\Exception $e) {
             $this->incrementStat('errors');
             // El error se registra automáticamente por el framework
+        }
+    }
+    
+    /**
+     * NUEVO: Trackea artículos del Excel para posterior eliminación
+     * 
+     * Este método registra los artículos que aparecen en el Excel para después
+     * poder determinar cuáles existen en BD pero no en Excel y eliminarlos.
+     * 
+     * @param string $pedidoId ID del pedido
+     * @param string $articulo Nombre del artículo
+     * @param float $cantidad Cantidad del artículo
+     * @param float $precioUnitario Precio unitario del artículo
+     * @return void
+     */
+    private function trackExcelArticle(string $pedidoId, string $articulo, float $cantidad, float $precioUnitario): void
+    {
+        $pedidoKey = strtoupper(trim($pedidoId));
+        
+        if (!isset($this->excelPedidos[$pedidoKey])) {
+            $this->excelPedidos[$pedidoKey] = [];
+        }
+        
+        // Crear clave única para el artículo (artículo + cantidad + precio)
+        $articleKey = strtoupper(trim($articulo)) . '|' . $cantidad . '|' . round($precioUnitario, 2);
+        
+        $this->excelPedidos[$pedidoKey][$articleKey] = [
+            'articulo' => $articulo,
+            'cantidad' => $cantidad,
+            'unit_prize' => round($precioUnitario, 2),
+        ];
+    }
+    
+    /**
+     * NUEVO: Sobrescribe el método de finalización para eliminar artículos
+     * 
+     * Este método se ejecuta al final del procesamiento de importación
+     * y elimina los artículos que existen en BD pero no en el Excel.
+     * 
+     * @return void
+     */
+    protected function finalizeImport(): void
+    {
+        $this->deleteArticlesNotInExcel();
+        parent::finalizeImport();
+    }
+    
+    /**
+     * NUEVO: Elimina artículos que no están en el Excel
+     * 
+     * Para cada pedido procesado, compara los artículos actuales en BD
+     * con los del Excel y elimina los que no aparecen en el nuevo archivo.
+     * 
+     * @return void
+     */
+    private function deleteArticlesNotInExcel(): void
+    {
+        $deletedCount = 0;
+        
+        foreach ($this->excelPedidos as $pedidoKey => $excelArticles) {
+            // Buscar el pedido en BD
+            $pedido = $this->detailService->findPedido($pedidoKey);
+            
+            if (!$pedido) {
+                continue; // Ya se maneja en not_found
+            }
+            
+            // Omitir pedidos preparados
+            if ($pedido->productionStatus === 2) {
+                continue; // Ya se maneja en prepared_orders
+            }
+            
+            // Obtener todos los artículos actuales de este pedido en BD
+            $currentArticles = DetailPedidos::where('pedidos_id', $pedido->id)->get();
+            
+            foreach ($currentArticles as $currentArticle) {
+                // Crear clave única para comparar con Excel
+                $currentKey = strtoupper(trim($currentArticle->articulo)) . '|' . 
+                             $currentArticle->cantidad . '|' . 
+                             round((float)$currentArticle->unit_prize, 2);
+                
+                // Si este artículo NO está en el Excel, eliminarlo
+                if (!isset($excelArticles[$currentKey])) {
+                    $currentArticle->delete();
+                    $deletedCount++;
+                }
+            }
+        }
+        
+        // Actualizar estadísticas si se implementan contadores para eliminaciones
+        if (isset($this->stats['deleted'])) {
+            $this->stats['deleted'] = $deletedCount;
         }
     }
 }
