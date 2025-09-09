@@ -16,7 +16,7 @@
         <a class="btn btn-primary btn-sm" href="{{ route('pedidosmotorizado.index') }}"><i class="fa fa-arrow-left"></i> Atrás</a>
     </div>
   
-    <form action="{{ route('pedidosmotorizado.update',$pedido->id) }}" method="POST">
+    <for    SSSSSSSSSSSSSSSm action="{{ route('pedidosmotorizado.update',$pedido->id) }}" method="POST">
         @csrf
         @method('PUT')
   
@@ -48,7 +48,7 @@
         </div>
         <br>
         <button type="submit" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> Actualizar</button>
-    </form>
+    </for>
     <br>
     <div class="row">
         <form id="enviarfoto" action="{{ route('pedidosmotorizado.cargarfotos',$pedido->id) }}" method="POST" enctype="multipart/form-data">
