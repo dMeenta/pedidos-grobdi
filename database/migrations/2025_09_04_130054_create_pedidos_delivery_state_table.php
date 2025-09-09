@@ -18,10 +18,8 @@ return new class extends Migration
             $table->foreignId('motorizado_id')->nullable()->constrained('users');
             $table->text('observacion')->nullable();
             $table->string('foto_domicilio')->nullable();
-            $table->timestamp('datetime_foto_domicilio')->nullable();
             $table->string('foto_entrega')->nullable();
-            $table->timestamp('datetime_foto_entrega')->nullable();
-            $table->timestamp('created_at')->useCurrent();
+            $table->timestamps();
         });
     }
 
