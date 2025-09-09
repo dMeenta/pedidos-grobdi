@@ -284,6 +284,7 @@ class PedidosController extends Controller
                     'id' => $state->id,
                     'state' => $state->state,
                     'created_at' => $state->created_at,
+                    'observacion' => $state->observacion,
                     'created_at_formatted' => $state->created_at_formatted,
                     'foto_domicilio' => $state->foto_domicilio ? [
                         'url' => asset($state->foto_domicilio),
