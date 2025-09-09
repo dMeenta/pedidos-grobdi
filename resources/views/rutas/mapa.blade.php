@@ -101,7 +101,7 @@ return 'white';
         /* escondido fuera de la pantalla */
         left: 0;
         width: 100%;
-        height: 50%;
+        height: 46%;
         /* hasta la mitad de la pantalla */
         background: white;
         box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
@@ -198,19 +198,7 @@ return 'white';
                 lng: -77.0506430
             };
 
-            userPosition = defaultCoords;
-
-            // Crear mapa con centro en defaultCoords
-            map = new google.maps.Map(document.getElementById("map"), {
-                center: userPosition,
-                zoom: 14,
-            });
-
-            directionsService = new google.maps.DirectionsService();
-            directionsRenderer = new google.maps.DirectionsRenderer();
-            directionsRenderer.setMap(map);
-
-            // Intentar obtener ubicación del usuario
+            // Intentar primero geolocalización
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
@@ -218,86 +206,70 @@ return 'white';
                             lat: position.coords.latitude,
                             lng: position.coords.longitude
                         };
-
-                        new google.maps.Marker({
-                            position: userPosition,
-                            map,
-                            title: "Tu ubicación",
-                            icon: {
-                                path: google.maps.SymbolPath.CIRCLE,
-                                scale: 8,
-                                fillColor: "blue",
-                                fillOpacity: 0.8,
-                                strokeWeight: 2,
-                                strokeColor: "white",
-                            }
-                        });
-
-                        map.setCenter(userPosition);
+                        createMap(userPosition);
                     },
                     (error) => {
-                        new google.maps.Marker({
-                            position: userPosition,
-                            map,
-                            title: "Tu ubicación",
-                            icon: {
-                                path: google.maps.SymbolPath.CIRCLE,
-                                scale: 8,
-                                fillColor: "blue",
-                                fillOpacity: 0.8,
-                                strokeWeight: 2,
-                                strokeColor: "white",
-                            }
-                        });
-
-                        map.setCenter(userPosition);
+                        toastr.warning("No se pudo obtener ubicación, usando la farmacia Grobdi como referencia:", error);
+                        userPosition = defaultCoords;
+                        createMap(userPosition);
                     }
                 );
             } else {
-                new google.maps.Marker({
-                    position: userPosition,
-                    map,
-                    title: "Tu ubicación",
-                    icon: {
-                        path: google.maps.SymbolPath.CIRCLE,
-                        scale: 8,
-                        fillColor: "blue",
-                        fillOpacity: 0.8,
-                        strokeWeight: 2,
-                        strokeColor: "white",
-                    }
-                });
+                userPosition = defaultCoords;
+                createMap(userPosition);
             }
+        }
 
+        function createMap(centerCoords) {
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: centerCoords,
+                zoom: 14,
+            });
+
+            // Marker de usuario
+            new google.maps.Marker({
+                position: centerCoords,
+                map,
+                title: "Tu ubicación",
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 8,
+                    fillColor: "blue",
+                    fillOpacity: 0.8,
+                    strokeWeight: 2,
+                    strokeColor: "white",
+                }
+            });
+
+            // Directions
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer();
+            directionsRenderer.setMap(map);
+
+            // Agregar las visitas
             const bounds = new google.maps.LatLngBounds();
-
-            Object.entries(groupedVisitasByCentroSaludId).map(([id, group]) => {
+            Object.entries(groupedVisitasByCentroSaludId).forEach(([id, group]) => {
                 const {
                     lat,
                     lng
                 } = group.coords;
-                if (
-                    group &&
-                    !isNaN(parseFloat(lat)) &&
-                    !isNaN(parseFloat(lng))
-                ) {
-                    const position = {
-                        lat: parseFloat(lat),
-                        lng: parseFloat(lng)
-                    };
+                if (!lat || !lng) return;
 
-                    const marker = new google.maps.Marker({
-                        position,
-                        map,
-                        title: group.name
-                    });
+                const position = {
+                    lat: parseFloat(lat),
+                    lng: parseFloat(lng)
+                };
+                const marker = new google.maps.Marker({
+                    position,
+                    map,
+                    title: group.name
+                });
 
-                    markers.push(marker);
-                    bounds.extend(position);
+                markers.push(marker);
+                bounds.extend(position);
 
-                    marker.addListener("click", () => {
-                        panelContent.html(`
-                            <div class="d-flex flex-column justify-content-between" style="height: 100%;">
+                marker.addListener("click", () => {
+                    panelContent.html(`<div class="d-flex flex-column justify-content-between" style="height: 100%;">
                                 <div class="border-bottom border-dark text-center pb-2">
                                     <strong>${group.name}</strong>
                                 </div>
@@ -333,16 +305,15 @@ return 'white';
                                     Como llegar
                                 </button>
                             </div>`);
+                    infoPanel.addClass("active");
+                    map.panTo(position);
+                    map.setZoom(16);
+                    map.panBy(0, 85);
+                });
+            });
 
-                        infoPanel.addClass("active");
-
-                        map.panTo(position);
-                        map.setZoom(16);
-                        map.panBy(0, 150);
-                    });
-                }
-            })
-
+            // Ajustar mapa: que muestre tanto mi ubicación como las visitas
+            bounds.extend(centerCoords);
             if (!bounds.isEmpty()) {
                 map.fitBounds(bounds);
             }
@@ -416,7 +387,7 @@ return 'white';
                         centroSalud.attr('href', `https://google.com/maps?q=${visitaDetails.centrosalud_lat},${visitaDetails.centrosalud_lng}`);
                     } else {
                         centroSalud.removeAttr('href')
-                        toastr.error("Este centro de salud no tiene coordenadas")
+                        toastr.wargning("Este centro de salud no tiene coordenadas")
                     }
                     const turnoText = visitaDetails.turno ? (visitaDetails.turno == 1 ? 'Tarde' : 'Mañana') : 'No asignado';
                     $('#doctor-turno').text(turnoText);

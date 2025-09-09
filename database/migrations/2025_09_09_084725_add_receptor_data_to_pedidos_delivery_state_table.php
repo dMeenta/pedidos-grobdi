@@ -16,10 +16,10 @@ return new class extends Migration
             $table->longText('receptor_firma')->nullable()->after('receptor_nombre');
         });
     }
-
     /**
-     * Reverse the migrations.
-     */
+     * * Reverse the migrations.
+     * */
+
     public function down(): void
     {
         Schema::table('pedidos_delivery_state', function (Blueprint $table) {
