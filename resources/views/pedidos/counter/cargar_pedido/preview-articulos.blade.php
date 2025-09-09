@@ -19,12 +19,14 @@
             'not_found' => [],
             'prepared_orders' => [],
             'duplicates' => [],
+            'to_delete' => [], // NUEVO: artículos a eliminar
             'stats' => [
                 'new_count' => 0,
                 'modified_count' => 0,
                 'no_changes_count' => 0,
                 'not_found_count' => 0,
                 'prepared_orders_count' => 0,
+                'to_delete_count' => 0, // NUEVO
                 'total_count' => 0
             ]
         ];
@@ -38,12 +40,14 @@
             'not_found' => [],
             'prepared_orders' => [],
             'duplicates' => [],
+            'to_delete' => [], // NUEVO: artículos a eliminar
             'stats' => [
                 'new_count' => 0,
                 'modified_count' => 0,
                 'no_changes_count' => 0,
                 'not_found_count' => 0,
                 'prepared_orders_count' => 0,
+                'to_delete_count' => 0, // NUEVO
                 'total_count' => 0
             ]
         ], $changes);
@@ -70,7 +74,7 @@
                 <form action="{{ route('cargarpedidos.confirm-articulos') }}" method="POST" class="d-inline" id="confirmFormTop">
                     @csrf
                     <input type="hidden" name="filename" value="{{ $fileName }}">
-                    <button type="button" class="btn btn-success btn-sm" onclick="confirmChanges()" {{ ($errorMessage || (count(($changes['new'] ?? [])) == 0 && count(($changes['modified'] ?? [])) == 0) || (isset($changes['duplicates']) && count(($changes['duplicates'] ?? []))>0)) ? 'disabled' : '' }}>
+                    <button type="button" class="btn btn-success btn-sm" onclick="confirmChanges()" {{ ($errorMessage || (count(($changes['new'] ?? [])) == 0 && count(($changes['modified'] ?? [])) == 0 && count(($changes['to_delete'] ?? [])) == 0) || (isset($changes['duplicates']) && count(($changes['duplicates'] ?? []))>0)) ? 'disabled' : '' }}>
                         <i class="fas fa-check"></i> Aprobar Cambios
                     </button>
                 </form>
@@ -95,7 +99,7 @@
                                     Resumen del procesamiento
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-2">
+                                    <div class="col-md-4">
                                         <div class="d-flex align-items-center mb-2">
                                             <div class="text-success mr-2">
                                                 <i class="fas fa-plus-circle fa-2x"></i>
@@ -106,7 +110,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-2">
+                                    <div class="col-md-4">
                                         <div class="d-flex align-items-center mb-2">
                                             <div class="text-warning mr-2">
                                                 <i class="fas fa-edit fa-2x"></i>
@@ -117,7 +121,20 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-2">
+                                    <div class="col-md-4">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div class="text-danger mr-2">
+                                                <i class="fas fa-trash fa-2x"></i>
+                                            </div>
+                                            <div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $changes['stats']['to_delete_count'] ?? 0 }}</div>
+                                                <div class="text-xs text-muted">A Eliminar</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-md-4">
                                         <div class="d-flex align-items-center mb-2">
                                             <div class="text-info mr-2">
                                                 <i class="fas fa-equals fa-2x"></i>
@@ -128,9 +145,9 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-2">
+                                    <div class="col-md-4">
                                         <div class="d-flex align-items-center mb-2">
-                                            <div class="text-danger mr-2">
+                                            <div class="text-secondary mr-2">
                                                 <i class="fas fa-exclamation-triangle fa-2x"></i>
                                             </div>
                                             <div>
@@ -139,18 +156,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-2">
-                                        <div class="d-flex align-items-center mb-2">
-                                            <div class="text-secondary mr-2">
-                                                <i class="fas fa-lock fa-2x"></i>
-                                            </div>
-                                            <div>
-                                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $changes['stats']['prepared_orders_count'] ?? 0 }}</div>
-                                                <div class="text-xs text-muted">Pedidos Preparados</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-2">
+                                    <div class="col-md-4">
                                         <div class="d-flex align-items-center mb-2">
                                             <div class="text-primary mr-2">
                                                 <i class="fas fa-file-excel fa-2x"></i>
@@ -251,6 +257,57 @@
                                 <td>S/ {{ number_format($newArticle['data']['unit_prize'], 2) }}</td>
                                 <td>S/ {{ number_format($newArticle['data']['sub_total'], 2) }}</td>
                                 <td><span class="badge badge-success">{{ now()->format('Y-m-d H:i:s') }}</span></td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        @endif
+
+        <!-- Articles to Delete Section -->
+        @if(count($changes['to_delete'] ?? []) > 0)
+        <div class="card mb-4">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-trash"></i> 
+                    Artículos a Eliminar ({{ count($changes['to_delete'] ?? []) }})
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-danger">
+                    <strong><i class="fas fa-exclamation-triangle"></i> Atención:</strong> 
+                    Los siguientes artículos existen actualmente en la base de datos pero NO aparecen en tu nuevo archivo Excel, 
+                    por lo que serán <strong>ELIMINADOS</strong> durante la importación.
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Pedido ID</th>
+                                <th>Cliente</th>
+                                <th>Artículo</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unit.</th>
+                                <th>Sub Total</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach(($changes['to_delete'] ?? []) as $deleteArticle)
+                            <tr class="table-danger">
+                                <td><strong>{{ $deleteArticle['pedido_id'] }}</strong></td>
+                                <td>{{ $deleteArticle['pedido_cliente'] }}</td>
+                                <td>{{ $deleteArticle['articulo'] }}</td>
+                                <td>{{ $deleteArticle['cantidad'] }}</td>
+                                <td>S/ {{ number_format($deleteArticle['unit_prize'], 2) }}</td>
+                                <td>S/ {{ number_format($deleteArticle['sub_total'], 2) }}</td>
+                                <td>
+                                    <span class="badge badge-danger">
+                                        <i class="fas fa-trash"></i> SERÁ ELIMINADO
+                                    </span>
+                                </td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -471,11 +528,11 @@
         </div>
         @endif
 
-        @if(count($changes['new']) == 0 && count($changes['modified']) == 0)
+        @if(count($changes['new']) == 0 && count($changes['modified']) == 0 && count($changes['to_delete'] ?? []) == 0)
         <div class="alert alert-info text-center">
             <i class="fas fa-info-circle fa-2x mb-2"></i>
             <h5>No se encontraron cambios</h5>
-            <p class="mb-0">El archivo Excel no contiene artículos nuevos ni modificaciones a realizar.</p>
+            <p class="mb-0">El archivo Excel no contiene artículos nuevos, modificaciones ni eliminaciones a realizar.</p>
         </div>
         @endif
 
@@ -484,7 +541,7 @@
             <form action="{{ route('cargarpedidos.confirm-articulos') }}" method="POST" class="d-inline" id="confirmForm">
                 @csrf
                 <input type="hidden" name="filename" value="{{ $fileName }}">
-                <button type="button" class="btn btn-success btn-lg" onclick="confirmChanges()" {{ ($errorMessage || (count($changes['new'] ?? []) == 0 && count($changes['modified'] ?? []) == 0) || (isset($changes['duplicates']) && count($changes['duplicates'])>0)) ? 'disabled' : '' }}>
+                <button type="button" class="btn btn-success btn-lg" onclick="confirmChanges()" {{ ($errorMessage || (count($changes['new'] ?? []) == 0 && count($changes['modified'] ?? []) == 0 && count($changes['to_delete'] ?? []) == 0) || (isset($changes['duplicates']) && count($changes['duplicates'])>0)) ? 'disabled' : '' }}>
                     <i class="fas fa-check"></i> Confirmar y Aplicar Cambios
                 </button>
             </form>
@@ -560,7 +617,7 @@
 function confirmChanges() {
     Swal.fire({
         title: '¿Confirmar importación de artículos?',
-        text: 'Esta acción procesará todos los artículos del archivo Excel y los agregará a los pedidos correspondientes.',
+        text: 'Esta acción procesará todos los artículos del archivo Excel: agregará nuevos, modificará existentes y eliminará los que no aparezcan en el nuevo Excel.',
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#28a745',
