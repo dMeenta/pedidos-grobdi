@@ -105,6 +105,8 @@ Route::get('/doctors/search', [DoctorController::class, 'showByNameLike'])->name
 //COUNTER
 Route::middleware(['checkRole:counter,admin,Administracion'])->group(function () {
 
+    Route::get('pedido/{id}/state', [PedidosController::class, 'showDeliveryStates'])->name('pedidos.showDeliveryStates');
+
     // Route::resource('cargarpedidos', PedidosController::class);
     Route::resource('cargarpedidos', CargarPedidosController::class);
     Route::post('/cargarpedidosdetail', CargarPedidosController::class . '@cargarExcelArticulos')->name('cargarpedidos.excelarticulos');
