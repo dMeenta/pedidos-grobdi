@@ -273,9 +273,19 @@
                 }
                 toastr.success(response.message || 'Pedido actualizado correctamente');
                 btnSubmit.prop('disabled', false);
-                setTimeout(() => {
-                    window.location.href = "{{ route('pedidosmotorizado.index') }}";
-                }, 1000);
+                let previousUrl = document.referrer;
+
+                // Si el referrer pertenece a pedidosmotorizado, vuelve ahí
+                if (previousUrl.includes("/pedidosmotorizado")) {
+                    setTimeout(() => {
+                        window.location.href = previousUrl;
+                    }, 800);
+                } else {
+                    // fallback si no viene de pedidosmotorizado
+                    setTimeout(() => {
+                        window.location.href = "{{ route('pedidosmotorizado.index') }}";
+                    }, 950);
+                }
             },
             error: function(xhr) {
                 let res = xhr.responseJSON;
