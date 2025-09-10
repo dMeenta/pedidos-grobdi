@@ -11,7 +11,7 @@
     <div class="card-header">
         <div class="d-flex justify-content-between align-items-center">
             <h2 class="mb-0">Exportar - Hoja de Ruta de: Motorizado</h2>
-            <a class="btn btn-outline-danger" href="{{ url()->previous() }}"><i class="fas fa-door-open"></i>
+            <a class="btn btn-outline-danger" href="{{ route("cargarpedidos.index") }}"><i class="fas fa-door-open"></i>
                 <span class="d-none d-md-inline">Regresar</span>
             </a>
         </div>
