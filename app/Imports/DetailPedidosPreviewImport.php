@@ -36,26 +36,26 @@ class DetailPedidosPreviewImport implements ToCollection
             'not_found' => [],
             'prepared_orders' => [],
             'duplicates' => [],
-            'to_delete' => [], // NUEVO: artículos que se van a eliminar
+            'to_delete' => [], 
             'stats' => []
         ];
 
-        // Convert collection to array with preserved keys for better handling
+        // Convertir colección a array manteniendo claves para mejor manejo
         $originalRows = $rows->toArray();
         
         $colMap = $this->detectColumns($originalRows);
         $processedRows = $this->detectDuplicates($originalRows, $colMap);
 
-        // Store duplicates information but DON'T stop processing
+        // Almacenar información de duplicados pero NO detener el procesamiento
         if ($processedRows['has_duplicates']) {
-            // Debug: Log what duplicates were found
+            // Debug: Registrar qué duplicados se encontraron
             Log::info('Duplicates detected', [
                 'count' => count($processedRows['duplicates']),
                 'duplicates' => $processedRows['duplicates']
             ]);
             
             $this->changes['duplicates'] = $processedRows['duplicates'];
-            // Don't return here - continue processing to show preview with duplicates highlighted
+            // No retornar aquí - continuar procesamiento para mostrar vista previa con duplicados resaltados
         }
 
         // NUEVO: Recopilar todos los pedidos únicos del Excel para detectar eliminaciones
@@ -87,7 +87,7 @@ class DetailPedidosPreviewImport implements ToCollection
             'no_changes_count' => 0,
             'not_found_count' => 0,
             'prepared_orders_count' => 0,
-            'to_delete_count' => 0, // NUEVO: contador de artículos a eliminar
+            'to_delete_count' => 0, 
             'total_count' => 0
         ];
     }
@@ -117,15 +117,14 @@ class DetailPedidosPreviewImport implements ToCollection
             return $colMap;
         }
 
-            // Heurística: escanea las primeras ~10 filas para detectar el formato antiguo donde col[2] == 'PEDIDO'
-            // y los datos reales están en D/Q/R/S/T => 3/16/17/18/19
+        // Heurística: escanea las primeras ~10 filas para detectar el formato antiguo donde col[2] == 'PEDIDO'
+        // y los datos reales están en D/Q/R/S/T => 3/16/17/18/19
         $maxProbe = min(10, count($rows));
         for ($i = 0; $i < $maxProbe; $i++) {
             $row = $rows[$i];
             if (!is_array($row)) { $row = $row->toArray(); }
 
             // Omitir filas completamente vacías
-
             if (empty(array_filter($row, fn($v) => $v !== null && trim((string)$v) !== ''))) {
                 continue;
             }
@@ -156,7 +155,6 @@ class DetailPedidosPreviewImport implements ToCollection
 
         foreach ($rows as $rowIndex => $row) {
             // Omitir las dos primeras filas como encabezados si están presentes
-
             if ($rowIndex < 2) { continue; }
             if (!is_array($row)) { 
                 $row = $row->toArray(); 
@@ -581,7 +579,7 @@ class DetailPedidosPreviewImport implements ToCollection
                         $this->stats['no_changes_count'] + $this->stats['not_found_count'] + 
                         $this->stats['prepared_orders_count'] + $this->stats['to_delete_count']; // NUEVO: incluir eliminaciones
 
-        // If nothing processed but there are duplicates detected, still return preview so user can correct Excel
+        // Si no se procesó nada pero hay duplicados detectados, aún así devolver vista previa para que el usuario pueda corregir el Excel
         if ($processedSum === 0 && !empty($this->changes['duplicates'])) {
             $this->changes['info_message'] = 'Solo se detectaron filas duplicadas. Revisa la tabla de duplicados para corregir tu Excel.';
             $this->data = $this->changes;
@@ -595,7 +593,7 @@ class DetailPedidosPreviewImport implements ToCollection
             return;
         }
 
-        // Generate summary
+        // Generar resumen
         $summary = "RESUMEN DE PROCESAMIENTO:\n";
         $summary .= "Artículos nuevos: {$this->stats['new_count']}\n";
         $summary .= "Artículos modificados: {$this->stats['modified_count']}\n";

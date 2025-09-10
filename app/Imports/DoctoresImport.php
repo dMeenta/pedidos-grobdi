@@ -33,32 +33,32 @@ class DoctoresImport extends BaseImport
     protected function getDefaultColumnMapping(): array
     {
         return [
-            0 => 'estado',
-            1 => 'name_prefix',
-            2 => 'name',
-            3 => 'CMP',
-            4 => 'phone',
-            5 => 'telefono2',
-            6 => 'telefono3',
-            7 => 'name_secretariat',
-            8 => 'observations',
-            9 => 'especialidad',
-            10 => 'asignado_visitadora',
-            11 => 'distrito_direccion',
-            12 => 'centrosalud',
-            13 => 'numero_consultorio',
-            14 => 'horario_atencion',
-            15 => 'categoria_medico',
-            16 => 'tipo_medico',
-            17 => 'precio_consulta',
-            18 => 'campo18',
-            19 => 'campo19',
-            20 => 'campo20',
-            21 => 'dia_lunes',
-            22 => 'dia_martes',
-            23 => 'dia_miercoles',
-            24 => 'dia_jueves',
-            25 => 'dia_viernes',
+            'estado' => 0,
+            'name_prefix' => 1,
+            'name' => 2,
+            'CMP' => 3,
+            'phone' => 4,
+            'telefono2' => 5,
+            'telefono3' => 6,
+            'name_secretariat' => 7,
+            'observations' => 8,
+            'especialidad' => 9,
+            'asignado_visitadora' => 10,
+            'distrito_direccion' => 11,
+            'centrosalud' => 12,
+            'numero_consultorio' => 13,
+            'horario_atencion' => 14,
+            'categoria_medico' => 15,
+            'tipo_medico' => 16,
+            'precio_consulta' => 17,
+            'campo18' => 18,
+            'campo19' => 19,
+            'campo20' => 20,
+            'dia_lunes' => 21,
+            'dia_martes' => 22,
+            'dia_miercoles' => 23,
+            'dia_jueves' => 24,
+            'dia_viernes' => 25,
         ];
     }
     
@@ -76,15 +76,10 @@ class DoctoresImport extends BaseImport
      */
     protected function processRow(array $row, int $index, array $colMap): void
     {
-        // Skip if no centro de salud
-        if (empty($row[$colMap['centrosalud']] ?? '')) {
-            $this->incrementStat('errors');
-            return;
-        }
-        
+        // Validar solo los campos absolutamente requeridos
         $cmp = trim($row[$colMap['CMP']] ?? '');
         
-        // Skip if no CMP
+        // Skip only if no CMP (campo realmente obligatorio)
         if (empty($cmp)) {
             $this->incrementStat('errors');
             return;
@@ -97,10 +92,9 @@ class DoctoresImport extends BaseImport
         }
         
         try {
-            // Find or create centro salud and especialidad
-            $centroSalud = $this->doctorService->findOrCreateCentroSalud(
-                trim($row[$colMap['centrosalud']])
-            );
+            // Find or create centro salud (usar un valor por defecto si está vacío)
+            $centroSaludName = trim($row[$colMap['centrosalud']] ?? 'Sin Centro de Salud');
+            $centroSalud = $this->doctorService->findOrCreateCentroSalud($centroSaludName);
             
             $especialidad = $this->doctorService->findOrCreateEspecialidad(
                 trim($row[$colMap['especialidad']] ?? 'General')
@@ -115,16 +109,16 @@ class DoctoresImport extends BaseImport
                 $distrito = $this->doctorService->findDistrito($distritoName);
             }
             
-            // Prepare doctor data
+            // Prepare doctor data con manejo seguro de campos vacíos
             $doctorData = [
-                'name' => trim($row[$colMap['name']] ?? ''),
+                'name' => trim($row[$colMap['name']] ?? '') ?: 'Doctor Sin Nombre',
                 'name_softlynn' => trim($row[$colMap['name']] ?? ''),
                 'CMP' => $cmp,
-                'phone' => trim($row[$colMap['phone']] ?? '') ?: null,
-                'name_secretariat' => trim($row[$colMap['name_secretariat']] ?? '') ?: null,
-                'observations' => trim($row[$colMap['observations']] ?? '') ?: null,
-                'categoria_medico' => trim($row[$colMap['categoria_medico']] ?? '') ?: 'Visitador',
-                'tipo_medico' => trim($row[$colMap['tipo_medico']] ?? '') ?: 'En Proceso',
+                'phone' => !empty(trim($row[$colMap['phone']] ?? '')) ? trim($row[$colMap['phone']]) : null,
+                'name_secretariat' => !empty(trim($row[$colMap['name_secretariat']] ?? '')) ? trim($row[$colMap['name_secretariat']]) : null,
+                'observations' => !empty(trim($row[$colMap['observations']] ?? '')) ? trim($row[$colMap['observations']]) : null,
+                'categoria_medico' => !empty(trim($row[$colMap['categoria_medico']] ?? '')) ? trim($row[$colMap['categoria_medico']]) : 'Visitador',
+                'tipo_medico' => !empty(trim($row[$colMap['tipo_medico']] ?? '')) ? trim($row[$colMap['tipo_medico']]) : 'En Proceso',
                 'centrosalud_id' => $centroSalud->id,
                 'especialidad_id' => $especialidad->id,
                 'distrito_id' => $distrito?->id,
@@ -138,9 +132,12 @@ class DoctoresImport extends BaseImport
             $dayColumns = ['dia_lunes', 'dia_martes', 'dia_miercoles', 'dia_jueves', 'dia_viernes'];
             
             foreach ($dayColumns as $dayIndex => $dayColumn) {
-                $dayValue = $row[$colMap[$dayColumn]] ?? '';
-                if (!empty(trim($dayValue))) {
-                    $days[21 + $dayIndex] = trim($dayValue);
+                // Verificar que la columna existe en el mapeo antes de acceder
+                if (isset($colMap[$dayColumn])) {
+                    $dayValue = $row[$colMap[$dayColumn]] ?? '';
+                    if (!empty(trim($dayValue))) {
+                        $days[21 + $dayIndex] = trim($dayValue);
+                    }
                 }
             }
             
@@ -152,7 +149,11 @@ class DoctoresImport extends BaseImport
             
         } catch (\Exception $e) {
             $this->incrementStat('errors');
-            // Error logged automatically by framework
+            // Log del error específico para debug
+            logger()->error('Error procesando fila ' . $index . ' en DoctoresImport: ' . $e->getMessage(), [
+                'cmp' => $cmp,
+                'row_data' => $row
+            ]);
         }
     }
 }

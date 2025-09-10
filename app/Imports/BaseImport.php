@@ -12,7 +12,7 @@ abstract class BaseImport implements ToCollection
     use HasImportResponse, HasDataValidation;
     
     /**
-     * Statistics for the import process
+    * Estadísticas del proceso de importación
      */
     protected array $stats = [
         'processed' => 0,
