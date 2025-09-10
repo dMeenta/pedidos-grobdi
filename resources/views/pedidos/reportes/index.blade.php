@@ -21,6 +21,11 @@
             @csrf
             <div class="row">
                 <div class="form-group col-12">
+                    <label for="requestedDate">Fecha solicitada:</label>
+                    <input type="date" class="form-control datetimepicker-input" id="requestedDate" name="requestedDate" required>
+                </div>
+
+                <div class="form-group col-12">
                     <label for="motorizado_id">Motorizado</label>
                     <select name="motorizado_id" class="custom-select" required>
                         <option selected disabled>Seleccione el motorizado deseado</option>
@@ -47,5 +52,10 @@
     @if(session('error'))
     toastr.error("{{ session('error') }}", "Error");
     @endif
+
+
+    $('#requestedDate').on('click', function() {
+        this.showPicker?.();
+    });
 </script>
 @stop

@@ -340,12 +340,17 @@ class PedidosController extends Controller
             return redirect()->back();
         }
 
+        if (!$request->requestedDate) {
+            session()->flash('error', 'Debe definir la fecha de la hoja de ruta solicitada.');
+            return redirect()->back();
+        }
+
         $motorizado = User::select('id', 'name')->find($request->motorizado_id);
         $path = public_path('formatos/formatoMotorizados_hoja_de_rutas.xlsx');
         $spreadsheet = IOFactory::load($path);
         $sheet = $spreadsheet->getActiveSheet();
 
-        $requestedDate = Carbon::today()->toDateString();
+        $requestedDate = Carbon::parse($request->requestedDate)->toDateString();
 
         $sheet->setCellValue('F10', $motorizado->name);
         $sheet->setCellValue('E6', value: $requestedDate);
