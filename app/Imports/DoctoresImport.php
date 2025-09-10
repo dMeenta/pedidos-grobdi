@@ -76,11 +76,18 @@ class DoctoresImport extends BaseImport
      */
     protected function processRow(array $row, int $index, array $colMap): void
     {
-        // Verificar si la fila debe ser omitida (encabezados, filas vacías, etc.)
+        // Siempre saltar la primera fila (índice 0) que es la cabecera
+        if ($index === 0) {
+            $this->incrementStat('skipped');
+            return;
+        }
+
+        /* Verificar si la fila debe ser omitida (filas vacías, etc.)
         if ($this->shouldSkipRow($row, $colMap)) {
             $this->incrementStat('skipped');
             return;
         }
+        */
 
         // Validar solo los campos absolutamente requeridos
         $cmp = trim($row[$colMap['CMP']] ?? '');
