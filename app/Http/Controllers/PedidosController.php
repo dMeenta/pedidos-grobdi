@@ -8,10 +8,15 @@ use App\Models\Pedidos;
 use App\Models\Zone;
 use App\Models\Distritos_zonas;
 use App\Models\Location;
+use App\Models\User;
 use Carbon\Carbon;
-use DateTime;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Illuminate\Support\Facades\Response;
+use \PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
 class PedidosController extends Controller
 {
@@ -307,5 +312,103 @@ class PedidosController extends Controller
             'success' => true,
             'states' => $states
         ]);
+    }
+
+    public function exportHojaDeRutaByMotorizadoForm()
+    {
+        $motorizados = User::select('id', 'name')
+            ->where('active', true)
+            ->where('role_id', 5)
+            ->with(['zones' => function ($q) {
+                $q->select('zones.name');
+            }])
+            ->get()
+            ->map(function ($user) {
+                $user->zone = $user->zones->first();
+                unset($user->zones);
+                return $user;
+            });
+
+        return view('pedidos.reportes.index', compact('motorizados'));
+    }
+
+    public function exportHojaDeRutaByMotorizadoExcel(Request $request)
+    {
+
+        if (!$request->motorizado_id) {
+            session()->flash('error', 'Debe seleccionar un motorizado.');
+            return redirect()->back();
+        }
+
+        if (!$request->requestedDate) {
+            session()->flash('error', 'Debe definir la fecha de la hoja de ruta solicitada.');
+            return redirect()->back();
+        }
+
+        $motorizado = User::select('id', 'name')->find($request->motorizado_id);
+        $path = public_path('formatos/formatoMotorizados_hoja_de_rutas.xlsx');
+        $spreadsheet = IOFactory::load($path);
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $requestedDate = Carbon::parse($request->requestedDate)->toDateString();
+
+        $sheet->setCellValue('F10', $motorizado->name);
+        $sheet->setCellValue('E6', value: $requestedDate);
+        $pedidos = Pedidos::whereHas('deliveryStates', function ($q) use ($requestedDate) {
+            $q->whereDate('created_at', $requestedDate);
+        })->with(['deliveryStates' => function ($q) use ($requestedDate, $motorizado) {
+            $q->whereDate('created_at', $requestedDate)
+                ->where('motorizado_id', $motorizado->id);
+        }])->get();
+
+        $row = 13;
+        foreach ($pedidos as $pedido) {
+            foreach ($pedido->deliveryStates as $state) {
+                $usedRows = ['E', 'F', 'I', 'J', 'K', 'N'];
+
+                $sheet->setCellValue("E{$row}", $pedido->orderId);
+                $sheet->setCellValue("F{$row}", "$pedido->customerName - $pedido->address");
+                $sheet->setCellValue("I{$row}", $state->datetime_foto_domicilio);
+                $sheet->setCellValue("J{$row}", $state->datetime_foto_entrega ?? '-');
+                $sheet->setCellValue("K{$row}", $state->receptor_nombre ?? '-');
+
+                if ($state->receptor_firma && file_exists(public_path($state->receptor_firma))) {
+                    $imagePath = public_path($state->receptor_firma);
+                    [$imgWidth, $imgHeight] = getimagesize($imagePath);
+
+                    $maxHeight = 50;
+                    $maxWidth = 150;
+
+                    // Calcula el factor de escala
+                    $scale = min($maxWidth / $imgWidth, $maxHeight / $imgHeight);
+
+                    $drawing = new Drawing();
+                    $drawing->setName("Firma de $state->receptor_nombre");
+                    $drawing->setPath($imagePath);
+                    $drawing->setHeight($imgHeight * $scale);
+                    $drawing->setCoordinates("L{$row}");
+                    $drawing->setOffsetX(5);
+                    $drawing->setOffsetY(3);
+                    $drawing->setWorksheet($sheet);
+                }
+
+                $sheet->setCellValue("N{$row}", $state->observacion);
+
+                foreach ($usedRows as $rowLetter) {
+                    $sheet->getStyle("$rowLetter{$row}")->getAlignment()->setWrapText(true);
+                    $sheet->getStyle("$rowLetter{$row}")->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+                }
+
+                $row++;
+            }
+        }
+
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'motorizados_' . now()->format('Ymd_His') . '.xlsx';
+        $temp_file = tempnam(sys_get_temp_dir(), $filename);
+        $writer = IOFactory::createWriter($spreadsheet, IOFactory::WRITER_XLSX);
+        $writer->save($temp_file);
+
+        return Response::download($temp_file, $filename)->deleteFileAfterSend(true);
     }
 }

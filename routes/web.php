@@ -148,7 +148,9 @@ Route::get('/pedidoscontabilidad/downloadExcel/{fechainicio}/{fechafin}', Pedido
     ->middleware(['checkRole:contabilidad,admin']);
 
 //ADMINISTRACION
-Route::get('formatos', FormatosController::class . '@index')->name('formatos.index');
+Route::get('hoja-ruta-motorizado', [PedidosController::class, 'exportHojaDeRutaByMotorizadoForm'])->name('export.hojaDeRuta');
+Route::post('export-hoja-ruta-motorizado', [PedidosController::class, 'exportHojaDeRutaByMotorizadoExcel'])->name('motorizado.exportHojaDeRuta');
+
 Route::post('excelhojaruta', FormatosController::class . '@excelhojaruta')->name('formatos.excelhojaruta');
 
 //MOTORIZADO

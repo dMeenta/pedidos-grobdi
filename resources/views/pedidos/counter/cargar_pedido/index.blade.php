@@ -9,7 +9,12 @@
 
 @section('content')
 <div class="card mt-2">
-    <h2 class="card-header">Pedidos del día: {{ request()->query('fecha')?request()->query('fecha'):date('Y-m-d') }}</h2>
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 class="mb-0">Pedidos del día: {{ request()->query('fecha')?request()->query('fecha'):date('Y-m-d') }}</h2>
+            <a href="{{ route('export.hojaDeRuta') }}" class="btn btn-outline-success"><i class="fas fa-file-excel mr-1"></i>Descargar Hoja de Ruta del día</a>
+        </div>
+    </div>
     <div class="card-body">
         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
             <a class="btn btn-success btn-sm" href="{{ route('cargarpedidos.create') }}"> <i class="fa fa-plus"></i> Cargar datos</a>
