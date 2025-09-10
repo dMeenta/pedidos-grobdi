@@ -217,8 +217,6 @@
         }
 
         await sendForm(formData);
-
-        btnSubmit.prop('disabled', false);
     });
 
     async function initGeolocation() {
@@ -271,19 +269,19 @@
                     toastr.error(response.message || 'Ocurrió un problema al actualizar el pedido');
                     btnSubmit.prop('disabled', false);
                 }
+
                 toastr.success(response.message || 'Pedido actualizado correctamente');
-                btnSubmit.prop('disabled', false);
                 let previousUrl = document.referrer;
 
-                // Si el referrer pertenece a pedidosmotorizado, vuelve ahí
                 if (previousUrl.includes("/pedidosmotorizado")) {
                     setTimeout(() => {
                         window.location.href = previousUrl;
+                        btnSubmit.prop('disabled', false);
                     }, 800);
                 } else {
-                    // fallback si no viene de pedidosmotorizado
                     setTimeout(() => {
                         window.location.href = "{{ route('pedidosmotorizado.index') }}";
+                        btnSubmit.prop('disabled', false);
                     }, 950);
                 }
             },
