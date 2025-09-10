@@ -118,6 +118,7 @@ class DoctoresImport extends BaseImport
             // Prepare doctor data con manejo seguro de campos vacíos
             $doctorData = [
                 'name' => trim($row[$colMap['name']] ?? '') ?: 'Doctor Sin Nombre',
+                'name_softlynn' =>trim($row[$colMap['name']] ?? '') ?: 'Doctor Sin Nombre',
                 'CMP' => $cmp,
                 'phone' => !empty(trim($row[$colMap['phone']] ?? '')) ? trim($row[$colMap['phone']]) : null,
                 'name_secretariat' => !empty(trim($row[$colMap['name_secretariat']] ?? '')) ? trim($row[$colMap['name_secretariat']]) : null,
