@@ -76,23 +76,29 @@ class DoctoresImport extends BaseImport
      */
     protected function processRow(array $row, int $index, array $colMap): void
     {
+        // Verificar si la fila debe ser omitida (encabezados, filas vacías, etc.)
+        if ($this->shouldSkipRow($row, $colMap)) {
+            $this->incrementStat('skipped');
+            return;
+        }
+
         // Validar solo los campos absolutamente requeridos
         $cmp = trim($row[$colMap['CMP']] ?? '');
         
-        // Skip only if no CMP (campo realmente obligatorio)
+        // Salta si no tiene CMP 
         if (empty($cmp)) {
             $this->incrementStat('errors');
             return;
         }
         
-        // Check if doctor already exists
+        // Verifica si el doctor ya existe por CMP
         if (Doctor::where('CMP', $cmp)->exists()) {
             $this->incrementStat('skipped');
             return;
         }
         
         try {
-            // Find or create centro salud (usar un valor por defecto si está vacío)
+            // Verifica si tiene centro de salud, sino usa un valor por defecto
             $centroSaludName = trim($row[$colMap['centrosalud']] ?? 'Sin Centro de Salud');
             $centroSalud = $this->doctorService->findOrCreateCentroSalud($centroSaludName);
             
@@ -112,7 +118,7 @@ class DoctoresImport extends BaseImport
             // Prepare doctor data con manejo seguro de campos vacíos
             $doctorData = [
                 'name' => trim($row[$colMap['name']] ?? '') ?: 'Doctor Sin Nombre',
-                'name_softlynn' => trim($row[$colMap['name']] ?? ''),
+                'name_softlynn' =>trim($row[$colMap['name']] ?? '') ?: 'Doctor Sin Nombre',
                 'CMP' => $cmp,
                 'phone' => !empty(trim($row[$colMap['phone']] ?? '')) ? trim($row[$colMap['phone']]) : null,
                 'name_secretariat' => !empty(trim($row[$colMap['name_secretariat']] ?? '')) ? trim($row[$colMap['name_secretariat']]) : null,
@@ -155,5 +161,46 @@ class DoctoresImport extends BaseImport
                 'row_data' => $row
             ]);
         }
+    }
+
+    /**
+     * Obtiene las palabras clave para identificar encabezados específicos de doctores
+     * 
+     * Este método sobrescribe el método padre para incluir palabras clave
+     * específicas relacionadas con doctores además de las generales.
+     * 
+     * @return array Array de palabras clave de encabezado
+     */
+    protected function getHeaderKeywords(): array
+    {
+        // Palabras clave generales del padre
+        $parentKeywords = parent::getHeaderKeywords();
+        
+        // Palabras clave específicas de doctores
+        $doctorKeywords = [
+            'estado',
+            'prefijo', 'name_prefix', 'prefijo_nombre',
+            'nombre', 'name', 'doctor', 'medico', 'médico',
+            'cmp', 'colegio', 'colegio_medico', 'colegio_médico',
+            'telefono', 'teléfono', 'phone', 'celular',
+            'secretaria', 'name_secretariat', 'secretaria',
+            'observaciones', 'observations', 'notas',
+            'especialidad', 'specialty', 'especialidad',
+            'visitadora', 'asignado_visitadora', 'visitador',
+            'distrito', 'distrito_direccion', 'direccion', 'dirección',
+            'centro', 'centrosalud', 'centro_salud', 'hospital', 'clinica', 'clínica',
+            'consultorio', 'numero_consultorio', 'consultorio',
+            'horario', 'horario_atencion', 'atencion', 'atención',
+            'categoria', 'categoria_medico', 'categoría', 'categoría_médico',
+            'tipo', 'tipo_medico', 'tipo_médico',
+            'precio', 'precio_consulta', 'consulta',
+            'lunes', 'dia_lunes',
+            'martes', 'dia_martes',
+            'miercoles', 'dia_miercoles', 'miércoles',
+            'jueves', 'dia_jueves',
+            'viernes', 'dia_viernes'
+        ];
+        
+        return array_merge($parentKeywords, $doctorKeywords);
     }
 }

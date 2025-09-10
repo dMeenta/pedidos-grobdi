@@ -11,6 +11,7 @@ class Doctor extends Model
     protected $table = 'doctor';
 
     protected $fillable = [
+        'name',
         'especialidad_id',
         'name_secretariat',
         'name_softlynn',
@@ -110,5 +111,11 @@ class Doctor extends Model
     public function pedidos()
     {
         return $this->hasMany(Pedidos::class, 'id_doctor');
+    }
+
+    public function setNameAttribute($value)
+    {
+        $this->attributes['name'] = $value;
+        $this->attributes['name_softlynn'] = $value;
     }
 }
