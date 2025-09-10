@@ -354,8 +354,9 @@ class PedidosController extends Controller
 
         $sheet->setCellValue('F10', $motorizado->name);
         $sheet->setCellValue('E6', value: $requestedDate);
-        $pedidos = Pedidos::whereHas('deliveryStates', function ($q) use ($requestedDate) {
-            $q->whereDate('created_at', $requestedDate);
+        $pedidos = Pedidos::whereHas('deliveryStates', function ($q) use ($requestedDate, $motorizado) {
+            $q->whereDate('created_at', $requestedDate)
+                ->where('motorizado_id', $motorizado->id);
         })->with(['deliveryStates' => function ($q) use ($requestedDate, $motorizado) {
             $q->whereDate('created_at', $requestedDate)
                 ->where('motorizado_id', $motorizado->id);
