@@ -3,60 +3,49 @@
 @section('title', 'Dashboard')
 
 @section('content_header')
-    <!-- <h1>Pedidos</h1> -->
 @stop
 
 @section('content')
 
-<div class="card mt-3">
-    <h2 class="card-header">FORMATOS</h2>
-    <div class="card-body">
-        <div class="mb-3">
-            <h4>Hoja de Ruta - Motorizado</h4>
+<div class="card card-dark mt-3">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 class="mb-0">Exportar - Hoja de Ruta de: Motorizado</h2>
+            <a class="btn btn-outline-danger" href="{{ url()->previous() }}"><i class="fas fa-door-open"></i>
+                <span class="d-none d-md-inline">Regresar</span>
+            </a>
         </div>
-        <form action="{{ route('formatos.excelhojaruta') }}" method="POST">
+    </div>
+    <div class="card-body">
+        <form action="{{ route('motorizado.exportHojaDeRuta') }}" method="POST">
             @csrf
-            <div class="mb-3 row">
-                <div class="col-sm-2">
-                    <label>Fecha de Entrega:</label>
-                    <input class="form-control" type="date" name="fecha" required>
-                </div>
-            </div>
-            <div class="mb-3 row">
-                <div class="col-sm-2">
-                    <label>Ruta:</label>
-                    <select name="ruta" class="form-control">
-                        <option value="0">Norte</option>
-                        <option value="0">Centro</option>
-                        <option value="1">Sur</option>
+            <div class="row">
+                <div class="form-group col-12">
+                    <label for="motorizado_id">Motorizado</label>
+                    <select name="motorizado_id" class="custom-select" required>
+                        <option selected disabled>Seleccione el motorizado deseado</option>
+                        @foreach ($motorizados as $motorizado)
+                        <option value="{{ $motorizado->id }}">{{ $motorizado->name }} - {{ $motorizado->zone->name }}</option>
+                        @endforeach
                     </select>
                 </div>
             </div>
-            <div class="mb-3 row">
-                <div class="col-sm-2">
-                    <label>Turno:</label>
-                    <select name="turno" class="form-control">
-                        <option value="0">Mañana</option>
-                        <option value="1">Tarde</option>
-                    </select>
-                </div>
-            </div>
-            <button class="btn btn-success" type="input"><i class="fa fa-file-excel">   Descargar</i></button>
+            <button class="btn btn-success w-100" type="submit"><i class="fa fa-file-excel mr-1"></i>Descargar Excel</button>
         </form>
-
     </div>
 </div>
 
 @stop
 
 @section('css')
-    {{-- Add here extra stylesheets --}}
-    {{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
-    <style type="text/css">
-    </style>
-    
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
 @stop
 
 @section('js')
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+<script>
+    @if(session('error'))
+    toastr.error("{{ session('error') }}", "Error");
+    @endif
+</script>
 @stop
