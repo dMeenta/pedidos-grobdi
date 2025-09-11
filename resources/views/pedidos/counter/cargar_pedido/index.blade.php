@@ -7,12 +7,18 @@
 <!-- <h1>Pedidos</h1> -->
 @stop
 
+@php
+$role = auth()->user()->role->name;
+@endphp
+
 @section('content')
 <div class="card mt-2">
     <div class="card-header">
         <div class="d-flex justify-content-between align-items-center">
             <h2 class="mb-0">Pedidos del día: {{ request()->query('fecha')?request()->query('fecha'):date('Y-m-d') }}</h2>
+            @if(in_array($role, ['admin', 'Administracion']))
             <a href="{{ route('export.hojaDeRuta') }}" class="btn btn-outline-success"><i class="fas fa-file-excel mr-1"></i>Descargar Hoja de Ruta del día</a>
+            @endif
         </div>
     </div>
     <div class="card-body">
