@@ -9,7 +9,12 @@
 
 @section('content')
 <div class="card mt-2">
-    <h2 class="card-header">Pedidos del día: {{ request()->query('fecha')?request()->query('fecha'):date('Y-m-d') }}</h2>
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 class="mb-0">Pedidos del día: {{ request()->query('fecha')?request()->query('fecha'):date('Y-m-d') }}</h2>
+            <a href="{{ route('export.hojaDeRuta') }}" class="btn btn-outline-success"><i class="fas fa-file-excel mr-1"></i>Descargar Hoja de Ruta del día</a>
+        </div>
+    </div>
     <div class="card-body">
         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
             <a class="btn btn-success btn-sm" href="{{ route('cargarpedidos.create') }}"> <i class="fa fa-plus"></i> Cargar datos</a>
@@ -207,10 +212,24 @@
 {{-- Add here extra stylesheets --}}
 {{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
 <style type="text/css">
+    .observaciones-cell {
+        max-width: 300px;
+        min-width: 150px;
+        white-space: normal;
+    }
+
+    .observaciones-col {
+        width: 100%;
+        max-height: 90px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-right: 5px;
+        text-align: left;
+        box-sizing: border-box;
+    }
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
 @stop
-
 @section('js')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 <script>
@@ -265,45 +284,52 @@
                     <div class="table-responsive" style="height: 50dvh;">
                         <table class="table table-head-fixed text-nowrap">
                             <thead>
-                                <tr>
-                                    <th scope="col">Estado del pedido</th>
-                                    <th scope="col">Fecha de asignación</th>
-                                    <th scope="col" class="text-center">Evidencia del Domicilio</th>
-                                    <th scope="col" class="text-center">Evidencia de la Entrega</th>
-                                    <th scope="col" class="text-center">Evidencia del Receptor</th>
+                                <tr class="text-center">
+                                    <th scope="col" rowspan="2" class="align-content-center">Estado del pedido</th>
+                                    <th scope="col" rowspan="2" class="align-content-center">Fecha del estado</th>
+                                    <th scope="col" rowspan="2" class="align-content-center">Observaciones</th>
+                                    <th scope="col" colspan="3" class="p-1 align-content-center">Evidencias</th>
+                                </tr>
+                                <tr class="text-center" class="p-0">
+                                    <th scope="col" class="p-1">Domicilio</th>
+                                    <th scope="col" class="p-1">Entrega del producto</th>
+                                    <th scope="col" class="p-1">Receptor</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody class="text-center">
                                 ${response.states.map(estado => 
                                 `
                                 <tr data-id="${estado.id}">
-                                    <td>${estado.state.toUpperCase()}</td>
-                                    <td>${estado.created_at_formatted}</td>
-                                    <td class="text-center">${estado.foto_domicilio ? `
+                                    <td class="align-content-center">${estado.state.toUpperCase()}</td>
+                                    <td class="align-content-center">${estado.created_at_formatted}</td>
+                                    <td class="px-2 py-1 observaciones-cell">
+                                        <p class="observaciones-col">${estado.observacion}</p>
+                                    </td>
+                                    <td class="text-center align-content-center">${estado.foto_domicilio ? `
                                         <button class="btn btn-info btn-sm btn-show-details" 
                                             data-img="${estado.foto_domicilio.url}"
                                             data-datetime="${estado.foto_domicilio.datetime}"
                                             data-lat="${estado.foto_domicilio.location.lat}"
                                             data-lng="${estado.foto_domicilio.location.lng}">
-                                            Ver Más
+                                            Ver
                                         </button>` : '—'}
                                     </td>
-                                    <td class="text-center">${estado.foto_entrega ? `
+                                    <td class="text-center align-content-center">${estado.foto_entrega ? `
                                         <button class="btn btn-info btn-sm btn-show-details" 
                                             data-img="${estado.foto_entrega.url}"
                                             data-datetime="${estado.foto_entrega.datetime}"
                                             data-lat="${estado.foto_entrega.location.lat}"
                                             data-lng="${estado.foto_entrega.location.lng}">
-                                            Ver Más
+                                            Ver
                                         </button>` : '—'}
                                     </td>
-                                    <td class="text-center">
+                                    <td class="text-center align-content-center">
                                         ${estado.receptor_info ? `
                                         <button class="btn btn-info btn-sm btn-show-details" 
                                             data-img="${estado.receptor_info.firma}"
                                             data-nombre="${estado.receptor_info.nombre}"
                                             >
-                                            Ver Más
+                                            Ver
                                         </button>` : '—'}
                                     </td>
                                 </tr>`).join("")}
