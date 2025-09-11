@@ -426,17 +426,15 @@ class PedidosController extends Controller
             }
 
             $valuesPerCol = [
-                'D' => $pedido->district,
-                'E' => $pedido->orderId,
-                'F' => "$pedido->customerName - $pedido->address",
-                'H' => $pedido->detail_pedidos_sum_cantidad,
+                'D' => $state->district,
+                'E' => $state->orderId,
+                'F' => "$state->customerName - $pedido->address",
+                'H' => $state->cantidad,
                 'I' => $state->datetime_foto_domicilio,
                 'J' => $state->datetime_foto_entrega ?? '',
                 'K' => $state->receptor_nombre ?? '',
                 'N' => $state->observacion ?? ''
             ];
-
-
 
             foreach ($valuesPerCol as $col => $val) {
                 $currentSheet->setCellValue("$col{$rowNumber}", $val);
