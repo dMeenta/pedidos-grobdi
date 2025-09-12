@@ -291,6 +291,7 @@ $role = auth()->user()->role->name;
                         <table class="table table-head-fixed text-nowrap">
                             <thead>
                                 <tr class="text-center">
+                                    <th scope="col" rowspan="2" class="align-content-center">Usuario</th>
                                     <th scope="col" rowspan="2" class="align-content-center">Estado del pedido</th>
                                     <th scope="col" rowspan="2" class="align-content-center">Fecha del estado</th>
                                     <th scope="col" rowspan="2" class="align-content-center">Observaciones</th>
@@ -306,10 +307,11 @@ $role = auth()->user()->role->name;
                                 ${response.states.map(estado => 
                                 `
                                 <tr data-id="${estado.id}">
+                                    <td class="align-content-center">${estado.user}</td>
                                     <td class="align-content-center">${estado.state.toUpperCase()}</td>
                                     <td class="align-content-center">${estado.created_at_formatted}</td>
                                     <td class="px-2 py-1 observaciones-cell">
-                                        <p class="observaciones-col">${estado.observacion}</p>
+                                        <p class="observaciones-col">${estado.observacion ? ''}</p>
                                     </td>
                                     <td class="text-center align-content-center">${estado.foto_domicilio ? `
                                         <button class="btn btn-info btn-sm btn-show-details" 
