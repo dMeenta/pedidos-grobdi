@@ -346,68 +346,129 @@ class PedidosController extends Controller
         }
 
         $motorizado = User::select('id', 'name')->find($request->motorizado_id);
-        $path = public_path('formatos/formatoMotorizados_hoja_de_rutas.xlsx');
-        $spreadsheet = IOFactory::load($path);
-        $sheet = $spreadsheet->getActiveSheet();
-
         $requestedDate = Carbon::parse($request->requestedDate)->toDateString();
 
-        $sheet->setCellValue('F10', $motorizado->name);
-        $sheet->setCellValue('E6', value: $requestedDate);
-        $pedidos = Pedidos::whereHas('deliveryStates', function ($q) use ($requestedDate) {
-            $q->whereDate('created_at', $requestedDate);
-        })->with(['deliveryStates' => function ($q) use ($requestedDate, $motorizado) {
-            $q->whereDate('created_at', $requestedDate)
-                ->where('motorizado_id', $motorizado->id);
-        }])->get();
+        $path = public_path('formatos/formatoMotorizados_hoja_de_rutas.xlsx');
+        $spreadsheet = IOFactory::load($path);
+        $currentSheet = $spreadsheet->getActiveSheet();
 
-        $row = 13;
+        $currentSheet->setCellValue('F10', $motorizado->name);
+        $currentSheet->setCellValue('E6', $requestedDate);
+
+        $templateSheet = clone $currentSheet;
+
+        $pedidos = Pedidos::select([
+            'id',
+            'district',
+            'orderId',
+            'customerName',
+            'address'
+        ])
+            ->whereHas('deliveryStates', function ($q) use ($requestedDate, $motorizado) {
+                $q->whereDate('created_at', $requestedDate)
+                    ->where('motorizado_id', $motorizado->id);
+            })
+            ->withSum('detailPedidos', 'cantidad')
+            ->with(['deliveryStates' => function ($q) use ($requestedDate, $motorizado) {
+                $q->select([
+                    'id',
+                    'pedido_id',
+                    'datetime_foto_domicilio',
+                    'datetime_foto_entrega',
+                    'receptor_nombre',
+                    'receptor_firma',
+                    'observacion',
+                    'created_at'
+                ])
+                    ->whereDate('created_at', $requestedDate)
+                    ->where('motorizado_id', $motorizado->id);
+            }])
+            ->get();
+
+        $allStates = collect();
         foreach ($pedidos as $pedido) {
             foreach ($pedido->deliveryStates as $state) {
-                $usedRows = ['E', 'F', 'I', 'J', 'K', 'N'];
-
-                $sheet->setCellValue("E{$row}", $pedido->orderId);
-                $sheet->setCellValue("F{$row}", "$pedido->customerName - $pedido->address");
-                $sheet->setCellValue("I{$row}", $state->datetime_foto_domicilio);
-                $sheet->setCellValue("J{$row}", $state->datetime_foto_entrega ?? '-');
-                $sheet->setCellValue("K{$row}", $state->receptor_nombre ?? '-');
-
-                if ($state->receptor_firma && file_exists(public_path($state->receptor_firma))) {
-                    $imagePath = public_path($state->receptor_firma);
-                    [$imgWidth, $imgHeight] = getimagesize($imagePath);
-
-                    $maxHeight = 50;
-                    $maxWidth = 150;
-
-                    // Calcula el factor de escala
-                    $scale = min($maxWidth / $imgWidth, $maxHeight / $imgHeight);
-
-                    $drawing = new Drawing();
-                    $drawing->setName("Firma de $state->receptor_nombre");
-                    $drawing->setPath($imagePath);
-                    $drawing->setHeight($imgHeight * $scale);
-                    $drawing->setCoordinates("L{$row}");
-                    $drawing->setOffsetX(5);
-                    $drawing->setOffsetY(3);
-                    $drawing->setWorksheet($sheet);
-                }
-
-                $sheet->setCellValue("N{$row}", $state->observacion);
-
-                foreach ($usedRows as $rowLetter) {
-                    $sheet->getStyle("$rowLetter{$row}")->getAlignment()->setWrapText(true);
-                    $sheet->getStyle("$rowLetter{$row}")->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
-                }
-
-                $row++;
+                $allStates->push((object)[
+                    'district' => $pedido->district,
+                    'orderId' => $pedido->orderId,
+                    'customerName' => $pedido->customerName,
+                    'address' => $pedido->address,
+                    'cantidad' => $pedido->detail_pedidos_sum_cantidad,
+                    'datetime_foto_domicilio' => $state->datetime_foto_domicilio,
+                    'datetime_foto_entrega' => $state->datetime_foto_entrega,
+                    'receptor_nombre' => $state->receptor_nombre,
+                    'receptor_firma' => $state->receptor_firma,
+                    'observacion' => $state->observacion,
+                    'created_at' => $state->created_at
+                ]);
             }
         }
 
-        $writer = new Xlsx($spreadsheet);
-        $filename = 'motorizados_' . now()->format('Ymd_His') . '.xlsx';
+        $allStates = $allStates->sortBy(function ($item) {
+            return $item->created_at;
+        })->values();
+
+        $rowNumber = 13;
+        $maxStatesPerSheet = 16;
+        $sheetIndex = 1;
+        foreach ($allStates as $state) {
+            if (($rowNumber - 12) > $maxStatesPerSheet) {
+                $sheetIndex++;
+
+                $newSheet = clone $templateSheet;
+
+                $newSheet->setTitle("{$sheetIndex} - FORMATO DE HOJA DE RUTA");
+                $spreadsheet->addSheet($newSheet);
+                $spreadsheet->setActiveSheetIndex($spreadsheet->getIndex($newSheet));
+
+                $currentSheet = $spreadsheet->getActiveSheet();
+                $rowNumber = 13;
+            }
+
+            $valuesPerCol = [
+                'D' => $state->district,
+                'E' => $state->orderId,
+                'F' => "$state->customerName - $pedido->address",
+                'H' => $state->cantidad,
+                'I' => $state->datetime_foto_domicilio,
+                'J' => $state->datetime_foto_entrega ?? '',
+                'K' => $state->receptor_nombre ?? '',
+                'N' => $state->observacion ?? ''
+            ];
+
+            foreach ($valuesPerCol as $col => $val) {
+                $currentSheet->setCellValue("$col{$rowNumber}", $val);
+                $style = $currentSheet->getStyle("$col{$rowNumber}")->getAlignment();
+                $style->setWrapText(true)->setVertical(Alignment::VERTICAL_CENTER)->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            }
+
+            if ($state->receptor_firma && file_exists(public_path($state->receptor_firma))) {
+                $imagePath = public_path($state->receptor_firma);
+                [$imgWidth, $imgHeight] = getimagesize($imagePath);
+
+                $maxHeight = 50;
+                $maxWidth = 150;
+
+                // Calcula el factor de escala
+                $scale = min($maxWidth / $imgWidth, $maxHeight / $imgHeight);
+
+                $drawing = new Drawing();
+                $drawing->setName("Firma de $state->receptor_nombre");
+                $drawing->setPath($imagePath);
+                $drawing->setHeight($imgHeight * $scale);
+                $drawing->setCoordinates("L{$rowNumber}");
+                $drawing->setOffsetX(5);
+                $drawing->setOffsetY(3);
+                $drawing->setWorksheet($currentSheet);
+            }
+
+            $rowNumber++;
+        }
+
+
+        $filename = 'hoja_ruta_motorizados_' . now()->format('Ymd_His') . '.xlsx';
         $temp_file = tempnam(sys_get_temp_dir(), $filename);
-        $writer = IOFactory::createWriter($spreadsheet, IOFactory::WRITER_XLSX);
-        $writer->save($temp_file);
+        IOFactory::createWriter($spreadsheet, IOFactory::WRITER_XLSX)->save($temp_file);
 
         return Response::download($temp_file, $filename)->deleteFileAfterSend(true);
     }

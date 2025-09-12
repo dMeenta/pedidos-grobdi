@@ -21,6 +21,9 @@ use App\Http\Controllers\rutas\mantenimiento\EspecialidadController;
 use App\Http\Controllers\muestras\MuestrasController;
 use App\Http\Controllers\muestras\gerenciaController;
 
+//Modulo - Reports
+use App\Http\Controllers\ReportsController;
+
 use App\Http\Controllers\pedidos\laboratorio\PresentacionFarmaceuticaController;
 use App\Http\Controllers\pedidos\produccion\OrdenesController;
 use App\Http\Controllers\pedidos\reportes\FormatosController;
@@ -104,6 +107,17 @@ Route::prefix('muestras')
 
 Route::get('/doctors/search', [DoctorController::class, 'showByNameLike'])->name('doctors.search')->middleware(['checkRole:admin,coordinador-lineas,visitador']);
 
+Route::prefix('reports')
+    ->middleware(['checkRole:admin'])
+    ->group(function () {
+
+        Route::prefix('visitadoras')->group(function () {
+            Route::get('/', [ReportsController::class, 'indexVisitadoras'])->name('reports.visitadoras.index');
+            Route::get('/distritos/{zoneId}', [ReportsController::class, 'getDistritosByZone'])->name('getDistritosByZone');
+        });
+    });
+
+
 //COUNTER
 Route::middleware(['checkRole:counter,admin,Administracion'])->group(function () {
 
@@ -168,8 +182,8 @@ Route::get('/pedidoscontabilidad/downloadExcel/{fechainicio}/{fechafin}', Pedido
     ->middleware(['checkRole:contabilidad,admin']);
 
 //ADMINISTRACION
-Route::get('hoja-ruta-motorizado', [PedidosController::class, 'exportHojaDeRutaByMotorizadoForm'])->name('export.hojaDeRuta');
-Route::post('export-hoja-ruta-motorizado', [PedidosController::class, 'exportHojaDeRutaByMotorizadoExcel'])->name('motorizado.exportHojaDeRuta');
+Route::get('hoja-ruta-motorizado', [PedidosController::class, 'exportHojaDeRutaByMotorizadoForm'])->name('export.hojaDeRuta')->middleware(['checkRole:admin,Administracion']);
+Route::post('export-hoja-ruta-motorizado', [PedidosController::class, 'exportHojaDeRutaByMotorizadoExcel'])->name('motorizado.exportHojaDeRuta')->middleware(['checkRole:admin,Administracion']);
 
 Route::post('excelhojaruta', FormatosController::class . '@excelhojaruta')->name('formatos.excelhojaruta');
 
