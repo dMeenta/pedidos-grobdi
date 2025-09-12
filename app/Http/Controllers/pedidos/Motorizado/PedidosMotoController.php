@@ -9,6 +9,7 @@ use App\Models\Location;
 use App\Models\Pedidos;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Log\Logger;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Laravel\Facades\Image;
 
@@ -60,7 +61,7 @@ class PedidosMotoController extends Controller
 
     public function updatePedidoByMotorizado(Request $request, $id)
     {
-        $pedido = Pedidos::findOrFail($id);
+        $pedido = Pedidos::findOrFail(id: $id);
 
         if (!$request->lat_foto_domicilio || !$request->lng_foto_domicilio) {
             return response()->json(['success' => false, 'message' => 'Se requiere la ubicación para actualizar el estado del pedido'], 400);

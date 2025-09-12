@@ -172,8 +172,8 @@ class DoctorController extends Controller
         $doctor->tipo_medico = $request->tipo_medico;
         $doctor->asignado_consultorio = $request->asignado_consultorio;
         $doctor->categoriadoctor_id = $request->categoria_id;
-        $doctor->songs = $request->songs;
-        $doctor->recovery = $request->recovery;
+        $doctor->songs = $request->songs ?? '';
+        $doctor->recovery = $request->recovery ?? 0;
         $doctor->name_secretariat = $request->name_secretariat;
         $doctor->phone_secretariat = $request->phone_secretariat;
         $doctor->observations = $request->observations;

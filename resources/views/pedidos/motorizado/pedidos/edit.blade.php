@@ -20,7 +20,7 @@
         </div>
     </div>
     <div class="card-body">
-        <form id="updateForm">
+        <form id="updateForm" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             <ul class="list-group list-group-flush">

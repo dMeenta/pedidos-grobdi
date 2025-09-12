@@ -85,6 +85,7 @@ class EnrutamientoController extends Controller
         $startDate = Carbon::parse($fechas[0]);
         $endDate = Carbon::parse($fechas[1]);
         $period = CarbonPeriod::create($startDate, $endDate);
+
         // Crear registro de EnrutamientoLista
         $enrutamiento_lista = new EnrutamientoLista();
         $enrutamiento_lista->fecha_inicio = $startDate->toDateString();
@@ -93,15 +94,23 @@ class EnrutamientoController extends Controller
         $enrutamiento_lista->enrutamiento_id = $request->enrutamiento_id;
         $enrutamiento_lista->save();
 
+        // Contador de visitas por fecha (ej: '2025-09-01' => 10)
+        $visitasPorDia = [];
+
         // Obtener todos los doctores asociados a los distritos
         foreach ($lista->distritos as $distrito) {
-            if($lista->recovery == 1){
-                $doctores = Doctor::where('distrito_id', $distrito->id)->where('recovery', 1)->where('state', 1)->get();
-            }else{
-                $doctores = Doctor::where('distrito_id', $distrito->id)->where('recovery', 0)->where('state', 1)->get();
+            if ($lista->recovery == 1) {
+                $doctores = Doctor::where('distrito_id', $distrito->id)
+                    ->where('recovery', 1)
+                    ->where('state', 1)
+                    ->get();
+            } else {
+                $doctores = Doctor::where('distrito_id', $distrito->id)
+                    ->where('recovery', 0)
+                    ->where('state', 1)
+                    ->get();
             }
-            
-            // Si no hay doctores, continuar con el siguiente distrito
+
             if ($doctores->isEmpty()) {
                 continue;
             }
@@ -109,7 +118,7 @@ class EnrutamientoController extends Controller
             foreach ($doctores as $doctor) {
                 $turnos = [];
 
-                // Obtener días y turnos
+                // Obtener días y turnos del doctor
                 if ($doctor->days) {
                     foreach ($doctor->days as $dia) {
                         $turnos[] = [
@@ -128,27 +137,36 @@ class EnrutamientoController extends Controller
 
                 $fecha_asignada = false;
 
-                // Buscar la primera fecha que coincida con un día de turno
                 if (!empty($turnos)) {
-                    $contador =0;
                     foreach ($period as $date) {
                         $nombre_dia = $date->translatedFormat('l');
-                        ++$contador;
+                        $fechaStr = $date->toDateString();
+
                         foreach ($turnos as $turno) {
                             if ($nombre_dia === $turno['dia']) {
-                                $visita_doctor->fecha = $date->toDateString();
-                                $visita_doctor->turno = $turno['turno'];
-                                $visita_doctor->estado_visita_id = 2; // Asignado correctamente
-                                $fecha_asignada = true;
-                                break 2;
+                                $cantidad = $visitasPorDia[$fechaStr] ?? 0;
+
+                                if ($cantidad < 15) {
+                                    // Asignar fecha y turno
+                                    $visita_doctor->fecha = $fechaStr;
+                                    $visita_doctor->turno = $turno['turno'];
+                                    $visita_doctor->estado_visita_id = 2;
+
+                                    // Actualizar contador
+                                    $visitasPorDia[$fechaStr] = $cantidad + 1;
+
+                                    $fecha_asignada = true;
+                                    break 2; // salir de los 2 foreach
+                                }
+                                // si ya hay 15, pasa al siguiente día
                             }
                         }
                     }
                 }
 
-                // Si no se asignó ninguna fecha
+                // Si no se encontró ningún día con espacio
                 if (!$fecha_asignada) {
-                    $visita_doctor->estado_visita_id = 1; // Estado por defecto (sin turno)
+                    $visita_doctor->estado_visita_id = 1; // Sin turno disponible
                 }
 
                 $visita_doctor->save();
