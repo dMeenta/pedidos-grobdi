@@ -400,7 +400,7 @@ class PedidosController extends Controller
                     'datetime_foto_entrega' => $state->datetime_foto_entrega,
                     'receptor_nombre' => $state->receptor_nombre,
                     'receptor_firma' => $state->receptor_firma,
-                    'observacion' => $state->observacion,
+                    'observacion' => $state->observacion ?? '',
                     'created_at' => $state->created_at
                 ]);
             }
