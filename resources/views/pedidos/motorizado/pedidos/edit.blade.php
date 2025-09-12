@@ -137,16 +137,16 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     let photosData = {};
+    let currentLocation = null;
     const btnSubmit = $('#btn-submit');
+    let canvas = document.getElementById('firmaReceptorCanvas');
+    let ctx = canvas.getContext('2d');
+    let isDrawing = false;
+    let token = $('meta[name="csrf-token"]').attr('content');
+
+    startWatchingLocation();
 
     $(document).ready(function() {
-        initGeolocation();
-
-        function checkEnableSubmit() {
-            const fotoDomicilioLoaded = $('#foto_domicilio').val() !== '';
-            const stateSelected = $('input[name="state"]:checked').length > 0;
-            btnSubmit.prop('disabled', !(fotoDomicilioLoaded && stateSelected));
-        }
 
         async function getPhotoData(id, input) {
             let fileName = input.val().split('\\').pop();
@@ -157,12 +157,18 @@
                 const timestamp = getCurrentTimestamp();
                 photosData['datetime_' + id] = timestamp;
 
-                try {
-                    let location = await getLocation();
-                    photosData['lat_' + id] = location.latitude;
-                    photosData['lng_' + id] = location.longitude;
-                } catch (error) {
-                    toastr.error("Error al obtener la ubicación: " + error.message);
+                if (currentLocation) {
+                    photosData['lat_' + id] = currentLocation.latitude;
+                    photosData['lng_' + id] = currentLocation.longitude;
+                } else {
+                    try {
+                        let location = await getLocation();
+                        photosData['lat_' + id] = location.latitude;
+                        photosData['lng_' + id] = location.longitude;
+                        currentLocation = location;
+                    } catch (error) {
+                        toastr.error("Error al obtener ubicación: " + error.message);
+                    }
                 }
             } else {
                 input.next('.custom-file-label').text('Tomar foto');
@@ -171,134 +177,80 @@
 
         $('#foto_domicilio').on('change', async function() {
             await getPhotoData($(this).attr('id'), $(this));
-            $('#radios-wrapper').slideDown();
+            $('#radios-wrapper').show();
             checkEnableSubmit();
         });
 
         $('#foto_entrega').on('change', async function() {
             await getPhotoData($(this).attr('id'), $(this));
+            checkEnableSubmit();
         });
-
-        function checkEnableSubmit() {
-            const fotoDomicilioLoaded = $('#foto_domicilio').val() !== '';
-            const stateSelected = $('input[name="state"]:checked').length > 0;
-            btnSubmit.prop('disabled', !(fotoDomicilioLoaded && stateSelected));
-        }
 
         $('input[name="state"]').on('change', function() {
             if ($('#stateEntregado').is(':checked')) {
-                $('#foto-entrega-wrapper').slideDown();
-                $('#receptor-wrapper').slideDown();
+                $('#foto-entrega-wrapper').show();
+                $('#receptor-wrapper').show();
                 $('#foto_entrega').prop('required', true);
                 $('#receptor_nombre').prop('required', true);
             } else {
-                $('#foto-entrega-wrapper').slideUp();
-                $('#receptor-wrapper').slideUp();
+                $('#foto-entrega-wrapper').hide();
+                $('#receptor-wrapper').hide();
                 $('#foto_entrega').prop('required', false).val('');
                 $('#receptor_nombre').prop('required', false).val('');
             }
             checkEnableSubmit();
         });
+
+        $('#updateForm').on('submit', async function(e) {
+            e.preventDefault()
+            btnSubmit.prop('disabled', true);
+            btnSubmit.html('<span class="spinner-border spinner-border-sm" role="status"></span> Procesando...');
+
+            let formData = new FormData(this);
+
+            if (canvas) {
+                const imagenBase64 = canvas.toDataURL('image/png');
+                formData.append('receptor_firma', imagenBase64);
+            }
+
+            for (const [key, value] of Object.entries(photosData)) {
+                formData.append(key, value);
+            }
+
+            await sendForm(formData);
+        });
     })
 
-    $('#updateForm').on('submit', async function(e) {
-        e.preventDefault()
-        btnSubmit.prop('disabled', true);
-
-        let formData = new FormData(this);
-
-        if (canvas) {
-            const imagenBase64 = canvas.toDataURL('image/png');
-            formData.append('receptor_firma', imagenBase64);
-        }
-
-        for (const [key, value] of Object.entries(photosData)) {
-            formData.append(key, value);
-        }
-
-        await sendForm(formData);
-    });
-
-    async function initGeolocation() {
-        try {
-            let location = await getLocation();
-        } catch (error) {
-            toastr.error("Error al obtener ubicación: " + error.message);
+    function startWatchingLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.watchPosition((position) => {
+                currentLocation = {
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
+                }
+            }, (error) => {
+                toastr.error("Error al obtener ubicación: " + error.message)
+            }, {
+                enableHighAccuracy: true,
+                maximumAge: 0,
+                timeout: 10000
+            })
         }
     }
 
-    function getLocation() {
-        return new Promise((resolve, reject) => {
-            if (!navigator.geolocation) {
-                reject(new Error("La geolocalización no está disponible en tu navegador"));
-            }
+    function checkEnableSubmit() {
+        const fotoDomicilioLoaded = $('#foto_domicilio').val() !== '';
+        const stateSelected = $('input[name="state"]:checked').length > 0;
+        const domicilioHasCoords = photosData['lat_foto_domicilio'] && photosData['lng_foto_domicilio'];
+        const entregaRequired = $('#stateEntregado').is(':checked');
+        const entregaHasCoords = !entregaRequired || (photosData['lat_foto_entrega'] && photosData['lng_foto_entrega']);
 
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    resolve({
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude
-                    });
-                },
-                (error) => reject(error), {
-                    enableHighAccuracy: true
-                }
-            );
-        });
+        const enable = fotoDomicilioLoaded && stateSelected && domicilioHasCoords && entregaHasCoords;
+
+        btnSubmit.prop('disabled', !enable);
     }
 
-    function getCurrentTimestamp() {
-        let now = new Date();
-        return now.getFullYear() + '-' +
-            String(now.getMonth() + 1).padStart(2, '0') + '-' +
-            String(now.getDate()).padStart(2, '0') + ' ' +
-            String(now.getHours()).padStart(2, '0') + ':' +
-            String(now.getMinutes()).padStart(2, '0') + ':' +
-            String(now.getSeconds()).padStart(2, '0');
-    }
-
-    function sendForm(formData) {
-        $.ajax({
-            url: "{{ route('pedidosmotorizado.updatePedidoByMotorizado', $pedido->id) }}",
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                if (!response.success) {
-                    toastr.error(response.message || 'Ocurrió un problema al actualizar el pedido');
-                    btnSubmit.prop('disabled', false);
-                }
-
-                toastr.success(response.message || 'Pedido actualizado correctamente');
-                let previousUrl = document.referrer;
-
-                if (previousUrl.includes("/pedidosmotorizado")) {
-                    setTimeout(() => {
-                        window.location.href = previousUrl;
-                        btnSubmit.prop('disabled', false);
-                    }, 800);
-                } else {
-                    setTimeout(() => {
-                        window.location.href = "{{ route('pedidosmotorizado.index') }}";
-                        btnSubmit.prop('disabled', false);
-                    }, 950);
-                }
-            },
-            error: function(xhr) {
-                let res = xhr.responseJSON;
-                console.error(xhr)
-                toastr.error(res?.message || 'Error inesperado al actualizar');
-                btnSubmit.prop('disabled', false);
-            }
-        })
-    };
-
-    let canvas = document.getElementById('firmaReceptorCanvas');
-    let ctx = canvas.getContext('2d');
-    let isDrawing = false;
     let detalleId = null;
-    let token = $('meta[name="csrf-token"]').attr('content');
 
     function getPosition(e) {
         const rect = canvas.getBoundingClientRect();
@@ -368,5 +320,76 @@
         e.preventDefault();
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     });
+
+    async function getLocation() {
+        return new Promise((resolve, reject) => {
+            if (!navigator.geolocation) {
+                reject(new Error("La geolocalización no está disponible en tu navegador"));
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    resolve({
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude
+                    });
+                },
+                (error) => reject(error), {
+                    enableHighAccuracy: true
+                }
+            );
+        });
+    }
+
+    function getCurrentTimestamp() {
+        let now = new Date();
+        return now.getFullYear() + '-' +
+            String(now.getMonth() + 1).padStart(2, '0') + '-' +
+            String(now.getDate()).padStart(2, '0') + ' ' +
+            String(now.getHours()).padStart(2, '0') + ':' +
+            String(now.getMinutes()).padStart(2, '0') + ':' +
+            String(now.getSeconds()).padStart(2, '0');
+    }
+
+    function sendForm(formData) {
+        $.ajax({
+            url: "{{ route('pedidosmotorizado.updatePedidoByMotorizado', $pedido->id) }}",
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (!response.success) {
+                    toastr.error(response.message || 'Ocurrió un problema al actualizar el pedido');
+                    btnSubmit.prop('disabled', false);
+                    btnSubmit.html('<i class="fas fa-save"></i> Actualizar');
+                }
+
+                toastr.success(response.message || 'Pedido actualizado correctamente');
+                let previousUrl = document.referrer;
+
+                if (previousUrl.includes("/pedidosmotorizado")) {
+                    setTimeout(() => {
+                        window.location.href = previousUrl;
+                        btnSubmit.prop('disabled', false);
+                        btnSubmit.html('<i class="fas fa-save"></i> Actualizar');
+                    }, 800);
+                } else {
+                    setTimeout(() => {
+                        window.location.href = "{{ route('pedidosmotorizado.index') }}";
+                        btnSubmit.prop('disabled', false);
+                        btnSubmit.html('<i class="fas fa-save"></i> Actualizar');
+                    }, 950);
+                }
+            },
+            error: function(xhr) {
+                let res = xhr.responseJSON;
+                console.error(xhr)
+                toastr.error(res?.message || 'Error inesperado al actualizar');
+                btnSubmit.prop('disabled', false);
+                btnSubmit.html('<i class="fas fa-save"></i> Actualizar');
+            }
+        })
+    };
 </script>
 @stop
