@@ -311,7 +311,7 @@ $role = auth()->user()->role->name;
                                     <td class="align-content-center">${estado.state.toUpperCase()}</td>
                                     <td class="align-content-center">${estado.created_at_formatted}</td>
                                     <td class="px-2 py-1 observaciones-cell">
-                                        <p class="observaciones-col">${estado.observacion ? ''}</p>
+                                        <p class="observaciones-col">${estado.observacion ?? ''}</p>
                                     </td>
                                     <td class="text-center align-content-center">${estado.foto_domicilio ? `
                                         <button class="btn btn-info btn-sm btn-show-details" 
