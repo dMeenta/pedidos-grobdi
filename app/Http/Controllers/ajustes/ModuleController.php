@@ -15,7 +15,7 @@ class ModuleController extends Controller
     }
     public function create()
     {
-        return view('modules.create');
+        return view('ajustes.modules.create');
     }
 
     public function store(Request $request)
@@ -28,7 +28,7 @@ class ModuleController extends Controller
 
     public function edit(Module $module)
     {
-        return view('modules.edit', compact('module'));
+        return view('ajustes.modules.edit', compact('module'));
     }
 
     public function update(Request $request, Module $module)
