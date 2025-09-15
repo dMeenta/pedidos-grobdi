@@ -1,7 +1,10 @@
 <?php
 
+use App\Http\Controllers\ajustes\ModuleController;
+use App\Http\Controllers\ajustes\RolesController;
 use App\Http\Controllers\ajustes\UbigeoController;
 use App\Http\Controllers\ajustes\UsuariosController;
+use App\Http\Controllers\ajustes\ViewController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -138,7 +141,12 @@ Route::resource('usuarios', UsuariosController::class)->middleware(['checkRole:a
 Route::put('/usuarios/changepass/{fecha}', UsuariosController::class . '@changepass')
     ->name('usuarios.changepass')
     ->middleware(['checkRole:admin,jefe-operaciones']);
-Route::get('sincronizarpedidos', [CargarPedidosController::class, 'sincronizarDoctoresPedidos'])
+Route::resource('roles', RolesController::class)->middleware(['checkRole:admin,jefe-operaciones']);
+Route::get('roles/{role}/permissions', [RolesController::class, 'permissions'])->name('roles.permissions');
+Route::put('roles/{role}/permissions', [RolesController::class, 'updatePermissions'])->name('roles.updatePermissions');
+Route::resource('modules', ModuleController::class);
+Route::resource('views', ViewController::class);
+Route::get('sincronizarpedidos', action: [CargarPedidosController::class, 'sincronizarDoctoresPedidos'])
     ->name('pedidos.sincronizar')
     ->middleware(['checkRole:admin,jefe-operaciones']);
 

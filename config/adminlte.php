@@ -526,6 +526,54 @@ return [
             'icon' => 'fas fa-fw fa-user',
             'can' => 'jefe-operaciones'
         ],
+        [
+            'text' => 'Roles',
+            'url' => 'roles',
+            'icon' => 'fas fa-fw fa-user-shield',
+            'can' => 'jefe-operaciones'
+        ],
+        // [
+        //     'text' => 'Permisos',
+        //     'url' => 'permisos',
+        //     'icon' => 'fas fa-fw fa-key',
+        //     'can' => 'jefe-operaciones'
+        // ],
+        // [
+        //     'text' => 'Modulos',
+        //     'url' => 'modulos',
+        //     'icon' => 'fas fa-fw fa-th-large',
+        //     'can' => 'jefe-operaciones'
+        // ],
+        // [
+        //     'text' => 'Vistas',
+        //     'url' => 'vistas',
+        //     'icon' => 'fas fa-fw fa-eye',
+        //     'can' => 'jefe-operaciones'
+        // ],
+        // [
+        //     'text' => 'Bitacora',
+        //     'url' => 'bitacora',
+        //     'icon' => 'fas fa-fw fa-book',
+        //     'can' => 'jefe-operaciones'
+        // ],
+        // [
+        //     'text' => 'Logs',
+        //     'url' => 'logs',
+        //     'icon' => 'fas fa-fw fa-file-alt',
+        //     'can' => 'jefe-operaciones'
+        // ],
+        // [
+        //     'text' => 'Backups',
+        //     'url' => 'backups',
+        //     'icon' => 'fas fa-fw fa-database',
+        //     'can' => 'jefe-operaciones'
+        // ],
+        // [
+        //     'text' => 'Configuracion',
+        //     'url' => 'ajustes',
+        //     'icon' => 'fas fa-fw fa-cogs',
+        //     'can' => 'jefe-operaciones'
+        // ],
         //sidebar Supervisor
         [
             'header' => 'Supervisor',
