@@ -14,6 +14,8 @@ class DetailPedidos extends Model
         'tecnico_produccion',
         'estado',
         'sub_total',
+        'estado_produccion',
+        'usuario_produccion_id',
     ];
     public function pedido()
     {
