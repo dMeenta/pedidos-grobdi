@@ -13,16 +13,28 @@ class Zone extends Model
     ];
     public function pedidos()
     {
-        return $this->hasMany(Pedidos::class); 
+        return $this->hasMany(Pedidos::class);
     }
     public function listas()
     {
-        return $this->hasMany(Lista::class); 
+        return $this->hasMany(Lista::class);
     }
     public function users()
     {
-        return $this->belongsToMany(User::class, 'user_zones'); 
+        return $this->belongsToMany(User::class, 'user_zones');
     }
-    public $timestamps = false;
 
+    public function distritos()
+    {
+        return $this->hasManyThrough(
+            Distrito::class,
+            Lista::class,
+            'zone_id',
+            null,
+            'id',
+            'id'
+        );
+    }
+
+    public $timestamps = false;
 }

@@ -112,6 +112,7 @@ Route::prefix('reports')
         Route::prefix('visitadoras')->group(function () {
             Route::get('/', [ReportsController::class, 'indexVisitadoras'])->name('reports.visitadoras.index');
             Route::get('/distritos/{zoneId}', [ReportsController::class, 'getDistritosByZone'])->name('getDistritosByZone');
+            Route::get('/filter', [ReportsController::class, 'filterVisitasDoctor'])->name('reports.visitas.filter');
         });
     });
 
