@@ -37,12 +37,11 @@ class ReporteData
         array $datos = [],
         array $estadisticas = []
     ) {
-        // Aquí iría la inicialización de propiedades
-        // $this->titulo = $titulo;
-        // $this->tipo = $tipo;
-        // $this->filtros = $filtros;
-        // $this->datos = $datos;
-        // $this->estadisticas = $estadisticas;
+        $this->titulo = $titulo;
+        $this->tipo = $tipo;
+        $this->filtros = $filtros;
+        $this->datos = $datos;
+        $this->estadisticas = $estadisticas;
     }
 
     /**
@@ -52,14 +51,12 @@ class ReporteData
      */
     public function toArray(): array
     {
-        // Aquí iría la conversión a array
-        // return [
-        //     'titulo' => $this->titulo,
-        //     'tipo' => $this->tipo,
-        //     'filtros' => $this->filtros,
-        //     'datos' => $this->datos,
-        //     'estadisticas' => $this->estadisticas,
-        // ];
-        return [];
+        return [
+            'titulo' => $this->titulo,
+            'tipo' => $this->tipo,
+            'filtros' => $this->filtros,
+            'datos' => $this->datos,
+            'estadisticas' => $this->estadisticas,
+        ];
     }
 }

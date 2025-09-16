@@ -87,13 +87,16 @@ class VentasData extends ReporteData
      */
     private function getDatosProductos(array $filtros = []): array
     {
-        // Consulta real a detail_pedidos con join a pedidos
+        // Consulta real a detail_pedidos con join a pedidos - TODOS los productos
         $query = DB::table('detail_pedidos')
             ->selectRaw('detail_pedidos.articulo as producto, SUM(detail_pedidos.sub_total) as ventas, SUM(detail_pedidos.cantidad) as unidades')
             ->join('pedidos', 'detail_pedidos.pedidos_id', '=', 'pedidos.id')
+            ->whereNotNull('detail_pedidos.articulo')
+            ->where('detail_pedidos.articulo', '!=', '')
+            ->whereRaw('LOWER(detail_pedidos.articulo) NOT LIKE ?', ['%delivery%'])
+            ->whereRaw('LOWER(detail_pedidos.articulo) NOT LIKE ?', ['bolsa%'])
             ->groupBy('detail_pedidos.articulo')
-            ->orderByRaw('SUM(detail_pedidos.sub_total) DESC')
-            ->limit(10); // Top 10 productos
+            ->orderByRaw('SUM(detail_pedidos.sub_total) DESC');
 
         // Aplicar filtros si existen
         if (isset($filtros['anio_general'])) {
@@ -101,6 +104,24 @@ class VentasData extends ReporteData
         }
         if (isset($filtros['mes_general'])) {
             $query->whereMonth('pedidos.created_at', $filtros['mes_general']);
+        }
+
+        // Filtros específicos para productos por fechas
+        if (isset($filtros['fecha_inicio_producto'])) {
+            $query->whereDate('pedidos.created_at', '>=', $filtros['fecha_inicio_producto']);
+        }
+        if (isset($filtros['fecha_fin_producto'])) {
+            $query->whereDate('pedidos.created_at', '<=', $filtros['fecha_fin_producto']);
+        }
+
+        // Filtro por defecto: si NO se especificó año, mes ni rangos de fecha para productos,
+        // limitar desde el primer día del mes actual hasta hoy.
+        if (!isset($filtros['anio_general']) && !isset($filtros['mes_general'])
+            && !isset($filtros['fecha_inicio_producto']) && !isset($filtros['fecha_fin_producto'])) {
+            $primerDiaMes = date('Y-m-01');
+            $hoy = date('Y-m-d');
+            $query->whereDate('pedidos.created_at', '>=', $primerDiaMes)
+                  ->whereDate('pedidos.created_at', '<=', $hoy);
         }
 
         $resultados = $query->get();

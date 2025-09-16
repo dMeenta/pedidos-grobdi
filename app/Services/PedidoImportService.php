@@ -149,6 +149,7 @@ class PedidoImportService
             'paymentMethod' => $row[10],
             'deliveryDate' => $row[13] ? Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[13]))->format('Y-m-d') : '',
             'productionStatus' => $row[12] !== 'PENDIENTE' ? 'Completado' : 'Pendiente',
+            'visitadora_softlynn' => isset($row[19]) ? trim((string)$row[19]) : '',
             'created_at' => $row[20] ? Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[20]))->format('Y-m-d H:i:s') : '',
             'zone_name' => $zone ? $zone->name : 'Sin zona',
             'user_name' => $row[19] ? (User::where('name', $row[19])->first()->name ?? Auth::user()->name) : Auth::user()->name,
@@ -174,7 +175,8 @@ class PedidoImportService
             'created_at' => $order->created_at->format('Y-m-d H:i:s'),
             'zone_name' => $order->zone->name ?? 'Sin zona',
             'user_name' => $order->user->name ?? 'Sin usuario',
-            'last_data_update' => $order->last_data_update ? $order->last_data_update->format('Y-m-d H:i:s') : 'Nunca actualizado'
+            'last_data_update' => $order->last_data_update ? $order->last_data_update->format('Y-m-d H:i:s') : 'Nunca actualizado',
+            'visitadora_softlynn' => $order->visitadora?->name_softlynn,
         ];
     }
 
@@ -193,7 +195,8 @@ class PedidoImportService
             'district' => 'Distrito',
             'prize' => 'Precio',
             'paymentMethod' => 'Método de Pago',
-            'deliveryDate' => 'Fecha de Entrega'
+            'deliveryDate' => 'Fecha de Entrega',
+            'visitadora_softlynn' => 'Visitadora',
         ];
 
         foreach ($fieldsToCompare as $field => $label) {

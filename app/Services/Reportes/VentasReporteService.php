@@ -86,6 +86,12 @@ class VentasReporteService extends BaseReporteService
             'provincia_id' => [
                 'type' => 'integer',
                 'range' => ['min' => 1]
+            ],
+            'fecha_inicio_producto' => [
+                'type' => 'date'
+            ],
+            'fecha_fin_producto' => [
+                'type' => 'date'
             ]
         ];
     }
@@ -117,6 +123,10 @@ class VentasReporteService extends BaseReporteService
 
         if (isset($filtros['provincia_id'])) {
             $data = $this->filtrarPorProvincia($data, $filtros['provincia_id']);
+        }
+
+        if (isset($filtros['fecha_inicio_producto']) || isset($filtros['fecha_fin_producto'])) {
+            $data = $this->filtrarPorFechasProducto($data, $filtros);
         }
 
         return $data;
@@ -157,6 +167,17 @@ class VentasReporteService extends BaseReporteService
     private function filtrarPorProvincia(VentasData $data, int $provinciaId): VentasData
     {
         // TODO: Implementar filtrado por provincia específica
+        return $data;
+    }
+
+    /**
+     * Aplica filtro por fechas específicas para productos
+     */
+    private function filtrarPorFechasProducto(VentasData $data, array $filtros): VentasData
+    {
+        // Los filtros de fecha para productos ya se aplican en el constructor de VentasData
+        // Este método existe para mantener consistencia con otros filtros
+        // Si necesitamos filtrado adicional, se puede implementar aquí
         return $data;
     }
 
