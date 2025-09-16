@@ -175,8 +175,6 @@ class DoctoresData extends ReporteData
 
     }
 
-    /* ===================== Procesamiento interno (migrado desde Repository) ===================== */
-
     /**
      * Procesa resultados de ventas mensuales para Chart.js
      */
