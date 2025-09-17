@@ -54,4 +54,9 @@ class PedidosDeliveryState extends Model
             'lng' => $location->longitude
         ];
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'motorizado_id');
+    }
 }

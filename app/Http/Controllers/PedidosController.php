@@ -283,10 +283,12 @@ class PedidosController extends Controller
 
         $states = $pedido->deliveryStates()
             ->orderBy('created_at', 'desc')
+            ->with(['user:id,name'])
             ->get()
             ->map(function ($state) {
                 return [
                     'id' => $state->id,
+                    'user' => $state->user->name ?? null,
                     'state' => $state->state,
                     'created_at' => $state->created_at,
                     'observacion' => $state->observacion,
@@ -398,7 +400,7 @@ class PedidosController extends Controller
                     'datetime_foto_entrega' => $state->datetime_foto_entrega,
                     'receptor_nombre' => $state->receptor_nombre,
                     'receptor_firma' => $state->receptor_firma,
-                    'observacion' => $state->observacion,
+                    'observacion' => $state->observacion ?? '',
                     'created_at' => $state->created_at
                 ]);
             }

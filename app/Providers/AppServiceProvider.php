@@ -3,10 +3,12 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Domain\Reports\Doctor\DoctorReportRepositoryInterface;
+use App\Domain\Reports\Doctor\DoctorReportRepository;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -15,6 +17,10 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         //
+        $this->app->bind(
+            DoctorReportRepositoryInterface::class,
+            DoctorReportRepository::class
+        );
     }
 
     /**
@@ -22,6 +28,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+
         Gate::before(function (User $user, string $ability) {
             if ($user->role->name === 'admin') {
                 return true;
@@ -46,15 +53,15 @@ class AppServiceProvider extends ServiceProvider
             return $user->role->name === 'visitador';
         });
         Gate::define('jefe-operaciones', function (User $user) {
-             if($user->role->name === 'jefe-operaciones'){
-                 return true;
-             }
-        });
-        Gate::define('counter-jefe_operaciones', function (User $user) {
-            if($user->role->name === 'jefe-operaciones' or $user->role->name === 'counter'){
+            if ($user->role->name === 'jefe-operaciones') {
                 return true;
             }
-       });
+        });
+        Gate::define('counter-jefe_operaciones', function (User $user) {
+            if ($user->role->name === 'jefe-operaciones' or $user->role->name === 'counter') {
+                return true;
+            }
+        });
         Gate::define('gerencia-general', function (User $user) {
             return $user->role->name === 'gerencia-general';
         });

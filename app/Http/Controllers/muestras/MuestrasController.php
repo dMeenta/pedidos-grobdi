@@ -12,6 +12,7 @@ use App\Models\Clasificacion;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
 class MuestrasController extends Controller
@@ -111,7 +112,12 @@ class MuestrasController extends Controller
 
         if ($request->filled('search')) {
             $search = $request->input('search');
-            $query->where('nombre_muestra', 'like', "%{$search}%");
+            $query->where(function ($q) use ($search) {
+                $q->where('nombre_muestra', 'like', "%{$search}%")
+                    ->orWhereHas('doctor', function ($q2) use ($search) {
+                        $q2->where(DB::raw("CONCAT_WS(' ', name, first_lastname, second_lastname)"), 'like', "%{$search}%");
+                    });
+            });
         }
 
         $filterBy = $request->filter_by_date;

@@ -136,7 +136,6 @@
 @stop
 
 @section('js')
-
 <script>
     $(document).ready(function() {
         const presentacionInfo = $('#presentacion_info');
@@ -148,6 +147,7 @@
         const unidadMedidaInput = $('#unidad_de_medida');
 
         const doctorNameInput = $('#name_doctor');
+        const idDoctorInput = $('#id_doctor');
         const suggestionsList = $('#doctorsList');
 
         const tipoFrascoSelect = $('#tipo_frasco');
@@ -205,14 +205,11 @@
 
         doctorNameInput.on('keyup', function(e) {
             const key = e.key;
-
             if (['ArrowUp', 'ArrowDown', 'Enter'].includes(key)) {
                 return;
             }
-
             clearTimeout(typingTimer);
             const query = doctorNameInput.val();
-
             if (query.length < 2) {
                 suggestionsList.fadeOut();
                 return;
@@ -230,13 +227,9 @@
                         let html = '';
                         if (data.length > 0) {
                             data.forEach(function(doctor) {
-                                html += `<a href="#" class="list-group-item list-group-item-action doctor-item" data-id="${doctor.id}" data-name="${doctor.name}">${doctor.name}</a>`;
-
+                                html += `<a href="" class="list-group-item list-group-item-action doctor-item" data-id="${doctor.id}" data-name="${doctor.name}">${doctor.name}</a>`;
                             });
                             selectedIndex = -1;
-                        }
-                        if (data.length > 5) {
-
                         }
                         suggestionsList.html(html).fadeIn();
                     }
@@ -244,12 +237,11 @@
             }, debounceDelay);
         });
 
-        // Al hacer clic en un doctor sugerido
         $(document).on('click', '.doctor-item', function(e) {
             e.preventDefault();
-            $('#name_doctor').val($(this).data('name'));
-            $('#id_doctor').val($(this).data('id'));
-            $('#doctorsList').fadeOut();
+            doctorNameInput.val($(this).data('name'));
+            idDoctorInput.val($(this).data('id'));
+            suggestionsList.fadeOut();
         });
 
         doctorNameInput.on('keydown', function(e) {
@@ -279,17 +271,15 @@
         function highlightItem(items, index) {
             items.removeClass('active');
             if (index >= 0 && index < items.length) {
-                $(items[index]).addClass('active');
-
-                const container = $('#doctorsList');
+                const item = $(items[index]);
+                item.addClass('active');
                 const itemTop = item.position().top;
                 const itemBottom = itemTop + item.outerHeight();
-                const containerHeight = container.height();
-
+                const containerHeight = suggestionsList.height();
                 if (itemTop < 0) {
-                    container.scrollTop(container.scrollTop() + itemTop);
+                    suggestionsList.scrollTop(suggestionsList.scrollTop() + itemTop);
                 } else if (itemBottom > containerHeight) {
-                    container.scrollTop(container.scrollTop() + (itemBottom - containerHeight));
+                    suggestionsList.scrollTop(suggestionsList.scrollTop() + (itemBottom - containerHeight));
                 }
             }
         }
@@ -298,7 +288,7 @@
         $(document).on('click', '.doctor-item', function(e) {
             e.preventDefault();
             doctorNameInput.val($(this).text());
-            $('#id_doctor').val($(this).data('id'));
+            idDoctorInput.val($(this).data('id'));
             suggestionsList.fadeOut();
         });
 
@@ -312,19 +302,19 @@
 
 
     $('form').on('submit', function(e) {
-        const idDoctor = $('#id_doctor').val();
-        const nameDoctor = $('#name_doctor').val();
+        const idDoctor = idDoctorInput.val();
+        const nameDoctor = doctorNameInput.val();
 
         if (!idDoctor) {
             e.preventDefault();
             alert('Por favor, selecciona un doctor registrado.');
-            $('#name_doctor').focus();
+            doctorNameInput.focus();
             return false;
         }
     });
 
-    $('#name_doctor').on('input', function() {
-        $('#id_doctor').val('');
+    doctorNameInput.on('input', function() {
+        idDoctorInput.val('');
     });
 </script>
 @stop
