@@ -82,13 +82,6 @@ class DoctoresImport extends BaseImport
             return;
         }
 
-        /* Verificar si la fila debe ser omitida (filas vacías, etc.)
-        if ($this->shouldSkipRow($row, $colMap)) {
-            $this->incrementStat('skipped');
-            return;
-        }
-        */
-
         // Validar solo los campos absolutamente requeridos
         $cmp = trim($row[$colMap['CMP']] ?? '');
         

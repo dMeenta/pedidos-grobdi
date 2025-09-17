@@ -34,7 +34,7 @@ class DetailPedidosImport extends BaseImport implements WithStartRow
      */
     public function startRow(): int
     {
-        return 2; // Comenzar desde la fila 2 para incluir cabeceras
+        return 2;
     }
     
     /**
@@ -301,7 +301,6 @@ class DetailPedidosImport extends BaseImport implements WithStartRow
             }
         }
         
-        // Actualizar estadísticas si se implementan contadores para eliminaciones
         if (isset($this->stats['deleted'])) {
             $this->stats['deleted'] = $deletedCount;
         }

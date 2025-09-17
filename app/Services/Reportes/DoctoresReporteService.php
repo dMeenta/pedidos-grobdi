@@ -78,65 +78,6 @@ class DoctoresReporteService extends BaseReporteService
     }
 
     /**
-     * Define los filtros válidos para reportes de doctores
-     *
-     * @return array Configuración de filtros permitidos
-     */
-    protected function getFiltrosValidos(): array
-    {
-        return [
-            // Nuevos filtros de rango de fecha
-            'fecha_inicio' => [
-                'type' => 'date',
-                'label' => 'Fecha Inicio',
-                'required' => false
-            ],
-            'fecha_fin' => [
-                'type' => 'date',
-                'label' => 'Fecha Fin',
-                'required' => false
-            ],
-            // Legacy (se mantienen temporalmente)
-            'anio' => [
-                'type' => 'string',
-                'label' => 'Año',
-                'required' => false
-            ],
-            'mes' => [
-                'type' => 'integer',
-                'label' => 'Mes',
-                'required' => false,
-                'min' => 1,
-                'max' => 12
-            ],
-            'tipo_medico' => [
-                'type' => 'string',
-                'label' => 'Tipo de Médico',
-                'required' => false,
-                'options' => ['Comprador', 'Prescriptor', 'En Proceso']
-            ]
-        ];
-    }
-
-    /**
-     * Aplica filtros específicos para reportes de doctores
-     *
-     * @param ReporteData $data Datos del reporte
-     * @param array $filtros Filtros a aplicar
-     * @return ReporteData Datos filtrados
-     */
-    public function aplicarFiltros(ReporteData $data, array $filtros): ReporteData
-    {
-        if (!$data instanceof DoctoresData) {
-            return $data;
-        }
-
-        // Los filtros ya se aplican en el repositorio, pero podríamos hacer
-        // filtrado adicional aquí si fuera necesario
-        return $data;
-    }
-
-    /**
      * Obtiene los años disponibles para filtrar
      *
      * @return array Lista de años disponibles
