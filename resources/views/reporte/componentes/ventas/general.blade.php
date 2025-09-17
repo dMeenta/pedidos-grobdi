@@ -6,7 +6,7 @@
 
     <!-- Filtros por Mes y Año -->
     <div class="row mb-4 p-3 bg-light rounded">
-        <div class="col-md-3">
+        <div class="col-12 col-sm-6 col-md-3 mb-3">
             <label for="mes_general" class="form-label">Mes</label>
             <select class="form-control" id="mes_general">
                 <option value="">Todos los meses</option>
@@ -24,28 +24,32 @@
                 <option value="12">Diciembre</option>
             </select>
         </div>
-        <div class="col-md-3">
+        <div class="col-12 col-sm-6 col-md-3 mb-3">
             <label for="anio_general" class="form-label">Año</label>
             <select class="form-control" id="anio_general">
-                <option value="">Seleccionar año</option>
                 @php
                     $currentYear = date('Y');
+                    // Mostrar primero el año actual como seleccionado
+                    echo "<option value=\"$currentYear\" selected>$currentYear (Actual)</option>";
+                    
+                    // Luego mostrar los demás años
                     for ($year = 2020; $year <= $currentYear + 1; $year++) {
-                        $selected = $year == $currentYear ? 'selected' : '';
-                        echo "<option value=\"$year\" $selected>$year</option>";
+                        if ($year != $currentYear) {
+                            echo "<option value=\"$year\">$year</option>";
+                        }
                     }
                 @endphp
             </select>
         </div>
-        <div class="col-md-3">
+        <div class="col-12 col-sm-6 col-md-3 mb-3">
             <label>&nbsp;</label><br>
-            <button class="btn btn-primary" id="filtrar_general">
+            <button class="btn btn-primary btn-block w-100" id="filtrar_general">
                 <i class="fas fa-filter"></i> Filtrar
             </button>
         </div>
-        <div class="col-md-3">
+        <div class="col-12 col-sm-6 col-md-3 mb-3">
             <label>&nbsp;</label><br>
-            <button class="btn btn-secondary" id="limpiar_general">
+            <button class="btn btn-secondary btn-block w-100" id="limpiar_general">
                 <i class="fas fa-eraser"></i> Limpiar
             </button>
         </div>
@@ -53,24 +57,24 @@
 
     <!-- Métricas generales -->
     <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card bg-warning text-white">
+        <div class="col-12 col-sm-6 col-lg-4 mb-3">
+            <div class="card bg-warning text-white h-100">
                 <div class="card-body text-center">
                     <h3>S/ {{ number_format($data['general']['total_ventas'] ?? 0, 2) }}</h3>
                     <p class="mb-0">Ingresos Totales</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card bg-danger text-white">
+        <div class="col-12 col-sm-6 col-lg-4 mb-3">
+            <div class="card bg-danger text-white h-100">
                 <div class="card-body text-center">
                     <h3>{{ $data['general']['total_visitas'] ?? 0 }}</h3>
                     <p class="mb-0">Total Visitas</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card bg-dark text-white">
+        <div class="col-12 col-sm-6 col-lg-4 mb-3">
+            <div class="card bg-dark text-white h-100">
                 <div class="card-body text-center">
                     <h3>S/ {{ number_format($data['general']['promedio_venta'] ?? 0, 2) }}</h3>
                     <p class="mb-0">Ingreso/Visita</p>
@@ -81,7 +85,7 @@
 
     <!-- Gráficas de Reportes por Mes y Ventas por Día -->
     <div class="row mb-4">
-        <div class="col-md-12">
+        <div class="col-12 mb-4">
             <div class="card">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">
@@ -89,11 +93,11 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    <canvas id="reportesMesChart" style="height: 300px;"></canvas>
+                    <canvas id="reportesMesChart" style="height: 300px; max-height: 60vh;"></canvas>
                 </div>
             </div>
         </div>
-        <div class="col-md-12">
+        <div class="col-12 mb-4">
             <div class="card">
                 <div class="card-header bg-success text-white">
                     <h5 class="mb-0">
@@ -101,7 +105,7 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    <canvas id="ventasDiaChart" style="height: 300px;"></canvas>
+                    <canvas id="ventasDiaChart" style="height: 300px; max-height: 60vh;"></canvas>
                 </div>
             </div>
         </div>
@@ -115,7 +119,7 @@
                     <h5 class="mb-0">Tendencia de Ventas Mensual</h5>
                 </div>
                 <div class="card-body">
-                    <canvas id="tendenciaChart" style="height: 400px;"></canvas>
+                    <canvas id="tendenciaChart" style="height: 400px; max-height: 70vh;"></canvas>
                 </div>
             </div>
         </div>
@@ -123,8 +127,9 @@
 
     <!-- Botón Descargar Excel -->
     <div class="text-center mt-4">
-        <button class="btn btn-success" id="descargar-excel-general">
-            <i class="fas fa-download"></i> Descargar Detallado Excel
+        <button class="btn btn-success btn-lg" id="descargar-excel-general">
+            <i class="fas fa-download"></i> <span class="d-none d-sm-inline">Descargar Detallado Excel</span>
+            <span class="d-sm-none">Descargar Excel</span>
         </button>
     </div>
 </div>
@@ -137,6 +142,40 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('jQuery no está cargado');
         return;
     }
+
+    // Agregar estilos responsivos para los gráficos
+    const style = document.createElement('style');
+    style.textContent = `
+        @media (max-width: 768px) {
+            .card-body canvas {
+                height: 250px !important;
+                max-height: 50vh !important;
+            }
+            .card h5 {
+                font-size: 1.1rem;
+            }
+            .card h3 {
+                font-size: 1.5rem;
+            }
+        }
+        @media (max-width: 576px) {
+            .card-body canvas {
+                height: 200px !important;
+                max-height: 40vh !important;
+            }
+            .card h5 {
+                font-size: 1rem;
+            }
+            .card h3 {
+                font-size: 1.3rem;
+            }
+            .btn {
+                font-size: 0.9rem;
+                padding: 0.5rem 1rem;
+            }
+        }
+    `;
+    document.head.appendChild(style);
 
     // Variables globales para gráficos
     let chartMes, chartDia, chartTendencia;
@@ -301,6 +340,7 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 scales: {
                     y: {
                         beginAtZero: true,
@@ -309,12 +349,28 @@ document.addEventListener('DOMContentLoaded', function() {
                                 return 'S/ ' + value.toLocaleString();
                             }
                         }
+                    },
+                    x: {
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 0
+                        }
                     }
                 },
                 plugins: {
                     title: {
                         display: true,
-                        text: data.periodo || 'Ventas por Mes'
+                        text: data.periodo || 'Ventas por Mes',
+                        font: {
+                            size: window.innerWidth < 768 ? 14 : 16
+                        }
+                    },
+                    legend: {
+                        labels: {
+                            font: {
+                                size: window.innerWidth < 768 ? 12 : 14
+                            }
+                        }
                     }
                 }
             }
@@ -341,6 +397,7 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 scales: {
                     y: {
                         beginAtZero: true,
@@ -349,19 +406,33 @@ document.addEventListener('DOMContentLoaded', function() {
                                 return 'S/ ' + value.toLocaleString();
                             }
                         }
+                    },
+                    x: {
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 0
+                        }
                     }
                 },
                 plugins: {
                     title: {
                         display: true,
-                        text: 'Tendencia de Ventas'
+                        text: 'Tendencia de Ventas',
+                        font: {
+                            size: window.innerWidth < 768 ? 14 : 16
+                        }
+                    },
+                    legend: {
+                        labels: {
+                            font: {
+                                size: window.innerWidth < 768 ? 12 : 14
+                            }
+                        }
                     }
                 }
             }
         });
-    }
-
-    // Crear gráfico diario
+    }    // Crear gráfico diario
     function crearGraficoDiario(data) {
         const ctx = document.getElementById('ventasDiaChart');
         if (!ctx) return;
@@ -381,6 +452,7 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 scales: {
                     y: {
                         beginAtZero: true,
@@ -389,12 +461,30 @@ document.addEventListener('DOMContentLoaded', function() {
                                 return 'S/ ' + value.toLocaleString();
                             }
                         }
+                    },
+                    x: {
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 0,
+                            autoSkip: true,
+                            maxTicksLimit: window.innerWidth < 768 ? 7 : 15
+                        }
                     }
                 },
                 plugins: {
                     title: {
                         display: true,
-                        text: data.periodo || 'Ventas Diarias'
+                        text: data.periodo || 'Ventas Diarias',
+                        font: {
+                            size: window.innerWidth < 768 ? 14 : 16
+                        }
+                    },
+                    legend: {
+                        labels: {
+                            font: {
+                                size: window.innerWidth < 768 ? 12 : 14
+                            }
+                        }
                     }
                 }
             }
