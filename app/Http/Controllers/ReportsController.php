@@ -6,11 +6,20 @@ use App\Models\Distrito;
 use App\Models\EstadoVisita;
 use App\Models\VisitaDoctor;
 use App\Models\Zone;
+use App\Domain\Reports\ReportsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ReportsController extends Controller
 {
+
+    protected ReportsService $reportsService;
+
+    public function __construct(ReportsService $reportsService)
+    {
+        $this->reportsService = $reportsService;
+    }
+
     public function indexVisitadoras(Request $request)
     {
         $month = $request->input('month', now()->month);
@@ -25,6 +34,40 @@ class ReportsController extends Controller
 
         $estadosVisitas = EstadoVisita::all();
         return view('reports.visitadoras.index', compact('estadosVisitas', 'initialValues', 'zones'));
+    }
+
+    public function indexVentas(Request $request)
+    {
+        return view('reports.ventas.index');
+    }
+
+    public function indexDoctores()
+    {
+        $year = now()->year;
+        $month = now()->month;
+
+        $doctorData = $this->reportsService->doctor()->getDoctorReport($year, $month);
+
+        return view('reports.doctores.index', compact('doctorData'));
+    }
+
+    public function getDoctorReport(Request $request)
+    {
+        $monthYear = $request->input('month_year');
+
+        if ($monthYear) {
+            $parts = explode('/', $monthYear);
+            if (count($parts) === 2) {
+                $month = (int) $parts[0];
+                $year = (int) $parts[1];
+            }
+        }
+
+        $doctorId = $request->input('id_doctor');
+
+        $doctorData = $this->reportsService->doctor()->getDoctorReport($year, $month, $doctorId);
+
+        return response()->json($doctorData);
     }
 
     public function getDistritosByZone($zoneId)

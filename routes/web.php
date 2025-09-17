@@ -114,6 +114,15 @@ Route::prefix('reports')
             Route::get('/distritos/{zoneId}', [ReportsController::class, 'getDistritosByZone'])->name('getDistritosByZone');
             Route::get('/filter', [ReportsController::class, 'filterVisitasDoctor'])->name('reports.visitas.filter');
         });
+
+        Route::prefix('ventas')->group(function () {
+            Route::get('/', [ReportsController::class, 'indexVentas'])->name('reports.ventas.index');
+        });
+
+        Route::prefix('doctores')->group(function () {
+            Route::get('/', [ReportsController::class, 'indexDoctores'])->name('reports.doctores.index');
+            Route::get('get-doctor-report', [ReportsController::class, 'getDoctorReport'])->name('reports.doctores.getDoctorReport');
+        });
     });
 
 
@@ -132,23 +141,23 @@ Route::middleware(['checkRole:counter,admin,Administracion'])->group(function ()
     Route::put('/cargarpedidos/cargarImagenReceta/{post}', CargarPedidosController::class . '@cargarImagenReceta')->name('cargarpedidos.cargarImagenReceta');
     Route::delete('cargarpedidos/eliminarFotoVoucher/{id}', CargarPedidosController::class . '@eliminarFotoVoucher')->name('cargarpedidos.eliminarFotoVoucher');
     Route::put('/cargarpedidos/actualizarTurno/{id}', CargarPedidosController::class . '@actualizarTurno')->name('cargarpedidos.actualizarTurno');
-    
+
     // New routes for preview functionality
     Route::get('/cargarpedidos/preview/changes', CargarPedidosController::class . '@preview')->name('cargarpedidos.preview');
     Route::post('/cargarpedidos/confirm/changes', CargarPedidosController::class . '@confirmChanges')->name('cargarpedidos.confirm');
     Route::post('/cargarpedidos/cancel/changes', CargarPedidosController::class . '@cancelChanges')->name('cargarpedidos.cancel');
-    
+
     // New routes for articles preview functionality
     Route::get('/cargarpedidos/preview/articulos', CargarPedidosController::class . '@previewArticulos')->name('cargarpedidos.preview-articulos');
     Route::post('/cargarpedidos/confirm/articulos', CargarPedidosController::class . '@confirmArticulos')->name('cargarpedidos.confirm-articulos');
     Route::post('/cargarpedidos/cancel/articulos', CargarPedidosController::class . '@cancelArticulos')->name('cargarpedidos.cancel-articulos');
-    
+
     Route::get('/pedidos/sincronizar', CargarPedidosController::class . '@sincronizarDoctoresPedidos')->name('pedidos.sincronizar');
     Route::get('/api/doctores/search', CargarPedidosController::class . '@searchDoctores')->name('api.doctores.search');
-    
+
     // Incluir ruta de prueba
-    require __DIR__.'/test.php';
-    
+    require __DIR__ . '/test.php';
+
     Route::resource('asignarpedidos', AsignarPedidoController::class);
     Route::post('/cargarpedidos/downloadWord', CargarPedidosController::class . '@downloadWord')
         ->name('cargarpedidos.downloadWord');
