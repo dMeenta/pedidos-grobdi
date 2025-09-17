@@ -20,7 +20,7 @@ class ModuleController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate(['name' => 'required|unique:modules']);
+        $request->validate(['name' => 'required|unique:modules','description'=>'nullable']);
         Module::create($request->all());
 
         return redirect()->route('modules.index')->with('success', 'Módulo creado correctamente');
@@ -33,7 +33,10 @@ class ModuleController extends Controller
 
     public function update(Request $request, Module $module)
     {
-        $request->validate(['name' => 'required|unique:modules,name,' . $module->id]);
+        $request->validate([
+            'name' => 'required|unique:modules,name,' . $module->id,
+            'description' => 'nullable|string'
+        ]);
         $module->update($request->all());
 
         return redirect()->route('modules.index')->with('success', 'Módulo actualizado correctamente');

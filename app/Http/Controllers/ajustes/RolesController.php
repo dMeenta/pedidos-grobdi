@@ -55,6 +55,13 @@ class RolesController extends Controller
 
     public function updatePermissions(Request $request, Role $role)
     {
+        $request->validate([
+            'modules' => 'required|array',
+            'views' => 'nullable|array',
+        ], [
+            'modules.required' => 'Debes seleccionar al menos un módulo.',
+        ]);
+        
         $role->modules()->sync($request->input('modules', []));
         $role->views()->sync($request->input('views', []));
 

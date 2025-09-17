@@ -538,18 +538,18 @@ return [
         //     'icon' => 'fas fa-fw fa-key',
         //     'can' => 'jefe-operaciones'
         // ],
-        // [
-        //     'text' => 'Modulos',
-        //     'url' => 'modulos',
-        //     'icon' => 'fas fa-fw fa-th-large',
-        //     'can' => 'jefe-operaciones'
-        // ],
-        // [
-        //     'text' => 'Vistas',
-        //     'url' => 'vistas',
-        //     'icon' => 'fas fa-fw fa-eye',
-        //     'can' => 'jefe-operaciones'
-        // ],
+        [
+            'text' => 'Modulos',
+            'url' => 'modules',
+            'icon' => 'fas fa-fw fa-th-large',
+            'can' => 'jefe-operaciones'
+        ],
+        [
+            'text' => 'Vistas',
+            'url' => 'views',
+            'icon' => 'fas fa-fw fa-eye',
+            'can' => 'jefe-operaciones'
+        ],
         // [
         //     'text' => 'Bitacora',
         //     'url' => 'bitacora',

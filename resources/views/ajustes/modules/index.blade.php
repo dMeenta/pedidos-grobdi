@@ -25,11 +25,15 @@
                     <td>{{ $module->name }}</td>
                     <td>{{ $module->description }}</td>
                     <td>
-                        <a href="{{ route('modules.edit', $module) }}" class="btn btn-sm btn-warning">Editar</a>
-                        <form action="{{ route('modules.destroy', $module) }}" method="POST" class="d-inline">
-                            @csrf @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar?')">Eliminar</button>
-                        </form>
+                        @can('modules.edit')
+                            <a href="{{ route('modules.edit', $module) }}" class="btn btn-sm btn-warning">Editar</a>
+                        @endcan
+                        @can('modules.delete')
+                            <form action="{{ route('modules.destroy', $module) }}" method="POST" class="d-inline">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar?')">Eliminar</button>
+                            </form>
+                        @endcan
                     </td>
                 </tr>
             @endforeach

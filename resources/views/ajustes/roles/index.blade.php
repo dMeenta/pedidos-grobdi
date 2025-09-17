@@ -32,7 +32,7 @@
                                         <td>{{ $role->description }}</td> 
                                         <td>
                                             @foreach ($role->views as $view)
-                                                <span class="badge badge-info">{{ $view->module->name }} - {{ $view->name }}</span>
+                                                <span class="badge badge-info">{{ $view->module->name }} - {{ $view->description }}</span>
                                             @endforeach
                                         </td>
                                         <td>
