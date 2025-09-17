@@ -81,7 +81,7 @@
 
     <!-- Gráficas de Reportes por Mes y Ventas por Día -->
     <div class="row mb-4">
-        <div class="col-md-6">
+        <div class="col-md-12">
             <div class="card">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">
@@ -93,7 +93,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-12">
             <div class="card">
                 <div class="card-header bg-success text-white">
                     <h5 class="mb-0">
