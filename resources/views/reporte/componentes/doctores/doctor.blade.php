@@ -20,40 +20,26 @@
                         </div>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-dark w-100">
-                    Buscar
-                </button>
+                <button type="submit" class="btn btn-dark w-100">Buscar</button>
             </form>
         </div>
         <div class="col-10">
             <div class="card card-outline card-dark">
                 <div class="card-header">
-                    <h3 class="card-title">
-                        <font dir="auto" style="vertical-align: inherit;">
-                            <font dir="auto" style="vertical-align: inherit;" id="doctor-name-label">Dr. con mayor
-                                consumo del año: {{ $doctorData['doctor'] }} - Tipo: {{ $doctorData['tipoMedico'] }}
-                            </font>
-                        </font>
+                    <h3 class="card-title" id="doctor-name-label">
+                        @php $__doctorData = $doctorData ?? [
+                                'doctor' => 'N/A',
+                                'tipoMedico' => 'N/A',
+                        ]; @endphp
+                        Dr. con mayor consumo del año: {{ $__doctorData['doctor'] }} - Tipo:
+                        {{ $__doctorData['tipoMedico'] }}
                     </h3>
                 </div>
                 <div class="card-body">
-                    <font dir="auto" style="vertical-align: inherit;">
-                        <font dir="auto" style="vertical-align: inherit;">
-                            <div class="chart">
-                                <div class="chartjs-size-monitor">
-                                    <div class="chartjs-size-monitor-expand">
-                                        <div class=""></div>
-                                    </div>
-                                    <div class="chartjs-size-monitor-shrink">
-                                        <div class=""></div>
-                                    </div>
-                                </div>
-                                <canvas id="amountSpentByDoctorGroupedByMonthChart"
-                                    style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%; display: block;"
-                                    width="496" height="250" class="chartjs-render-monitor"></canvas>
-                            </div>
-                        </font>
-                    </font>
+                    <div class="chart">
+                        <canvas id="amountSpentByDoctorGroupedByMonthChart"
+                            style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%; display: block;"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -62,69 +48,34 @@
         <div class="col-6">
             <div class="card card-outline card-dark">
                 <div class="card-header">
-                    <h3 class="card-title">
-                        <font dir="auto" style="vertical-align: inherit;">
-                            <font dir="auto" style="vertical-align: inherit;">Monto consumido agrupado por tipo de
-                                producto</font>
-                        </font>
-                    </h3>
+                    <h3 class="card-title">Monto consumido agrupado por tipo de producto</h3>
                 </div>
                 <div class="card-body">
-                    <font dir="auto" style="vertical-align: inherit;">
-                        <font dir="auto" style="vertical-align: inherit;">
-                            <div class="chart position-relative">
-                                <div class="chartjs-size-monitor">
-                                    <div class="chartjs-size-monitor-expand">
-                                        <div class=""></div>
-                                    </div>
-                                    <div class="chartjs-size-monitor-shrink">
-                                        <div class=""></div>
-                                    </div>
-                                </div>
-                                <div class="no-data-message text-center position-absolute w-100 align-content-center top-50 start-50 translate-middle"
-                                    style="{{ count($doctorData['amountSpentByDoctorGroupedByTipo']) > 0 ? 'display: none;' : '' }} height: 30%; background-color: rgba(0, 0, 0, 0.5); color: #e1e1e1ff; top: 25%;">
-                                    No hay datos en el mes para este gráfico.</div>
-                                <canvas id="amountSpentByDoctorGroupedByTipoChart"
-                                    style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%; display: block;"
-                                    width="496" height="250" class="chartjs-render-monitor"></canvas>
-                            </div>
-                        </font>
-                    </font>
+                    <div class="chart position-relative">
+                        @php $__amountTipo = $doctorData['amountSpentByDoctorGroupedByTipo'] ?? []; @endphp
+                        <div class="no-data-message text-center position-absolute w-100 align-content-center top-50 start-50 translate-middle"
+                            style="{{ count($__amountTipo) > 0 ? 'display: none;' : '' }} height: 30%; background-color: rgba(0, 0, 0, 0.5); color: #e1e1e1ff; top: 25%;">
+                            No hay datos en el mes para este gráfico.</div>
+                        <canvas id="amountSpentByDoctorGroupedByTipoChart"
+                            style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%; display: block;"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-6">
             <div class="card card-outline card-dark">
                 <div class="card-header">
-                    <h3 class="card-title">
-                        <font dir="auto" style="vertical-align: inherit;">
-                            <font dir="auto" style="vertical-align: inherit;">Productos más comprados por el doctor
-                            </font>
-                        </font>
-                    </h3>
+                    <h3 class="card-title">Productos más comprados por el doctor</h3>
                 </div>
                 <div class="card-body">
-                    <font dir="auto" style="vertical-align: inherit;">
-                        <font dir="auto" style="vertical-align: inherit;">
-                            <div class="chart position-relative">
-                                <div class="chartjs-size-monitor">
-                                    <div class="chartjs-size-monitor-expand">
-                                        <div class=""></div>
-                                    </div>
-                                    <div class="chartjs-size-monitor-shrink">
-                                        <div class=""></div>
-                                    </div>
-                                </div>
-                                <div class="no-data-message text-center position-absolute w-100 align-content-center top-50 start-50 translate-middle"
-                                    style="{{ count($doctorData['topMostConsumedProductsInTheMonthByDoctor']) > 0 ? 'display: none;' : '' }} height: 30%; background-color: rgba(0, 0, 0, 0.5); color: #e1e1e1ff; top: 25%;">
-                                    No hay datos en el mes para este gráfico.
-                                </div>
-                                <canvas id="topMostConsumedProductsInTheMonthByDoctorChart"
-                                    style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%; display: block;"
-                                    width="496" height="250" class="chartjs-render-monitor"></canvas>
-                            </div>
-                        </font>
-                    </font>
+                    <div class="chart position-relative">
+                        @php $__topProducts = $doctorData['topMostConsumedProductsInTheMonthByDoctor'] ?? []; @endphp
+                        <div class="no-data-message text-center position-absolute w-100 align-content-center top-50 start-50 translate-middle"
+                            style="{{ count($__topProducts) > 0 ? 'display: none;' : '' }} height: 30%; background-color: rgba(0, 0, 0, 0.5); color: #e1e1e1ff; top: 25%;">
+                            No hay datos en el mes para este gráfico.</div>
+                        <canvas id="topMostConsumedProductsInTheMonthByDoctorChart"
+                            style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%; display: block;"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -143,28 +94,22 @@
                             </tr>
                         </thead>
                         <tbody id="products-data-table">
-                            @if (count($doctorData['consumedProductsInTheMonthByDoctor']) > 0)
-                                @foreach ($doctorData['consumedProductsInTheMonthByDoctor'] as $product)
+                            @php $__consumed = $doctorData['consumedProductsInTheMonthByDoctor'] ?? []; @endphp
+                            @if (count($__consumed) > 0)
+                                @foreach ($__consumed as $product)
                                     <tr>
-                                        <td>
-                                            {{ $product['articulo'] }}
-                                        </td>
-                                        <td class="text-center">
-                                            {{ $product['total_cantidad'] }}
-                                        </td>
+                                        <td>{{ $product['articulo'] }}</td>
+                                        <td class="text-center">{{ $product['total_cantidad'] }}</td>
                                         <td class="text-center">
                                             {{ number_format($product['total_subtotal'] / $product['total_cantidad'], 2) }}
                                         </td>
-                                        <td class="text-center">
-                                            S/ {{ $product['total_subtotal'] }}
-                                        </td>
+                                        <td class="text-center">S/ {{ $product['total_subtotal'] }}</td>
                                     </tr>
                                 @endforeach
                             @else
                                 <tr>
-                                    <td colspan="4" class="text-center text-muted py-5">
-                                        No hay datos en el mes para esta tabla.
-                                    </td>
+                                    <td colspan="4" class="text-center text-muted py-5">No hay datos en el mes para
+                                        esta tabla.</td>
                                 </tr>
                             @endif
                         </tbody>
@@ -173,7 +118,6 @@
             </div>
         </div>
     </div>
-
 
     @section('css')
         <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css"
@@ -218,8 +162,18 @@
             }
         </script>
         <script>
+            @php
+                $__initialDoctorData = $doctorData ?? [
+                    'doctor' => 'N/A',
+                    'tipoMedico' => 'N/A',
+                    'amountSpentByDoctorGroupedByMonth' => array_fill(1, 12, 0),
+                    'amountSpentByDoctorGroupedByTipo' => [],
+                    'topMostConsumedProductsInTheMonthByDoctor' => [],
+                    'consumedProductsInTheMonthByDoctor' => [],
+                ];
+            @endphp
             const productsConsumedTable = $('#products-data-table');
-            const initialValues = JSON.parse(`@json($doctorData)`);
+            const initialValues = @json($__initialDoctorData);
             const doctorNameLabel = $('#doctor-name-label');
             let typingTimer;
             const debounceDelay = 300;
@@ -235,15 +189,11 @@
                 autoclose: true,
                 endDate: '12/31/' + new Date().getFullYear()
             });
-            const monthLabels = [
-                'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-                'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+            const monthLabels = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre',
+                'Octubre', 'Noviembre', 'Diciembre'
             ];
-            let amountSpentByDoctorGroupedByMonthChart = createChart(
-                '#amountSpentByDoctorGroupedByMonthChart',
-                monthLabels,
-                Object.values(initialValues.amountSpentByDoctorGroupedByMonth).map(Number),
-                'Monto de Inversión del Doctor',
+            let amountSpentByDoctorGroupedByMonthChart = createChart('#amountSpentByDoctorGroupedByMonthChart', monthLabels,
+                Object.values(initialValues.amountSpentByDoctorGroupedByMonth).map(Number), 'Monto de Inversión del Doctor',
                 'line', 'rgba(212, 12, 13, 1)', 'rgba(255, 0, 0, 0.4)', {
                     pointStyle: 'circle',
                     pointRadius: 8,
@@ -254,38 +204,33 @@
                             tension: 0.1
                         }
                     }
-                }
-            );
+                });
             let amountSpentByDoctorGroupedByTipoChart = createChart('#amountSpentByDoctorGroupedByTipoChart', initialValues
                 .amountSpentByDoctorGroupedByTipo.map(i => i.tipo), initialValues.amountSpentByDoctorGroupedByTipo.map(i =>
-                    i.total_sub_total), 'Monto de Inversión del Doctor',
-                'bar');
+                    i.total_sub_total), 'Monto de Inversión del Doctor', 'bar');
             let topMostConsumedProductsInTheMonthByDoctorChart = createChart('#topMostConsumedProductsInTheMonthByDoctorChart',
                 initialValues.topMostConsumedProductsInTheMonthByDoctor.map(i => i.articulo), initialValues
-                .topMostConsumedProductsInTheMonthByDoctor.map(i => i.total_cantidad), 'Cantidad comprada',
-                'bar', );
+                .topMostConsumedProductsInTheMonthByDoctor.map(i => i.total_cantidad), 'Cantidad comprada', 'bar');
         </script>
         <script>
             $(document).ready(() => {
-                if (initialValues.topMostConsumedProductsInTheMonthByDoctor.length < 1) {
+                if (!initialValues.topMostConsumedProductsInTheMonthByDoctor || initialValues
+                    .topMostConsumedProductsInTheMonthByDoctor.length < 1) {
                     $('#topMostConsumedProductsInTheMonthByDoctorChart').siblings('.no-data-message').show()
                 }
-                if (initialValues.amountSpentByDoctorGroupedByTipo.length < 1) {
+                if (!initialValues.amountSpentByDoctorGroupedByTipo || initialValues.amountSpentByDoctorGroupedByTipo
+                    .length < 1) {
                     $('#amountSpentByDoctorGroupedByTipoChart').siblings('.no-data-message').show()
                 }
             })
-
             doctorNameInput.on('keyup', function(e) {
-                if (['ArrowUp', 'ArrowDown', 'Enter'].includes(e.key)) {
-                    return;
-                }
+                if (['ArrowUp', 'ArrowDown', 'Enter'].includes(e.key)) return;
                 clearTimeout(typingTimer);
                 const query = doctorNameInput.val();
                 if (query.length < 2) {
                     suggestionsList.fadeOut();
                     return;
                 }
-
                 typingTimer = setTimeout(function() {
                     $.ajax({
                         url: '/doctors/search',
@@ -308,25 +253,22 @@
                     });
                 }, debounceDelay);
             });
-
             $(document).on('click', '.doctor-item', function(e) {
                 e.preventDefault();
                 doctorNameInput.val($(this).data('name'));
                 doctorIdInput.val($(this).data('id'));
                 suggestionsList.fadeOut();
             });
-
             doctorNameInput.on('keydown', function(e) {
-                const items = suggestionsList.find('.doctor-item')
+                const items = suggestionsList.find('.doctor-item');
                 if (!suggestionsList.is(':visible') || items.length === 0) return;
-
                 if (e.key === 'ArrowDown') {
-                    e.preventDefault()
+                    e.preventDefault();
                     selectedIndex = (selectedIndex + 1) % items.length;
                     highlightItem(items, selectedIndex);
                 }
                 if (e.key === 'ArrowUp') {
-                    e.preventDefault()
+                    e.preventDefault();
                     selectedIndex = (selectedIndex - 1 + items.length) % items.length;
                     highlightItem(items, selectedIndex);
                 }
@@ -334,10 +276,10 @@
                     e.preventDefault();
                     const selectedItem = $(items[selectedIndex]);
                     doctorNameInput.val(selectedItem.text());
-                    doctorIdInput.val(selectedItem.data("id"));
+                    doctorIdInput.val(selectedItem.data('id'));
                     suggestionsList.fadeOut();
                 }
-            })
+            });
 
             function highlightItem(items, index) {
                 items.removeClass('active');
@@ -354,18 +296,15 @@
                     }
                 }
             }
-
             $(document).click(function(e) {
                 if (!$(e.target).closest('#name_doctor, #doctorsList').length) {
                     suggestionsList.fadeOut();
                 }
             });
-
             doctorNameInput.on('input', function() {
                 doctorIdInput.val('');
             });
-        </script>
-        <script>
+
             function fetchDoctorData() {
                 const id = doctorIdInput.val().trim();
                 const name = doctorNameInput.val().trim();
@@ -373,10 +312,9 @@
                 if (!id && !name) {
                     reRenderCharts(initialValues);
                     doctorNameLabel.text(
-                        `Dr. con mayor consumo del año: ${initialValues.doctor} - Tipo: ${initialValues.tipoMedico}`)
+                        `Dr. con mayor consumo del año: ${initialValues.doctor} - Tipo: ${initialValues.tipoMedico}`);
                     return;
                 }
-
                 $.ajax({
                     url: "{{ route('reports.doctores.getDoctorReport') }}",
                     method: 'GET',
@@ -388,7 +326,7 @@
                     success: function(data) {
                         reRenderCharts(data);
                     },
-                    error: function(xhr) {
+                    error: function() {
                         toastr.danger('No se encontraron datos para este doctor.');
                     }
                 });
@@ -397,22 +335,13 @@
             function reRenderTable(data) {
                 productsConsumedTable.html('');
                 if (data.length > 0) {
-
-                    productsConsumedTable.html(data.map(i => `
-            <tr>
-                <td>${i.articulo}</td>
-                <td class="text-center">${i.total_cantidad}</td>
-                <td class="text-center">S/ ${(i.total_subtotal/i.total_cantidad).toFixed(2)}</td>
-                <td class="text-center">S/ ${(i.total_subtotal).toFixed(2)}</td>
-            </tr>`).join(''));
+                    productsConsumedTable.html(data.map(i =>
+                        `<tr><td>${i.articulo}</td><td class='text-center'>${i.total_cantidad}</td><td class='text-center'>S/ ${(i.total_subtotal/i.total_cantidad).toFixed(2)}</td><td class='text-center'>S/ ${(i.total_subtotal).toFixed(2)}</td></tr>`
+                        ).join(''));
                 } else {
-                    productsConsumedTable.html(`
-            <tr>
-                <td colspan="4" class="text-center text-muted py-5">
-                    No hay datos en el mes para esta tabla.
-                </td>
-            </tr>
-            `);
+                    productsConsumedTable.html(
+                        `<tr><td colspan='4' class='text-center text-muted py-5'>No hay datos en el mes para esta tabla.</td></tr>`
+                        );
                 }
             }
 
@@ -421,7 +350,6 @@
                 amountSpentByDoctorGroupedByMonthChart.data.datasets[0].data = Object.values(doctorData
                     .amountSpentByDoctorGroupedByMonth);
                 amountSpentByDoctorGroupedByMonthChart.update();
-
                 topMostConsumedProductsInTheMonthByDoctorChart.data.labels = doctorData
                     .topMostConsumedProductsInTheMonthByDoctor.map(i => i.articulo);
                 topMostConsumedProductsInTheMonthByDoctorChart.data.datasets[0].data = doctorData
@@ -432,7 +360,6 @@
                 } else {
                     $('#topMostConsumedProductsInTheMonthByDoctorChart').siblings('.no-data-message').hide();
                 }
-
                 amountSpentByDoctorGroupedByTipoChart.data.labels = doctorData.amountSpentByDoctorGroupedByTipo.map(i => i
                 .tipo);
                 amountSpentByDoctorGroupedByTipoChart.data.datasets[0].data = doctorData.amountSpentByDoctorGroupedByTipo.map(
@@ -443,13 +370,12 @@
                     $('#amountSpentByDoctorGroupedByTipoChart').siblings('.no-data-message').hide();
                 }
                 amountSpentByDoctorGroupedByTipoChart.update();
-
                 reRenderTable(doctorData.consumedProductsInTheMonthByDoctor);
             }
-
             $('#doctorSearchForm').on('submit', function(e) {
                 e.preventDefault();
                 fetchDoctorData();
-            })
+            });
         </script>
-    @stop
+    </div>
+@stop
