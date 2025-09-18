@@ -59,7 +59,7 @@ Route::middleware(['check.permission'])->group(function () {
     Route::prefix('muestras')->group(function () {
         Route::get("/", [MuestrasController::class, 'index'])->name('muestras.index');
         Route::get("/export", [MuestrasController::class, 'exportExcel'])->name('muestras.exportExcel');
-        Route::delete('/disable/{id}', [MuestrasController::class, 'disableMuestra']);
+        Route::delete('/disable/{id}', [MuestrasController::class, 'disableMuestra'])->name('muestras.disable');
         Route::get('/{id}', [MuestrasController::class, 'show'])->name('muestras.show');
 
         Route::get("/form", [MuestrasController::class, 'create'])->name('muestras.create');

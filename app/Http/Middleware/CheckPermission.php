@@ -26,10 +26,8 @@ class CheckPermission
             'password.email',
             'password.reset',
             'password.update',
-            'views.store',
-            'views.update',
             'roles.permissions',
-            'roles.updatePermissions'
+            'roles.updatePermissions',
         ];
         if (in_array($currentRoute, $publicRoutes)) {
             return $next($request);
