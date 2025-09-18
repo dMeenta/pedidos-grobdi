@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DTOs\Reportes;
+namespace App\Application\DTOs\Reportes;
 
 /**
  * Clase base para todos los DTOs de reportes
@@ -9,10 +9,10 @@ namespace App\DTOs\Reportes;
  * Contiene propiedades básicas como filtros aplicados, datos del reporte,
  * estadísticas calculadas, título y tipo de reporte.
  *
- * Los DTOs específicos (VentasData, DoctoresData, etc.) deben extender esta clase
+ * Los DTOs específicos (VentasDTO, DoctoresDTO, etc.) deben extender esta clase
  * y agregar sus propiedades específicas.
  */
-class ReporteData
+class ReporteDTO
 {
     // Propiedades básicas que todos los reportes deben tener
     public array $filtros;      // Filtros aplicados al reporte

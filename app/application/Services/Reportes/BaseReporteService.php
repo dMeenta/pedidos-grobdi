@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services\Reportes;
+namespace App\Application\Services\Reportes;
 
-use App\DTOs\Reportes\ReporteData;
+use App\Application\DTOs\Reportes\ReporteDTO;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Collection;
 

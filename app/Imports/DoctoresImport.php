@@ -4,7 +4,7 @@ namespace App\Imports;
 
 use App\Imports\BaseImport;
 use App\Models\Doctor;
-use App\Services\Import\DoctorImportService;
+use App\Application\Services\Import\DoctorImportService;
 
 class DoctoresImport extends BaseImport
 {

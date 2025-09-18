@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Services\Reportes;
+namespace App\Application\Services\Reportes;
 
-use App\DTOs\Reportes\VentasData;
-use App\DTOs\Reportes\ReporteData;
+use App\Application\DTOs\Reportes\VentasDTO;
+use App\Application\DTOs\Reportes\ReporteDTO;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -26,9 +26,9 @@ class VentasReporteService extends BaseReporteService
      * Obtiene los datos del reporte de ventas
      *
      * @param array $filtros Filtros aplicados
-     * @return VentasData DTO con datos de ventas
+     * @return VentasDTO DTO con datos de ventas
      */
-    public function getData(array $filtros = []): VentasData
+    public function getData(array $filtros = []): VentasDTO
     {
         // Crear cache key basado en filtros
         $cacheKey = $this->generateCacheKey($filtros);
@@ -56,11 +56,11 @@ class VentasReporteService extends BaseReporteService
      * Crea el DTO específico para datos de ventas
      *
      * @param array $filtros Filtros aplicados
-     * @return VentasData DTO con datos de ventas
+     * @return VentasDTO DTO con datos de ventas
      */
-    protected function createReporteData(array $filtros = []): ReporteData
+    protected function createReporteData(array $filtros = []): VentasDTO
     {
-        return new VentasData($filtros);
+        return new VentasDTO($filtros);
     }
 
     /**
@@ -99,13 +99,13 @@ class VentasReporteService extends BaseReporteService
     /**
      * Aplica filtros específicos para reportes de ventas
      *
-     * @param ReporteData $data Datos del reporte
+     * @param VentasDTO $data Datos del reporte
      * @param array $filtros Filtros a aplicar
-     * @return ReporteData Datos filtrados
+     * @return VentasDTO Datos filtrados
      */
-    public function aplicarFiltros(ReporteData $data, array $filtros): ReporteData
+    public function aplicarFiltros(VentasDTO $data, array $filtros): VentasDTO
     {
-        if (!$data instanceof VentasData) {
+        if (!$data instanceof VentasDTO) {
             return $data;
         }
 
@@ -135,9 +135,9 @@ class VentasReporteService extends BaseReporteService
     /**
      * Aplica filtro por año específico
      */
-    private function filtrarPorAnio(VentasData $data, int $anio): VentasData
+    private function filtrarPorAnio(VentasDTO $data, int $anio): VentasDTO
     {
-        // La lógica de filtrado por año ya está implementada en VentasData
+        // La lógica de filtrado por año ya está implementada en VentasDTO
         // Aquí podríamos hacer filtrado adicional si es necesario
         return $data;
     }
@@ -145,9 +145,9 @@ class VentasReporteService extends BaseReporteService
     /**
      * Aplica filtro por mes específico
      */
-    private function filtrarPorMes(VentasData $data, int $mes): VentasData
+    private function filtrarPorMes(VentasDTO $data, int $mes): VentasDTO
     {
-        // La lógica de filtrado por mes ya está implementada en VentasData
+        // La lógica de filtrado por mes ya está implementada en VentasDTO
         // Aquí podríamos hacer filtrado adicional si es necesario
         return $data;
     }
@@ -155,7 +155,7 @@ class VentasReporteService extends BaseReporteService
     /**
      * Aplica filtro por visitadora específica
      */
-    private function filtrarPorVisitadora(VentasData $data, int $visitadoraId): VentasData
+    private function filtrarPorVisitadora(VentasDTO $data, int $visitadoraId): VentasDTO
     {
         // TODO: Implementar filtrado por visitadora específica
         return $data;
@@ -164,7 +164,7 @@ class VentasReporteService extends BaseReporteService
     /**
      * Aplica filtro por provincia específica
      */
-    private function filtrarPorProvincia(VentasData $data, int $provinciaId): VentasData
+    private function filtrarPorProvincia(VentasDTO $data, int $provinciaId): VentasDTO
     {
         // TODO: Implementar filtrado por provincia específica
         return $data;
@@ -173,9 +173,9 @@ class VentasReporteService extends BaseReporteService
     /**
      * Aplica filtro por fechas específicas para productos
      */
-    private function filtrarPorFechasProducto(VentasData $data, array $filtros): VentasData
+    private function filtrarPorFechasProducto(VentasDTO $data, array $filtros): VentasDTO
     {
-        // Los filtros de fecha para productos ya se aplican en el constructor de VentasData
+        // Los filtros de fecha para productos ya se aplican en el constructor de VentasDTO
         // Este método existe para mantener consistencia con otros filtros
         // Si necesitamos filtrado adicional, se puede implementar aquí
         return $data;
@@ -207,9 +207,9 @@ class VentasReporteService extends BaseReporteService
      * Obtiene datos del cache si existen
      *
      * @param string $key Key del cache
-     * @return VentasData|null Datos cacheados o null
+     * @return VentasDTO|null Datos cacheados o null
      */
-    protected function getFromCache(string $key): ?VentasData
+    protected function getFromCache(string $key): ?VentasDTO
     {
         return Cache::get($key);
     }
@@ -218,9 +218,9 @@ class VentasReporteService extends BaseReporteService
      * Guarda datos en cache
      *
      * @param string $key Key del cache
-     * @param VentasData $data Datos a cachear
+     * @param VentasDTO $data Datos a cachear
      */
-    protected function saveToCache(string $key, VentasData $data): void
+    protected function saveToCache(string $key, VentasDTO $data): void
     {
         Cache::put($key, $data, $this->cacheTtl);
     }

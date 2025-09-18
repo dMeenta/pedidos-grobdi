@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Import;
+namespace App\Application\Services\Import;
 
 use App\Models\CentroSalud;
 use App\Models\Distrito;

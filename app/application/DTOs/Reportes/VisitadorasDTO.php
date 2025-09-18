@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DTOs\Reportes;
+namespace App\Application\DTOs\Reportes;
 
 /**
  * DTO específico para reportes de visitadoras
@@ -14,7 +14,7 @@ namespace App\DTOs\Reportes;
  * - tendenciaMensual: Evolución mensual de asignados y visitados
  * - rutas: Datos detallados de rutas por visitadora
  */
-class VisitadorasData extends ReporteData
+class VisitadorasDTO extends ReporteDTO
 {
     // Propiedades específicas para reportes de visitadoras
     public array $asignadosVisitados;  // Datos de asignados vs visitados
