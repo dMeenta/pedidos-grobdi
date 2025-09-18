@@ -6,7 +6,7 @@
 <div class="container-fluid">
     <div class="row mb-2">
         <div class="col-sm-6">
-            <h1 class="m-0">Reporte Comercial por Doctores</h1>
+            <h1 class="m-0">Reporte Comercial de Doctores</h1>
         </div>
         <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
@@ -28,26 +28,19 @@
                         <h3 class="card-title">Fluctuación de Ventas</h3>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="tabs-general-tab" data-toggle="pill" href="#tabs-general" role="tab" aria-controls="tabs-general" aria-selected="false">General</a>
+                        <a class="nav-link" id="tabs-general-tab" data-toggle="pill" href="#tabs-general" role="tab" aria-controls="tabs-general" aria-selected="false">Tipo Doctor</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" id="tabs-por-visitadora-tab" data-toggle="pill" href="#tabs-por-visitadora" role="tab" aria-controls="tabs-por-visitadora" aria-selected="true">Por visitadora</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="tabs-por-producto-tab" data-toggle="pill" href="#tabs-por-producto" role="tab" aria-controls="tabs-por-producto" aria-selected="false">Por producto</a>
+                        <a class="nav-link active" id="tabs-por-visitadora-tab" data-toggle="pill" href="#tabs-por-visitadora" role="tab" aria-controls="tabs-por-visitadora" aria-selected="true">Doctor</a>
                     </li>
                 </ul>
             </div>
             <div class="card-body">
                 <div class="tab-content" id="tabs-tabContent">
                     <div class="tab-pane fade" id="tabs-general" role="tabpanel" aria-labelledby="tabs-general-tab">
-                        General
-                    </div>
+                        ASDASDS </div>
                     <div class="tab-pane fade show active" id="tabs-por-visitadora" role="tabpanel" aria-labelledby="tabs-por-visitadora-tab">
                         @include('reports.doctores.partials.porDoctor')
-                    </div>
-                    <div class="tab-pane fade" id="tabs-por-producto" role="tabpanel" aria-labelledby="tabs-por-producto-tab">
-                        Producto
                     </div>
                 </div>
             </div>
