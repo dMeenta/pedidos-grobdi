@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\pedidos\counter;
 
 use App\Http\Controllers\Controller;
-use App\Services\PedidoAssignmentService;
+use App\Application\Services\PedidoAssignmentService;
 use Illuminate\Http\Request;
 
 class AsignarPedidoController extends Controller

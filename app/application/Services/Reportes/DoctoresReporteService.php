@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Services\Reportes;
+namespace App\Application\Services\Reportes;
 
-use App\DTOs\Reportes\DoctoresData;
-use App\DTOs\Reportes\ReporteData;
+use App\Application\DTOs\Reportes\DoctoresDTO;
+use App\Application\DTOs\Reportes\ReporteDTO;
 
 /**
  * Servicio específico para reportes de doctores
@@ -22,7 +22,7 @@ class DoctoresReporteService extends BaseReporteService
     protected string $cachePrefix = 'doctores_reporte_';
 
     /**
-     * Nota: Se deja el constructor vacío porque la lógica de consultas se movió al DTO (DoctoresData::buildFromFiltros)
+     * Nota: Se deja el constructor vacío porque la lógica de consultas se movió al DTO (DoctoresDTO::buildFromFiltros)
      * para estandarizar según solicitud del usuario.
      */
     public function __construct() {}
@@ -31,9 +31,9 @@ class DoctoresReporteService extends BaseReporteService
      * Obtiene los datos del reporte aplicando filtros
      *
      * @param array $filtros Filtros a aplicar al reporte
-     * @return ReporteData Datos estructurados del reporte
+     * @return DoctoresDTO Datos estructurados del reporte
      */
-    public function getData(array $filtros = []): ReporteData
+    public function getData(array $filtros = []): DoctoresDTO
     {
         $filtrosProcesados = $this->procesarFiltros($filtros);
         
@@ -69,12 +69,12 @@ class DoctoresReporteService extends BaseReporteService
      * Crea el DTO específico para datos de doctores
      *
      * @param array $filtros Filtros aplicados
-     * @return ReporteData DTO con datos de doctores
+     * @return DoctoresDTO DTO con datos de doctores
      */
-    protected function createReporteData(array $filtros = []): ReporteData
+    protected function createReporteData(array $filtros = []): DoctoresDTO
     {
         // Ahora toda la construcción y consultas se realizan dentro del DTO
-        return DoctoresData::buildFromFiltros($filtros);
+        return DoctoresDTO::buildFromFiltros($filtros);
     }
 
     /**

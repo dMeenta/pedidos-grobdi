@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DTOs\Reportes;
+namespace App\Application\DTOs\Reportes;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
@@ -15,7 +15,7 @@ use Illuminate\Support\Collection;
  * - tipos: Datos agrupados por tipo de doctor (prescriptor, comprador, etc.)
  * - doctores: Datos individuales de doctores con especialidades y estadísticas
  */
-class DoctoresData extends ReporteData
+class DoctoresDTO extends ReporteDTO
 {
     // Propiedades específicas para reportes de doctores
     public array $tipos;             // Datos agrupados por tipo de doctor

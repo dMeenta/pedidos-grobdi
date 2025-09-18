@@ -27,7 +27,7 @@
             <div class="card card-outline card-dark">
                 <div class="card-header">
                     <h3 class="card-title" id="doctor-name-label">
-                        @php$__doctorData = $doctorData ?? [
+                        @php $__doctorData = $doctorData ?? [
                                 'doctor' => 'N/A',
                                 'tipoMedico' => 'N/A',
                         ]; @endphp

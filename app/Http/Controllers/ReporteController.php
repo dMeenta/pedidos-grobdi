@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\Reportes\VentasReporteService;
-use App\Services\Reportes\DoctoresReporteService;
-use App\Services\Reportes\VisitadorasReporteService;
+use App\Application\Services\Reportes\VentasReporteService;
+use App\Application\Services\Reportes\DoctoresReporteService;
+use App\Application\Services\Reportes\VisitadorasReporteService;
 use App\Models\VisitaDoctor;
 use App\Models\Zone;
 use App\Models\EstadoVisita;

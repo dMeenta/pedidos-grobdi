@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Services\Reportes;
+namespace App\Application\Services\Reportes;
 
-use App\DTOs\Reportes\VisitadorasData;
-use App\DTOs\Reportes\ReporteData;
+use App\Application\DTOs\Reportes\VisitadorasDTO;
+use App\Application\DTOs\Reportes\ReporteDTO;
 
 /**
  * Servicio específico para reportes de visitadoras

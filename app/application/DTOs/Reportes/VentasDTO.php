@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DTOs\Reportes;
+namespace App\Application\DTOs\Reportes;
 
 use App\Models\Pedidos;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
  * - provincias: Datos por provincia (nombres, ventas, porcentaje)
  * - general: Datos generales del reporte (tendencias, metas vs realizado)
  */
-class VentasData extends ReporteData
+class VentasDTO extends ReporteDTO
 {
     // Propiedades específicas para reportes de ventas
     public array $visitadoras;  // Datos agrupados por visitadora

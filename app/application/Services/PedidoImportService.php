@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Application\Services;
 
 use App\Imports\DetailPedidosImport;
 use App\Imports\DetailPedidosPreviewImport;
@@ -224,5 +224,50 @@ class PedidoImportService
         }
 
         return $modifications;
+    }
+
+    /**
+     * Actualizar un pedido existente
+     */
+    public function updatePedido(Request $request, $id)
+    {
+        $pedido = Pedidos::findOrFail($id);
+        
+        // No necesitamos validar aquí porque el FormRequest ya lo hace
+        $pedido->update($request->all());
+        
+        return $pedido->deliveryDate;
+    }
+
+    /**
+     * Actualizar el turno de un pedido
+     */
+    public function actualizarTurno(Request $request, $id)
+    {
+        $request->validate([
+            'turno' => 'required|in:0,1',
+        ]);
+
+        $pedido = Pedidos::findOrFail($id);
+        $pedido->update([
+            'turno' => $request->turno,
+            'last_data_update' => now()
+        ]);
+    }
+
+    /**
+     * Actualizar el método de pago de un pedido
+     */
+    public function actualizarPago(Request $request, $id)
+    {
+        $request->validate([
+            'paymentMethod' => 'required|string|max:255',
+        ]);
+
+        $pedido = Pedidos::findOrFail($id);
+        $pedido->update([
+            'paymentMethod' => $request->paymentMethod,
+            'last_data_update' => now()
+        ]);
     }
 }

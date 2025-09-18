@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Application\Services;
 
 use App\Models\Doctor;
 use App\Models\Pedidos;

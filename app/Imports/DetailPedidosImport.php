@@ -5,7 +5,7 @@ namespace App\Imports;
 use App\Imports\BaseImport;
 use App\Models\DetailPedidos;
 use App\Models\Pedidos;
-use App\Services\Import\DetailPedidosImportService;
+use App\Application\Services\Import\DetailPedidosImportService;
 use Maatwebsite\Excel\Concerns\WithStartRow;
 
 class DetailPedidosImport extends BaseImport implements WithStartRow
