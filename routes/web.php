@@ -61,32 +61,30 @@ Route::middleware(['check.permission'])->group(function () {
         Route::get("/export", [MuestrasController::class, 'exportExcel'])->name('muestras.exportExcel');
         Route::delete('/disable/{id}', [MuestrasController::class, 'disableMuestra'])->name('muestras.disable');
         Route::get('/{id}', [MuestrasController::class, 'show'])->name('muestras.show');
+        Route::get("create/form", [MuestrasController::class, 'create'])->name('muestras.create');
+        Route::post("create/", [MuestrasController::class, 'store'])->name('muestras.store');
+        Route::get('edit/{id}', [MuestrasController::class, 'edit'])->name('muestras.edit');
+        Route::put('edit/{id}', [MuestrasController::class, 'update'])->name('muestras.update');
+        Route::put('edit/{id}/update-tipo-muestra', [MuestrasController::class, 'updateTipoMuestra'])->name('muestras.updateTipoMuestra');
+        Route::put('edit/{id}/update-fecha-hora-entrega', [MuestrasController::class, 'updateDateTimeScheduled'])->name('muestras.updateDateTimeScheduled');
 
-        Route::get("/form", [MuestrasController::class, 'create'])->name('muestras.create');
-        Route::post("/", [MuestrasController::class, 'store'])->name('muestras.store');
-
-        Route::get('/{id}', [MuestrasController::class, 'edit'])->name('muestras.edit');
-        Route::put('/{id}', [MuestrasController::class, 'update'])->name('muestras.update');
+        Route::put('laboratorio/{id}/comentario', [MuestrasController::class, 'updateComentarioLab'])->name('muestras.updateComentarioLab');
+        Route::put('laboratorio/{id}/state', [MuestrasController::class, 'markAsElaborated'])->name('muestras.markAsElaborated');
+    
+        /* ---- CONTABILIDAD --- */
+    
+        Route::put('/{id}/update-price', [MuestrasController::class, 'updatePrice'])->name('muestras.updatePrice');
+    
+        /* ---- APROBACIONES --- */
+    
+        //Coordinadora
+        Route::put('/aprove-coordinador', [MuestrasController::class, 'aproveMuestraByCoordinadora']);
+        //Jefe Comercial
+        Route::put('/aprove-jcomercial', [MuestrasController::class, 'aproveMuestraByJefeComercial']);
+        //Jefe de Operaciones
+        Route::put('/aprove-joperaciones', [MuestrasController::class, 'aproveMuestraByJefeOperaciones']);
     });
 
-    Route::put('/{id}/update-tipo-muestra', [MuestrasController::class, 'updateTipoMuestra'])->name('muestras.updateTipoMuestra');
-    Route::put('/{id}/update-fecha-hora-entrega', [MuestrasController::class, 'updateDateTimeScheduled'])->name('muestras.updateDateTimeScheduled');
-
-    Route::put('/{id}/comentario', [MuestrasController::class, 'updateComentarioLab'])->name('muestras.updateComentarioLab');
-    Route::put('/{id}/state', [MuestrasController::class, 'markAsElaborated'])->name('muestras.markAsElaborated');
-
-    /* ---- CONTABILIDAD --- */
-
-    Route::put('/{id}/update-price', [MuestrasController::class, 'updatePrice'])->name('muestras.update_price');
-
-    /* ---- APROBACIONES --- */
-
-    //Coordinadora
-    Route::put('/aprove-coordinador', [MuestrasController::class, 'aproveMuestraByCoordinadora']);
-    //Jefe Comercial
-    Route::put('/aprove-jcomercial', [MuestrasController::class, 'aproveMuestraByJefeComercial']);
-    //Jefe de Operaciones
-    Route::put('/aprove-joperaciones', [MuestrasController::class, 'aproveMuestraByJefeOperaciones']);
 
     Route::get('/doctors/search', [DoctorController::class, 'showByNameLike'])->name('doctors.search');
 
