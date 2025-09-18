@@ -692,56 +692,46 @@
         let productosVentasChart = null;
         let productosLineChart = null;
 
-        // Datos iniciales del backend
-        let productosData = @json($data['productos'] ?? []);
-
-        // Prefijar rango de fechas por defecto: primer día del mes actual hasta hoy si no hay filtros aplicados
-        const today = new Date();
-        const primerDiaMes = new Date(today.getFullYear(), today.getMonth(), 1);
-        const formatDate = (d) => d.toISOString().slice(0,10);
-        const $fechaInicio = $('#fecha_inicio_producto');
-        const $fechaFin = $('#fecha_fin_producto');
-        if ($fechaInicio.length && !$fechaInicio.val()) {
-            $fechaInicio.val(formatDate(primerDiaMes));
-        }
-        if ($fechaFin.length && !$fechaFin.val()) {
-            $fechaFin.val(formatDate(today));
-        }
-
-        // Actualizar indicador inicial
-        actualizarIndicadorRango();
-
-        // Inicializar gráficos al cargar la página
-        if (productosData && productosData.labels && productosData.labels.length > 0) {
-            crearGraficosProductos(productosData);
-        }
+        // Inicializar fechas por defecto
+        initializeDates();
 
         // Event listeners para los botones
-        $(document).on('click', '#filtrar_producto', function(e) {
+        $('#filtrar_producto').on('click', function(e) {
             e.preventDefault();
-            aplicarFiltrosProductos();
+            aplicarFiltros();
         });
 
-        $(document).on('click', '#limpiar_producto', function(e) {
+        $('#limpiar_producto').on('click', function(e) {
             e.preventDefault();
-            limpiarFiltrosProductos();
+            limpiarFiltros();
         });
 
-        // Función para aplicar filtros
-        function aplicarFiltrosProductos() {
+        // Inicializar fechas por defecto
+        function initializeDates() {
+            const today = new Date();
+            const primerDiaMes = new Date(today.getFullYear(), today.getMonth(), 1);
+            const formatDate = (d) => d.toISOString().slice(0,10);
+            
+            const $fechaInicio = $('#fecha_inicio_producto');
+            const $fechaFin = $('#fecha_fin_producto');
+            
+            if ($fechaInicio.length && !$fechaInicio.val()) {
+                $fechaInicio.val(formatDate(primerDiaMes));
+            }
+            if ($fechaFin.length && !$fechaFin.val()) {
+                $fechaFin.val(formatDate(today));
+            }
+        }
+
+        // Función simplificada para aplicar filtros
+        function aplicarFiltros() {
             const fechaInicio = $('#fecha_inicio_producto').val();
             const fechaFin = $('#fecha_fin_producto').val();
-
-            console.log('Aplicando filtros:', {
-                fechaInicio: fechaInicio || 'sin filtro',
-                fechaFin: fechaFin || 'sin filtro'
-            });
-
+            
             // Mostrar loading
-            $('#filtrar_producto').prop('disabled', true).html(
-                '<i class="fas fa-spinner fa-spin"></i> Cargando...');
+            $('#filtrar_producto').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Cargando...');
 
-            // Petición AJAX al backend
+            // Petición AJAX optimizada
             $.ajax({
                 url: '{{ route('api.reportes.ventas') }}',
                 method: 'GET',
@@ -751,1080 +741,301 @@
                 },
                 dataType: 'json',
                 success: function(response) {
-                    console.log('Respuesta del servidor:', response);
-
-                    try {
-                        if (response && response.productos) {
-                            // Verificar si hay datos de productos
-                            const tieneDatosProductos = response.productos.labels && response
-                                .productos.labels.length > 0;
-
-                            if (tieneDatosProductos) {
-                                console.log(
-                                    `✅ Datos cargados exitosamente: ${response.productos.labels.length} productos, Total ventas: S/ ${response.productos.ventas.reduce((a, b) => a + b, 0).toLocaleString()}`
-                                    );
-
-                                // Actualizar datos
-                                productosData = response.productos;
-
-                                // Actualizar estadísticas del header
-                                actualizarEstadisticasHeader(response.productos);
-
-                                // Actualizar tabla
-                                actualizarTablaProductos(response.productos);
-
-                                // Actualizar gráficos
-                                try {
-                                    if (productosVentasChart) {
-                                        productosVentasChart.destroy();
-                                    }
-                                    if (productosLineChart) {
-                                        productosLineChart.destroy();
-                                    }
-                                    crearGraficosProductos(response.productos);
-                                } catch (chartError) {
-                                    console.error('Error al crear gráficos:', chartError);
-                                    alert(
-                                        'Los datos se cargaron correctamente, pero hubo un error al crear los gráficos. La tabla muestra la información.');
-                                }
-                            } else {
-                                console.warn(
-                                    '⚠️ No hay datos de productos para los filtros aplicados');
-                                // Mostrar mensaje específico para filtros sin resultados
-                                mostrarMensajeFiltrosSinResultados();
-                            }
-                        } else {
-                            console.warn('Respuesta sin datos de productos:', response);
-                            // Mostrar mensaje de no datos disponibles
-                            mostrarMensajeNoDatos();
-                        }
-                    } catch (error) {
-                        console.error('Error procesando respuesta:', error);
-                        alert(
-                            'Los datos se cargaron, pero hubo un error al procesarlos. Revisa la consola para más detalles.');
+                    if (response && !response.error) {
+                        actualizarInterfaz(response);
+                    } else {
+                        mostrarError(response.mensaje || 'Error desconocido');
                     }
                 },
-                error: function(xhr, status, error) {
-                    console.error('Error en la petición productos:', {
-                        status: xhr.status,
-                        statusText: xhr.statusText,
-                        responseText: xhr.responseText,
-                        error: error
-                    });
-
-                    // Mostrar mensaje de error más específico
-                    let mensajeError = 'Error al cargar los datos.';
-                    if (xhr.status === 404) {
-                        mensajeError =
-                            'La ruta de la API no fue encontrada. Verifique la configuración.';
-                    } else if (xhr.status === 500) {
-                        mensajeError = 'Error interno del servidor. Contacte al administrador.';
-                    } else if (xhr.status === 0) {
-                        mensajeError =
-                            'No se pudo conectar al servidor. Verifique su conexión a internet.';
-                    }
-
-                    alert(mensajeError + ' Intente nuevamente.');
-                    mostrarMensajeNoDatos();
+                error: function(xhr) {
+                    const mensaje = xhr.status === 500 ? 'Error interno del servidor' : 'Error de conexión';
+                    mostrarError(mensaje);
                 },
-                complete: function(xhr, status) {
-                    console.log('Petición completada, status:', status);
-                    // Asegurar que el botón se re-habilite siempre
-                    $('#filtrar_producto').prop('disabled', false).html(
-                        '<i class="fas fa-search me-2"></i> Buscar Datos');
+                complete: function() {
+                    $('#filtrar_producto').prop('disabled', false).html('<i class="fas fa-search me-2"></i> Buscar Datos');
                 }
             });
         }
 
-        // Función para limpiar filtros (restaurar rango por defecto del mes actual)
-        function limpiarFiltrosProductos() {
-            const today = new Date();
-            const primerDiaMes = new Date(today.getFullYear(), today.getMonth(), 1);
-            $fechaInicio.val(formatDate(primerDiaMes));
-            $fechaFin.val(formatDate(today));
-            // Actualizar indicador inmediatamente
-            actualizarIndicadorRango();
-            aplicarFiltrosProductos();
-        }
-
-        // Función para actualizar estadísticas del header
-        function actualizarEstadisticasHeader(data) {
-            const totalProductos = data.labels ? data.labels.length : 0;
-            const totalVentas = data.ventas ? data.ventas.reduce((a, b) => a + b, 0) : 0;
-            const totalUnidades = data.unidades ? data.unidades.reduce((a, b) => a + b, 0) : 0;
-            const precioPromedio = totalUnidades > 0 ? totalVentas / totalUnidades : 0;
-
-            $('#header_total_productos').text(totalProductos);
-            $('#header_total_ventas').text('S/ ' + number_format(totalVentas, 0));
-            $('#stat_total_productos').text(totalProductos);
-            $('#stat_total_unidades').text(number_format(totalUnidades));
-            $('#stat_total_ingresos').text('S/ ' + number_format(totalVentas, 0));
-            $('#stat_precio_promedio').text('S/ ' + number_format(precioPromedio, 2));
-
-            // Actualizar indicador de rango de fechas
-            actualizarIndicadorRango();
-        }
-
-        // Función para actualizar el indicador de rango de fechas
-        function actualizarIndicadorRango() {
-            const fechaInicio = $('#fecha_inicio_producto').val();
-            const fechaFin = $('#fecha_fin_producto').val();
+        // Función para limpiar filtros
+        function limpiarFiltros() {
             const today = new Date();
             const primerDiaMes = new Date(today.getFullYear(), today.getMonth(), 1);
             const formatDate = (d) => d.toISOString().slice(0,10);
-
-            let indicadorHtml = '';
-            let esRangoPorDefecto = false;
-
-            // Verificar si es el rango por defecto del mes actual
-            if (fechaInicio === formatDate(primerDiaMes) && fechaFin === formatDate(today)) {
-                esRangoPorDefecto = true;
-                indicadorHtml = `
-                    <small class="badge bg-light text-dark px-3 py-1">
-                        <i class="fas fa-calendar-alt me-1"></i>
-                        Datos por defecto: <strong>${formatDate(primerDiaMes).split('-').reverse().join('/')} - ${formatDate(today).split('-').reverse().join('/')}</strong>
-                        <span class="text-muted">(Mes actual)</span>
-                    </small>
-                `;
-            } else if (fechaInicio && fechaFin) {
-                // Rango personalizado
-                indicadorHtml = `
-                    <small class="badge bg-info text-white px-3 py-1">
-                        <i class="fas fa-calendar-alt me-1"></i>
-                        Rango personalizado: <strong>${fechaInicio.split('-').reverse().join('/')} - ${fechaFin.split('-').reverse().join('/')}</strong>
-                    </small>
-                `;
-            } else if (fechaInicio) {
-                // Solo fecha inicio
-                indicadorHtml = `
-                    <small class="badge bg-info text-white px-3 py-1">
-                        <i class="fas fa-calendar-alt me-1"></i>
-                        Desde: <strong>${fechaInicio.split('-').reverse().join('/')}</strong>
-                    </small>
-                `;
-            } else if (fechaFin) {
-                // Solo fecha fin
-                indicadorHtml = `
-                    <small class="badge bg-info text-white px-3 py-1">
-                        <i class="fas fa-calendar-alt me-1"></i>
-                        Hasta: <strong>${fechaFin.split('-').reverse().join('/')}</strong>
-                    </small>
-                `;
-            } else {
-                // Sin filtros (todos los datos)
-                indicadorHtml = `
-                    <small class="badge bg-warning text-dark px-3 py-1">
-                        <i class="fas fa-calendar-alt me-1"></i>
-                        <strong>Todos los datos históricos</strong>
-                    </small>
-                `;
-            }
-
-            // Actualizar el indicador en el DOM
-            const indicadorContainer = $('.mt-2');
-            if (indicadorContainer.length) {
-                indicadorContainer.html(indicadorHtml);
-            }
+            
+            $('#fecha_inicio_producto').val(formatDate(primerDiaMes));
+            $('#fecha_fin_producto').val(formatDate(today));
+            aplicarFiltros();
         }
 
-        // Función para mostrar mensaje cuando no hay datos
-        function mostrarMensajeNoDatos() {
-            // Actualizar estadísticas a cero
-            $('#header_total_productos').text('0');
-            $('#header_total_ventas').text('S/ 0');
-            $('#stat_total_productos').text('0');
-            $('#stat_total_unidades').text('0');
-            $('#stat_total_ingresos').text('S/ 0');
-            $('#stat_precio_promedio').text('S/ 0.00');
-
-            // Limpiar tabla
-            $('#tabla_productos').html(
-                '<tr><td colspan="6" class="text-center py-5"><div class="text-muted"><i class="fas fa-inbox fa-3x mb-3 opacity-25"></i><h5>No hay datos disponibles</h5><p>Los filtros aplicados no devolvieron resultados. Intente con diferentes fechas.</p></div></td></tr>'
-                );
-
-            // Limpiar gráficos
-            if (productosVentasChart) {
-                productosVentasChart.destroy();
-            }
-            if (productosLineChart) {
-                productosLineChart.destroy();
+        // Función para actualizar toda la interfaz con datos del backend
+        function actualizarInterfaz(response) {
+            // Actualizar estadísticas del header (viene procesado del backend)
+            if (response.estadisticas) {
+                $('#header_total_productos').text(response.estadisticas.total_productos);
+                $('#header_total_ventas').text(response.estadisticas.total_ventas_formateado);
+                $('#stat_total_productos').text(response.estadisticas.total_productos);
+                $('#stat_total_unidades').text(response.estadisticas.total_unidades_formateado);
+                $('#stat_total_ingresos').text(response.estadisticas.total_ventas_formateado);
+                $('#stat_precio_promedio').text(response.estadisticas.precio_promedio_formateado);
             }
 
-            // Crear gráficos vacíos
-            crearGraficoVentasVacio();
-            crearGraficoLineVacio();
+            // Actualizar indicador de rango (viene procesado del backend)
+            if (response.indicador_rango) {
+                $('.mt-2').html(response.indicador_rango);
+            }
+
+            // Actualizar tabla (viene como HTML del backend)
+            if (response.tabla_html) {
+                $('#tabla_productos').html(response.tabla_html);
+            }
+
+            // Actualizar totales de tabla
+            if (response.productos && response.productos.ventas && response.productos.unidades) {
+                const totalVentas = response.productos.ventas.reduce((a, b) => a + b, 0);
+                const totalUnidades = response.productos.unidades.reduce((a, b) => a + b, 0);
+                const promedio = totalUnidades > 0 ? totalVentas / totalUnidades : 0;
+
+                $('#total_unidades').text(totalUnidades.toLocaleString());
+                $('#total_ventas').text('S/ ' + totalVentas.toLocaleString('es-PE', {minimumFractionDigits: 2}));
+                $('#promedio_precio').text('S/ ' + promedio.toLocaleString('es-PE', {minimumFractionDigits: 2}));
+            }
+
+            // Actualizar gráficos con datos procesados del backend
+            actualizarGraficos(response);
         }
 
-        // Función para mostrar mensaje cuando los filtros no devuelven resultados
-        function mostrarMensajeFiltrosSinResultados() {
-            const fechaInicio = $('#fecha_inicio_producto').val();
-            const fechaFin = $('#fecha_fin_producto').val();
+        // Función simplificada para actualizar gráficos
+        function actualizarGraficos(response) {
+            // Destruir gráficos existentes
+            if (productosVentasChart) productosVentasChart.destroy();
+            if (productosLineChart) productosLineChart.destroy();
 
-            let mensajeFecha = '';
-            if (fechaInicio && fechaFin) {
-                mensajeFecha = ` para el período del ${fechaInicio} al ${fechaFin}`;
-            } else if (fechaInicio) {
-                mensajeFecha = ` desde ${fechaInicio}`;
-            } else if (fechaFin) {
-                mensajeFecha = ` hasta ${fechaFin}`;
+            // Si no hay datos, crear gráficos vacíos
+            if (!response.productos_procesados || !response.productos_procesados.labels.length) {
+                crearGraficosVacios();
+                return;
             }
 
-            // Actualizar estadísticas a cero
-            $('#header_total_productos').text('0');
-            $('#header_total_ventas').text('S/ 0');
-            $('#stat_total_productos').text('0');
-            $('#stat_total_unidades').text('0');
-            $('#stat_total_ingresos').text('S/ 0');
-            $('#stat_precio_promedio').text('S/ 0.00');
-
-            // Mostrar mensaje específico en la tabla
-            $('#tabla_productos').html(
-                `<tr><td colspan="6" class="text-center py-5"><div class="text-muted"><i class="fas fa-search fa-3x mb-3 opacity-25"></i><h5>No se encontraron productos</h5><p>No hay datos de ventas${mensajeFecha}.<br>Intente con un rango de fechas diferente o elimine los filtros.</p><button class="btn btn-outline-primary mt-3" onclick="limpiarFiltrosProductos()"><i class="fas fa-refresh me-2"></i>Limpiar Filtros</button></div></td></tr>`
-                );
-
-            // Limpiar gráficos
-            if (productosVentasChart) {
-                productosVentasChart.destroy();
-            }
-            if (productosLineChart) {
-                productosLineChart.destroy();
-            }
-
-            // Crear gráficos vacíos
-            crearGraficoVentasVacio();
-            crearGraficoLineVacio();
+            // Crear gráfico de barras con datos procesados del backend
+            crearGraficoVentas(response);
+            
+            // Crear gráfico Pareto con datos procesados del backend  
+            crearGraficoPareto(response);
         }
 
-        // Función para crear los gráficos de productos (ventas horizontal y circular)
-        function crearGraficosProductos(data) {
-            try {
-                // Verificar que los datos sean válidos
-                if (!data || !data.labels || data.labels.length === 0) {
-                    console.warn('No hay datos para crear gráficos, creando gráficos vacíos');
-                    crearGraficoVentasVacio();
-                    crearGraficoLineVacio();
-                    return;
-                }
-
-                // Obtener datos y ordenar por ventas descendente
-                let labels = data.labels || [];
-                let ventas = data.ventas || [];
-                let unidades = data.unidades || [];
-
-                if (labels.length === 0) {
-                    console.warn('Labels vacíos, creando gráficos vacíos');
-                    crearGraficoVentasVacio();
-                    crearGraficoLineVacio();
-                    return;
-                }
-
-                console.log(`Procesando ${labels.length} productos para gráficos`);
-
-                // Crear array combinado para ordenar
-                let productos = labels.map((label, index) => ({
-                    nombre: label,
-                    ventas: ventas[index] || 0,
-                    unidades: unidades[index] || 0
-                }));
-
-                // Ordenar por ventas descendente
-                productos.sort((a, b) => b.ventas - a.ventas);
-
-                // Extraer datos ordenados
-                const labelsOrdenados = productos.map(p => p.nombre);
-                const ventasOrdenadas = productos.map(p => p.ventas);
-                const unidadesOrdenadas = productos.map(p => p.unidades);
-
-                // Calcular altura dinámica del canvas para que CADA producto tenga su espacio definido
-                const numProductos = labelsOrdenados.length;
-                const alturaPorProducto = 45; // Altura fija por producto para consistencia visual
-                const alturaCalculada = Math.max(600, numProductos * alturaPorProducto +
-                150); // Altura proporcional
-
-                console.log(
-                    `Creando gráfico de ventas con ${numProductos} productos, altura: ${alturaCalculada}px`);
-
-                // Crear gráfica de ventas horizontal
-                crearGraficoVentas(labelsOrdenados, ventasOrdenadas, alturaCalculada, numProductos);
-
-                // Crear gráfica lineal de distribución acumulada
-                crearGraficoLine(productos);
-
-            } catch (error) {
-                console.error('Error en crearGraficosProductos:', error);
-                // Crear gráficos vacíos como fallback
-                try {
-                    crearGraficoVentasVacio();
-                    crearGraficoLineVacio();
-                } catch (fallbackError) {
-                    console.error('Error creando gráficos vacíos:', fallbackError);
-                }
-            }
-        }
-
-        // Función para crear gráfico vacío de ventas
-        function crearGraficoVentasVacio() {
+        // Crear gráfico de ventas simplificado
+        function crearGraficoVentas(response) {
             const ctx = document.getElementById('productosVentasChart');
             if (!ctx) return;
+
+            const data = response.productos_procesados;
+            const config = response.configuracion_grafico;
+
+            // Ajustar altura del canvas
+            ctx.style.height = config.altura + 'px';
 
             productosVentasChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['Sin datos'],
+                    labels: data.labels,
                     datasets: [{
                         label: 'Ventas por Producto (S/)',
-                        data: [0],
-                        backgroundColor: 'rgba(108, 117, 125, 0.3)',
-                        borderColor: 'rgba(108, 117, 125, 1)',
-                        borderWidth: 1
+                        data: data.ventas,
+                        backgroundColor: data.colores,
+                        borderWidth: config.borderWidth,
+                        borderRadius: config.borderRadius
                     }]
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     indexAxis: 'y',
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return formatearMoneda(value);
+                                }
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                font: { size: config.fontSizeY },
+                                callback: function(value, index) {
+                                    const label = this.getLabelForValue(value);
+                                    const ranking = `#${index + 1}`;
+                                    const displayLabel = label.length > config.maxChars ? 
+                                        label.substring(0, config.maxChars - 3) + '...' : label;
+                                    return `${ranking} ${displayLabel}`;
+                                }
+                            }
+                        }
+                    },
                     plugins: {
-                        title: {
-                            display: true,
-                            text: 'No hay datos disponibles'
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: function(context) {
+                                    const ranking = context[0].dataIndex + 1;
+                                    const icons = ['🏆', '🥈', '🥉'];
+                                    const icon = icons[ranking - 1] || '📊';
+                                    return `${icon} #${ranking} - ${context[0].label.replace(/^#\d+\s/, '')}`;
+                                },
+                                label: function(context) {
+                                    const value = context.parsed.x;
+                                    return `💰 Ventas: ${formatearMoneda(value)}`;
+                                }
+                            }
                         }
                     }
                 }
             });
         }
 
-        // Función para crear gráfico lineal vacío
-        function crearGraficoLineVacio() {
+        // Crear gráfico Pareto simplificado
+        function crearGraficoPareto(response) {
             const ctx = document.getElementById('productosLineChart');
-            if (!ctx) return;
+            if (!ctx || !response.datos_pareto) return;
+
+            const paretoData = response.datos_pareto;
 
             productosLineChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['Sin datos'],
+                    labels: paretoData.labels,
                     datasets: [{
-                        label: 'Distribución Acumulada (%)',
-                        data: [0],
+                        label: 'Porcentaje Acumulado de Ventas',
+                        data: paretoData.porcentajes_acumulados,
                         borderColor: 'rgba(23, 162, 184, 1)',
                         backgroundColor: 'rgba(23, 162, 184, 0.1)',
-                        borderWidth: 2,
-                        fill: true
+                        borderWidth: 3,
+                        fill: true,
+                        pointRadius: 4
                     }]
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    },
                     plugins: {
                         title: {
                             display: true,
-                            text: 'No hay datos disponibles'
+                            text: `Análisis Pareto - Distribución de Ventas (${paretoData.total_productos} productos)`
                         }
                     }
                 }
             });
         }
 
-        // Función para crear gráfico de ventas
-        function crearGraficoVentas(labels, ventas, alturaCalculada, numProductos) {
-            try {
-                const ctx = document.getElementById('productosVentasChart');
-                if (!ctx) {
-                    console.error('Canvas productosVentasChart no encontrado');
-                    return;
-                }
+        // Crear gráficos vacíos
+        function crearGraficosVacios() {
+            const ctxVentas = document.getElementById('productosVentasChart');
+            const ctxPareto = document.getElementById('productosLineChart');
 
-                // Mostrar loading
-                mostrarLoading();
-
-                // Configuración dinámica basada en cantidad de productos
-                const configuracion = calcularConfiguracionOptima(numProductos);
-
-                // Ajustar altura del canvas dinámicamente
-                ctx.style.height = configuracion.altura + 'px';
-                ctx.height = configuracion.altura;
-
-                // Configurar contenedor
-                const container = ctx.closest('.chart-container-enhanced');
-                if (container && numProductos > 20) {
-                    container.style.height = '70vh';
-                    container.style.overflowY = 'auto';
-                }
-
-                // Crear datasets con colores dinámicos
-                const datasets = [{
-                    label: 'Ventas por Producto (S/)',
-                    data: ventas,
-                    backgroundColor: ventas.map((venta, index) => {
-                        // Gradiente de colores más sofisticado
-                        if (index === 0) return 'rgba(255, 193, 7, 0.8)'; // Oro para #1
-                        if (index === 1) return 'rgba(108, 117, 125, 0.8)'; // Plata para #2
-                        if (index === 2) return 'rgba(205, 164, 90, 0.8)'; // Bronce para #3
-                        if (index < 10)
-                    return `rgba(40, 167, 69, ${0.9 - index * 0.08})`; // Verde degradado top 10
-                        if (index < 50)
-                        return `rgba(23, 162, 184, ${0.7 - (index - 10) * 0.01})`; // Azul para siguientes
-                        return `rgba(108, 117, 125, ${Math.max(0.3, 0.6 - (index - 50) * 0.005)})`; // Gris para resto
-                    }),
-                    borderColor: ventas.map((venta, index) => {
-                        if (index === 0) return 'rgba(255, 193, 7, 1)';
-                        if (index === 1) return 'rgba(108, 117, 125, 1)';
-                        if (index === 2) return 'rgba(205, 164, 90, 1)';
-                        if (index < 10) return 'rgba(40, 167, 69, 1)';
-                        if (index < 50) return 'rgba(23, 162, 184, 1)';
-                        return 'rgba(108, 117, 125, 1)';
-                    }),
-                    borderWidth: configuracion.borderWidth,
-                    borderRadius: configuracion.borderRadius,
-                    borderSkipped: false,
-                    barThickness: configuracion.barThickness,
-                    maxBarThickness: configuracion.maxBarThickness,
-                    categoryPercentage: configuracion.categoryPercentage,
-                    barPercentage: configuracion.barPercentage
-                }];
-
-                // Crear gráfico con configuración optimizada
-                productosVentasChart = new Chart(ctx, {
+            if (ctxVentas) {
+                productosVentasChart = new Chart(ctxVentas, {
                     type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: datasets
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        indexAxis: 'y',
-                        layout: {
-                            padding: {
-                                left: configuracion.paddingLeft,
-                                right: 30,
-                                top: 20,
-                                bottom: 20
-                            }
-                        },
-                        scales: {
-                            x: {
-                                beginAtZero: true,
-                                ticks: {
-                                    callback: function(value) {
-                                        return formatearMoneda(value);
-                                    },
-                                    font: {
-                                        size: configuracion.fontSizeX,
-                                        family: 'Segoe UI'
-                                    },
-                                    maxTicksLimit: 8,
-                                    color: '#495057'
-                                },
-                                grid: {
-                                    display: true,
-                                    color: 'rgba(0,0,0,0.05)',
-                                    lineWidth: 1
-                                },
-                                title: {
-                                    display: numProductos > 50,
-                                    text: 'Ventas (S/)',
-                                    font: {
-                                        size: 12,
-                                        weight: 'bold'
-                                    },
-                                    color: '#495057'
-                                }
-                            },
-                            y: {
-                                ticks: {
-                                    font: {
-                                        size: configuracion.fontSizeY,
-                                        weight: '600',
-                                        family: 'Segoe UI'
-                                    },
-                                    maxRotation: 0,
-                                    callback: function(value, index) {
-                                        const label = this.getLabelForValue(value);
-                                        const maxChars = configuracion.maxChars;
-
-                                        // Agregar ranking al label
-                                        const ranking = `#${index + 1}`;
-                                        let displayLabel = label;
-
-                                        if (label.length > maxChars) {
-                                            displayLabel = label.substring(0, maxChars - 3) + '...';
-                                        }
-
-                                        return `${ranking} ${displayLabel}`;
-                                    },
-                                    padding: configuracion.paddingY,
-                                    color: '#2c3e50'
-                                },
-                                grid: {
-                                    display: true,
-                                    color: 'rgba(0,0,0,0.03)',
-                                    lineWidth: 0.5,
-                                    drawBorder: false
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                backgroundColor: 'rgba(33, 37, 41, 0.95)',
-                                titleColor: 'white',
-                                bodyColor: 'white',
-                                borderColor: function(context) {
-                                    const index = context.tooltip.dataPoints[0].dataIndex;
-                                    if (index === 0) return 'rgba(255, 193, 7, 1)';
-                                    if (index === 1) return 'rgba(108, 117, 125, 1)';
-                                    if (index === 2) return 'rgba(205, 164, 90, 1)';
-                                    return 'rgba(40, 167, 69, 1)';
-                                },
-                                borderWidth: 2,
-                                cornerRadius: 12,
-                                displayColors: true,
-                                titleFont: {
-                                    size: 14,
-                                    weight: 'bold'
-                                },
-                                bodyFont: {
-                                    size: 13
-                                },
-                                padding: 15,
-                                callbacks: {
-                                    title: function(context) {
-                                        const ranking = context[0].dataIndex + 1;
-                                        const icons = ['🏆', '🥈', '🥉'];
-                                        const icon = icons[ranking - 1] || '📊';
-                                        return `${icon} #${ranking} - ${context[0].label.replace(/^#\d+\s/, '')}`;
-                                    },
-                                    label: function(context) {
-                                        const value = context.parsed.x;
-                                        const total = context.dataset.data.reduce((a, b) => a + b,
-                                            0);
-                                        const percentage = total > 0 ? ((value / total) * 100)
-                                            .toFixed(1) : 0;
-                                        const ranking = context.dataIndex + 1;
-
-                                        return [
-                                            `💰 Ventas: ${formatearMoneda(value)}`,
-                                            `📊 Participación: ${percentage}% del total`,
-                                            `🏅 Posición: #${ranking} de ${labels.length}`
-                                        ];
-                                    }
-                                }
-                            }
-                        },
-                        interaction: {
-                            intersect: false,
-                            mode: 'nearest',
-                            axis: 'y'
-                        },
-                        hover: {
-                            mode: 'nearest',
-                            intersect: false,
-                            axis: 'y',
-                            animationDuration: 300
-                        },
-                        animation: {
-                            duration: numProductos > 100 ? 0 : 1500,
-                            easing: 'easeOutQuart',
-                            onComplete: function() {
-                                ocultarLoading();
-                                actualizarContadores(labels.length, ventas.reduce((a, b) => a + b,
-                                    0));
-                            }
-                        },
-                        onHover: function(event, elements) {
-                            event.native.target.style.cursor = elements.length > 0 ? 'pointer' :
-                                'default';
-                        }
-                    }
+                    data: { labels: ['Sin datos'], datasets: [{ label: 'Sin datos', data: [0], backgroundColor: 'rgba(108, 117, 125, 0.3)' }] },
+                    options: { responsive: true, indexAxis: 'y', plugins: { title: { display: true, text: 'No hay datos disponibles' } } }
                 });
-
-                console.log(
-                    `Gráfico creado exitosamente: ${numProductos} productos, altura: ${configuracion.altura}px`
-                    );
-
-            } catch (error) {
-                console.error('Error creando gráfico de ventas:', error);
-                ocultarLoading();
-                mostrarErrorGrafico();
             }
-        }
 
-        function calcularConfiguracionOptima(numProductos) {
-    if (numProductos <= 10) {
-        return {
-            altura: 500,
-            barThickness: 'flex',
-            maxBarThickness: 50,
-            categoryPercentage: 0.8,
-            barPercentage: 0.7,
-            fontSizeY: 14,
-            fontSizeX: 12,
-            maxChars: 50,
-            paddingY: 15,
-            paddingLeft: 200,
-            borderWidth: 2,
-            borderRadius: 8
-        };
-    } else if (numProductos <= 30) {
-        return {
-            altura: 800,
-            barThickness: 'flex',
-            maxBarThickness: 35,
-            categoryPercentage: 0.9,
-            barPercentage: 0.8,
-            fontSizeY: 12,
-            fontSizeX: 11,
-            maxChars: 45,
-            paddingY: 10,
-            paddingLeft: 180,
-            borderWidth: 2,
-            borderRadius: 6
-        };
-    } else if (numProductos <= 100) {
-        return {
-            altura: Math.max(1200, numProductos * 25),
-            barThickness: 'flex',
-            maxBarThickness: 25,
-            categoryPercentage: 0.95,
-            barPercentage: 0.85,
-            fontSizeY: 11,
-            fontSizeX: 10,
-            maxChars: 40,
-            paddingY: 8,
-            paddingLeft: 160,
-            borderWidth: 1,
-            borderRadius: 4
-        };
-    } else {
-        return {
-            altura: Math.max(1500, numProductos * 20),
-            barThickness: 'flex',
-            maxBarThickness: 20,
-            categoryPercentage: 0.98,
-            barPercentage: 0.9,
-            fontSizeY: 10,
-            fontSizeX: 9,
-            maxChars: 35,
-            paddingY: 6,
-            paddingLeft: 140,
-            borderWidth: 1,
-            borderRadius: 3
-        };
-    }
-}
-
-// Funciones auxiliares
-function formatearMoneda(value) {
-    if (value >= 1000000) {
-        return 'S/ ' + (value / 1000000).toFixed(1) + 'M';
-    } else if (value >= 1000) {
-        return 'S/ ' + (value / 1000).toFixed(1) + 'K';
-    }
-    return 'S/ ' + value.toLocaleString('es-PE');
-}
-
-function mostrarLoading() {
-    const container = document.getElementById('chartContainer');
-    if (container && !container.querySelector('.chart-loading')) {
-        const loading = document.createElement('div');
-        loading.className = 'chart-loading';
-        loading.innerHTML = '<div class="loading-spinner"></div>';
-        container.appendChild(loading);
-    }
-}
-
-function ocultarLoading() {
-    const loading = document.querySelector('.chart-loading');
-    if (loading) {
-        loading.remove();
-    }
-}
-
-function mostrarErrorGrafico() {
-    const ctx = document.getElementById('productosVentasChart');
-    if (ctx) {
-        const container = ctx.closest('.chart-container-enhanced');
-        container.innerHTML = `
-            <div class="d-flex align-items-center justify-content-center h-100">
-                <div class="text-center text-muted">
-                    <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
-                    <h5>Error al cargar gráfico</h5>
-                    <p>Intente recargar la página o ajustar los filtros</p>
-                </div>
-            </div>
-        `;
-    }
-}
-
-function actualizarContadores(productos, total) {
-    document.getElementById('productosVisibles').textContent = productos.toLocaleString();
-    document.getElementById('totalVisible').textContent = total.toLocaleString('es-PE');
-}
-
-// Event listeners para controles adicionales
-document.addEventListener('DOMContentLoaded', function() {
-    // Control de vista compacta
-    const vistaCompacta = document.getElementById('vistaCompacta');
-    if (vistaCompacta) {
-        vistaCompacta.addEventListener('change', function() {
-            if (productosVentasChart) {
-                const isCompact = this.checked;
-                productosVentasChart.options.scales.y.ticks.font.size = isCompact ? 9 : 12;
-                productosVentasChart.options.layout.padding.left = isCompact ? 120 : 200;
-                productosVentasChart.update();
-            }
-        });
-    }
-
-    // Control de cantidad a mostrar
-    const cantidadMostrar = document.getElementById('cantidadMostrar');
-    if (cantidadMostrar) {
-        cantidadMostrar.addEventListener('change', function() {
-            const cantidad = this.value;
-            if (cantidad !== 'all' && productosData) {
-                const limite = parseInt(cantidad);
-                const datosLimitados = {
-                    labels: productosData.labels.slice(0, limite),
-                    ventas: productosData.ventas.slice(0, limite),
-                    unidades: productosData.unidades.slice(0, limite)
-                };
-                
-                if (productosVentasChart) {
-                    productosVentasChart.destroy();
-                }
-                
-                crearGraficosProductos(datosLimitados);
-                actualizarTablaProductos(datosLimitados);
-            } else if (cantidad === 'all' && productosData) {
-                if (productosVentasChart) {
-                    productosVentasChart.destroy();
-                }
-                crearGraficosProductos(productosData);
-                actualizarTablaProductos(productosData);
-            }
-        });
-    }
-
-    // Botones de navegación
-    const irArriba = document.getElementById('irArriba');
-    const irAbajo = document.getElementById('irAbajo');
-    
-    if (irArriba) {
-        irArriba.addEventListener('click', function() {
-            const container = document.querySelector('.chart-container-enhanced');
-            if (container) {
-                container.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        });
-    }
-
-    if (irAbajo) {
-        irAbajo.addEventListener('click', function() {
-            const container = document.querySelector('.chart-container-enhanced');
-            if (container) {
-                container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
-            }
-        });
-    }
-});
-
-
-
-        // Función para crear gráfico lineal de distribución acumulada (Pareto)
-        function crearGraficoLine(productos) {
-            try {
-                const ctx = document.getElementById('productosLineChart');
-                if (!ctx) {
-                    console.error('Canvas productosLineChart no encontrado');
-                    return;
-                }
-
-                // Calcular total de ventas
-                const totalVentas = productos.reduce((sum, p) => sum + p.ventas, 0);
-
-                if (totalVentas === 0) {
-                    console.warn('Total de ventas es 0, creando gráfico vacío');
-                    crearGraficoLineVacio();
-                    return;
-                }
-
-                // Calcular porcentajes acumulados
-                let acumulado = 0;
-                const porcentajesAcumulados = [];
-                const labels = [];
-
-                productos.forEach((producto, index) => {
-                    acumulado += producto.ventas;
-                    const porcentaje = (acumulado / totalVentas) * 100;
-                    porcentajesAcumulados.push(porcentaje);
-                    labels.push(`Top ${index + 1}`);
-                });
-
-                // Encontrar el punto donde se alcanza el 80% (regla 80/20)
-                const punto80 = porcentajesAcumulados.findIndex(p => p >= 80) + 1;
-
-                productosLineChart = new Chart(ctx, {
+            if (ctxPareto) {
+                productosLineChart = new Chart(ctxPareto, {
                     type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Porcentaje Acumulado de Ventas',
-                            data: porcentajesAcumulados,
-                            borderColor: 'rgba(23, 162, 184, 1)',
-                            backgroundColor: 'rgba(23, 162, 184, 0.1)',
-                            borderWidth: 3,
-                            fill: true,
-                            pointBackgroundColor: 'rgba(23, 162, 184, 1)',
-                            pointBorderColor: '#fff',
-                            pointBorderWidth: 2,
-                            pointRadius: 4,
-                            pointHoverRadius: 6
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'Número de Productos (ordenados por ventas)'
-                                },
-                                grid: {
-                                    display: true,
-                                    color: 'rgba(0,0,0,0.1)'
-                                }
-                            },
-                            y: {
-                                beginAtZero: true,
-                                max: 100,
-                                title: {
-                                    display: true,
-                                    text: 'Porcentaje Acumulado (%)'
-                                },
-                                ticks: {
-                                    callback: function(value) {
-                                        return value + '%';
-                                    }
-                                },
-                                grid: {
-                                    display: true,
-                                    color: 'rgba(0,0,0,0.1)'
-                                }
-                            }
-                        },
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: `Análisis Pareto - Distribución de Ventas (${productos.length} productos)`,
-                                font: {
-                                    size: 14,
-                                    weight: 'bold'
-                                },
-                                padding: {
-                                    top: 10,
-                                    bottom: 20
-                                }
-                            },
-                            legend: {
-                                display: true,
-                                position: 'top'
-                            },
-                            tooltip: {
-                                backgroundColor: 'rgba(0,0,0,0.8)',
-                                titleColor: 'white',
-                                bodyColor: 'white',
-                                borderColor: 'rgba(23, 162, 184, 1)',
-                                borderWidth: 1,
-                                cornerRadius: 6,
-                                displayColors: true,
-                                callbacks: {
-                                    title: function(context) {
-                                        const index = context[0].dataIndex;
-                                        return `Top ${index + 1} productos`;
-                                    },
-                                    label: function(context) {
-                                        const value = context.parsed.y;
-                                        const index = context.dataIndex;
-                                        const productosEnTop = index + 1;
-                                        const porcentajeProductos = (productosEnTop / productos
-                                            .length) * 100;
-                                        return [
-                                            `Ventas acumuladas: ${value.toFixed(1)}%`,
-                                            `Representa el ${porcentajeProductos.toFixed(1)}% de productos`,
-                                            `Genera el ${value.toFixed(1)}% de ingresos`
-                                        ];
-                                    }
-                                }
-                            },
-                            annotation: {
-                                annotations: {
-                                    regla80: {
-                                        type: 'line',
-                                        xMin: 0,
-                                        xMax: productos.length - 1,
-                                        yMin: 80,
-                                        yMax: 80,
-                                        borderColor: 'rgba(255, 99, 132, 0.8)',
-                                        borderWidth: 2,
-                                        borderDash: [5, 5],
-                                        label: {
-                                            enabled: true,
-                                            content: '80% de ventas',
-                                            position: 'end',
-                                            backgroundColor: 'rgba(255, 99, 132, 0.8)',
-                                            color: 'white',
-                                            font: {
-                                                size: 10
-                                            }
-                                        }
-                                    },
-                                    regla20: punto80 > 0 ? {
-                                        type: 'line',
-                                        xMin: punto80 - 1,
-                                        xMax: punto80 - 1,
-                                        yMin: 0,
-                                        yMax: 100,
-                                        borderColor: 'rgba(255, 99, 132, 0.8)',
-                                        borderWidth: 2,
-                                        borderDash: [5, 5],
-                                        label: {
-                                            enabled: true,
-                                            content: `${punto80} productos`,
-                                            position: 'top',
-                                            backgroundColor: 'rgba(255, 99, 132, 0.8)',
-                                            color: 'white',
-                                            font: {
-                                                size: 10
-                                            }
-                                        }
-                                    } : null
-                                }
-                            }
-                        },
-                        animation: {
-                            duration: 1500,
-                            easing: 'easeOutQuart'
-                        },
-                        interaction: {
-                            intersect: false,
-                            mode: 'index'
-                        }
-                    }
+                    data: { labels: ['Sin datos'], datasets: [{ label: 'Sin datos', data: [0], borderColor: 'rgba(23, 162, 184, 1)' }] },
+                    options: { responsive: true, plugins: { title: { display: true, text: 'No hay datos disponibles' } } }
                 });
-
-                console.log('Gráfico lineal creado exitosamente');
-            } catch (error) {
-                console.error('Error creando gráfico lineal:', error);
-                // Intentar crear gráfico vacío como fallback
-                try {
-                    crearGraficoLineVacio();
-                } catch (fallbackError) {
-                    console.error('Error creando gráfico lineal vacío:', fallbackError);
-                }
             }
         }
 
-        // Función para actualizar la tabla de productos
-        function actualizarTablaProductos(data) {
-            let html = '';
-
-            if (data.labels && data.labels.length > 0) {
-                // Calcular total de ventas para porcentajes
-                const totalVentas = data.ventas ? data.ventas.reduce((a, b) => a + b, 0) : 0;
-
-                // Crear array combinado para ordenar por ventas descendente
-                let productos = data.labels.map(function(producto, index) {
-                    return {
-                        nombre: producto,
-                        unidades: data.unidades[index] || 0,
-                        ventas: data.ventas[index] || 0
-                    };
-                });
-
-                // Ordenar por ventas descendente
-                productos.sort((a, b) => b.ventas - a.ventas);
-
-                // Generar HTML de la tabla
-                productos.forEach(function(producto, index) {
-                    const precioPromedio = producto.unidades > 0 ? (producto.ventas / producto
-                        .unidades) : 0;
-                    const porcentaje = totalVentas > 0 ? (producto.ventas / totalVentas) * 100 : 0;
-
-                    html += `
-                    <tr>
-                        <td class="text-center">${index + 1}</td>
-                        <td>
-                            <strong>${producto.nombre}</strong>
-                        </td>
-                        <td class="text-center">
-                            <span class="badge bg-primary">${producto.unidades.toLocaleString()}</span>
-                        </td>
-                        <td class="text-end">
-                            <strong class="text-success">${producto.ventas.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong>
-                        </td>
-                        <td class="text-end">
-                            ${precioPromedio.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                        </td>
-                        <td class="text-center">
-                            <div class="progress" style="height: 20px;">
-                                <div class="progress-bar bg-success" role="progressbar" style="width: ${porcentaje}%" aria-valuenow="${porcentaje}" aria-valuemin="0" aria-valuemax="100">
-                                    ${porcentaje.toFixed(1)}%
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-                });
-            } else {
-                html = '<tr><td colspan="6" class="text-center">No hay datos disponibles</td></tr>';
-            }
-
-            $('#tabla_productos').html(html);
-
-            // Actualizar totales
-            const totalUnidades = data.unidades ? data.unidades.reduce((a, b) => a + b, 0) : 0;
-            const totalVentas = data.ventas ? data.ventas.reduce((a, b) => a + b, 0) : 0;
-            const promedioGeneral = totalUnidades > 0 ? (totalVentas / totalUnidades) : 0;
-
-            $('#total_unidades').text(totalUnidades.toLocaleString());
-            $('#total_ventas').text('S/ ' + totalVentas.toLocaleString('es-PE', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }));
-            $('#promedio_precio').text('S/ ' + promedioGeneral.toLocaleString('es-PE', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }));
+        // Mostrar mensaje de error
+        function mostrarError(mensaje) {
+            $('#header_total_productos, #stat_total_productos').text('0');
+            $('#header_total_ventas, #stat_total_ingresos').text('S/ 0');
+            $('#stat_total_unidades').text('0');
+            $('#stat_precio_promedio').text('S/ 0.00');
+            
+            $('#tabla_productos').html(`
+                <tr><td colspan="6" class="text-center py-5">
+                    <div class="text-muted">
+                        <i class="fas fa-exclamation-triangle fa-3x mb-3 text-warning"></i>
+                        <h5>Error al cargar datos</h5>
+                        <p>${mensaje}</p>
+                        <button class="btn btn-outline-primary mt-3" onclick="location.reload()">
+                            <i class="fas fa-refresh me-2"></i>Recargar Página
+                        </button>
+                    </div>
+                </td></tr>
+            `);
+            
+            crearGraficosVacios();
         }
 
-        // Función adicional para exportar tabla
-        window.exportarTabla = function() {
-            // Lógica para exportar tabla
-            alert('Función de exportación lista para implementar');
+        // Función auxiliar para formatear moneda
+        function formatearMoneda(value) {
+            if (value >= 1000000) return 'S/ ' + (value / 1000000).toFixed(1) + 'M';
+            if (value >= 1000) return 'S/ ' + (value / 1000).toFixed(1) + 'K';
+            return 'S/ ' + value.toLocaleString('es-PE');
         }
 
-        // Función para compartir reporte
-        window.compartirReporte = function() {
+        // Funciones de exportación simplificadas
+        window.exportarTabla = () => alert('Función de exportación lista para implementar');
+        window.compartirReporte = () => {
             if (navigator.share) {
-                navigator.share({
-                    title: 'Reporte de Productos',
-                    text: 'Análisis detallado de ventas por producto',
-                    url: window.location.href
-                });
+                navigator.share({ title: 'Reporte de Productos', url: window.location.href });
             } else {
-                // Fallback - copiar link
                 navigator.clipboard.writeText(window.location.href);
                 alert('Link copiado al portapapeles');
             }
-        }
+        };
 
-        // Función auxiliar para formatear números
-        function number_format(number, decimals = 0) {
-            return new Intl.NumberFormat('es-PE', {
-                minimumFractionDigits: decimals,
-                maximumFractionDigits: decimals
-            }).format(number);
-        }
+        // Inicializar al cargar la página si hay datos
+        @if(isset($data['productos']) && !empty($data['productos']['labels']))
+            const datosIniciales = @json($data['productos']);
+            if (datosIniciales && datosIniciales.labels && datosIniciales.labels.length > 0) {
+                // Simular respuesta del backend para inicialización
+                const respuestaSimulada = {
+                    productos: datosIniciales,
+                    productos_procesados: datosIniciales, // Se procesará en backend en futuras versiones
+                    estadisticas: {
+                        total_productos: datosIniciales.labels.length,
+                        total_ventas: datosIniciales.ventas.reduce((a, b) => a + b, 0),
+                        total_unidades: datosIniciales.unidades.reduce((a, b) => a + b, 0),
+                        total_ventas_formateado: 'S/ ' + datosIniciales.ventas.reduce((a, b) => a + b, 0).toLocaleString('es-PE'),
+                        total_unidades_formateado: datosIniciales.unidades.reduce((a, b) => a + b, 0).toLocaleString(),
+                        precio_promedio: datosIniciales.unidades.reduce((a, b) => a + b, 0) > 0 ? 
+                            datosIniciales.ventas.reduce((a, b) => a + b, 0) / datosIniciales.unidades.reduce((a, b) => a + b, 0) : 0,
+                        precio_promedio_formateado: 'S/ ' + (datosIniciales.unidades.reduce((a, b) => a + b, 0) > 0 ? 
+                            (datosIniciales.ventas.reduce((a, b) => a + b, 0) / datosIniciales.unidades.reduce((a, b) => a + b, 0)).toFixed(2) : '0.00')
+                    },
+                    configuracion_grafico: {
+                        altura: Math.max(500, datosIniciales.labels.length * 25),
+                        fontSizeY: datosIniciales.labels.length > 50 ? 10 : 12,
+                        maxChars: datosIniciales.labels.length > 50 ? 35 : 45,
+                        borderWidth: 2,
+                        borderRadius: 4
+                    },
+                    datos_pareto: null, // Se calculará después
+                    indicador_rango: '<small class="badge bg-light text-dark px-3 py-1"><i class="fas fa-calendar-alt me-1"></i>Datos iniciales cargados</small>'
+                };
+                actualizarInterfaz(respuestaSimulada);
+            }
+        @endif
     });
+</script>
+
+
 </script>

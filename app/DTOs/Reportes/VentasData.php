@@ -269,6 +269,384 @@ class VentasData extends ReporteData
     }
 
     /**
+     * Obtiene datos procesados para productos con estadísticas completas
+     *
+     * @param array $filtros
+     * @return array Datos completos listos para el frontend
+     */
+    public function getDatosProductosCompletos(array $filtros = []): array
+    {
+        $productos = $this->getDatosProductos($filtros);
+        
+        if (empty($productos['labels'])) {
+            return [
+                'productos' => $productos,
+                'estadisticas' => $this->getEstadisticasVacias(),
+                'tabla_html' => $this->getTablaVaciaHtml(),
+                'configuracion_grafico' => $this->getConfiguracionGraficoVacio(),
+                'mensaje' => 'No hay datos disponibles para los filtros seleccionados'
+            ];
+        }
+
+        // Procesar datos para gráficos
+        $productorProcesados = $this->procesarProductosParaGraficos($productos);
+        
+        return [
+            'productos' => $productos,
+            'productos_procesados' => $productorProcesados,
+            'estadisticas' => $this->calcularEstadisticasProductos($productos),
+            'tabla_html' => $this->generarTablaProductosHtml($productos),
+            'configuracion_grafico' => $this->getConfiguracionGrafico(count($productos['labels'])),
+            'datos_pareto' => $this->calcularDatosPareto($productos),
+            'indicador_rango' => $this->generarIndicadorRango($filtros),
+            'mensaje' => null
+        ];
+    }
+
+    /**
+     * Procesa productos para gráficos (ordena y agrega metadatos)
+     */
+    private function procesarProductosParaGraficos(array $productos): array
+    {
+        if (empty($productos['labels'])) {
+            return ['labels' => [], 'ventas' => [], 'unidades' => [], 'colores' => [], 'rankings' => []];
+        }
+
+        // Crear array combinado para ordenar
+        $productosArray = [];
+        for ($i = 0; $i < count($productos['labels']); $i++) {
+            $productosArray[] = [
+                'nombre' => $productos['labels'][$i],
+                'ventas' => $productos['ventas'][$i] ?? 0,
+                'unidades' => $productos['unidades'][$i] ?? 0,
+                'indice_original' => $i
+            ];
+        }
+
+        // Ordenar por ventas descendente
+        usort($productosArray, function($a, $b) {
+            return $b['ventas'] <=> $a['ventas'];
+        });
+
+        // Extraer datos ordenados y generar colores
+        $labelsOrdenados = [];
+        $ventasOrdenadas = [];
+        $unidadesOrdenadas = [];
+        $colores = [];
+        $rankings = [];
+
+        foreach ($productosArray as $index => $producto) {
+            $labelsOrdenados[] = $producto['nombre'];
+            $ventasOrdenadas[] = $producto['ventas'];
+            $unidadesOrdenadas[] = $producto['unidades'];
+            $rankings[] = $index + 1;
+            
+            // Generar colores según el ranking
+            if ($index === 0) {
+                $colores[] = 'rgba(255, 193, 7, 0.8)'; // Oro para #1
+            } elseif ($index === 1) {
+                $colores[] = 'rgba(108, 117, 125, 0.8)'; // Plata para #2
+            } elseif ($index === 2) {
+                $colores[] = 'rgba(205, 164, 90, 0.8)'; // Bronce para #3
+            } elseif ($index < 10) {
+                $opacity = 0.9 - ($index * 0.08);
+                $colores[] = "rgba(40, 167, 69, {$opacity})"; // Verde degradado top 10
+            } elseif ($index < 50) {
+                $opacity = 0.7 - (($index - 10) * 0.01);
+                $colores[] = "rgba(23, 162, 184, {$opacity})"; // Azul para siguientes
+            } else {
+                $opacity = max(0.3, 0.6 - (($index - 50) * 0.005));
+                $colores[] = "rgba(108, 117, 125, {$opacity})"; // Gris para resto
+            }
+        }
+
+        return [
+            'labels' => $labelsOrdenados,
+            'ventas' => $ventasOrdenadas,
+            'unidades' => $unidadesOrdenadas,
+            'colores' => $colores,
+            'rankings' => $rankings
+        ];
+    }
+
+    /**
+     * Calcula estadísticas completas de productos
+     */
+    private function calcularEstadisticasProductos(array $productos): array
+    {
+        if (empty($productos['labels'])) {
+            return $this->getEstadisticasVacias();
+        }
+
+        $totalProductos = count($productos['labels']);
+        $totalVentas = array_sum($productos['ventas']);
+        $totalUnidades = array_sum($productos['unidades']);
+        $precioPromedio = $totalUnidades > 0 ? $totalVentas / $totalUnidades : 0;
+
+        return [
+            'total_productos' => $totalProductos,
+            'total_ventas' => $totalVentas,
+            'total_unidades' => $totalUnidades,
+            'precio_promedio' => $precioPromedio,
+            'total_ventas_formateado' => 'S/ ' . number_format($totalVentas, 2, '.', ','),
+            'total_unidades_formateado' => number_format($totalUnidades, 0, '.', ','),
+            'precio_promedio_formateado' => 'S/ ' . number_format($precioPromedio, 2, '.', ',')
+        ];
+    }
+
+    /**
+     * Genera HTML de la tabla de productos
+     */
+    private function generarTablaProductosHtml(array $productos): string
+    {
+        if (empty($productos['labels'])) {
+            return '<tr><td colspan="6" class="text-center py-5"><div class="text-muted"><i class="fas fa-inbox fa-3x mb-3 opacity-25"></i><h5>No hay datos disponibles</h5><p>Los filtros aplicados no devolvieron resultados.</p></div></td></tr>';
+        }
+
+        $totalVentas = array_sum($productos['ventas']);
+        $html = '';
+
+        // Crear array combinado y ordenar
+        $productosArray = [];
+        for ($i = 0; $i < count($productos['labels']); $i++) {
+            $productosArray[] = [
+                'nombre' => $productos['labels'][$i],
+                'ventas' => $productos['ventas'][$i] ?? 0,
+                'unidades' => $productos['unidades'][$i] ?? 0
+            ];
+        }
+
+        // Ordenar por ventas descendente
+        usort($productosArray, function($a, $b) {
+            return $b['ventas'] <=> $a['ventas'];
+        });
+
+        // Generar filas HTML
+        foreach ($productosArray as $index => $producto) {
+            $precioPromedio = $producto['unidades'] > 0 ? ($producto['ventas'] / $producto['unidades']) : 0;
+            $porcentaje = $totalVentas > 0 ? ($producto['ventas'] / $totalVentas) * 100 : 0;
+            $ranking = $index + 1;
+
+            // Determinar badge de ranking
+            $rankingBadge = '';
+            if ($ranking === 1) {
+                $rankingBadge = '<span class="badge bg-warning text-dark">🏆 #1</span>';
+            } elseif ($ranking === 2) {
+                $rankingBadge = '<span class="badge bg-secondary">🥈 #2</span>';
+            } elseif ($ranking === 3) {
+                $rankingBadge = '<span class="badge bg-info">🥉 #3</span>';
+            } elseif ($ranking <= 10) {
+                $rankingBadge = '<span class="badge bg-success">#' . $ranking . '</span>';
+            } else {
+                $rankingBadge = '<span class="badge bg-light text-dark">#' . $ranking . '</span>';
+            }
+
+            $html .= '<tr>';
+            $html .= '<td class="text-center">' . $rankingBadge . '</td>';
+            $html .= '<td><strong>' . htmlspecialchars($producto['nombre']) . '</strong></td>';
+            $html .= '<td class="text-center"><span class="badge bg-primary">' . number_format($producto['unidades']) . '</span></td>';
+            $html .= '<td class="text-end"><strong class="text-success">S/ ' . number_format($producto['ventas'], 2) . '</strong></td>';
+            $html .= '<td class="text-end">S/ ' . number_format($precioPromedio, 2) . '</td>';
+            $html .= '<td class="text-center">';
+            $html .= '<div class="progress" style="height: 20px;">';
+            $html .= '<div class="progress-bar bg-success" role="progressbar" style="width: ' . $porcentaje . '%" aria-valuenow="' . $porcentaje . '" aria-valuemin="0" aria-valuemax="100">';
+            $html .= number_format($porcentaje, 1) . '%';
+            $html .= '</div></div></td>';
+            $html .= '</tr>';
+        }
+
+        return $html;
+    }
+
+    /**
+     * Calcula datos para análisis Pareto
+     */
+    private function calcularDatosPareto(array $productos): array
+    {
+        if (empty($productos['labels'])) {
+            return ['labels' => [], 'porcentajes_acumulados' => [], 'punto_80' => 0];
+        }
+
+        // Crear array combinado y ordenar
+        $productosArray = [];
+        for ($i = 0; $i < count($productos['labels']); $i++) {
+            $productosArray[] = [
+                'nombre' => $productos['labels'][$i],
+                'ventas' => $productos['ventas'][$i] ?? 0
+            ];
+        }
+
+        usort($productosArray, function($a, $b) {
+            return $b['ventas'] <=> $a['ventas'];
+        });
+
+        $totalVentas = array_sum($productos['ventas']);
+        $acumulado = 0;
+        $porcentajesAcumulados = [];
+        $labels = [];
+
+        foreach ($productosArray as $index => $producto) {
+            $acumulado += $producto['ventas'];
+            $porcentaje = $totalVentas > 0 ? ($acumulado / $totalVentas) * 100 : 0;
+            $porcentajesAcumulados[] = $porcentaje;
+            $labels[] = 'Top ' . ($index + 1);
+        }
+
+        // Encontrar punto donde se alcanza el 80%
+        $punto80 = 0;
+        foreach ($porcentajesAcumulados as $index => $porcentaje) {
+            if ($porcentaje >= 80) {
+                $punto80 = $index + 1;
+                break;
+            }
+        }
+
+        return [
+            'labels' => $labels,
+            'porcentajes_acumulados' => $porcentajesAcumulados,
+            'punto_80' => $punto80,
+            'total_productos' => count($productosArray)
+        ];
+    }
+
+    /**
+     * Obtiene configuración optimizada para gráficos según cantidad de productos
+     */
+    private function getConfiguracionGrafico(int $numProductos): array
+    {
+        if ($numProductos <= 10) {
+            return [
+                'altura' => 500,
+                'barThickness' => 'flex',
+                'maxBarThickness' => 50,
+                'categoryPercentage' => 0.8,
+                'barPercentage' => 0.7,
+                'fontSizeY' => 14,
+                'fontSizeX' => 12,
+                'maxChars' => 50,
+                'paddingY' => 15,
+                'paddingLeft' => 200,
+                'borderWidth' => 2,
+                'borderRadius' => 8
+            ];
+        } elseif ($numProductos <= 30) {
+            return [
+                'altura' => 800,
+                'barThickness' => 'flex',
+                'maxBarThickness' => 35,
+                'categoryPercentage' => 0.9,
+                'barPercentage' => 0.8,
+                'fontSizeY' => 12,
+                'fontSizeX' => 11,
+                'maxChars' => 45,
+                'paddingY' => 10,
+                'paddingLeft' => 180,
+                'borderWidth' => 2,
+                'borderRadius' => 6
+            ];
+        } elseif ($numProductos <= 100) {
+            return [
+                'altura' => max(1200, $numProductos * 25),
+                'barThickness' => 'flex',
+                'maxBarThickness' => 25,
+                'categoryPercentage' => 0.95,
+                'barPercentage' => 0.85,
+                'fontSizeY' => 11,
+                'fontSizeX' => 10,
+                'maxChars' => 40,
+                'paddingY' => 8,
+                'paddingLeft' => 160,
+                'borderWidth' => 1,
+                'borderRadius' => 4
+            ];
+        } else {
+            return [
+                'altura' => max(1500, $numProductos * 20),
+                'barThickness' => 'flex',
+                'maxBarThickness' => 20,
+                'categoryPercentage' => 0.98,
+                'barPercentage' => 0.9,
+                'fontSizeY' => 10,
+                'fontSizeX' => 9,
+                'maxChars' => 35,
+                'paddingY' => 6,
+                'paddingLeft' => 140,
+                'borderWidth' => 1,
+                'borderRadius' => 3
+            ];
+        }
+    }
+
+    /**
+     * Genera indicador de rango de fechas
+     */
+    private function generarIndicadorRango(array $filtros): string
+    {
+        $fechaInicio = $filtros['fecha_inicio_producto'] ?? null;
+        $fechaFin = $filtros['fecha_fin_producto'] ?? null;
+        
+        $today = date('Y-m-d');
+        $primerDiaMes = date('Y-m-01');
+
+        if ($fechaInicio === $primerDiaMes && $fechaFin === $today) {
+            return '<small class="badge bg-light text-dark px-3 py-1"><i class="fas fa-calendar-alt me-1"></i>Datos por defecto: <strong>' . date('d/m/Y', strtotime($primerDiaMes)) . ' - ' . date('d/m/Y', strtotime($today)) . '</strong> <span class="text-muted">(Mes actual)</span></small>';
+        } elseif ($fechaInicio && $fechaFin) {
+            return '<small class="badge bg-info text-white px-3 py-1"><i class="fas fa-calendar-alt me-1"></i>Rango personalizado: <strong>' . date('d/m/Y', strtotime($fechaInicio)) . ' - ' . date('d/m/Y', strtotime($fechaFin)) . '</strong></small>';
+        } elseif ($fechaInicio) {
+            return '<small class="badge bg-info text-white px-3 py-1"><i class="fas fa-calendar-alt me-1"></i>Desde: <strong>' . date('d/m/Y', strtotime($fechaInicio)) . '</strong></small>';
+        } elseif ($fechaFin) {
+            return '<small class="badge bg-info text-white px-3 py-1"><i class="fas fa-calendar-alt me-1"></i>Hasta: <strong>' . date('d/m/Y', strtotime($fechaFin)) . '</strong></small>';
+        } else {
+            return '<small class="badge bg-warning text-dark px-3 py-1"><i class="fas fa-calendar-alt me-1"></i><strong>Todos los datos históricos</strong></small>';
+        }
+    }
+
+    /**
+     * Retorna estadísticas vacías
+     */
+    private function getEstadisticasVacias(): array
+    {
+        return [
+            'total_productos' => 0,
+            'total_ventas' => 0,
+            'total_unidades' => 0,
+            'precio_promedio' => 0,
+            'total_ventas_formateado' => 'S/ 0.00',
+            'total_unidades_formateado' => '0',
+            'precio_promedio_formateado' => 'S/ 0.00'
+        ];
+    }
+
+    /**
+     * Retorna HTML de tabla vacía
+     */
+    private function getTablaVaciaHtml(): string
+    {
+        return '<tr><td colspan="6" class="text-center py-5"><div class="text-muted"><i class="fas fa-inbox fa-3x mb-3 opacity-25"></i><h5>No hay datos disponibles</h5><p>Los filtros aplicados no devolvieron resultados. Intente con diferentes fechas.</p></div></td></tr>';
+    }
+
+    /**
+     * Retorna configuración de gráfico vacío
+     */
+    private function getConfiguracionGraficoVacio(): array
+    {
+        return [
+            'altura' => 400,
+            'barThickness' => 'flex',
+            'maxBarThickness' => 50,
+            'categoryPercentage' => 0.8,
+            'barPercentage' => 0.7,
+            'fontSizeY' => 12,
+            'fontSizeX' => 10,
+            'maxChars' => 30,
+            'paddingY' => 10,
+            'paddingLeft' => 100,
+            'borderWidth' => 1,
+            'borderRadius' => 4
+        ];
+    }
+
+    /**
      * Convierte el DTO a array incluyendo propiedades específicas
      *
      * @return array Array completo con todos los datos de ventas

@@ -29,14 +29,10 @@
             <select class="form-control" id="anio_general">
                 @php
                     $currentYear = date('Y');
-                    // Mostrar primero el año actual como seleccionado
-                    echo "<option value=\"$currentYear\" selected>$currentYear (Actual)</option>";
-                    
-                    // Luego mostrar los demás años
-                    for ($year = 2020; $year <= $currentYear + 1; $year++) {
-                        if ($year != $currentYear) {
-                            echo "<option value=\"$year\">$year</option>";
-                        }
+                    // Mostrar años desde el actual hasta 2020 en orden descendente
+                    for ($year = $currentYear; $year >= 2020; $year--) {
+                        $selected = ($year == $currentYear) ? 'selected' : '';
+                        echo "<option value=\"$year\" $selected>$year</option>";
                     }
                 @endphp
             </select>

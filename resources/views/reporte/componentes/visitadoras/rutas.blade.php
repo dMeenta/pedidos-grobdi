@@ -1,221 +1,206 @@
-<!-- Tab Rutas -->
+<!-- Tab Rutas Dinámico -->
 <div class="tab-pane fade show active" id="rutas" role="tabpanel">
-    <h4 class="mb-4">
-        <i class="fas fa-route text-primary"></i> Reporte de Rutas de Visitadoras
-    </h4>
-
-    <!-- Filtros -->
-    <div class="row mb-4 p-3 bg-light rounded">
-        <div class="col-md-3">
-            <label for="mes_rutas" class="form-label">Mes</label>
-            <select class="form-control" id="mes_rutas">
-                <option value="">Seleccionar mes</option>
-                <option value="01">Enero</option>
-                <option value="02">Febrero</option>
-                <option value="03">Marzo</option>
-                <option value="04">Abril</option>
-                <option value="05">Mayo</option>
-                <option value="06">Junio</option>
-                <option value="07">Julio</option>
-                <option value="08">Agosto</option>
-                <option value="09">Septiembre</option>
-                <option value="10">Octubre</option>
-                <option value="11">Noviembre</option>
-                <option value="12">Diciembre</option>
-            </select>
-        </div>
-        <div class="col-md-3">
-            <label for="zona_rutas" class="form-label">Zona</label>
-            <select class="form-control" id="zona_rutas">
-                <option value="">Seleccionar zona</option>
-                <option value="norte">Norte</option>
-                <option value="centro">Centro</option>
-                <option value="sur">Sur</option>
-            </select>
-        </div>
-        <div class="col-md-3">
-            <label for="distrito_rutas" class="form-label">Distrito</label>
-            <select class="form-control" id="distrito_rutas">
-                <option value="">Seleccionar distrito</option>
-                <option value="lima">Lima</option>
-                <option value="jesus_maria">Jesús María</option>
-                <option value="brena">Breña</option>
-            </select>
-        </div>
-        <div class="col-md-3">
-            <label>&nbsp;</label><br>
-            <button class="btn btn-primary" id="filtrar_rutas"><i class="fas fa-filter"></i> Filtrar</button>
-        </div>
-    </div>
-
-    <!-- Gráfica Principal: Asignados vs Visitados -->
     <div class="row mb-4">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-chart-pie"></i> Asignados vs Visitados
-                    </h5>
-                </div>
+        <div class="col-2">
+            <div class="card card-outline card-danger">
                 <div class="card-body">
-                    <canvas id="asignadosVisitadosChart" width="600" height="400"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0">
-                        <i class="fas fa-info-circle"></i> Leyenda
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="legend-item mb-3">
-                        <div class="d-flex align-items-center">
-                            <div class="legend-color mr-2" style="width: 20px; height: 20px; background-color: #28a745; border-radius: 50%;"></div>
-                            <div>
-                                <strong>Asignados</strong><br>
-                                <small>Total de visitas programadas</small>
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="month">Mes</label>
+                            <select name="month" id="month" class="form-control">
+                                <option value="1" {{ request('month', now()->month) == 1 ? 'selected' : '' }}>Enero</option>
+                                <option value="2" {{ request('month', now()->month) == 2 ? 'selected' : '' }}>Febrero</option>
+                                <option value="3" {{ request('month', now()->month) == 3 ? 'selected' : '' }}>Marzo</option>
+                                <option value="4" {{ request('month', now()->month) == 4 ? 'selected' : '' }}>Abril</option>
+                                <option value="5" {{ request('month', now()->month) == 5 ? 'selected' : '' }}>Mayo</option>
+                                <option value="6" {{ request('month', now()->month) == 6 ? 'selected' : '' }}>Junio</option>
+                                <option value="7" {{ request('month', now()->month) == 7 ? 'selected' : '' }}>Julio</option>
+                                <option value="8" {{ request('month', now()->month) == 8 ? 'selected' : '' }}>Agosto</option>
+                                <option value="9" {{ request('month', now()->month) == 9 ? 'selected' : '' }}>Septiembre</option>
+                                <option value="10" {{ request('month', now()->month) == 10 ? 'selected' : '' }}>Octubre</option>
+                                <option value="11" {{ request('month', now()->month) == 11 ? 'selected' : '' }}>Noviembre</option>
+                                <option value="12" {{ request('month', now()->month) == 12 ? 'selected' : '' }}>Diciembre</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="zone">Zona</label>
+                            <select name="zone" id="zone" class="form-control">
+                                @isset($zones)
+                                    @foreach ($zones as $zone)
+                                        <option value="{{ $zone->id }}">{{ $zone->name }}</option>
+                                    @endforeach
+                                @endisset
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="select-all-distritos">
+                                <label class="form-check-label" for="select-all-distritos">Seleccionar todos los distritos de la zona</label>
                             </div>
                         </div>
                     </div>
-                    <div class="legend-item mb-3">
-                        <div class="d-flex align-items-center">
-                            <div class="legend-color mr-2" style="width: 20px; height: 20px; background-color: #007bff; border-radius: 50%;"></div>
-                            <div>
-                                <strong>Visitados</strong><br>
-                                <small>Visitas realizadas exitosamente</small>
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label>Distritos</label>
+                            <div id="distritos-container"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-10">
+            <div class="card card-outline card-danger">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8 d-flex justify-content-center">
+                            <canvas id="pieChart" style="min-height: 250px; height: 250px; max-height: 350px; max-width: 100%;"></canvas>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card card-outline card-dark">
+                                <div class="card-header d-flex justify-content-center">
+                                    <h3 class="card-title mb-0">Leyenda</h3>
+                                </div>
+                                <div class="card-body" id="chart-legend"></div>
                             </div>
                         </div>
                     </div>
-                    <hr>
-                    <div class="stats-summary">
-                        <h6>Estadísticas Actuales</h6>
-                        <p class="mb-1"><strong>Total Asignados:</strong> <span id="total-asignados">150</span></p>
-                        <p class="mb-1"><strong>Total Visitados:</strong> <span id="total-visitados">120</span></p>
-                        <p class="mb-1"><strong>% Completado:</strong> <span id="porcentaje-completado" class="text-success">80%</span></p>
+                    <div class="row mt-5">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body table-responsive p-0">
+                                    <table class="table table-head-fixed text-nowrap">
+                                        <thead>
+                                            <tr class="text-center">
+                                                <th>Distrito</th>
+                                                @isset($estadosVisitas)
+                                                    @foreach ($estadosVisitas as $estado)
+                                                        <th>{{ $estado->name }}</th>
+                                                    @endforeach
+                                                @endisset
+                                            </tr>
+                                        </thead>
+                                        <tbody id="distritos-data-table">
+                                            <tr>
+                                                <td colspan="{{ isset($estadosVisitas) ? count($estadosVisitas) + 1 : 1 }}" class="text-center text-muted">
+                                                    No hay distritos seleccionados o los distritos seleccionados no tienen visitas para mostrar
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Gráficas Complementarias -->
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-chart-bar"></i> Visitas por Día de la Semana
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="visitasSemanaChart" style="height: 300px;"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-warning text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-chart-line"></i> Tendencia Mensual
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="tendenciaMensualChart" style="height: 300px;"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tabla de Detalles -->
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-table"></i> Detalles de Rutas por Visitadora
-                    </h5>
-                </div>
-                <div class="card-body p-0">
-                    <table class="table table-striped mb-0">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Visitadora</th>
-                                <th>Zona</th>
-                                <th>Distrito</th>
-                                <th>Asignados</th>
-                                <th>Visitados</th>
-                                <th>% Completado</th>
-                                <th>Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaRutasBody">
-                            <tr>
-                                <td>María González</td>
-                                <td>Centro</td>
-                                <td>Lima</td>
-                                <td>25</td>
-                                <td>22</td>
-                                <td><span class="badge badge-success">88%</span></td>
-                                <td><span class="badge badge-success">Excelente</span></td>
-                            </tr>
-                            <tr>
-                                <td>Carmen Rodríguez</td>
-                                <td>Norte</td>
-                                <td>Breña</td>
-                                <td>30</td>
-                                <td>24</td>
-                                <td><span class="badge badge-warning">80%</span></td>
-                                <td><span class="badge badge-warning">Bueno</span></td>
-                            </tr>
-                            <tr>
-                                <td>Ana López</td>
-                                <td>Sur</td>
-                                <td>Jesús María</td>
-                                <td>20</td>
-                                <td>18</td>
-                                <td><span class="badge badge-success">90%</span></td>
-                                <td><span class="badge badge-success">Excelente</span></td>
-                            </tr>
-                            <tr>
-                                <td>Patricia Sánchez</td>
-                                <td>Centro</td>
-                                <td>Lima</td>
-                                <td>28</td>
-                                <td>21</td>
-                                <td><span class="badge badge-warning">75%</span></td>
-                                <td><span class="badge badge-warning">Regular</span></td>
-                            </tr>
-                            <tr>
-                                <td>Rosa Martínez</td>
-                                <td>Norte</td>
-                                <td>Breña</td>
-                                <td>22</td>
-                                <td>19</td>
-                                <td><span class="badge badge-success">86%</span></td>
-                                <td><span class="badge badge-success">Excelente</span></td>
-                            </tr>
-                        </tbody>
-                        <tfoot class="table-secondary">
-                            <tr>
-                                <th colspan="3">Total General</th>
-                                <th>125</th>
-                                <th>104</th>
-                                <th><span class="badge bg-dark">83%</span></th>
-                                <th><span class="badge bg-primary">Promedio</span></th>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Botón Descargar Excel -->
-    <div class="text-center mt-4">
-        <button class="btn btn-success" id="descargar-excel-rutas">
-            <i class="fas fa-download"></i> Descargar Detallado Excel
-        </button>
     </div>
 </div>
+
+@section('css')
+    @parent
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+@endsection
+
+@section('js')
+    @parent
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script>
+        const initialValues = JSON.parse(`@json($initialValues ?? [])`);
+        const estados = JSON.parse(`@json($estadosVisitas ?? [])`);
+        var pieChartCanvas = document.getElementById('pieChart') ? document.getElementById('pieChart').getContext('2d') : null;
+        const distritosContainer = $('#distritos-container');
+        const legendContainer = $('#chart-legend');
+        const monthSelect = $('#month');
+        const zone = $('#zone');
+
+        var pieData = { labels: [], datasets: [{ data: [], backgroundColor: [] }] };
+        var pieOptions = { maintainAspectRatio: false, responsive: true, plugins: { legend: { display: false } } };
+        var pieChart = pieChartCanvas ? new Chart(pieChartCanvas, { type: 'pie', data: pieData, options: pieOptions }) : null;
+
+        function setInitialValues() {
+            estados.map(e => {
+                pieData.labels.push(e.name);
+                pieData.datasets[0].backgroundColor.push(e.color);
+                pieData.datasets[0].data.push(initialValues[e.id] ?? 0);
+            });
+        }
+
+        function renderRows(data) {
+            const tableBody = $('#distritos-data-table');
+            tableBody.html('');
+            const distritos = Object.entries(data).filter(([id]) => id !== 'Total');
+            if (distritos.length === 0) {
+                tableBody.html(`<tr><td colspan="${estados.length + 1}" class="text-center text-muted">No hay distritos seleccionados o los distritos seleccionados no tienen visitas para mostrar</td></tr>`);
+                return;
+            }
+            distritos.forEach(([distritoId, values]) => {
+                let row = `<tr class="text-center"><td>${values.distrito}</td>${estados.map(e => `<td>${values.estados[e.id] ?? 0}</td>`).join('')}</tr>`;
+                tableBody.append(row);
+            });
+        }
+
+        function renderLegend() {
+            legendContainer.html(pieData.labels.map((label, i) => `<div class="d-flex align-items-center mb-2" style="gap: 8px;"><span class="badge me-2" style="cursor:default; background-color:${pieData.datasets[0].backgroundColor[i]}; width:18px; height:18px;">&nbsp;</span><span>${label} <small class="text-muted">(${pieData.datasets[0].data[i]})</small></span></div>`).join(''));
+        }
+
+        function updateChart() {
+            const selectedCheckboxes = $('input[name="distritos[]"]:checked').map(function() { return parseInt($(this).val()); }).get();
+            fetch(`{{ route('reports.visitas.filter') }}?month=${monthSelect.val()}&distritos=${JSON.stringify(selectedCheckboxes)}`)
+                .then(r => r.json())
+                .then(data => {
+                    const total = data.Total ?? {};
+                    if (Object.keys(total).length === 0) {
+                        toastr.info('Este distrito no tiene visitas programadas en el mes. Se mostrarán las visitas totales del mes.');
+                        pieChart && pieChart.update();
+                        renderLegend();
+                        return;
+                    }
+                    pieData.datasets[0].data = estados.map(e => total[e.id] ?? 0);
+                    pieChart && pieChart.update();
+                    renderLegend();
+                    renderRows(data);
+                }).catch(err => console.error('Error fetching filtered data:', err));
+        }
+
+        $(document).ready(function() {
+            if(!pieChartCanvas) return;
+            setInitialValues();
+            renderLegend();
+            zone.trigger('change');
+            monthSelect.on('change', updateChart);
+        });
+
+        zone.on('change', function() {
+            let zoneId = $(this).val();
+            distritosContainer.html('<span>Cargando distritos...</span>');
+            fetch(`/reports/visitadoras/distritos/${zoneId}`)
+                .then(r => r.json())
+                .then(data => {
+                    distritosContainer.empty();
+                    if (data.length === 0) { distritosContainer.html('<span>No hay distritos programados para esta zona.</span>'); return; }
+                    data.forEach(d => {
+                        let checkbox = `<div class="form-check me-3 mb-2"><input class="form-check-input" type="checkbox" name="distritos[]" value="${d.id}" id="distrito_${d.id}"><label class="form-check-label" for="distrito_${d.id}">${d.name}</label></div>`;
+                        distritosContainer.append(checkbox);
+                    });
+                });
+        });
+
+        $(document).on('change', '#select-all-distritos', function() {
+            const checked = $(this).is(':checked');
+            distritosContainer.find('input[name="distritos[]"]').prop('checked', checked);
+            updateChart();
+        });
+
+        distritosContainer.on('change', 'input[name="distritos[]"]', function() {
+            const allChecked = distritosContainer.find('input[name="distritos[]"]').length === distritosContainer.find('input[name="distritos[]"]:checked').length;
+            $('#select-all-distritos').prop('checked', allChecked);
+            updateChart();
+        });
+    </script>
+@endsection

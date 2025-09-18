@@ -112,9 +112,10 @@ Route::prefix('reports')
     ->group(function () {
 
         Route::prefix('visitadoras')->group(function () {
-            Route::get('/', [ReportsController::class, 'indexVisitadoras'])->name('reports.visitadoras.index');
-            Route::get('/distritos/{zoneId}', [ReportsController::class, 'getDistritosByZone'])->name('getDistritosByZone');
-            Route::get('/filter', [ReportsController::class, 'filterVisitasDoctor'])->name('reports.visitas.filter');
+            //! Migrado a ReporteController para unificar lógica de reportes comerciales
+            Route::get('/', [\App\Http\Controllers\ReporteController::class, 'visitadoras'])->name('reports.visitadoras.index');
+            Route::get('/distritos/{zoneId}', [\App\Http\Controllers\ReporteController::class, 'getDistritosByZone'])->name('getDistritosByZone');
+            Route::get('/filter', [\App\Http\Controllers\ReporteController::class, 'filterVisitasDoctor'])->name('reports.visitas.filter');
         });
 
         Route::prefix('ventas')->group(function () {
@@ -122,8 +123,9 @@ Route::prefix('reports')
         });
 
         Route::prefix('doctores')->group(function () {
-            Route::get('/', [ReportsController::class, 'indexDoctores'])->name('reports.doctores.index');
-            Route::get('get-doctor-report', [ReportsController::class, 'getDoctorReport'])->name('reports.doctores.getDoctorReport');
+            // Rutas legacy migradas a ReporteController
+            Route::get('/', [ReporteController::class, 'doctoresLegacy'])->name('reports.doctores.index');
+            Route::get('get-doctor-report', [ReporteController::class, 'getDoctorReportLegacy'])->name('reports.doctores.getDoctorReport');
         });
     });
 
