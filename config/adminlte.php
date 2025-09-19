@@ -329,6 +329,24 @@ return [
         //     'label_color' => 'success',
         // ],
         [
+            'text' => 'Reportes Visitadoras Prueba',
+            'url' => 'reports/visitadoras',
+            'icon' => 'fas fa-briefcase',
+            'can' => ['admin']
+        ],
+        [
+            'text' => 'Reportes Ventas Prueba',
+            'url' => 'reports/ventas',
+            'icon' => 'fas fa-briefcase',
+            'can' => ['admin']
+        ],
+        [
+            'text' => 'Reportes Ventas DOCTORES',
+            'url' => 'reports/doctores',
+            'icon' => 'fas fa-briefcase',
+            'can' => ['admin']
+        ],
+        [
             'text' => 'Muestras',
             'url' => 'muestras',
             'icon' => 'fas fa-pump-medical',
@@ -659,6 +677,28 @@ return [
                 ],
             ],
         ],
+        [
+            'header' => 'Reporte Comercial',
+            'can' => 'jefe-comercial'
+        ],
+        [
+            'text' => 'Ventas',
+            'url' => 'reporte/ventas',
+            'icon' => '	fas fa-pump-medical',
+            'can' => 'jefe-comercial'
+        ],
+        [
+            'text' => 'Doctores',
+            'url' => 'reporte/doctores',
+            'icon' => '	fas fa-pump-medical',
+            'can' => 'jefe-comercial'
+        ],
+        [
+            'text' => 'Visitadoras',
+            'url' => 'reporte/visitadoras',
+            'icon' => '	fas fa-pump-medical',
+            'can' => 'jefe-comercial'
+        ]
         // [
         //     'text' => 'warning',
         //     'icon_color' => 'yellow',

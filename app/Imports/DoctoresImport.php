@@ -2,163 +2,205 @@
 
 namespace App\Imports;
 
-use App\Models\CentroSalud;
-use App\Models\Distrito;
+use App\Imports\BaseImport;
 use App\Models\Doctor;
-use App\Models\Especialidad;
-use Carbon\Carbon;
-use FontLib\Table\Type\name;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Concerns\ToCollection;
-use Maatwebsite\Excel\Concerns\WithStartRow;
-use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
-use function PHPUnit\Framework\isString;
+use App\Application\Services\Import\DoctorImportService;
 
-class DoctoresImport implements ToCollection, WithStartRow
+class DoctoresImport extends BaseImport
 {
-    /**
-    * @param Collection $collection
-    */
-    public $data;
-    public $key;
-    public function startRow(): int
-    {
-        return 2; // Empezamos a leer a partir de la fila 2 (después de las dos filas de cabecera)
-    }
-    public function collection(Collection $collection)
-    {
-        // $mensaje = "";
-        $contador = 0;
-        $contadorexist = 0;
-        $contadorerror = 0;
-        $key = "danger";
-        $acum = [];
-        foreach ($collection as $value) {
-            if($value[12]){
-                $doctorexist = Doctor::where('CMP',$value[3])->first();
-                if(!$doctorexist){
-                    $doctor = new Doctor();
-                    $centrosalud = CentroSalud::where('name',$value[12])->first();
-                    $especialidad = Especialidad::where('name',$value[9])->first();
-                    if($centrosalud){
-                        $doctor->centrosalud_id = $centrosalud->id;
-                    }else{
-                        $centrosalud = new CentroSalud();
-                        $centrosalud->name = $value[12];
-                        $centrosalud->save();
-                        //una vez creado el centro de salud nuevo ingresamos su id al doctor
-                        $doctor->centrosalud_id = $centrosalud->id;
-                    }
-                    if($especialidad){
-                        $doctor->especialidad_id = $especialidad->id;
-                    }else{
-                        $especialidad = new Especialidad();
-                        $especialidad->name = $value[9];
-                        $especialidad->save();
-                        //una vez creado la especialidad nueva ingresamos su id al doctor
-                        $doctor->especialidad_id = $especialidad->id;
-                    }
-                    // $namecompleted = explode(" ",string: $value[2]);
-                    // $nombre = "";
-                    // $apellido = "";
-                    // foreach ($namecompleted as $index => $separador) {
-                    //     if(count($namecompleted) < 4){
-                    //         if($index == 0){
-                    //             $nombre = $separador;
-                    //         }else{
-                    //             $apellido = $apellido.$separador." ";
-                    //         }
-                    //     }else{
-                    //         if($index == 0 || $index == 1){
+    protected DoctorImportService $doctorService;
     
-                    //             $nombre = $nombre.$separador." ";
-                    //         }else{
-                    //             $apellido = $apellido.$separador." ";
-                    //         }
-                    //     }
-                    // }
-                    $doctor->name = $value[2];
-                    $doctor->CMP = $value[3];
-                    $doctor->phone = $value[4];
-                    // if(!isString($value[6])){
-                    //     $doctor->birthdate = Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($value[6]))->format('Y-m-d');
-                    // }
-                    $doctor->name_secretariat = $value[7];
-                    $doctor->observations = $value[8];
-                    $namedistrict = explode("-",$value[11]);
-                    if($namedistrict[0] == "CERCADO DE LIMA"){
-                        $namedistrict[0] = "LIMA";
-                    }
-                    if($namedistrict[0] == "SURCO"){
-                        $namedistrict[0] = "SANTIAGO DE SURCO";
-                    }
-                    if($namedistrict[0] == "ATE "){
-                        $namedistrict[0] = "ATE";
-                    }
-                    if($namedistrict[0] == "MAGDALENA"){
-                        $namedistrict[0] = "MAGDALENA DEL MAR";
-                    }
-                    if($namedistrict[0] == "BREÃ‘A"){
-                        $namedistrict[0] = "BREÑA";
-                    }
-                    if($namedistrict[0] == "BREÃ‘A "){
-                        $namedistrict[0] = "BREÑA";
-                    }
-                    if($namedistrict[0] == "ZARATE"){
-                        $namedistrict[0] = "SAN JUAN DE LURIGANCHO";
-                    }
-                    $distrito = Distrito::where('provincia_id',128)->orWhere('provincia_id',67)->get();
-                    foreach ($distrito as $distric) {
-                        if($distric->name == $namedistrict[0]){
-                            $doctor->distrito_id = $distric->id;
-                        }
-                    }
-                    !$value[15]? $categoria = "Visitador":$categoria= $value[15];
-                    $doctor->categoria_medico = $categoria;
-                    !$value[16]? $tipomedico = "En Proceso":$tipomedico= $value[16];
-                    $doctor->tipo_medico = $tipomedico;
-                    $doctor->asignado_consultorio = 0;
-                    $doctor->user_id = Auth::user()->id;
-                    $doctor->categoriadoctor_id = 5;
-                    $doctor->save();
-                    // LUNES
-                    if (isset($value[21]) && !empty($value[21])) {
-                        $doctor->days()->attach(1, ['turno' => strtolower($value[21]) == 'm' ? 0 : 1]);
-                    }
-
-                    // MARTES
-                    if (isset($value[22]) && !empty($value[22])) {
-                        $doctor->days()->attach(2, ['turno' => strtolower($value[22]) == 'm' ? 0 : 1]);
-                    }
-
-                    // MIÉRCOLES
-                    if (isset($value[23]) && !empty($value[23])) {
-                        $doctor->days()->attach(3, ['turno' => strtolower($value[23]) == 'm' ? 0 : 1]);
-                    }
-
-                    // JUEVES
-                    if (isset($value[24]) && !empty($value[24])) {
-                        $doctor->days()->attach(4, ['turno' => strtolower($value[24]) == 'm' ? 0 : 1]);
-                    }
-                    // VIERNES
-                    if (isset($value[25]) && !empty($value[25])) {
-                        $doctor->days()->attach(5, ['turno' => strtolower($value[25]) == 'm' ? 0 : 1]);
-                    }
-                    $key = "success";
-                    ++$contador;
-                }else{
-                    array_push($acum, $value[3]);
-                    ++$contadorexist;
-                }
-
-
-            }
-            else{
-                ++$contadorerror; 
-            }
+    /**
+     * Constructor de la clase DoctoresImport
+     * 
+     * Inicializa la instancia del servicio DoctorImportService
+     * que se utilizará para manejar la lógica de negocio de los doctores.
+     */
+    public function __construct()
+    {
+        $this->doctorService = new DoctorImportService();
+    }
+    
+    /**
+     * Obtiene el mapeo de columnas por defecto para importación de doctores
+     * 
+     * Este método define el mapeo estándar de columnas para archivos Excel
+     * que contienen información de doctores, incluyendo campos como nombre,
+     * CMP, teléfonos, especialidad, centro de salud, distrito, etc.
+     * 
+     * @return array Mapeo de columnas con índices y nombres de campos
+     */
+    protected function getDefaultColumnMapping(): array
+    {
+        return [
+            'estado' => 0,
+            'name_prefix' => 1,
+            'name' => 2,
+            'CMP' => 3,
+            'phone' => 4,
+            'telefono2' => 5,
+            'telefono3' => 6,
+            'name_secretariat' => 7,
+            'observations' => 8,
+            'especialidad' => 9,
+            'asignado_visitadora' => 10,
+            'distrito_direccion' => 11,
+            'centrosalud' => 12,
+            'numero_consultorio' => 13,
+            'horario_atencion' => 14,
+            'categoria_medico' => 15,
+            'tipo_medico' => 16,
+            'precio_consulta' => 17,
+            'campo18' => 18,
+            'campo19' => 19,
+            'campo20' => 20,
+            'dia_lunes' => 21,
+            'dia_martes' => 22,
+            'dia_miercoles' => 23,
+            'dia_jueves' => 24,
+            'dia_viernes' => 25,
+        ];
+    }
+    
+    /**
+     * Procesa una fila individual de datos de doctor
+     * 
+     * Este método procesa cada fila del archivo Excel, valida los datos esenciales,
+     * busca o crea las entidades relacionadas (centro de salud, especialidad, distrito),
+     * crea el registro del doctor y opcionalmente asocia los días de atención.
+     * 
+     * @param array $row La fila de datos a procesar
+     * @param int $index El índice de la fila en el archivo
+     * @param array $colMap El mapeo de columnas detectado
+     * @return void
+     */
+    protected function processRow(array $row, int $index, array $colMap): void
+    {
+        // Siempre saltar la primera fila (índice 0) que es la cabecera
+        if ($index === 0) {
+            $this->incrementStat('skipped');
+            return;
         }
-        $this->data = "Doctores registrados: ".$contador." Existentes: ".$contadorexist. " No registrados por no tener centro de salud: ".$contadorerror;
-        $this->key = $key;
+
+        // Validar solo los campos absolutamente requeridos
+        $cmp = trim($row[$colMap['CMP']] ?? '');
+        
+        // Salta si no tiene CMP 
+        if (empty($cmp)) {
+            $this->incrementStat('errors');
+            return;
+        }
+        
+        // Verifica si el doctor ya existe por CMP
+        if (Doctor::where('CMP', $cmp)->exists()) {
+            $this->incrementStat('skipped');
+            return;
+        }
+        
+        try {
+            // Verifica si tiene centro de salud, sino usa un valor por defecto
+            $centroSaludName = trim($row[$colMap['centrosalud']] ?? 'Sin Centro de Salud');
+            $centroSalud = $this->doctorService->findOrCreateCentroSalud($centroSaludName);
+            
+            $especialidad = $this->doctorService->findOrCreateEspecialidad(
+                trim($row[$colMap['especialidad']] ?? 'General')
+            );
+            
+            // Extract distrito from distrito_direccion field
+            $distrito = null;
+            $distritoField = $row[$colMap['distrito_direccion']] ?? '';
+            if (!empty($distritoField)) {
+                $distritoParts = explode('-', $distritoField);
+                $distritoName = trim($distritoParts[0]);
+                $distrito = $this->doctorService->findDistrito($distritoName);
+            }
+            
+            // Prepare doctor data con manejo seguro de campos vacíos
+            $doctorData = [
+                'name' => trim($row[$colMap['name']] ?? '') ?: 'Doctor Sin Nombre',
+                'name_softlynn' =>trim($row[$colMap['name']] ?? '') ?: 'Doctor Sin Nombre',
+                'CMP' => $cmp,
+                'phone' => !empty(trim($row[$colMap['phone']] ?? '')) ? trim($row[$colMap['phone']]) : null,
+                'name_secretariat' => !empty(trim($row[$colMap['name_secretariat']] ?? '')) ? trim($row[$colMap['name_secretariat']]) : null,
+                'observations' => !empty(trim($row[$colMap['observations']] ?? '')) ? trim($row[$colMap['observations']]) : null,
+                'categoria_medico' => !empty(trim($row[$colMap['categoria_medico']] ?? '')) ? trim($row[$colMap['categoria_medico']]) : 'Visitador',
+                'tipo_medico' => !empty(trim($row[$colMap['tipo_medico']] ?? '')) ? trim($row[$colMap['tipo_medico']]) : 'En Proceso',
+                'centrosalud_id' => $centroSalud->id,
+                'especialidad_id' => $especialidad->id,
+                'distrito_id' => $distrito?->id,
+            ];
+            
+            // Create doctor
+            $doctor = $this->doctorService->createDoctor($doctorData);
+            
+            // Attach days if provided
+            $days = [];
+            $dayColumns = ['dia_lunes', 'dia_martes', 'dia_miercoles', 'dia_jueves', 'dia_viernes'];
+            
+            foreach ($dayColumns as $dayIndex => $dayColumn) {
+                // Verificar que la columna existe en el mapeo antes de acceder
+                if (isset($colMap[$dayColumn])) {
+                    $dayValue = $row[$colMap[$dayColumn]] ?? '';
+                    if (!empty(trim($dayValue))) {
+                        $days[21 + $dayIndex] = trim($dayValue);
+                    }
+                }
+            }
+            
+            if (!empty($days)) {
+                $this->doctorService->attachDaysToDoctor($doctor, $days);
+            }
+            
+            $this->incrementStat('created');
+            
+        } catch (\Exception $e) {
+            $this->incrementStat('errors');
+            // Log del error específico para debug
+            logger()->error('Error procesando fila ' . $index . ' en DoctoresImport: ' . $e->getMessage(), [
+                'cmp' => $cmp,
+                'row_data' => $row
+            ]);
+        }
+    }
+
+    /**
+     * Obtiene las palabras clave para identificar encabezados específicos de doctores
+     * 
+     * Este método sobrescribe el método padre para incluir palabras clave
+     * específicas relacionadas con doctores además de las generales.
+     * 
+     * @return array Array de palabras clave de encabezado
+     */
+    protected function getHeaderKeywords(): array
+    {
+        // Palabras clave generales del padre
+        $parentKeywords = parent::getHeaderKeywords();
+        
+        // Palabras clave específicas de doctores
+        $doctorKeywords = [
+            'estado',
+            'prefijo', 'name_prefix', 'prefijo_nombre',
+            'nombre', 'name', 'doctor', 'medico', 'médico',
+            'cmp', 'colegio', 'colegio_medico', 'colegio_médico',
+            'telefono', 'teléfono', 'phone', 'celular',
+            'secretaria', 'name_secretariat', 'secretaria',
+            'observaciones', 'observations', 'notas',
+            'especialidad', 'specialty', 'especialidad',
+            'visitadora', 'asignado_visitadora', 'visitador',
+            'distrito', 'distrito_direccion', 'direccion', 'dirección',
+            'centro', 'centrosalud', 'centro_salud', 'hospital', 'clinica', 'clínica',
+            'consultorio', 'numero_consultorio', 'consultorio',
+            'horario', 'horario_atencion', 'atencion', 'atención',
+            'categoria', 'categoria_medico', 'categoría', 'categoría_médico',
+            'tipo', 'tipo_medico', 'tipo_médico',
+            'precio', 'precio_consulta', 'consulta',
+            'lunes', 'dia_lunes',
+            'martes', 'dia_martes',
+            'miercoles', 'dia_miercoles', 'miércoles',
+            'jueves', 'dia_jueves',
+            'viernes', 'dia_viernes'
+        ];
+        
+        return array_merge($parentKeywords, $doctorKeywords);
     }
 }

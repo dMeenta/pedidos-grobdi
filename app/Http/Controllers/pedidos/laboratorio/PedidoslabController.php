@@ -11,7 +11,9 @@ use App\Models\PresentacionFarmaceutica;
 use App\Models\User;
 use App\Models\Zone;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PedidoslabController extends Controller
 {
@@ -25,44 +27,87 @@ class PedidoslabController extends Controller
         }else{
             $fecha = date('Y-m-d');
         }
+        
+        // Obtener todas las zonas para el filtro
+        $zonas = Zone::orderBy('name')->get();
+        
+        // Construir query base
+        $query = Pedidos::where('deliveryDate', $fecha);
+        
+        // Filtro por turno
         if($request->turno){
             $turno = $request->turno;
-            $pedidos = Pedidos::where('deliveryDate', $fecha)->where('turno',$turno)->orderBy('nroOrder','asc')
-            ->latest()->get();
+            $query = $query->where('turno', $turno);
         }else{
             $turno = 0;
-            $pedidos = Pedidos::where('deliveryDate', $fecha)->where('turno',0)->orderBy('nroOrder','asc')
-            ->latest()->get();
+            $query = $query->where('turno', 0);
         }
-        return view('pedidos.laboratorio.index', compact('pedidos','turno'));
+        
+        // Filtro por zona
+        if($request->zona_id && $request->zona_id != ''){
+            $query = $query->where('zone_id', $request->zona_id);
+        }
+        
+        $pedidos = $query->orderBy('nroOrder','asc')->latest()->get();
+        
+        return view('pedidos.laboratorio.index', compact('pedidos','turno','zonas'));
     }
     
     public function show($id){
+        try {
+            Log::info("Buscando pedido con ID: $id");
+            
+            $pedido = Pedidos::with(['detailpedidos' => function ($query) {
+                $query->where('articulo', 'not like', '%bolsa%')
+                    ->where('articulo', 'not like', '%delivery%');
+            }])->findOrFail($id);
 
-        $pedido = Pedidos::with(['detailpedidos' => function ($query) {
-            $query->where('articulo', 'not like', '%bolsa%')
-                ->where('articulo', 'not like', '%delivery%');
-        }])->findOrFail($id);
+            Log::info("Pedido encontrado con " . $pedido->detailpedidos->count() . " detalles");
 
-        $bases = Bases::lista();
-        // dd($pedido->detailpedidos);
-        $array_pedido = [];
-        foreach($pedido->detailpedidos as $detalle){
-            foreach ($bases as $base => $contenido) {
-                // dd($base);
-                if(strpos($detalle->articulo,$base)!==false){
-                    // dd($contenido['clasificacion']);
-                    array_push($array_pedido,[
-                        'articulo'=>$detalle->articulo,
-                        'cantidad'=>$detalle->cantidad,
-                        'clasificacion'=>$contenido['clasificacion']]);
-                }else{
-                    $mensaje = "No se encontró base para este producto";
+            $bases = Bases::lista();
+            // dd($pedido->detailpedidos);
+            $array_pedido = [];
+            
+            // Verificar si hay detailpedidos antes de iterar
+            if ($pedido->detailpedidos && $pedido->detailpedidos->count() > 0) {
+                foreach($pedido->detailpedidos as $detalle){
+                    $found = false;
+                    foreach ($bases as $base => $contenido) {
+                        if(strpos($detalle->articulo,$base)!==false){
+                            array_push($array_pedido,[
+                                'articulo'=>$detalle->articulo,
+                                'cantidad'=>$detalle->cantidad,
+                                'clasificacion'=>$contenido['clasificacion'],
+                                'estado_produccion' => $detalle->estado_produccion ?? 0
+                            ]);
+                            $found = true;
+                            break;
+                        }
+                    }
+                    
+                    // Si no se encontró en bases, agregar sin clasificación
+                    if (!$found) {
+                        array_push($array_pedido,[
+                            'articulo'=>$detalle->articulo,
+                            'cantidad'=>$detalle->cantidad,
+                            'clasificacion'=>'Sin clasificación',
+                            'estado_produccion' => $detalle->estado_produccion ?? 0
+                        ]);
+                    }
                 }
             }
+            
+            Log::info("Productos procesados: " . count($array_pedido));
+            
+            // Agregar array_pedido al objeto de respuesta
+            $pedido->productos_procesados = $array_pedido;
+            
+            return response()->json($pedido);
+        } catch (\Exception $e) {
+            Log::error('Error en show de PedidoslabController: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            return response()->json(['error' => 'Error al cargar el detalle del pedido'], 500);
         }
-        // dd($array_pedido);
-        return response()->json($pedido);
     }
     public function pedidosDetalles(Request $request){
         // dd($request->all());
@@ -171,10 +216,43 @@ class PedidoslabController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $pedidos = Pedidos::find($id);
-        $pedidos->update(attributes: request()->all());
+        $request->validate([
+            'productionStatus' => 'required|in:0,1,2',
+            'observacion_laboratorio' => 'nullable|string|max:500',
+            'fecha_reprogramacion' => 'nullable|date|after:today',
+        ]);
+
+        $pedido = Pedidos::findOrFail($id);
+        
+        // Si es reprogramado (2), la fecha de reprogramación es obligatoria
+        if ($request->productionStatus == 2 && !$request->fecha_reprogramacion) {
+            return back()->with('error', 'La fecha de reprogramación es obligatoria cuando el estado es "Reprogramado".');
+        }
+        
+        // Actualizar campos
+        $updateData = [
+            'productionStatus' => $request->productionStatus,
+            'observacion_laboratorio' => $request->observacion_laboratorio,
+        ];
+        
+        // Solo agregar fecha de reprogramación si es reprogramado (2)
+        if ($request->productionStatus == 2) {
+            $updateData['fecha_reprogramacion'] = $request->fecha_reprogramacion;
+        } else {
+            // Limpiar fecha de reprogramación si no es reprogramado
+            $updateData['fecha_reprogramacion'] = null;
+        }
+        
+        $pedido->update($updateData);
+        
+        $mensaje = match($request->productionStatus) {
+            1 => 'Pedido aprobado exitosamente',
+            2 => 'Pedido reprogramado exitosamente', 
+            0 => 'Pedido marcado como pendiente',
+            default => 'Estado del pedido actualizado exitosamente'
+        };
           
-        return back()->with('success','Pedido modificado exitosamente');
+        return back()->with('success', $mensaje);
     }
     public function DownloadWord($fecha,$turno){
         $fecha_format = Carbon::parse($fecha)->format('d-m-Y');
@@ -239,5 +317,131 @@ class PedidoslabController extends Controller
             $objWriter->save('docs\pedidos-'.$fecha.'.docx');
         }
         return response()->download(public_path('docs\pedidos-'.$fecha.'.docx'));
+    }
+
+    /**
+     * Cambio masivo de estado de pedidos a Preparado
+     */
+    public function cambioMasivo(Request $request)
+    {
+        try {
+            // Log para debug - datos recibidos
+            Log::info('Cambio masivo - datos recibidos', [
+                'all_data' => $request->all(),
+                'method' => $request->method(),
+                'has_csrf' => $request->has('_token'),
+                'user' => Auth::user()->name ?? 'Sistema'
+            ]);
+
+            // Validación paso a paso para mejor diagnóstico
+            if (!$request->has('pedidos_ids') || empty($request->pedidos_ids)) {
+                Log::error('Cambio masivo - falta pedidos_ids', ['request' => $request->all()]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se enviaron los IDs de pedidos'
+                ], 422);
+            }
+
+            if (!$request->has('accion_masiva') || $request->accion_masiva !== 'preparado') {
+                Log::error('Cambio masivo - falta accion_masiva', ['request' => $request->all()]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Acción masiva no válida'
+                ], 422);
+            }
+
+            // Convertir string de IDs a array
+            $pedidosIds = array_filter(explode(',', $request->pedidos_ids));
+            
+            if (empty($pedidosIds)) {
+                Log::error('Cambio masivo - IDs vacíos', ['pedidos_ids' => $request->pedidos_ids]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se seleccionaron pedidos válidos'
+                ], 422);
+            }
+
+            Log::info('Cambio masivo - IDs procesados', ['pedidos_ids' => $pedidosIds]);
+
+            // Buscar pedidos que existen y NO están preparados
+            $pedidos = Pedidos::whereIn('id', $pedidosIds)
+                             ->whereIn('productionStatus', [0, 2]) // Pendientes (0) y Reprogramados (2)
+                             ->get();
+
+            Log::info('Cambio masivo - pedidos encontrados', [
+                'total_solicitados' => count($pedidosIds),
+                'encontrados' => $pedidos->count(),
+                'pedidos_data' => $pedidos->map(function($p) {
+                    return [
+                        'id' => $p->id,
+                        'orderId' => $p->orderId,
+                        'status' => $p->productionStatus
+                    ];
+                })->toArray()
+            ]);
+
+            if ($pedidos->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se encontraron pedidos pendientes o reprogramados para actualizar'
+                ], 422);
+            }
+
+            $cantidadActualizada = 0;
+            
+            // Usar transacción para asegurar consistencia
+            DB::beginTransaction();
+            
+            foreach ($pedidos as $pedido) {
+                $updateData = [
+                    'productionStatus' => 1, // Cambiar a Preparado
+                    'fecha_reprogramacion' => null, // Limpiar fecha de reprogramación si existía
+                ];
+                
+                // Agregar observación si se proporcionó
+                if ($request->observacion_masiva) {
+                    $updateData['observacion_laboratorio'] = $request->observacion_masiva;
+                }
+                
+                $pedido->update($updateData);
+                $cantidadActualizada++;
+            }
+            
+            DB::commit();
+            
+            // Log de la acción
+            Log::info('Cambio masivo de estado realizado', [
+                'usuario' => Auth::user()->name ?? 'Sistema',
+                'pedidos_actualizados' => $cantidadActualizada,
+                'pedidos_ids' => $pedidosIds,
+                'observacion' => $request->observacion_masiva
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => "Se actualizaron {$cantidadActualizada} pedido(s) a estado Preparado exitosamente",
+                'cantidadActualizada' => $cantidadActualizada
+            ]);
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación: ' . implode(', ', $e->validator->errors()->all())
+            ], 422);
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            Log::error('Error en cambio masivo de estado', [
+                'error' => $e->getMessage(),
+                'pedidos_ids' => $request->pedidos_ids ?? 'no definido',
+                'usuario' => Auth::user()->name ?? 'Sistema'
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Ocurrió un error inesperado. Por favor, intente nuevamente.'
+            ], 500);
+        }
     }
 }

@@ -110,15 +110,16 @@ class MuestrasController extends Controller
             ]);
         }
 
-		if ($request->filled('search')) {
-			$search = $request->input('search');
-			$query->where(function ($q) use ($search) {
-				$q->where('nombre_muestra', 'like', "%{$search}%")
-				  ->orWhereHas('doctor', function ($q2) use ($search) {
-					  $q2->where(DB::raw("CONCAT(name, ' ', first_lastname, ' ', second_lastname)"), 'like', "%{$search}%");
-				  });
-			});
-		}
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('nombre_muestra', 'like', "%{$search}%")
+                    ->orWhereHas('doctor', function ($q2) use ($search) {
+                        $q2->where(DB::raw("CONCAT_WS(' ', name, first_lastname, second_lastname)"), 'like', "%{$search}%");
+                    });
+            });
+        }
+
         $filterBy = $request->filter_by_date;
         $dateSince = $request->date_since;
         $dateTo = $request->date_to;

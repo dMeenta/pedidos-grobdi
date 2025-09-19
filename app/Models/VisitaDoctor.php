@@ -14,10 +14,6 @@ class VisitaDoctor extends Model
     {
         return $this->belongsTo(Doctor::class);
     }
-    public function distrito()
-    {
-        return $this->belongsTo(Distrito::class);
-    }
     public function estado_visita()
     {
         return $this->belongsTo(EstadoVisita::class);
@@ -25,5 +21,16 @@ class VisitaDoctor extends Model
     public function enrutamientolista()
     {
         return $this->belongsTo(EnrutamientoLista::class, 'enrutamientolista_id');
+    }
+    public function distrito()
+    {
+        return $this->hasOneThrough(
+            Distrito::class,
+            Doctor::class,
+            'id',
+            'id',
+            'doctor_id',
+            'distrito_id'
+        );
     }
 }

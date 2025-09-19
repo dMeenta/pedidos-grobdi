@@ -2,99 +2,133 @@
 
 namespace App\Imports;
 
-use App\Models\Distritos_zonas;
+use App\Imports\BaseImport;
 use App\Models\Pedidos;
-use App\Models\User;
-use Carbon\Carbon;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Concerns\ToCollection;
+use App\Application\Services\Import\PedidosImportService;
 
-class PedidosImport implements ToCollection
+class PedidosImport extends BaseImport
 {
+    protected PedidosImportService $pedidosService;
+    
     /**
-    * @param array $row
-    *
-    * @return \Illuminate\Database\Eloquent\Model|null
-    */
-    public $data;
-    public $key;
-
-    public function collection(Collection $rows)
+     * Constructor de la clase PedidosImport
+     * 
+     * Inicializa la instancia del servicio PedidosImportService
+     * que se utilizará para manejar la lógica de negocio de los pedidos.
+     */
+    public function __construct()
     {
-        $rows_existentes = 0;
-        $rows_nuevos = 0;
-        $mensaje= "";
-        foreach($rows as $row){
-            if($row[16] ==="Articulo"){
-                $mensaje = "Formato Incorrecto";
-                $key = "danger";
-                break;
-            }
-            if($row[2] == "PEDIDO"){
-                $pedido_exist = Pedidos::where('orderId',$row[3])->first();
-                if(empty($pedido_exist)){
-                    $pedidos = new Pedidos();
-                    $fecha = Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[13]))->format('Y-m-d');
-                    $contador_registro = Pedidos::where('deliveryDate',$fecha)->orderBy('nroOrder','desc')->first();
-                    $ultimo_nro = 1;
-                    if($contador_registro){
-                        $ultimo_nro = $contador_registro->nroOrder+1;
-                    }
-                    $pedidos->nroOrder = $ultimo_nro;
-                    $pedidos->orderId = $row[3];
-                    $pedidos->customerName = $row[4];
-                    $pedidos->customerNumber = $row[5];
-                    $pedidos->doctorName = $row[15];
-                    //falta el detallado de la orden
-                    $pedidos->address = $row[17];
-                    $pedidos->reference = $row[18];
-                    $pedidos->district = $row[16];
-                    $pedidos->prize = $row[8];
-                    $pedidos->paymentStatus = 'PENDIENTE';
-                    $pedidos->paymentMethod = $row[10];
-                    $pedidos->deliveryDate = Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[13]))->format('Y-m-d');
-                    $pedidos->productionStatus = $row[12] !== 'PENDIENTE' ? 1 : 0;
-                    $pedidos->deliveryStatus = "Pendiente";
-                    $pedidos->accountingStatus = 0;
-                    // dd($row[19]);
-                    $hora_fecha = Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[20]))->format('Y-m-d H:i:s');
-                    $pedidos->zone_id = Distritos_zonas::zonificar($pedidos->district);
-                    $pedidos->created_at = $hora_fecha;
-                    // $hora_pedido = Carbon::parse($hora_fecha)->format('H:i:s');
-                    // if($hora_pedido<"17:00:00"){
-                    //     $pedidos->turno = 0;
-                    // }
-                    // else{
-                    //     $pedidos->turno = 1;
-                    // }
-                    $pedidos->turno = 0;
-                    $usuario = User::where('name',$row[19])->first();
-                    // dd($usuario);
-                    if(empty($usuario)){
-                        $pedidos->user_id = Auth::user()->id;
-                    }else{
-                        $pedidos->user_id = $usuario->id;
-                    }
-                    $pedidos->save();
-                    ++$rows_nuevos;
-                }
-                else{
-                    ++$rows_existentes;
-                }
-                $mensaje = "Pedidos registrados";
-                $key = "success";
-            }
+        $this->pedidosService = new PedidosImportService();
+    }
+    
+    /**
+     * Obtiene el mapeo de columnas por defecto para importación de pedidos
+     * 
+     * Este método define el mapeo estándar de columnas para archivos Excel
+     * que contienen información de pedidos, incluyendo campos como orderId,
+     * fechas de entrega, información del cliente, dirección, zona, visitadora, etc.
+     * 
+     * @return array Mapeo de columnas con índices y nombres de campos
+     */
+    protected function getDefaultColumnMapping(): array
+    {
+        return [
+            0 => 'campo0',
+            1 => 'campo1', 
+            2 => 'tipo_registro',
+            3 => 'orderId',
+            4 => 'customerName',
+            5 => 'customerNumber',
+            6 => 'doctorName',
+            7 => 'turno',
+            8 => 'prize',
+            9 => 'campo9',
+            10 => 'paymentMethod',
+            11 => 'campo11',
+            12 => 'productionStatus',
+            13 => 'deliveryDate_excel',
+            14 => 'campo14',
+            15 => 'campo15',
+            16 => 'district',
+            17 => 'address',
+            18 => 'reference',
+            19 => 'zone_name',
+            20 => 'visitadora_name',
+        ];
+    }
+    
+    /**
+     * Procesa una fila individual de datos de pedido
+     * 
+     * Este método procesa cada fila del archivo Excel, valida que sea un registro
+     * de pedido, verifica que no exista ya en la base de datos, convierte las fechas,
+     * busca las entidades relacionadas (zona, visitadora) y crea el nuevo pedido.
+     * 
+     * @param array $row La fila de datos a procesar
+     * @param int $index El índice de la fila en el archivo
+     * @param array $colMap El mapeo de columnas detectado
+     * @return void
+     */
+    protected function processRow(array $row, int $index, array $colMap): void
+    {
+        // Validate row data
+        if (!$this->pedidosService->validatePedidoData($row)) {
+            $this->incrementStat('skipped');
+            return;
         }
-        if($mensaje =="Formato Incorrecto"){
-            $rpta = $mensaje;
-        }else{
-            $rpta = $mensaje.": ".$rows_nuevos."\n Pedidos Existentes: ".$rows_existentes;
+        
+        $orderId = trim($row[$colMap['orderId']] ?? '');
+        
+        // Check if pedido already exists
+        if ($this->pedidosService->pedidoExists($orderId)) {
+            $this->incrementStat('skipped');
+            return;
         }
-        $this->data = $rpta;
-        $this->key = $key;
-        // return new Pedidos([
+        
+        try {
+            // Convert Excel date
+            $deliveryDate = $this->pedidosService->convertExcelDate($row[$colMap['deliveryDate_excel']])
+                ->format('Y-m-d');
             
-        // ]);
+            // Get next order number
+            $nroOrder = $this->pedidosService->getNextOrderNumber($deliveryDate);
+            
+            // Find zone and visitadora
+            $zone = null;
+            $visitadora = null;
+            
+            if (!empty($row[$colMap['zone_name']] ?? '')) {
+                $zone = $this->pedidosService->findZone($row[$colMap['zone_name']]);
+            }
+            
+            if (!empty($row[$colMap['visitadora_name']] ?? '')) {
+                $visitadora = $this->pedidosService->findVisitadora($row[$colMap['visitadora_name']]);
+            }
+            
+            // Prepare pedido data
+            $pedidoData = [
+                'orderId' => $orderId,
+                'nroOrder' => $nroOrder,
+                'deliveryDate' => $deliveryDate,
+                'customerName' => trim($row[$colMap['customerName']] ?? ''),
+                'customerNumber' => trim($row[$colMap['customerNumber']] ?? ''),
+                'doctorName' => trim($row[$colMap['doctorName']] ?? ''),
+                'address' => trim($row[$colMap['address']] ?? ''),
+                'district' => trim($row[$colMap['district']] ?? ''),
+                'reference' => trim($row[$colMap['reference']] ?? ''),
+                'prize' => floatval($row[$colMap['prize']] ?? 0),
+                'zone_id' => $zone?->id,
+                'visitadora_id' => $visitadora?->id,
+            ];
+            
+            // Create pedido
+            $pedido = $this->pedidosService->createPedido($pedidoData);
+            
+            $this->incrementStat('created');
+            
+        } catch (\Exception $e) {
+            $this->incrementStat('errors');
+            // Error logged automatically by framework
+        }
     }
 }

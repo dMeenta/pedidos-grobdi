@@ -21,6 +21,9 @@ use App\Http\Controllers\rutas\mantenimiento\EspecialidadController;
 use App\Http\Controllers\muestras\MuestrasController;
 use App\Http\Controllers\muestras\gerenciaController;
 
+//Modulo - Reports
+use App\Http\Controllers\ReportsController;
+
 use App\Http\Controllers\pedidos\laboratorio\PresentacionFarmaceuticaController;
 use App\Http\Controllers\pedidos\produccion\OrdenesController;
 use App\Http\Controllers\pedidos\reportes\FormatosController;
@@ -44,6 +47,8 @@ use App\Http\Controllers\softlyn\TipoCambioController;
 use App\Http\Controllers\softlyn\MerchandiseController;
 use App\Http\Controllers\softlyn\CompraController;
 use App\Http\Controllers\softlyn\UtilController;
+
+use App\Http\Controllers\ReporteController;
 
 // use App\Http\Middleware\RoleMiddleware;
 
@@ -102,6 +107,29 @@ Route::prefix('muestras')
 
 Route::get('/doctors/search', [DoctorController::class, 'showByNameLike'])->name('doctors.search')->middleware(['checkRole:admin,coordinador-lineas,visitador']);
 
+Route::prefix('reports')
+    ->middleware(['checkRole:admin'])
+    ->group(function () {
+
+        Route::prefix('visitadoras')->group(function () {
+            //! Migrado a ReporteController para unificar lógica de reportes comerciales
+            Route::get('/', [\App\Http\Controllers\ReporteController::class, 'visitadoras'])->name('reports.visitadoras.index');
+            Route::get('/distritos/{zoneId}', [\App\Http\Controllers\ReporteController::class, 'getDistritosByZone'])->name('getDistritosByZone');
+            Route::get('/filter', [\App\Http\Controllers\ReporteController::class, 'filterVisitasDoctor'])->name('reports.visitas.filter');
+        });
+
+        Route::prefix('ventas')->group(function () {
+            Route::get('/', [ReportsController::class, 'indexVentas'])->name('reports.ventas.index');
+        });
+
+        Route::prefix('doctores')->group(function () {
+            // Rutas legacy migradas a ReporteController
+            Route::get('/', [ReporteController::class, 'doctoresLegacy'])->name('reports.doctores.index');
+            Route::get('get-doctor-report', [ReporteController::class, 'getDoctorReportLegacy'])->name('reports.doctores.getDoctorReport');
+        });
+    });
+
+
 //COUNTER
 Route::middleware(['checkRole:counter,admin,Administracion'])->group(function () {
 
@@ -110,12 +138,30 @@ Route::middleware(['checkRole:counter,admin,Administracion'])->group(function ()
     // Route::resource('cargarpedidos', PedidosController::class);
     Route::resource('cargarpedidos', CargarPedidosController::class);
     Route::post('/cargarpedidosdetail', CargarPedidosController::class . '@cargarExcelArticulos')->name('cargarpedidos.excelarticulos');
+    Route::post('/cargarpedidos/articulos/store', CargarPedidosController::class . '@storeArticulos')->name('cargarpedidos.articulos.store');
     Route::get('/cargarpedidos/{pedido}/uploadfile', CargarPedidosController::class . '@uploadfile')->name('cargarpedidos.uploadfile');
     Route::put('/cargarpedidos/cargarImagen/{post}', CargarPedidosController::class . '@cargarImagen')->name('cargarpedidos.cargarImagen');
     Route::put('/cargarpedidos/actualizarPago/{post}', CargarPedidosController::class . '@actualizarPago')->name('cargarpedidos.actualizarPago');
     Route::put('/cargarpedidos/cargarImagenReceta/{post}', CargarPedidosController::class . '@cargarImagenReceta')->name('cargarpedidos.cargarImagenReceta');
     Route::delete('cargarpedidos/eliminarFotoVoucher/{id}', CargarPedidosController::class . '@eliminarFotoVoucher')->name('cargarpedidos.eliminarFotoVoucher');
     Route::put('/cargarpedidos/actualizarTurno/{id}', CargarPedidosController::class . '@actualizarTurno')->name('cargarpedidos.actualizarTurno');
+
+    // New routes for preview functionality
+    Route::get('/cargarpedidos/preview/changes', CargarPedidosController::class . '@preview')->name('cargarpedidos.preview');
+    Route::post('/cargarpedidos/confirm/changes', CargarPedidosController::class . '@confirmChanges')->name('cargarpedidos.confirm');
+    Route::post('/cargarpedidos/cancel/changes', CargarPedidosController::class . '@cancelChanges')->name('cargarpedidos.cancel');
+
+    // New routes for articles preview functionality
+    Route::get('/cargarpedidos/preview/articulos', CargarPedidosController::class . '@previewArticulos')->name('cargarpedidos.preview-articulos');
+    Route::post('/cargarpedidos/confirm/articulos', CargarPedidosController::class . '@confirmArticulos')->name('cargarpedidos.confirm-articulos');
+    Route::post('/cargarpedidos/cancel/articulos', CargarPedidosController::class . '@cancelArticulos')->name('cargarpedidos.cancel-articulos');
+
+    Route::get('/pedidos/sincronizar', CargarPedidosController::class . '@sincronizarDoctoresPedidos')->name('pedidos.sincronizar');
+    Route::get('/api/doctores/search', CargarPedidosController::class . '@searchDoctores')->name('api.doctores.search');
+
+    // Incluir ruta de prueba
+    require __DIR__ . '/test.php';
+
     Route::resource('asignarpedidos', AsignarPedidoController::class);
     Route::post('/cargarpedidos/downloadWord', CargarPedidosController::class . '@downloadWord')
         ->name('cargarpedidos.downloadWord');
@@ -211,6 +257,7 @@ Route::middleware(['checkRole:laboratorio,admin'])->group(function () {
 
     Route::get('/pedidoslaboratorio/{fecha}/downloadWord/{turno}', PedidoslabController::class . '@downloadWord')
         ->name('pedidoslaboratorio.downloadWord');
+    Route::post('/pedidoslaboratorio/cambio-masivo', [PedidoslabController::class, 'cambioMasivo'])->name('pedidoslaboratorio.cambioMasivo');
     Route::get('/pedidoslaboratoriodetalles', [PedidoslabController::class, 'pedidosDetalles'])->name('pedidosLaboratorio.detalles');
     Route::put('pedidoslaboratoriodetalles/asignar/{id}/', [PedidoslabController::class, 'asignarTecnicoProd'])->name('pedidosLaboratorio.asignarTecnicoProd');
     Route::post('/pedidoslaboratoriodetalles/asignarmultiple', [PedidoslabController::class, 'asignarmultipletecnico'])->name('pedidosLaboratorio.asignarmultipletecnico');
@@ -234,6 +281,24 @@ Route::post('pedidosproduccion/{detalleId}/actualizarestado', [OrdenesController
 Route::middleware(['checkRole:jefe-comercial,admin'])->group(function () {
     Route::resource('categoriadoctor', CategoriaDoctorController::class);
     Route::get('/ventascliente', [PedidosController::class, 'listPedCliente'])->name('pedidosxcliente.listar');
+});
+
+//Jefe Comercial Reportes
+Route::middleware(['checkRole:jefe-comercial,admin'])->group(function () {
+    // Vistas de reportes
+    Route::get('/reporte/ventas', [ReporteController::class, 'ventas'])->name('reporte.ventas');
+    Route::get('/reporte/doctores', [ReporteController::class, 'doctores'])->name('reporte.doctores');
+    Route::get('/reporte/visitadoras', [ReporteController::class, 'visitadoras'])->name('reporte.visitadoras');
+
+    // API endpoints para datos dinámicos
+    Route::get('/api/reportes/ventas', [ReporteController::class, 'apiVentas'])->name('api.reportes.ventas');
+    Route::get('/api/reportes/doctores', [ReporteController::class, 'apiDoctores'])->name('api.reportes.doctores');
+    Route::get('/api/reportes/visitadoras', [ReporteController::class, 'apiVisitadoras'])->name('api.reportes.visitadoras');
+
+    // Endpoints para configuración de filtros
+    Route::get('/api/reportes/filtros/ventas', [ReporteController::class, 'filtrosVentas'])->name('api.reportes.filtros.ventas');
+    Route::get('/api/reportes/filtros/doctores', [ReporteController::class, 'filtrosDoctores'])->name('api.reportes.filtros.doctores');
+    Route::get('/api/reportes/filtros/visitadoras', [ReporteController::class, 'filtrosVisitadoras'])->name('api.reportes.filtros.visitadoras');
 });
 
 /*

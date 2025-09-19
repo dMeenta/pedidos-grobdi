@@ -23,6 +23,12 @@ class CargarPedidosUpdateRequest extends FormRequest
     {
         return [
             'deliveryDate' => 'required|date_format:Y-m-d|after_or_equal:'.date('Y-m-d'),
+            'customerNumber' => 'nullable|string|max:20',
+            'doctorName' => 'required|string|max:255',
+            'id_doctor' => 'nullable|exists:doctor,id',
+            'address' => 'required|string|max:500',
+            'district' => 'required|string|max:100',
+            'zone_id' => 'required|exists:zones,id',
         ];
     }
 }
