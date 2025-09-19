@@ -3,6 +3,7 @@
 namespace App\Application\DTOs\Reportes;
 
 use App\Models\Pedidos;
+use App\Application\Services\Reportes\GeoVentasService;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -26,7 +27,7 @@ class VentasDTO extends ReporteDTO
     public array $general;      // Datos generales del reporte
 
     /**
-     * Constructor que inicializa datos de ventas
+     * Constructor que inicializa datos de ventas de forma lazy
      *
      * @param array $filtros Filtros aplicados al reporte
      */
@@ -41,11 +42,34 @@ class VentasDTO extends ReporteDTO
             []  // estadísticas se calculan después
         );
 
-        // Inicializar propiedades específicas
+        // Inicializar solo las propiedades livianas primero
         $this->visitadoras = $this->getDatosVisitadoras($filtros);
-        $this->productos = $this->getDatosProductos($filtros);
-        $this->provincias = $this->getDatosProvincias($filtros);
         $this->general = $this->getDatosGeneral($filtros);
+
+        // Las propiedades pesadas (productos, provincias) se inicializan solo cuando se necesiten
+        // Esto evita timeouts al crear la instancia
+    }
+
+    /**
+     * Obtiene datos de productos de forma lazy
+     */
+    private function getProductosLazy(): array
+    {
+        if (!isset($this->productos)) {
+            $this->productos = $this->getDatosProductos($this->filtros);
+        }
+        return $this->productos;
+    }
+
+    /**
+     * Obtiene datos de provincias de forma lazy
+     */
+    private function getProvinciasLazy(): array
+    {
+        if (!isset($this->provincias)) {
+            $this->provincias = $this->getDatosProvincias($this->filtros);
+        }
+        return $this->provincias;
     }
 
     /**
@@ -87,7 +111,10 @@ class VentasDTO extends ReporteDTO
      */
     private function getDatosProductos(array $filtros = []): array
     {
-        // Consulta real a detail_pedidos con join a pedidos - TODOS los productos
+        // Optimización: Limitar resultados para evitar timeouts
+        $limiteProductos = 100; // Máximo 100 productos para evitar consultas muy pesadas
+
+        // Consulta optimizada con límite
         $query = DB::table('detail_pedidos')
             ->selectRaw('detail_pedidos.articulo as producto, SUM(detail_pedidos.sub_total) as ventas, SUM(detail_pedidos.cantidad) as unidades')
             ->join('pedidos', 'detail_pedidos.pedidos_id', '=', 'pedidos.id')
@@ -96,7 +123,8 @@ class VentasDTO extends ReporteDTO
             ->whereRaw('LOWER(detail_pedidos.articulo) NOT LIKE ?', ['%delivery%'])
             ->whereRaw('LOWER(detail_pedidos.articulo) NOT LIKE ?', ['bolsa%'])
             ->groupBy('detail_pedidos.articulo')
-            ->orderByRaw('SUM(detail_pedidos.sub_total) DESC');
+            ->orderByRaw('SUM(detail_pedidos.sub_total) DESC')
+            ->limit(100); 
 
         // Aplicar filtros si existen
         if (isset($filtros['anio_general'])) {
@@ -141,33 +169,18 @@ class VentasDTO extends ReporteDTO
      */
     private function getDatosProvincias(array $filtros = []): array
     {
-        // Consulta real a la tabla pedidos agrupada por district
-        $query = Pedidos::selectRaw('district as provincia, SUM(prize) as ventas, COUNT(*) as pedidos')
-            ->groupBy('district')
-            ->orderByRaw('SUM(prize) DESC')
-            ->limit(10); // Top 10 provincias/distritos
-
-        // Aplicar filtros si existen
-        if (isset($filtros['anio_general'])) {
-            $query->whereYear('created_at', $filtros['anio_general']);
-        }
-        if (isset($filtros['mes_general'])) {
-            $query->whereMonth('created_at', $filtros['mes_general']);
-        }
-
-        $resultados = $query->get();
-
-        $totalVentas = $resultados->sum('ventas');
-        $porcentajes = $resultados->map(function($item) use ($totalVentas) {
-            return $totalVentas > 0 ? round(($item->ventas / $totalVentas) * 100, 1) : 0;
-        })->toArray();
-
+        // Usar el servicio especializado con los datos del DTO
+        $service = new GeoVentasService();
+        $filtros = array_merge(['agrupacion' => 'provincia'], $filtros);
+        $datos = $service->getGeoVentas($filtros);
         return [
-            'labels' => $resultados->pluck('provincia')->toArray(),
-            'ventas' => $resultados->pluck('ventas')->map(function($venta) { return (float) $venta; })->toArray(),
-            'porcentaje' => $porcentajes
+            'labels' => $datos['labels'],
+            'ventas' => $datos['ventas'],
+            'porcentaje' => $datos['porcentaje'],
+            'pedidos' => $datos['pedidos']
         ];
     }
+
 
     /**
      * Obtiene datos generales del reporte desde pedidos
@@ -276,7 +289,7 @@ class VentasDTO extends ReporteDTO
      */
     public function getDatosProductosCompletos(array $filtros = []): array
     {
-        $productos = $this->getDatosProductos($filtros);
+        $productos = $this->getProductosLazy();
         
         if (empty($productos['labels'])) {
             return [
@@ -328,7 +341,6 @@ class VentasDTO extends ReporteDTO
             return $b['ventas'] <=> $a['ventas'];
         });
 
-        // Extraer datos ordenados y generar colores
         $labelsOrdenados = [];
         $ventasOrdenadas = [];
         $unidadesOrdenadas = [];
@@ -647,6 +659,91 @@ class VentasDTO extends ReporteDTO
     }
 
     /**
+     * Obtiene pedidos detallados por departamento usando GeoVentasService
+     *
+     * @param string $departamento Nombre del departamento
+     * @param array $filtros Filtros aplicados
+     * @return array Pedidos detallados del departamento
+     */
+    public function getPedidosDetallados(string $departamento, array $filtros = []): array
+    {
+        $service = new GeoVentasService();
+        return $service->getPedidosDetallados($departamento, $filtros);
+    }
+
+    /**
+     * Obtiene datos crudos de ventas por distrito para GeoVentasService
+     * Este método contiene la consulta a BD que antes estaba en GeoVentasService
+     *
+     * @param array $filtros Filtros aplicados
+     * @return \Illuminate\Support\Collection Datos crudos de la consulta
+     */
+    public static function getDatosCrudosGeoVentas(array $filtros = []): \Illuminate\Support\Collection
+    {
+        $query = Pedidos::query()
+            ->selectRaw('district, SUM(prize) as ventas, COUNT(*) as pedidos')
+            ->whereNotNull('district')
+            ->where('district', '!=', '')
+            ->where('zone_id', 1); 
+
+        // Aplicar filtros de fecha
+        if (!empty($filtros['fecha_inicio_provincia'])) {
+            $query->whereDate('created_at', '>=', $filtros['fecha_inicio_provincia']);
+        }
+        if (!empty($filtros['fecha_fin_provincia'])) {
+            $query->whereDate('created_at', '<=', $filtros['fecha_fin_provincia']);
+        }
+        if (!empty($filtros['anio_general'])) {
+            $query->whereYear('created_at', $filtros['anio_general']);
+        }
+        if (!empty($filtros['mes_general'])) {
+            $query->whereMonth('created_at', $filtros['mes_general']);
+        }
+
+        return $query->groupBy('district')->get();
+    }
+
+    /**
+     * Obtiene datos crudos de pedidos detallados para GeoVentasService
+     * Este método contiene la consulta a BD que antes estaba en GeoVentasService
+     *
+     * @param array $filtros Filtros aplicados
+     * @return \Illuminate\Support\Collection Datos crudos de la consulta
+     */
+    public static function getDatosCrudosPedidosDetallados(array $filtros = []): \Illuminate\Support\Collection
+    {
+        $query = Pedidos::query()
+            ->select([
+                'pedidos.id',
+                'pedidos.created_at as fecha_pedido',
+                'pedidos.prize as total',
+                'pedidos.district as distrito_original',
+                'users.name as visitadora',
+                'users.email as email_visitadora'
+            ])
+            ->leftJoin('users', 'pedidos.user_id', '=', 'users.id')
+            ->whereNotNull('pedidos.district')
+            ->where('pedidos.district', '!=', '')
+            ->where('pedidos.zone_id', 1);
+
+        // Aplicar filtros de fecha
+        if (!empty($filtros['fecha_inicio_provincia'])) {
+            $query->whereDate('pedidos.created_at', '>=', $filtros['fecha_inicio_provincia']);
+        }
+        if (!empty($filtros['fecha_fin_provincia'])) {
+            $query->whereDate('pedidos.created_at', '<=', $filtros['fecha_fin_provincia']);
+        }
+        if (!empty($filtros['anio_general'])) {
+            $query->whereYear('pedidos.created_at', $filtros['anio_general']);
+        }
+        if (!empty($filtros['mes_general'])) {
+            $query->whereMonth('pedidos.created_at', $filtros['mes_general']);
+        }
+
+        return $query->orderBy('pedidos.created_at', 'desc')->get();
+    }
+
+    /**
      * Convierte el DTO a array incluyendo propiedades específicas
      *
      * @return array Array completo con todos los datos de ventas
@@ -655,8 +752,8 @@ class VentasDTO extends ReporteDTO
     {
         return array_merge(parent::toArray(), [
             'visitadoras' => $this->visitadoras,
-            'productos' => $this->productos,
-            'provincias' => $this->provincias,
+            'productos' => $this->getProductosLazy(),
+            'provincias' => $this->getProvinciasLazy(),
             'general' => $this->general,
         ]);
     }
