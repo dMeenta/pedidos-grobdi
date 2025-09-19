@@ -85,8 +85,6 @@ class DoctorController extends Controller
     }
     public function guardarDoctorVisitador(Request $request)
     {
-        Logger($request->all());
-        // dd($request->all());
         $request->validate([
             'CMP' => 'required|numeric|unique:doctor,CMP',
             'first_lastname' => 'required|string|max:100',

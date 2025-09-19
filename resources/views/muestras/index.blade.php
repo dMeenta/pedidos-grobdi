@@ -216,21 +216,21 @@ $currentParams = request()->except(['page']);
                     <td>
                         @php
                         $rolesCheckbox = [
-                        'coordinador-lineas' => [
-                        'class' => 'coordinadora-checkbox',
-                        'checked' => $muestra->aprobado_coordinadora,
-                        'canApprove' => in_array($role, ['admin', 'coordinador-lineas']) && $muestra->state,
-                        ],
-                        'jefe-comercial' => [
-                        'class' => 'jcomercial-checkbox',
-                        'checked' => $muestra->aprobado_jefe_comercial,
-                        'canApprove' => in_array($role, ['admin', 'jefe-comercial']) && $muestra->state,
-                        ],
-                        'jefe-operaciones' => [
-                        'class' => 'joperaciones-checkbox',
-                        'checked' => $muestra->aprobado_jefe_operaciones,
-                        'canApprove' => in_array($role, ['admin', 'jefe-operaciones']) && $muestra->state,
-                        ],
+                            'coordinador-lineas' => [
+                                'class' => 'coordinadora-checkbox',
+                                'checked' => $muestra->aprobado_coordinadora,
+                                'canApprove' => in_array($role, ['admin', 'coordinador-lineas']) && $muestra->state,
+                            ],
+                            'jefe-comercial' => [
+                                'class' => 'jcomercial-checkbox',
+                                'checked' => $muestra->aprobado_jefe_comercial,
+                                'canApprove' => in_array($role, ['admin', 'jefe-comercial']) && $muestra->state,
+                            ],
+                            'jefe-operaciones' => [
+                            'class' => 'joperaciones-checkbox',
+                            'checked' => $muestra->aprobado_jefe_operaciones,
+                            'canApprove' => in_array($role, ['admin', 'jefe-operaciones']) && $muestra->state,
+                            ],
                         ];
 
                         $config = $rolesCheckbox[$role] ?? null;

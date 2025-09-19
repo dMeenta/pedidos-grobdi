@@ -78,11 +78,11 @@ Route::middleware(['check.permission'])->group(function () {
         /* ---- APROBACIONES --- */
     
         //Coordinadora
-        Route::put('/aprove-coordinador', [MuestrasController::class, 'aproveMuestraByCoordinadora']);
+        Route::put('/aprove-coordinador', [MuestrasController::class, 'aproveMuestraByCoordinadora'])->name('muestras.aproveCoordinadora');
         //Jefe Comercial
-        Route::put('/aprove-jcomercial', [MuestrasController::class, 'aproveMuestraByJefeComercial']);
+        Route::put('/aprove-jcomercial', [MuestrasController::class, 'aproveMuestraByJefeComercial'])->name('muestras.aproveJefeComercial');
         //Jefe de Operaciones
-        Route::put('/aprove-joperaciones', [MuestrasController::class, 'aproveMuestraByJefeOperaciones']);
+        Route::put('/aprove-joperaciones', [MuestrasController::class, 'aproveMuestraByJefeOperaciones'])->name('muestras.aproveJefeOperaciones');
     });
 
 
@@ -153,15 +153,15 @@ Route::middleware(['check.permission'])->group(function () {
     Route::resource('visitadoctor', VisitaDoctorController::class);
 
     Route::get('calendariovisitadora', [EnrutamientoController::class, 'calendariovisitadora'])->name('enrutamientolista.calendariovisitadora');
-    Route::get('/rutasdoctor/{id}', [EnrutamientoController::class, 'DetalleDoctorRutas']);
-    Route::get('/detalle-visita-doctor/{id}', [VisitaDoctorController::class, 'FindDetalleVisitaByID']);
-    Route::put('/update-visita-doctor/{id}', [VisitaDoctorController::class, 'UpdateVisitaDoctor'])->name('rutas.guardarvisita');
+    Route::get('/rutasdoctor/{id}', [EnrutamientoController::class, 'DetalleDoctorRutas'])->name('rutas.detalledoctor');
+    Route::get('/detalle-visita-doctor/{id}', [VisitaDoctorController::class, 'FindDetalleVisitaByID'])->name('rutasmapa.detallesdoctor');
+    Route::put('/update-visita-doctor/{id}', [VisitaDoctorController::class, 'UpdateVisitaDoctor'])->name('rutasmapa.guardarvisita');
     Route::post('guardar-visita', [EnrutamientoController::class, 'GuardarVisita'])->name('rutas.guardarvisita');
-    Route::get('rutasvisitadora', [RutasVisitadoraController::class, 'index'])->name('rutasvisitadora.index');
+    Route::get('rutasvisitadora', [RutasVisitadoraController::class, 'ListarMisRutas'])->name('rutasvisitadora.ListarMisRutas');
     Route::get('rutasvisitadora/{id}', [RutasVisitadoraController::class, 'listadoctores'])->name('rutasvisitadora.listadoctores');
-    Route::post('/rutasvisitadora/asignar', [RutasVisitadoraController::class, 'asignar'])->name('rutasvisitadora.asignar');
-    Route::get('/rutasvisitadora/buscardoctor/{cmp}', [DoctorController::class, 'buscarCMP']);
-    Route::post('/rutasvisitadora/doctores', [DoctorController::class, 'guardarDoctorVisitador']);
+    Route::post('/rutasvisitadora/asignar', action: [RutasVisitadoraController::class, 'asignar'])->name('rutasvisitadora.asignar');
+    Route::get('/rutasvisitadora/buscardoctor/{cmp}', [DoctorController::class, 'buscarCMP'])->name('rutasvisitadora.buscarcmpdoctor');
+    Route::post('/rutasvisitadora/doctores', [DoctorController::class, 'guardarDoctorVisitador'])->name('rutasvisitadora.guardardoctor');
     Route::get('centrosaludbuscar', CentroSaludController::class . '@buscar')->name('centrosalud.buscar');
 
     Route::get('ruta-mapa', [VisitaDoctorController::class, 'mapa'])->name('ruta.mapa');
