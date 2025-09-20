@@ -75,6 +75,41 @@ class ReporteController extends Controller
     }
 
     /**
+     * API: Datos generales (tab General) - ingresos, visitas y series por año/mes
+     */
+    public function apiVentasGeneral(Request $request)
+    {
+        try {
+            $filtros = $request->only(['mes_general', 'anio_general']);
+
+            // Validación mínima: año requerido
+            if (empty($filtros['anio_general'])) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'El parámetro anio_general es requerido',
+                    'general' => []
+                ], 422);
+            }
+
+            $data = $this->ventasService->getData($filtros);
+
+            // El DTO expone la propiedad pública $general con la forma esperada por el frontend
+            $general = $data->general ?? ($data->toArray()['general'] ?? []);
+
+            return response()->json([
+                'general' => $general
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Error en apiVentasGeneral: ' . $e->getMessage());
+            return response()->json([
+                'error' => true,
+                'message' => 'Error al procesar los datos generales de ventas',
+                'general' => []
+            ], 500);
+        }
+    }
+
+    /**
      * API: Ventas por Provincia/Departamento (normaliza campo district contra catálogos)
      */
     public function apiVentasProvincias(Request $request)
@@ -103,7 +138,7 @@ class ReporteController extends Controller
                 'pedidos' => [],
                 'total_ventas' => 0,
                 'total_pedidos' => 0,
-                'tabla_html' => '<tr><td colspan="4" class="text-center py-4 text-danger">Error al cargar datos</td></tr>',
+                'message' => 'Error al cargar datos',
                 'titulo' => 'Ventas por Ubigeo'
             ], 500);
         }

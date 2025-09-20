@@ -189,12 +189,22 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event listeners para los botones
     $(document).on('click', '#filtrar_general', function(e) {
         e.preventDefault();
+        // Evita que otros handlers (definidos en la vista principal) disparen alerts duplicados
+        e.stopImmediatePropagation();
         aplicarFiltros();
     });
 
     $(document).on('click', '#limpiar_general', function(e) {
         e.preventDefault();
+        e.stopImmediatePropagation();
         limpiarFiltros();
+    });
+
+    // Interceptar descarga Excel para evitar alert del script padre
+    $(document).on('click', '#descargar-excel-general', function(e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        toast('Descargando reporte general (próximamente)', 'info');
     });
 
     // Función para aplicar filtros
@@ -204,7 +214,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Validar que al menos el año esté seleccionado
         if (!anio) {
-            alert('Por favor seleccione al menos un año');
+            toast('Por favor seleccione al menos un año', 'warning');
             return;
         }
         
@@ -213,7 +223,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Petición AJAX al backend
         $.ajax({
-            url: '{{ route("api.reportes.ventas") }}',
+            url: '{{ route("api.reportes.ventas-general") }}',
             method: 'GET',
             data: {
                 mes_general: mes || '',
@@ -234,12 +244,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     destruirGraficos();
                     inicializarGraficos(response.general);
                 } else {
-                    alert('No se recibieron datos válidos del servidor');
+                    toast('No se recibieron datos válidos del servidor', 'info');
                 }
             },
             error: function(xhr, status, error) {
                 console.error('Error en la petición:', error);
-                alert('Error al cargar los datos. Intente nuevamente.');
+                toast('Error al cargar los datos. Intente nuevamente.', 'error');
             },
             complete: function() {
                 $('#filtrar_general').prop('disabled', false).html('<i class="fas fa-filter"></i> Filtrar');
@@ -485,6 +495,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
+    }
+    // Toast helper (SweetAlert2)
+    function toast(message, icon = 'info') {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: icon,
+                title: message,
+                showConfirmButton: false,
+                timer: 2200,
+                timerProgressBar: true
+            });
+        } else {
+            console.log('[toast]', icon, message);
+        }
     }
 });
 </script>

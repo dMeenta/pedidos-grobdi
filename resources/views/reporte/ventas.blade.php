@@ -70,6 +70,22 @@
         // URL del endpoint construida con helper de Laravel para evitar problemas de rutas/base path
         const API_VENTAS_PROVINCIAS = "{{ route('api.reportes.ventas-provincias') }}";
         const API_PEDIDOS_DEPARTAMENTO = "{{ route('api.reportes.pedidos-departamento') }}";
+        // Toast helper (SweetAlert2)
+        function toast(message, icon = 'info') {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: icon,
+                    title: message,
+                    showConfirmButton: false,
+                    timer: 2200,
+                    timerProgressBar: true
+                });
+            } else {
+                console.log('[toast]', icon, message);
+            }
+        }
         // Datos en memoria
         const datosVentas = {
             visitadoras: {
@@ -175,17 +191,17 @@
                 const fin = $('#fecha_fin').val();
 
                 if (inicio && fin) {
-                    alert('Filtrando desde ' + inicio + ' hasta ' + fin);
+                    toast('Aplicando filtros: ' + inicio + ' → ' + fin, 'success');
                     // Aquí actualizarías los gráficos con datos filtrados
                 } else {
-                    alert('Selecciona ambas fechas');
+                    toast('Selecciona ambas fechas', 'warning');
                 }
             });
 
             $('#limpiar').click(function() {
                 $('#fecha_inicio').val('');
                 $('#fecha_fin').val('');
-                alert('Filtros limpiados');
+                toast('Filtros limpiados', 'info');
             });
 
             $(document).on('click', '#filtrar_provincia', function() {
@@ -195,7 +211,7 @@
 
                 // Validar fechas si ambas están seleccionadas
                 if (inicio && fin && new Date(inicio) > new Date(fin)) {
-                    alert('La fecha de inicio no puede ser mayor que la fecha de fin');
+                    toast('La fecha de inicio no puede ser mayor que la fecha de fin', 'warning');
                     return;
                 }
 
@@ -216,38 +232,18 @@
             });
 
             $('#descargar-excel-provincia').click(function() {
-                alert('Descargando reporte detallado de Provincias en Excel...');
+                toast('Descargando reporte detallado de Provincias en Excel...', 'info');
             });
 
-            $('#filtrar_general').click(function() {
-                const mes = $('#mes_general').val();
-                const anio = $('#anio_general').val();
-
-                if (mes && anio) {
-                    alert('Filtrando general para ' + mes + ' del año ' + anio);
-                    // Aquí actualizarías los gráficos con datos filtrados
-                } else {
-                    alert('Selecciona mes y año');
-                }
-            });
-
-            $('#limpiar_general').click(function() {
-                $('#mes_general').val('');
-                $('#anio_general').val('');
-                alert('Filtros generales limpiados');
-            });
-
-            $('#descargar-excel-general').click(function() {
-                alert('Descargando reporte general detallado en Excel...');
-            });
+            // Handlers del tab General se gestionan dentro de su propio componente
 
             // Botones de descarga Excel
             $('#descargar-excel-visitadora').click(function() {
-                alert('Descargando reporte detallado de Visitadoras en Excel...');
+                toast('Descargando reporte detallado de Visitadoras en Excel...', 'info');
             });
 
             $('#descargar-excel-producto').click(function() {
-                alert('Descargando reporte detallado de Productos en Excel...');
+                toast('Descargando reporte detallado de Productos en Excel...', 'info');
             });
 
             // Evento para abrir modal de pedidos detallados por departamento
@@ -366,11 +362,11 @@
             // Evento para exportar pedidos a Excel
             $('#exportarPedidosDepartamento').click(function() {
                 const departamento = $('#modalDepartamentoNombre').text();
-                alert(`Próximamente: Exportar pedidos de ${departamento} a Excel`);
+                toast(`Próximamente: Exportar pedidos de ${departamento} a Excel`, 'info');
             });
 
             $('#descargar-excel-general').click(function() {
-                alert('Descargando reporte general detallado en Excel...');
+                toast('Descargando reporte general detallado en Excel...', 'info');
             });
 
             $('#filtrar_producto').click(function() {
@@ -378,17 +374,17 @@
                 const fin = $('#fecha_fin_producto').val();
 
                 if (inicio && fin) {
-                    alert('Filtrando productos desde ' + inicio + ' hasta ' + fin);
+                    toast('Filtrando productos: ' + inicio + ' → ' + fin, 'success');
                     // Aquí actualizarías los gráficos con datos filtrados
                 } else {
-                    alert('Selecciona ambas fechas para productos');
+                    toast('Selecciona ambas fechas para productos', 'warning');
                 }
             });
 
             $('#limpiar_producto').click(function() {
                 $('#fecha_inicio_producto').val('');
                 $('#fecha_fin_producto').val('');
-                alert('Filtros de productos limpiados');
+                toast('Filtros de productos limpiados', 'info');
             });
         });
 
@@ -562,12 +558,38 @@
             $('#tituloBarGeo').text('Departamento');
             $('#tituloPieGeo').text('Departamento');
             $('#tituloTablaGeo').text('Departamento');
-            // Tabla
-            $('#tablaProvinciaBody').html(data.tabla_html || '');
-            $('#totalVentasProvincia').text('S/ ' + (data.total_ventas?.toLocaleString('es-PE', {
+            // Tabla: construir en frontend
+            const labels = data.labels || [];
+            const ventas = data.ventas || [];
+            const porcentaje = data.porcentaje || [];
+            const pedidos = data.pedidos || [];
+            let tbody = '';
+            if (labels.length === 0) {
+                tbody = '<tr><td colspan="5" class="text-center py-4 text-muted">Sin datos para el rango seleccionado</td></tr>';
+            } else {
+                for (let i = 0; i < labels.length; i++) {
+                    const ventaVal = Number(ventas[i] || 0);
+                    const porcVal = Number(porcentaje[i] || 0);
+                    const pedidosVal = Number(pedidos[i] || 0);
+                    tbody += `
+                        <tr>
+                            <td>${labels[i] ?? ''}</td>
+                            <td class="text-end">S/ ${ventaVal.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                            <td class="text-center">${porcVal.toFixed(1)}%</td>
+                            <td class="text-center">${pedidosVal}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary ver-pedidos-departamento" data-departamento="${labels[i] ?? ''}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>`;
+                }
+            }
+            $('#tablaProvinciaBody').html(tbody);
+            $('#totalVentasProvincia').text('S/ ' + (Number(data.total_ventas || 0).toLocaleString('es-PE', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
-            }) || '0.00'));
+            })));
             $('#totalPedidosProvincia').text(data.total_pedidos || 0);
 
             // Gráfico barras
