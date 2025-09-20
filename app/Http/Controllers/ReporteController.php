@@ -65,10 +65,9 @@ class ReporteController extends Controller
                     'total_unidades_formateado' => '0',
                     'precio_promedio_formateado' => 'S/ 0.00'
                 ],
-                'tabla_html' => '<tr><td colspan="6" class="text-center py-5"><div class="text-muted"><i class="fas fa-exclamation-triangle fa-3x mb-3 text-warning"></i><h5>Error al cargar datos</h5><p>Ocurrió un error interno. Intente nuevamente.</p></div></td></tr>',
                 'configuracion_grafico' => [],
                 'datos_pareto' => ['labels' => [], 'porcentajes_acumulados' => [], 'punto_80' => 0],
-                'indicador_rango' => '<small class="badge bg-danger text-white px-3 py-1"><i class="fas fa-exclamation-triangle me-1"></i>Error en la consulta</small>',
+                'indicador' => null,
                 'mensaje' => 'Error interno del servidor'
             ], 500);
         }

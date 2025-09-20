@@ -155,6 +155,18 @@ class ExcelTextCleaner
 
         $cleaned = self::clean($text);
 
+        // Correcciones previas para variantes mal codificadas muy comunes
+        // Estas ocurren cuando la palabra tiene bytes mal interpretados
+        $preReplacements = [
+            'JESÃšS MARIA' => 'JESÚS MARIA',
+            'JESÃšS MARÃA' => 'JESÚS MARÍA',
+            'JESÃºS MARIA' => 'JESÚS MARIA',
+            'JESÃºS MARÃA' => 'JESÚS MARÍA',
+            'JESÃšS MARÍA' => 'JESÚS MARÍA',
+            'JESUS MARÃA' => 'JESUS MARÍA',
+        ];
+        $cleaned = str_replace(array_keys($preReplacements), array_values($preReplacements), $cleaned);
+
         // Normalizar casos específicos comunes en Perú
         $replacements = [
             // Departamentos
@@ -177,6 +189,18 @@ class ExcelTextCleaner
             'YAUYOS' => 'YAUYOS',
             'OYON' => 'OYÓN',
             'HUAURA' => 'HUAURA',
+
+            // Distritos de Lima (correcciones de acentos más comunes)
+            'JESUS MARIA' => 'JESÚS MARÍA',
+            'JESÚS MARIA' => 'JESÚS MARÍA',
+            'JESUS MARÍA' => 'JESÚS MARÍA',
+            'VILLA MARIA DEL TRIUNFO' => 'VILLA MARÍA DEL TRIUNFO',
+            'SANTA MARIA DEL MAR' => 'SANTA MARÍA DEL MAR',
+            'SAN MARTIN DE PORRES' => 'SAN MARTÍN DE PORRES',
+            'BRENA' => 'BREÑA',
+            'RIMAC' => 'RÍMAC',
+            'ANCON' => 'ANCÓN',
+            'LURIN' => 'LURÍN',
         ];
 
         $cleaned = str_replace(
