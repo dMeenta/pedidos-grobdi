@@ -263,7 +263,7 @@
                 $('#modalPromedioVenta').text('S/ 0.00');
                 $('#tablaPedidosDetallados').html(`
                     <tr>
-                        <td colspan="6" class="text-center py-4">
+                        <td colspan="5" class="text-center py-4">
                             <div class="spinner-border text-primary" role="status">
                                 <span class="visually-hidden">Cargando...</span>
                             </div>
@@ -315,7 +315,6 @@
                         if (response.pedidos && response.pedidos.length > 0) {
                             response.pedidos.forEach(function(pedido) {
                                 const fecha = new Date(pedido.fecha_pedido).toLocaleDateString('es-PE');
-                                const estado = pedido.total > 0 ? '<span class="badge bg-success">Completado</span>' : '<span class="badge bg-warning">Pendiente</span>';
                                 
                                 tablaHtml += `
                                     <tr>
@@ -324,14 +323,13 @@
                                         <td class="text-end">S/ ${pedido.total.toLocaleString('es-PE', {minimumFractionDigits: 2})}</td>
                                         <td>${pedido.distrito_original}</td>
                                         <td>${pedido.visitadora}</td>
-                                        <td>${estado}</td>
                                     </tr>
                                 `;
                             });
                         } else {
                             tablaHtml = `
                                 <tr>
-                                    <td colspan="6" class="text-center py-4 text-muted">
+                                    <td colspan="5" class="text-center py-4 text-muted">
                                         <i class="fas fa-inbox fa-2x mb-2 opacity-25"></i>
                                         <p>No se encontraron pedidos para <strong>${departamento}</strong></p>
                                     </td>
@@ -351,7 +349,7 @@
             function mostrarErrorEnModal(mensaje) {
                 $('#tablaPedidosDetallados').html(`
                     <tr>
-                        <td colspan="6" class="text-center py-4 text-danger">
+                        <td colspan="5" class="text-center py-4 text-danger">
                             <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
                             <p><strong>Error:</strong> ${mensaje}</p>
                         </td>
