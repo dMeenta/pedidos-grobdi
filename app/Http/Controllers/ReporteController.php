@@ -13,7 +13,7 @@ use App\Models\Distrito;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
-use App\Domain\Reports\ReportsService; 
+use App\Domain\Reports\ReportsService;
 
 class ReporteController extends Controller
 {
@@ -29,29 +29,33 @@ class ReporteController extends Controller
     {
         $filtros = $request->only(['mes_general', 'anio_general']);
         $data = $this->ventasService->getData($filtros);
-        
+
         return view('reporte.ventas', ['data' => $data->toArray()]);
+    }
+
+    public function apiVentasVisitadora(Request $request)
+    {
+        return $this->ventasService->getVisitadoraData($request['start_date'], $request['end_date']);
     }
 
     public function apiVentas(Request $request)
     {
         try {
             $filtros = $request->only([
-                'mes_general', 
-                'anio_general', 
-                'fecha_inicio_producto', 
+                'mes_general',
+                'anio_general',
+                'fecha_inicio_producto',
                 'fecha_fin_producto'
             ]);
-            
+
             $data = $this->ventasService->getData($filtros);
-            
+
             $datosCompletos = $data->getDatosProductosCompletos($filtros);
-            
+
             return response()->json($datosCompletos);
-            
         } catch (\Exception $e) {
             Log::error('Error en apiVentas: ' . $e->getMessage());
-            
+
             return response()->json([
                 'error' => true,
                 'message' => 'Error al procesar los datos de ventas',
@@ -119,7 +123,7 @@ class ReporteController extends Controller
                 'fecha_fin_provincia',
                 'anio_general',
                 'mes_general',
-                'agrupacion' 
+                'agrupacion'
             ]);
 
             Log::info('apiVentasProvincias filtros recibidos', $filtros);
@@ -148,8 +152,8 @@ class ReporteController extends Controller
         $filtros = $request->only([
             'fecha_inicio_tipo_doctor',
             'fecha_fin_tipo_doctor',
-            'anio_tipo_doctor', 
-            'mes',              
+            'anio_tipo_doctor',
+            'mes',
             'tipo_medico'
         ]);
 
@@ -162,7 +166,7 @@ class ReporteController extends Controller
             $doctorData = [
                 'doctor' => 'N/A',
                 'tipoMedico' => 'N/A',
-                'amountSpentByDoctorGroupedByMonth' => array_fill(1,12,0),
+                'amountSpentByDoctorGroupedByMonth' => array_fill(1, 12, 0),
                 'amountSpentByDoctorGroupedByTipo' => [],
                 'topMostConsumedProductsInTheMonthByDoctor' => [],
                 'consumedProductsInTheMonthByDoctor' => []
@@ -180,8 +184,8 @@ class ReporteController extends Controller
         $filtros = $request->only([
             'fecha_inicio_tipo_doctor',
             'fecha_fin_tipo_doctor',
-            'anio_tipo_doctor', 
-            'mes',            
+            'anio_tipo_doctor',
+            'mes',
             'tipo_medico'
         ]);
         $data = $this->doctoresService->getData($filtros);
@@ -358,7 +362,6 @@ class ReporteController extends Controller
             $data = $this->geoVentasService->getPedidosDetallados($departamento, $filtros);
 
             return response()->json($data);
-
         } catch (\Throwable $e) {
             Log::error('Error en apiPedidosPorDepartamento: ' . $e->getMessage());
             return response()->json([
@@ -371,5 +374,4 @@ class ReporteController extends Controller
             ], 500);
         }
     }
-
 }
