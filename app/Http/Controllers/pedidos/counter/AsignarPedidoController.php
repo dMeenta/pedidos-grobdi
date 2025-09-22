@@ -32,8 +32,4 @@ class AsignarPedidoController extends Controller
         // dd($pedidos) ;
         return back()->with('success','Pedido modificado exitosamente');
     }
-    public function show($pedido){
-        $pedido = Pedidos::find($pedido);
-        return view('pedidos.counter.asignar_pedido.index', compact('pedido'));
-    }
 }

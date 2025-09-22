@@ -61,7 +61,6 @@ class PedidoslabController extends Controller
                 }
             }
         }
-        // dd($array_pedido);
         return response()->json($pedido);
     }
     public function pedidosDetalles(Request $request){

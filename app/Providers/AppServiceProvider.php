@@ -39,7 +39,7 @@ class AppServiceProvider extends ServiceProvider
                         $submenu[] = [
                             'text' => $view->description,
                             'route' => $view->url,
-                            'icon'  => 'far fa-circle',
+                            'icon'  => $view->icon ?? 'far fa-circle',
                         ];
                     }
 

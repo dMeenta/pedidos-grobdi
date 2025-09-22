@@ -94,10 +94,10 @@ Route::middleware(['check.permission'])->group(function () {
     // Route::resource('cargarpedidos', PedidosController::class);
     Route::resource('cargarpedidos', CargarPedidosController::class);
     Route::post('/cargarpedidosdetail', CargarPedidosController::class . '@cargarExcelArticulos')->name('cargarpedidos.excelarticulos');
-    Route::get('/cargarpedidos/{pedido}/uploadfile', CargarPedidosController::class . '@uploadfile')->name('cargarpedidos.uploadfile');
-    Route::put('/cargarpedidos/cargarImagen/{post}', CargarPedidosController::class . '@cargarImagen')->name('cargarpedidos.cargarImagen');
-    Route::put('/cargarpedidos/actualizarPago/{post}', CargarPedidosController::class . '@actualizarPago')->name('cargarpedidos.actualizarPago');
-    Route::put('/cargarpedidos/cargarImagenReceta/{post}', CargarPedidosController::class . '@cargarImagenReceta')->name('cargarpedidos.cargarImagenReceta');
+    Route::get('/cargarpedidos/{pedido}/uploadfile', [CargarPedidosController::class, 'uploadfile'])->name('cargarpedidos.uploadfile');
+    Route::put('/cargarpedidos/cargarImagen/{id}', CargarPedidosController::class . '@cargarImagen')->name('cargarpedidos.cargarImagen');
+    Route::put('/cargarpedidos/actualizarPago/{id}', CargarPedidosController::class . '@actualizarPago')->name('cargarpedidos.actualizarPago');
+    Route::put('/cargarpedidos/cargarImagenReceta/{id}',CargarPedidosController::class . '@cargarImagenReceta')->name('cargarpedidos.cargarImagenReceta');
     Route::delete('cargarpedidos/eliminarFotoVoucher/{id}', CargarPedidosController::class . '@eliminarFotoVoucher')->name('cargarpedidos.eliminarFotoVoucher');
     Route::put('/cargarpedidos/actualizarTurno/{id}', CargarPedidosController::class . '@actualizarTurno')->name('cargarpedidos.actualizarTurno');
     Route::resource('asignarpedidos', AsignarPedidoController::class);
@@ -145,12 +145,9 @@ Route::middleware(['check.permission'])->group(function () {
     Route::get('/enrutamiento/{id}', [EnrutamientoController::class, 'agregarLista'])->name('enrutamiento.agregarlista');
     Route::get('/enrutamientolista/{id}', [EnrutamientoController::class, 'DoctoresLista'])->name('enrutamientolista.doctores');
     Route::put('/enrutamientolista/doctor/{id}', [EnrutamientoController::class, 'DoctoresListaUpdate'])->name('enrutamientolista.doctoresupdate');
-    Route::post('/visitadoctornuevo/{id}/aprobar', [VisitaDoctorController::class, 'aprobar']);
-    Route::post('/visitadoctornuevo/{id}/rechazar', [VisitaDoctorController::class, 'rechazar']);
+    Route::post('/visitadoctornuevo/{id}/aprobar', [VisitaDoctorController::class, 'aprobar'])->name('doctor.aprobarVisita');
+    Route::post('/visitadoctornuevo/{id}/rechazar', [VisitaDoctorController::class, 'rechazar'])->name('doctor.rechazarVisita');
     Route::resource('categoriadoctor', CategoriaDoctorController::class);
-
-    //VISITADOR
-    Route::resource('visitadoctor', VisitaDoctorController::class);
 
     Route::get('calendariovisitadora', [EnrutamientoController::class, 'calendariovisitadora'])->name('enrutamientolista.calendariovisitadora');
     Route::get('/rutasdoctor/{id}', [EnrutamientoController::class, 'DetalleDoctorRutas'])->name('rutas.detalledoctor');

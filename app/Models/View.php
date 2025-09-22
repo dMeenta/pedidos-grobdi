@@ -8,6 +8,7 @@ class View extends Model
 {
     protected $fillable = [
         'description',
+        'icon',
         'url',
         'state',
         'module_id',
