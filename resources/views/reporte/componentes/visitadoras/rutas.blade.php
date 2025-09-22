@@ -28,9 +28,9 @@
                             <label for="zone">Zona</label>
                             <select name="zone" id="zone" class="form-control">
                                 @isset($zones)
-                                    @foreach ($zones as $zone)
-                                        <option value="{{ $zone->id }}">{{ $zone->name }}</option>
-                                    @endforeach
+                                @foreach ($zones as $zone)
+                                <option value="{{ $zone->id }}">{{ $zone->name }}</option>
+                                @endforeach
                                 @endisset
                             </select>
                         </div>
@@ -77,9 +77,9 @@
                                             <tr class="text-center">
                                                 <th>Distrito</th>
                                                 @isset($estadosVisitas)
-                                                    @foreach ($estadosVisitas as $estado)
-                                                        <th>{{ $estado->name }}</th>
-                                                    @endforeach
+                                                @foreach ($estadosVisitas as $estado)
+                                                <th>{{ $estado->name }}</th>
+                                                @endforeach
                                                 @endisset
                                             </tr>
                                         </thead>
@@ -102,105 +102,128 @@
 </div>
 
 @section('css')
-    @parent
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+@parent
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
 @endsection
 
 @section('js')
-    @parent
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
-    <script>
-        const initialValues = JSON.parse(`@json($initialValues ?? [])`);
-        const estados = JSON.parse(`@json($estadosVisitas ?? [])`);
-        var pieChartCanvas = document.getElementById('pieChart') ? document.getElementById('pieChart').getContext('2d') : null;
-        const distritosContainer = $('#distritos-container');
-        const legendContainer = $('#chart-legend');
-        const monthSelect = $('#month');
-        const zone = $('#zone');
+@parent
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+<script>
+    const initialValues = JSON.parse(`@json($initialValues ?? [])`);
+    const estados = JSON.parse(`@json($estadosVisitas ?? [])`);
+    var pieChartCanvas = document.getElementById('pieChart') ? document.getElementById('pieChart').getContext('2d') : null;
+    const distritosContainer = $('#distritos-container');
+    const legendContainer = $('#chart-legend');
+    const monthSelect = $('#month');
+    const zone = $('#zone');
 
-        var pieData = { labels: [], datasets: [{ data: [], backgroundColor: [] }] };
-        var pieOptions = { maintainAspectRatio: false, responsive: true, plugins: { legend: { display: false } } };
-        var pieChart = pieChartCanvas ? new Chart(pieChartCanvas, { type: 'pie', data: pieData, options: pieOptions }) : null;
-
-        function setInitialValues() {
-            estados.map(e => {
-                pieData.labels.push(e.name);
-                pieData.datasets[0].backgroundColor.push(e.color);
-                pieData.datasets[0].data.push(initialValues[e.id] ?? 0);
-            });
-        }
-
-        function renderRows(data) {
-            const tableBody = $('#distritos-data-table');
-            tableBody.html('');
-            const distritos = Object.entries(data).filter(([id]) => id !== 'Total');
-            if (distritos.length === 0) {
-                tableBody.html(`<tr><td colspan="${estados.length + 1}" class="text-center text-muted">No hay distritos seleccionados o los distritos seleccionados no tienen visitas para mostrar</td></tr>`);
-                return;
+    var pieData = {
+        labels: [],
+        datasets: [{
+            data: [],
+            backgroundColor: []
+        }]
+    };
+    var pieOptions = {
+        maintainAspectRatio: false,
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
             }
-            distritos.forEach(([distritoId, values]) => {
-                let row = `<tr class="text-center"><td>${values.distrito}</td>${estados.map(e => `<td>${values.estados[e.id] ?? 0}</td>`).join('')}</tr>`;
-                tableBody.append(row);
-            });
         }
+    };
+    var pieChart = pieChartCanvas ? new Chart(pieChartCanvas, {
+        type: 'pie',
+        data: pieData,
+        options: pieOptions
+    }) : null;
 
-        function renderLegend() {
-            legendContainer.html(pieData.labels.map((label, i) => `<div class="d-flex align-items-center mb-2" style="gap: 8px;"><span class="badge me-2" style="cursor:default; background-color:${pieData.datasets[0].backgroundColor[i]}; width:18px; height:18px;">&nbsp;</span><span>${label} <small class="text-muted">(${pieData.datasets[0].data[i]})</small></span></div>`).join(''));
+    function setInitialValues() {
+        estados.map(e => {
+            pieData.labels.push(e.name);
+            pieData.datasets[0].backgroundColor.push(e.color);
+            pieData.datasets[0].data.push(initialValues[e.id] ?? 0);
+        });
+    }
+
+    function renderRows(data) {
+        const tableBody = $('#distritos-data-table');
+        tableBody.html('');
+        const distritos = Object.entries(data).filter(([id]) => id !== 'Total');
+        if (distritos.length === 0) {
+            tableBody.html(`<tr><td colspan="${estados.length + 1}" class="text-center text-muted">No hay distritos seleccionados o los distritos seleccionados no tienen visitas para mostrar</td></tr>`);
+            return;
         }
+        distritos.forEach(([distritoId, values]) => {
+            let row = `<tr class="text-center"><td>${values.distrito}</td>${estados.map(e => `<td>${values.estados[e.id] ?? 0}</td>`).join('')}</tr>`;
+            tableBody.append(row);
+        });
+    }
 
-        function updateChart() {
-            const selectedCheckboxes = $('input[name="distritos[]"]:checked').map(function() { return parseInt($(this).val()); }).get();
-            fetch(`{{ route('reports.visitas.filter') }}?month=${monthSelect.val()}&distritos=${JSON.stringify(selectedCheckboxes)}`)
-                .then(r => r.json())
-                .then(data => {
-                    const total = data.Total ?? {};
-                    if (Object.keys(total).length === 0) {
-                        toastr.info('Este distrito no tiene visitas programadas en el mes. Se mostrarán las visitas totales del mes.');
-                        pieChart && pieChart.update();
-                        renderLegend();
-                        return;
-                    }
-                    pieData.datasets[0].data = estados.map(e => total[e.id] ?? 0);
+    function renderLegend() {
+        legendContainer.html(pieData.labels.map((label, i) => `<div class="d-flex align-items-center mb-2" style="gap: 8px;"><span class="badge me-2" style="cursor:default; background-color:${pieData.datasets[0].backgroundColor[i]}; width:18px; height:18px;">&nbsp;</span><span>${label} <small class="text-muted">(${pieData.datasets[0].data[i]})</small></span></div>`).join(''));
+    }
+
+    function updateChart() {
+        const selectedCheckboxes = $('input[name="distritos[]"]:checked').map(function() {
+            return parseInt($(this).val());
+        }).get();
+        fetch(`{{ route('reports.visitas.filter') }}?month=${monthSelect.val()}&distritos=${JSON.stringify(selectedCheckboxes)}`)
+            .then(r => r.json())
+            .then(data => {
+                const total = data.Total ?? {};
+                if (Object.keys(total).length === 0) {
+                    toastr.info('Este distrito no tiene visitas programadas en el mes. Se mostrarán las visitas totales del mes.');
                     pieChart && pieChart.update();
                     renderLegend();
-                    renderRows(data);
-                }).catch(err => console.error('Error fetching filtered data:', err));
-        }
+                    return;
+                }
+                pieData.datasets[0].data = estados.map(e => total[e.id] ?? 0);
+                pieChart && pieChart.update();
+                renderLegend();
+                renderRows(data);
+            }).catch(err => console.error('Error fetching filtered data:', err));
+    }
 
-        $(document).ready(function() {
-            if(!pieChartCanvas) return;
-            setInitialValues();
-            renderLegend();
-            zone.trigger('change');
-            monthSelect.on('change', updateChart);
-        });
+    $(document).ready(function() {
+        if (!pieChartCanvas) return;
+        setInitialValues();
+        renderLegend();
+        zone.trigger('change');
+        monthSelect.on('change', updateChart);
+    });
 
-        zone.on('change', function() {
-            let zoneId = $(this).val();
-            distritosContainer.html('<span>Cargando distritos...</span>');
-            fetch(`/reports/visitadoras/distritos/${zoneId}`)
-                .then(r => r.json())
-                .then(data => {
-                    distritosContainer.empty();
-                    if (data.length === 0) { distritosContainer.html('<span>No hay distritos programados para esta zona.</span>'); return; }
-                    data.forEach(d => {
-                        let checkbox = `<div class="form-check me-3 mb-2"><input class="form-check-input" type="checkbox" name="distritos[]" value="${d.id}" id="distrito_${d.id}"><label class="form-check-label" for="distrito_${d.id}">${d.name}</label></div>`;
-                        distritosContainer.append(checkbox);
-                    });
+    zone.on('change', function() {
+        let zoneId = $(this).val();
+        distritosContainer.html('<span>Cargando distritos...</span>');
+        fetch(`/reports/visitadoras/distritos/${zoneId}`)
+            .then(r => r.json())
+            .then(data => {
+                distritosContainer.empty();
+                if (data.length === 0) {
+                    distritosContainer.html('<span>No hay distritos programados para esta zona.</span>');
+                    return;
+                }
+                data.forEach(d => {
+                    let checkbox = `<div class="form-check me-3 mb-2"><input class="form-check-input" type="checkbox" name="distritos[]" value="${d.id}" id="distrito_${d.id}"><label class="form-check-label" for="distrito_${d.id}">${d.name}</label></div>`;
+                    distritosContainer.append(checkbox);
                 });
-        });
+            });
+    });
 
-        $(document).on('change', '#select-all-distritos', function() {
-            const checked = $(this).is(':checked');
-            distritosContainer.find('input[name="distritos[]"]').prop('checked', checked);
-            updateChart();
-        });
+    $(document).on('change', '#select-all-distritos', function() {
+        const checked = $(this).is(':checked');
+        distritosContainer.find('input[name="distritos[]"]').prop('checked', checked);
+        updateChart();
+    });
 
-        distritosContainer.on('change', 'input[name="distritos[]"]', function() {
-            const allChecked = distritosContainer.find('input[name="distritos[]"]').length === distritosContainer.find('input[name="distritos[]"]:checked').length;
-            $('#select-all-distritos').prop('checked', allChecked);
-            updateChart();
-        });
-    </script>
+    distritosContainer.on('change', 'input[name="distritos[]"]', function() {
+        const allChecked = distritosContainer.find('input[name="distritos[]"]').length === distritosContainer.find('input[name="distritos[]"]:checked').length;
+        $('#select-all-distritos').prop('checked', allChecked);
+        updateChart();
+    });
+</script>
 @endsection

@@ -116,9 +116,9 @@
     </div>
     <div class="row">
         <div class="col-12">
-            <div class="card card-outline card-dark">
+            <div class="card card-outline card-danger">
                 <div class="card-body table-responsive p-0" style="height: 450px;">
-                    <table class=" table table-head-fixed text-nowrap table-striped table-warning table-hover">
+                    <table class=" table table-head-fixed text-nowrap table-striped">
                         <thead>
                             <tr>
                                 <th class="text-start">Producto</th>
@@ -127,7 +127,7 @@
                                 <th class="text-center">Total</th>
                             </tr>
                         </thead>
-                        <tbody id="products-data-table">
+                        <tbody id="products-data-table" class="table-dark">
                             @if (count($doctorData['consumedProductsInTheMonthByDoctor']) > 0)
                             @foreach ($doctorData['consumedProductsInTheMonthByDoctor'] as $product)
                             <tr>
@@ -138,7 +138,7 @@
                                     {{ $product['total_cantidad'] }}
                                 </td>
                                 <td class="text-center">
-                                    {{ number_format($product['total_subtotal'] / $product['total_cantidad'], 2) }}
+                                    S/ {{ number_format($product['total_subtotal'] / $product['total_cantidad'], 2) }}
                                 </td>
                                 <td class="text-center">
                                     S/ {{ $product['total_subtotal'] }}
@@ -248,7 +248,6 @@
             }
         });
 
-
     let topMostConsumedProductsInTheMonthByDoctorChart = createChart('#topMostConsumedProductsInTheMonthByDoctorChart', initialValues.topMostConsumedProductsInTheMonthByDoctor.map(i => i.articulo), [{
             label: 'Cantidad comprada',
             data: initialValues.topMostConsumedProductsInTheMonthByDoctor.map(i => i.total_cantidad),
@@ -256,7 +255,33 @@
             borderColor: 'rgba(212, 12, 13, 1)',
             borderWidth: 2,
         }],
-        'bar');
+        'bar', {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            scales: {
+                x: {
+                    beginAtZero: true,
+                },
+                y: {
+                    ticks: {
+                        font: {
+                            size: 12
+                        },
+                        callback: function(value, index) {
+                            const label = this.getLabelForValue(value);
+                            const displayLabel = label.length > 30 ? label.substring(0, 17) + '...' : label;
+                            return `#${index+1} - ${displayLabel}`;
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+            }
+        });
 </script>
 <script>
     $(document).ready(() => {
