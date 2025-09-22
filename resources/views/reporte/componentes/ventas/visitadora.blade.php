@@ -1,141 +1,119 @@
 <!-- Tab Visitadora -->
 <div class="tab-pane fade show active" id="visitadora" role="tabpanel">
-    <h4 class="mb-4">
-        <i class="fas fa-user-md text-info"></i> Reporte por Visitadora
-    </h4>
-
-    <!-- Filtros -->
-    <div class="row mb-4 p-3 bg-light rounded">
-        <div class="col-md-3">
-            <label for="fecha_inicio" class="form-label">Fecha Inicio</label>
-            <input type="text" class="form-control" id="fecha_inicio" placeholder="Seleccionar fecha">
-        </div>
-        <div class="col-md-3">
-            <label for="fecha_fin" class="form-label">Fecha Fin</label>
-            <input type="text" class="form-control" id="fecha_fin" placeholder="Seleccionar fecha">
-        </div>
-        <div class="col-md-3 d-flex align-items-end">
-            <button class="btn btn-primary me-2" id="filtrar">
-                <i class="fas fa-filter"></i> Filtrar
-            </button>
-            <button class="btn btn-secondary" id="limpiar">
-                <i class="fas fa-times"></i> Limpiar
-            </button>
+    <div class="row mb-2">
+        <form class="card card-outline card-danger col-8 col-sm-6 col-lg-4" id="dateRangeForm">
+            <div class="card-body">
+                <div class="form-group">
+                    <label>Rango de fecha:</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">
+                                <i class="far fa-calendar-alt"></i>
+                            </span>
+                        </div>
+                        <input type="text" class="form-control float-right" id="dateRangeFilter">
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col">
+                        <button class="btn btn-danger w-100" type="submit">
+                            <i class="fas fa-filter"></i> Filtrar
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <button class="btn btn-outline-dark w-100">
+                            <i class="fas fa-times"></i> Limpiar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="col-4 col-sm-6 col-lg-8">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card bg-danger">
+                        <div class="card-body text-center">
+                            <h3 id="total-monto">
+                                S/ {{ array_sum(array_column($data['visitadoras'], 'total_monto')) }}
+                            </h3>
+                            <p class="mb-0">Monto Total</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="card bg-dark">
+                        <div class="card-body text-center">
+                            <h3 id="total-pedidos">{{ array_sum(array_column($data['visitadoras'], 'total_pedidos')) }}</h3>
+                            <p class="mb-0">Total de Pedidos</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col- col-md-6">
+                    <div class="card bg-dark">
+                        <div class="card-body text-center">
+                            <h3 id="top-visitadora">{{collect($data['visitadoras'])->max('visitadora')}}</h3>
+                            <p class="mb-0">Mejor Visitadora</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
-    <!-- Cards de resumen -->
     <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card bg-primary text-white">
-                <div class="card-body text-center">
-                    <h3 id="total-ventas">S/ 5,300</h3>
-                    <p class="mb-0">Total Ventas</p>
+        <div class="col-6">
+            <div class="card card-outline card-dark">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar text-danger"></i> Monto por Visitadora
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="montoGroupedByVisitadoraChart" style="height: 400px;"></canvas>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-success text-white">
-                <div class="card-body text-center">
-                    <h3 id="total-visitas">160</h3>
-                    <p class="mb-0">Total Visitas</p>
+        <div class="col-6">
+            <div class="card card-outline card-dark">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar text-danger"></i> Cantidad de pedidos por Visitadora
+                    </h5>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-warning text-white">
-                <div class="card-body text-center">
-                    <h3 id="promedio-venta">S/ 33.13</h3>
-                    <p class="mb-0">Promedio/Visita</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-info text-white">
-                <div class="card-body text-center">
-                    <h3 id="mejor-visitadora">Norte</h3>
-                    <p class="mb-0">Mejor Visitadora</p>
+                <div class="card-body">
+                    <canvas id="porcentajesGroupedByVisitadoraChart" style="height: 400px;"></canvas>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Gráfico de Barras -->
-    <div class="row mb-4">
+    <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-chart-bar"></i> Ventas por Visitadora
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="ventasChart" style="height: 400px;"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Gráfico de Pie y Tabla -->
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-chart-pie"></i> Distribución de Ventas
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="ventasPieChart" style="height: 300px;"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-info text-white">
+                <div class="card-header bg-danger">
                     <h5 class="mb-0">
                         <i class="fas fa-table"></i> Estadísticas Detalladas
                     </h5>
                 </div>
                 <div class="card-body p-0">
-                    <table class="table table-striped mb-0">
-                        <thead class="table-dark">
+                    <table class="table-dark table-hover table table-striped mb-0">
+                        <thead>
                             <tr>
                                 <th>Visitadora</th>
-                                <th>Ventas (S/)</th>
-                                <th>%</th>
-                                <th>Visitas</th>
+                                <th colspan="2" class="text-center">Monto total</th>
+                                <th class="text-center">Cantidad de Pedidos</th>
                             </tr>
                         </thead>
-                        <tbody id="tablaVentasBody">
+                        <tbody id="tableVentasVisitadoraBody">
+                            @foreach ($data['visitadoras'] as $visitadora)
                             <tr>
-                                <td>Visitadora Sur</td>
-                                <td>S/ 1,500.00</td>
-                                <td><span class="badge bg-primary">28.3%</span></td>
-                                <td>45</td>
+                                <td>{{ $visitadora['visitadora'] }}</td>
+                                <td class="text-center">S/ {{ $visitadora['total_monto'] }}</td>
+                                <td class="text-center"><span class="badge bg-danger">{{ $visitadora['porcentaje_pedidos'] }}%</span></td>
+                                <td class="text-center">{{ $visitadora['total_pedidos'] }}</td>
                             </tr>
-                            <tr>
-                                <td>Visitadora Norte</td>
-                                <td>S/ 2,000.00</td>
-                                <td><span class="badge bg-success">37.7%</span></td>
-                                <td>60</td>
-                            </tr>
-                            <tr>
-                                <td>Visitadora Centro</td>
-                                <td>S/ 1,800.00</td>
-                                <td><span class="badge bg-warning">34.0%</span></td>
-                                <td>55</td>
-                            </tr>
+                            @endforeach
                         </tbody>
-                        <tfoot class="table-secondary">
-                            <tr>
-                                <th>Total</th>
-                                <th>S/ 5,300.00</th>
-                                <th><span class="badge bg-dark">100%</span></th>
-                                <th>160</th>
-                            </tr>
-                        </tfoot>
                     </table>
                 </div>
             </div>
@@ -148,4 +126,164 @@
             <i class="fas fa-download"></i> Descargar Detallado Excel
         </button>
     </div>
+
 </div>
+
+@push('js')
+<script src="{{ asset('js/chart-factory.js') }}"></script>
+<script src="{{ asset('js/red-tone-by-string-generator.js') }}"></script>
+
+<script>
+    const tableVentasVisitadoraBody = $('#tableVentasVisitadoraBody')
+    $('#dateRangeFilter').daterangepicker({
+        locale: {
+            format: 'DD/MM/YYYY',
+            applyLabel: 'Aplicar',
+            cancelLabel: 'Cancelar',
+            daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
+            monthNames: [
+                'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+            ],
+            firstDay: 1
+        }
+    });
+
+    const initialValues = JSON.parse(`@json($data)`)
+    const labels = initialValues.visitadoras.map(i => i.visitadora)
+    const montoDataset = [{
+        label: 'Monto Total',
+        data: initialValues.visitadoras.map(i => i.total_monto),
+        backgroundColor: 'rgba(212, 12, 13, 0.4)',
+        borderColor: 'rgba(255, 0, 0, 1)',
+        borderWidth: 0.9
+    }];
+
+    const porcentajesDataset = [{
+        label: 'Pedidos por visitadora (%)',
+        data: initialValues.visitadoras.map(i => i.porcentaje_pedidos),
+        backgroundColor: initialValues.visitadoras.map(v => getColorByVisitadoraName(v.visitadora)),
+        borderColor: 'rgba(255, 255, 255, 1)',
+        borderWidth: 0.5
+    }]
+
+    const montoOptions = {
+        scales: {
+            y: {
+                beginAtZero: true,
+            }
+        },
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return context.dataset.label + ': S/ ' + context.parsed.y.toLocaleString();
+                    }
+                }
+            }
+        }
+    };
+
+    const porcentajesOptions = {
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        let value = context.parsed;
+                        return context.label + ': ' + value.toLocaleString() + '%';
+                    }
+                }
+            }
+        }
+    };
+
+    function getColorByVisitadoraName(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+
+        // Color base derivado del hash
+        let c = (hash & 0x00FFFFFF);
+
+        let r = (c >> 16) & 0xFF;
+        let g = (c >> 8) & 0xFF;
+        let b = c & 0xFF;
+
+        // 🔴 Mejorar la vivacidad del rojo
+        r = Math.max(200, r); // Rojo más intenso como base
+        g = Math.floor(g * 0.3); // Verde moderado para dar calidez
+        b = Math.floor(b * 0.2); // Azul muy limitado para evitar tonos morados
+
+        // Aplicar ajuste de saturación para mayor vivacidad
+        const avg = (r + g + b) / 3;
+        const saturation = 1.4; // Factor de saturación (aumenta la vivacidad)
+
+        r = Math.min(255, Math.max(0, avg + saturation * (r - avg)));
+        g = Math.min(255, Math.max(0, avg + saturation * (g - avg)));
+        b = Math.min(255, Math.max(0, avg + saturation * (b - avg)));
+
+        // Ajustar brillo para evitar colores apagados
+        const brightness = 1.1; // Factor de brillo
+        r = Math.min(255, r * brightness);
+        g = Math.min(255, g * brightness);
+        b = Math.min(255, b * brightness);
+
+        // Clamp final para mantener colores vivos pero controlados
+        r = Math.min(Math.max(r, 180), 255);
+        g = Math.min(Math.max(g, 20), 100); // Verde suficiente para calidez pero no dominante
+        b = Math.min(Math.max(b, 10), 70); // Azul mínimo para evitar tonos anaranjados puros
+
+        return `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, 0.4)`;
+    }
+
+    let montoGroupedByVisitadoraChart = createChart('#montoGroupedByVisitadoraChart', labels, montoDataset, 'bar',
+        montoOptions);
+    let porcentajesGroupedByVisitadoraChart = createChart('#porcentajesGroupedByVisitadoraChart', labels, porcentajesDataset, 'pie', porcentajesOptions);
+
+    $('#dateRangeForm').on('submit', (e) => {
+        e.preventDefault();
+        const rango = $('#dateRangeFilter').val().split(' - ');
+        const start_date = rango[0].split('/').reverse().join('-');
+        const end_date = rango[1].split('/').reverse().join('-');
+
+        $.ajax({
+            url: "{{ route('reporte.api.ventas.visitadora') }}",
+            method: "GET",
+            data: {
+                start_date,
+                end_date
+            },
+            success: function(response) {
+                console.log(response);
+                updateGraphics(response)
+            },
+            error: function(xhr) {
+                console.error("Error cargando datos:", xhr);
+            }
+        });
+    })
+
+    function updateGraphics(response) {
+        montoGroupedByVisitadoraChart.data.labels = response.map((v) => v.visitadora);
+        montoGroupedByVisitadoraChart.data.datasets[0].data = response.map((v) => v.total_monto);
+        montoGroupedByVisitadoraChart.update();
+
+        porcentajesGroupedByVisitadoraChart.data.labels = response.map((v) => v.visitadora);
+        porcentajesGroupedByVisitadoraChart.data.datasets[0].data = response.map((v) => v.porcentaje_pedidos);
+        porcentajesGroupedByVisitadoraChart.update();
+
+        tableVentasVisitadoraBody.html('');
+
+        tableVentasVisitadoraBody.html(
+            response.map(i => `
+        <tr>
+            <td>${i.visitadora}</td>
+            <td class="text-center">${i.total_monto}</td>
+            <td class="text-center"><span class="badge bg-primary">${i.porcentaje_pedidos}%</span></td>
+            <td class="text-center">${i.total_pedidos}</td>
+        </tr>`).join('')
+        );
+    }
+</script>
+@endpush('js')
