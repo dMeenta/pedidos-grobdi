@@ -69,7 +69,7 @@
             <div class="form-group">
                 <strong>Detalles:</strong> <br/>
                 @foreach ($pedido->detailpedidos as $detail_pedidos)
-                    {{ $detail_pedidos->articulo }} - {{ $detail_pedidos->cantidad }} unid.<br>
+                    {{ $detail_pedidos->articulo }} - S/{{ $detail_pedidos->unit_prize }} x {{ $detail_pedidos->cantidad }} unid.<br>
                 @endforeach
             </div>
         </div>
