@@ -13,7 +13,10 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+<<<<<<< HEAD
 use Illuminate\Support\Facades\Gate;
+=======
+>>>>>>> f76f4ac7a11c11334cc0a0e9b770a16c887d9683
 use Maatwebsite\Excel\Facades\Excel;
 
 class MuestrasController extends Controller
@@ -101,11 +104,27 @@ class MuestrasController extends Controller
                 'aprobado_jefe_comercial' => true,
                 'aprobado_jefe_operaciones' => true
             ]);
+        } else if ($user->hasRole('jefe-operaciones')) {
+            $restrictedRange = $this->getLimitMuestrasShowed();
+
+            if ($restrictedRange) {
+                [$start, $end] = $restrictedRange;
+                $query->where(function ($q) use ($start, $end) {
+                    $q->where('created_at', '<', $start)
+                        ->orWhere('created_at', '>=', $end);
+                });
+            }
+
+            $query->where([
+                'aprobado_coordinadora' => true,
+                'aprobado_jefe_comercial' => true
+            ]);
         } else {
             $query->where([
                 'aprobado_coordinadora' => true,
                 'aprobado_jefe_comercial' => true
             ]);
+
         }
 
         if ($request->filled('search')) {
@@ -164,6 +183,20 @@ class MuestrasController extends Controller
         }
 
         return view('muestras.index', $data);
+    }
+
+    private function getLimitMuestrasShowed()
+    {
+        $now = Carbon::now();
+
+        $startRestriction = $now->copy()->startOfWeek()->addDays(2)->setTime(14, 0, 0);
+        $endRestriction = $now->copy()->startOfWeek()->addDays(4)->setTime(12, 0, 0);
+
+        if ($now->between($startRestriction, $endRestriction)) {
+            return [$startRestriction, $endRestriction];
+        }
+
+        return null;
     }
 
     // Mostrar detalles de una muestra por su ID

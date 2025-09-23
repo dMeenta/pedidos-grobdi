@@ -148,6 +148,7 @@
 
         const doctorNameInput = $('#name_doctor');
         const idDoctorInput = $('#id_doctor');
+        const idDoctorInput = $('#id_doctor');
         const suggestionsList = $('#doctorsList');
 
         const tipoFrascoSelect = $('#tipo_frasco');
@@ -243,6 +244,9 @@
             doctorNameInput.val($(this).data('name'));
             idDoctorInput.val($(this).data('id'));
             suggestionsList.fadeOut();
+            doctorNameInput.val($(this).data('name'));
+            idDoctorInput.val($(this).data('id'));
+            suggestionsList.fadeOut();
         });
 
         doctorNameInput.on('keydown', function(e) {
@@ -274,12 +278,17 @@
             if (index >= 0 && index < items.length) {
                 const item = $(items[index]);
                 item.addClass('active');
+                const item = $(items[index]);
+                item.addClass('active');
                 const itemTop = item.position().top;
                 const itemBottom = itemTop + item.outerHeight();
                 const containerHeight = suggestionsList.height();
+                const containerHeight = suggestionsList.height();
                 if (itemTop < 0) {
                     suggestionsList.scrollTop(suggestionsList.scrollTop() + itemTop);
+                    suggestionsList.scrollTop(suggestionsList.scrollTop() + itemTop);
                 } else if (itemBottom > containerHeight) {
+                    suggestionsList.scrollTop(suggestionsList.scrollTop() + (itemBottom - containerHeight));
                     suggestionsList.scrollTop(suggestionsList.scrollTop() + (itemBottom - containerHeight));
                 }
             }
@@ -289,6 +298,7 @@
         $(document).on('click', '.doctor-item', function(e) {
             e.preventDefault();
             doctorNameInput.val($(this).text());
+            idDoctorInput.val($(this).data('id'));
             idDoctorInput.val($(this).data('id'));
             suggestionsList.fadeOut();
         });
@@ -305,15 +315,20 @@
     $('form').on('submit', function(e) {
         const idDoctor = idDoctorInput.val();
         const nameDoctor = doctorNameInput.val();
+        const idDoctor = idDoctorInput.val();
+        const nameDoctor = doctorNameInput.val();
 
         if (!idDoctor) {
             e.preventDefault();
             alert('Por favor, selecciona un doctor registrado.');
             doctorNameInput.focus();
+            doctorNameInput.focus();
             return false;
         }
     });
 
+    doctorNameInput.on('input', function() {
+        idDoctorInput.val('');
     doctorNameInput.on('input', function() {
         idDoctorInput.val('');
     });

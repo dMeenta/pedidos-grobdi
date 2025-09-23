@@ -5,13 +5,18 @@ namespace App\Providers;
 use App\Models\User;
 use App\Domain\Reports\Doctor\DoctorReportRepositoryInterface;
 use App\Domain\Reports\Doctor\DoctorReportRepository;
+<<<<<<< HEAD
 use App\Models\View;
+=======
+>>>>>>> f76f4ac7a11c11334cc0a0e9b770a16c887d9683
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+<<<<<<< HEAD
 use JeroenNoten\LaravelAdminLte\Events\BuildingMenu;
 use Illuminate\Support\Facades\Schema;
+=======
+>>>>>>> f76f4ac7a11c11334cc0a0e9b770a16c887d9683
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -32,6 +37,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+<<<<<<< HEAD
         $this->app['events']->listen(BuildingMenu::class, function (BuildingMenu $event) {
             $user = Auth::user();
 
@@ -116,6 +122,57 @@ class AppServiceProvider extends ServiceProvider
     //     Gate::define('administracion', function (User $user) {
     //         return $user->role->name === 'Administracion';
     //     });
+=======
+
+        Gate::before(function (User $user, string $ability) {
+            if ($user->role->name === 'admin') {
+                return true;
+            }
+        });
+        Gate::define('motorizados', function (User $user) {
+            return $user->role->name === 'motorizado';
+        });
+        Gate::define('contabilidad', function (User $user) {
+            return $user->role->name === 'contabilidad';
+        });
+        Gate::define('laboratorio', function (User $user) {
+            return $user->role->name === 'laboratorio';
+        });
+        Gate::define('tecnico_produccion', function (User $user) {
+            return $user->role->name === 'tecnico_produccion';
+        });
+        Gate::define('counter', function (User $user) {
+            return $user->role->name === 'counter';
+        });
+        Gate::define('visitador', function (User $user) {
+            return $user->role->name === 'visitador';
+        });
+        Gate::define('jefe-operaciones', function (User $user) {
+            if ($user->role->name === 'jefe-operaciones') {
+                return true;
+            }
+        });
+        Gate::define('counter-jefe_operaciones', function (User $user) {
+            if ($user->role->name === 'jefe-operaciones' or $user->role->name === 'counter') {
+                return true;
+            }
+        });
+        Gate::define('gerencia-general', function (User $user) {
+            return $user->role->name === 'gerencia-general';
+        });
+        Gate::define('coordinador-lineas', function (User $user) {
+            return $user->role->name === 'coordinador-lineas';
+        });
+        Gate::define('jefe-comercial', function (User $user) {
+            return $user->role->name === 'jefe-comercial';
+        });
+        Gate::define('supervisor', function (User $user) {
+            return $user->role->name === 'supervisor';
+        });
+        Gate::define('administracion', function (User $user) {
+            return $user->role->name === 'Administracion';
+        });
+>>>>>>> f76f4ac7a11c11334cc0a0e9b770a16c887d9683
         Paginator::useBootstrapFive();
     }
 }

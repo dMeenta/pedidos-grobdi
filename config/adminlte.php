@@ -329,6 +329,7 @@ return [
         //     'label_color' => 'success',
         // ],
         [
+<<<<<<< HEAD
             'text' => 'Reportes Visitadoras Prueba',
             'url' => 'reports/visitadoras',
             'icon' => 'fas fa-briefcase',
@@ -345,6 +346,38 @@ return [
             'url' => 'reports/doctores',
             'icon' => 'fas fa-briefcase',
             'can' => ['admin']
+=======
+            'header' => 'Reporte Comercial',
+            'can' => ['jefe-comercial', 'admin']
+        ],
+        [
+            'text' => 'Reportes',
+            'icon' => 'fas fa-chart-bar',
+            'submenu' => [
+                [
+                    'text' => 'Rutas',
+                    'url' => 'reporte/visitadoras',
+                    'icon' => 'fas fa-route',
+                    'can' => ['admin', 'jefe-comercial']
+                ],
+                [
+                    'text' => 'Ventas',
+                    'url' => 'reporte/ventas',
+                    'icon' => 'fas fa-briefcase',
+                    'can' => ['admin']
+                ],
+                [
+                    'text' => 'Doctores',
+                    'url' => 'reporte/doctores',
+                    'icon' => 'fas fa-fw fa-user-md',
+                    'can' => ['admin']
+                ],
+            ]
+        ],
+        [
+            'header' => 'Muestras',
+            'can' => ['admin', 'visitador', 'coordinador-lineas', 'jefe-comercial', 'contabilidad', 'jefe-operaciones', 'laboratorio']
+>>>>>>> f76f4ac7a11c11334cc0a0e9b770a16c887d9683
         ],
         [
             'text' => 'Muestras',
@@ -851,16 +884,6 @@ return [
                 ],
             ],
         ],
-        'Chartjs' => [
-            'active' => false,
-            'files' => [
-                [
-                    'type' => 'js',
-                    'asset' => false,
-                    'location' => '//cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.min.js',
-                ],
-            ],
-        ],
         'Sweetalert2' => [
             'active' => true,
             'files' => [
@@ -883,6 +906,61 @@ return [
                     'type' => 'js',
                     'asset' => false,
                     'location' => '//cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/pace.min.js',
+                ],
+            ],
+        ],
+        'Moment' => [
+            'active' => true,
+            'files' => [
+                [
+                    'type' => 'js',
+                    'asset' => false,
+                    'location' => '//cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js',
+                ],
+            ],
+        ],
+        'Chartjs' => [
+            'active' => true,
+            'files' => [
+                [
+                    'type' => 'js',
+                    'asset' => false,
+                    'location' => '//cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
+                ],
+            ],
+        ],
+        'DateRangePicker' => [
+            'active' => true,
+            'files' => [
+                [
+                    'type' => 'css',
+                    'asset' => false,
+                    'location' => '//cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.css',
+                ],
+                [
+                    'type' => 'js',
+                    'asset' => false,
+                    'location' => '//cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.min.js',
+                ],
+            ],
+        ],
+        'DatePicker' => [
+            'active' => true,
+            'files' => [
+                [
+                    'type' => 'css',
+                    'asset' => false,
+                    'location' => '//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css',
+                ],
+                [
+                    'type' => 'js',
+                    'asset' => false,
+                    'location' => '//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js',
+                ],
+                [
+                    'type' => 'js',
+                    'asset' => false,
+                    'location' => '//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.es.min.js',
                 ],
             ],
         ],

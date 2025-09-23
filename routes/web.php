@@ -26,6 +26,9 @@ use App\Http\Controllers\muestras\gerenciaController;
 //Modulo - Reports
 use App\Http\Controllers\ReportsController;
 
+//Modulo - Reports
+use App\Http\Controllers\ReportsController;
+
 use App\Http\Controllers\pedidos\laboratorio\PresentacionFarmaceuticaController;
 use App\Http\Controllers\pedidos\produccion\OrdenesController;
 use App\Http\Controllers\pedidos\reportes\FormatosController;
@@ -49,6 +52,8 @@ use App\Http\Controllers\softlyn\TipoCambioController;
 use App\Http\Controllers\softlyn\MerchandiseController;
 use App\Http\Controllers\softlyn\CompraController;
 use App\Http\Controllers\softlyn\UtilController;
+
+use App\Http\Controllers\ReporteController;
 
 // use App\Http\Middleware\RoleMiddleware;
 
@@ -103,6 +108,23 @@ Route::middleware(['check.permission'])->group(function () {
     Route::put('/cargarpedidos/cargarImagenReceta/{id}',CargarPedidosController::class . '@cargarImagenReceta')->name('cargarpedidos.cargarImagenReceta');
     Route::delete('cargarpedidos/eliminarFotoVoucher/{id}', CargarPedidosController::class . '@eliminarFotoVoucher')->name('cargarpedidos.eliminarFotoVoucher');
     Route::put('/cargarpedidos/actualizarTurno/{id}', CargarPedidosController::class . '@actualizarTurno')->name('cargarpedidos.actualizarTurno');
+
+    // New routes for preview functionality
+    Route::get('/cargarpedidos/preview/changes', CargarPedidosController::class . '@preview')->name('cargarpedidos.preview');
+    Route::post('/cargarpedidos/confirm/changes', CargarPedidosController::class . '@confirmChanges')->name('cargarpedidos.confirm');
+    Route::post('/cargarpedidos/cancel/changes', CargarPedidosController::class . '@cancelChanges')->name('cargarpedidos.cancel');
+
+    // New routes for articles preview functionality
+    Route::get('/cargarpedidos/preview/articulos', CargarPedidosController::class . '@previewArticulos')->name('cargarpedidos.preview-articulos');
+    Route::post('/cargarpedidos/confirm/articulos', CargarPedidosController::class . '@confirmArticulos')->name('cargarpedidos.confirm-articulos');
+    Route::post('/cargarpedidos/cancel/articulos', CargarPedidosController::class . '@cancelArticulos')->name('cargarpedidos.cancel-articulos');
+
+    Route::get('/pedidos/sincronizar', CargarPedidosController::class . '@sincronizarDoctoresPedidos')->name('pedidos.sincronizar');
+    Route::get('/api/doctores/search', CargarPedidosController::class . '@searchDoctores')->name('api.doctores.search');
+
+    // Incluir ruta de prueba
+    require __DIR__ . '/test.php';
+
 
     // New routes for preview functionality
     Route::get('/cargarpedidos/preview/changes', CargarPedidosController::class . '@preview')->name('cargarpedidos.preview');
@@ -215,6 +237,7 @@ Route::middleware(['check.permission'])->group(function () {
     //JEFE COMERCIAL
     Route::resource('categoriadoctor', CategoriaDoctorController::class);
     Route::get('/ventascliente', [PedidosController::class, 'listPedCliente'])->name('pedidosxcliente.listar');
+});
 
     /*
     EN REVISIÓN, REPORTES DE MUESTRAS PARA GERENCIA

@@ -4,7 +4,11 @@ namespace App\Imports;
 
 use App\Imports\BaseImport;
 use App\Models\Doctor;
+<<<<<<< HEAD
 use App\Services\Import\DoctorImportService;
+=======
+use App\Application\Services\Import\DoctorImportService;
+>>>>>>> f76f4ac7a11c11334cc0a0e9b770a16c887d9683
 
 class DoctoresImport extends BaseImport
 {
@@ -82,6 +86,7 @@ class DoctoresImport extends BaseImport
             return;
         }
 
+<<<<<<< HEAD
         /* Verificar si la fila debe ser omitida (filas vacías, etc.)
         if ($this->shouldSkipRow($row, $colMap)) {
             $this->incrementStat('skipped');
@@ -89,6 +94,8 @@ class DoctoresImport extends BaseImport
         }
         */
 
+=======
+>>>>>>> f76f4ac7a11c11334cc0a0e9b770a16c887d9683
         // Validar solo los campos absolutamente requeridos
         $cmp = trim($row[$colMap['CMP']] ?? '');
         

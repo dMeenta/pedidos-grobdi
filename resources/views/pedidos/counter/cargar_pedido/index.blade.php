@@ -27,7 +27,8 @@ $role = auth()->user()->role->name;
     </div>
     <div class="card-body">
         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-            <a class="btn btn-success btn-sm" href="{{ route('cargarpedidos.create') }}"> <i class="fa fa-plus"></i> Cargar datos</a>
+            <a class="btn btn-success btn-sm" href="{{ route('cargarpedidos.create') }}"> <i class="fa fa-plus"></i>
+                Cargar datos</a>
         </div>
         <br>
         <div class="row">
@@ -40,14 +41,18 @@ $role = auth()->user()->role->name;
                         <div class="col-xs-3 col-sm-3 col-md-3">
                             <select name="filtro" class="form-control">
                                 <option value="deliveryDate">Fecha de Entrega</option>
-                                <option value="created_at" {{ request()->query('filtro')=='created_at'?'selected':'' }}>Fecha de Registro</option>
+                                <option value="created_at" {{ request()->query('filtro') == 'created_at' ? 'selected' : '' }}>
+                                    Fecha de Registro</option>
                             </select>
                         </div>
                         <div class="col-xs-4 col-sm-4 col-md-4">
-                            <input class="form-control" type="date" name="fecha" id="fecha" value="{{ request()->query('fecha')?request()->query('fecha'):date('Y-m-d') }}" required>
+                            <input class="form-control" type="date" name="fecha" id="fecha"
+                                value="{{ request()->query('fecha') ? request()->query('fecha') : date('Y-m-d') }}"
+                                required>
                         </div>
                         <div class="col-xs-4 col-sm-4 col-md-4">
-                            <button type="submit" class="btn btn-outline-success"><i class="fa fa-search"></i> Buscar</button>
+                            <button type="submit" class="btn btn-outline-success"><i class="fa fa-search"></i>
+                                Buscar</button>
                         </div>
                     </div>
                 </form>
@@ -73,18 +78,19 @@ $role = auth()->user()->role->name;
                         </div>
                         <div class="col-xs-2 col-sm-2 col-md-2">
                             @if(request()->get('fecha'))
-                            <input type="hidden" value={{ request()->get('fecha') }} name="fecha">
+                                <input type="hidden" value={{ request()->get('fecha') }} name="fecha">
                             @else
-                            <input type="hidden" value={{ date('Y-m-d') }} name="fecha">
+                                <input type="hidden" value={{ date('Y-m-d') }} name="fecha">
                             @endif
-                            <button class="btn btn-outline-primary" type="submit"><i class="fa fa-file-word"></i> Descargar Word</button>
+                            <button class="btn btn-outline-primary" type="submit"><i class="fa fa-file-word"></i>
+                                Descargar Word</button>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
         @error('message')
-        <p style="color: red;">{{ $message }}</p>
+            <p style="color: red;">{{ $message }}</p>
         @enderror
 
         <br>
@@ -158,33 +164,34 @@ $role = auth()->user()->role->name;
                                 <a class="btn btn-danger btn-sm" href="{{ route('cargarpedidos.uploadfile',$arr->id) }}"><i class="fa fa-upload"></i>Carga</a>
                                 <a class="btn btn-info btn-sm" href="{{ route('cargarpedidos.show',$arr->id) }}" target="_blank"><i class="fa fa-eye"></i> Ver</a>
 
-                                <a class="btn btn-primary btn-sm" href="{{ route('cargarpedidos.edit',$arr->id) }}"><i class="fa-pencil"></i> Editar</a>
+                                    <a class="btn btn-primary btn-sm"
+                                        href="{{ route('cargarpedidos.edit', $pedido->id) }}"><i class="fa-pencil"></i>
+                                        Editar</a>
 
-                                @csrf
-                                @method('DELETE')
-
-                                <!-- <button type="submit" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash"></i> Delete</button> -->
-                            </form>
-                        </td>
-                    </tr>
+                                    @csrf
+                                    @method('DELETE')
+                                </form>
+                            </td>
+                        </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
         @if(session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
 
         @endif
         @if(session('danger'))
-        <div class="alert alert-danger">
-            {{ session('danger') }}
-        </div>
+            <div class="alert alert-danger">
+                {{ session('danger') }}
+            </div>
         @endif
     </div>
 </div>
-<div class="modal fade" id="deliveryStatesModal" tabindex="-1" role="dialog" aria-labelledby="deliveryStateModal" aria-hidden="true">
+<div class="modal fade" id="deliveryStatesModal" tabindex="-1" role="dialog" aria-labelledby="deliveryStateModal"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
         <div class="modal-content overflow-hidden">
             <div class="modal-header bg-info">
@@ -198,7 +205,8 @@ $role = auth()->user()->role->name;
         </div>
     </div>
 </div>
-<div class="modal fade" id="deliveryPhotoModal" tabindex="-1" role="dialog" aria-labelledby="deliveryPhotoModalLabel" aria-hidden="true">
+<div class="modal fade" id="deliveryPhotoModal" tabindex="-1" role="dialog" aria-labelledby="deliveryPhotoModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content overflow-hidden">
             <div class="modal-header bg-dark text-white">
@@ -217,7 +225,8 @@ $role = auth()->user()->role->name;
 
 @section('css')
 {{-- Add here extra stylesheets --}}
-{{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
+{{--
+<link rel="stylesheet" href="/css/admin_custom.css"> --}}
 <style type="text/css">
     .observaciones-cell {
         max-width: 300px;
@@ -240,7 +249,7 @@ $role = auth()->user()->role->name;
 @section('js')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         const pedidoId = $(this).data('id');
         const modal = $('#deliveryStatesModal');
         const modalContent = $('#modal-content');
@@ -255,7 +264,7 @@ $role = auth()->user()->role->name;
             ] // Opciones de cantidad
         });
 
-        $(document).on('click', '.btn-show-details', function() {
+        $(document).on('click', '.btn-show-details', function () {
             const imgUrl = $(this).data('img');
             const datetime = $(this).data('datetime');
             const nombre = $(this).data('nombre')
@@ -266,23 +275,23 @@ $role = auth()->user()->role->name;
 
             detailsContent.html(`
             <img src="${imgUrl}" class="img-fluid rounded mb-3" style="max-height:60vh;">
-                ${datetime ? `<p><strong>Fecha y hora:</strong> ${datetime}</p>` : `<p><strong>Nombre del receptor: </strong> ${nombre}</p>` }
+                ${datetime ? `<p><strong>Fecha y hora:</strong> ${datetime}</p>` : `<p><strong>Nombre del receptor: </strong> ${nombre}</p>`}
                 ${lat && lng ? `<a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank">
                         Ver ubicación de la foto
                     </a>` : ''}`);
             $('#deliveryPhotoModal').modal('show');
         });
 
-        $('#detailsDeliveryState').on('click', function() {
+        $('#detailsDeliveryState').on('click', function () {
             $(this).fadeOut();
         });
 
-        $('.btn-show-delivery-states').on('click', function() {
+        $('.btn-show-delivery-states').on('click', function () {
             const pedidoId = $(this).data('id');
             $.ajax({
                 url: `pedido/${pedidoId}/state`,
                 type: 'GET',
-                success: function(response) {
+                success: function (response) {
                     if (!response.success) {
                         toastr.error('No se pudieron cargar los estados del pedido.');
                         return;
@@ -292,6 +301,7 @@ $role = auth()->user()->role->name;
                         <table class="table table-head-fixed text-nowrap">
                             <thead>
                                 <tr class="text-center">
+                                    <th scope="col" rowspan="2" class="align-content-center">Usuario</th>
                                     <th scope="col" rowspan="2" class="align-content-center">Usuario</th>
                                     <th scope="col" rowspan="2" class="align-content-center">Estado del pedido</th>
                                     <th scope="col" rowspan="2" class="align-content-center">Fecha del estado</th>
@@ -305,13 +315,15 @@ $role = auth()->user()->role->name;
                                 </tr>
                             </thead>
                             <tbody class="text-center">
-                                ${response.states.map(estado => 
-                                `
+                                ${response.states.map(estado =>
+                        `
                                 <tr data-id="${estado.id}">
+                                    <td class="align-content-center">${estado.user}</td>
                                     <td class="align-content-center">${estado.user}</td>
                                     <td class="align-content-center">${estado.state.toUpperCase()}</td>
                                     <td class="align-content-center">${estado.created_at_formatted}</td>
                                     <td class="px-2 py-1 observaciones-cell">
+                                        <p class="observaciones-col">${estado.observacion ?? ''}</p>
                                         <p class="observaciones-col">${estado.observacion ?? ''}</p>
                                     </td>
                                     <td class="text-center align-content-center">${estado.foto_domicilio ? `
@@ -352,7 +364,7 @@ $role = auth()->user()->role->name;
                         </div>`}`);
                     modal.modal('show');
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     toastr.error(xhr.responseJSON || 'No se pudieron cargar los estados del pedido.');
                     console.error(xhr.responseJSON);
 
