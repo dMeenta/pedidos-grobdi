@@ -11,13 +11,19 @@
 $role = auth()->user()->role->name;
 @endphp
 
+@php
+$role = auth()->user()->role->name;
+@endphp
+
 @section('content')
 <div class="card mt-2">
     <div class="card-header">
         <div class="d-flex justify-content-between align-items-center">
             <h2 class="mb-0">Pedidos del día: {{ request()->query('fecha')?request()->query('fecha'):date('Y-m-d') }}</h2>
             @if(in_array($role, ['admin', 'Administracion']))
+            @if(in_array($role, ['admin', 'Administracion']))
             <a href="{{ route('export.hojaDeRuta') }}" class="btn btn-outline-success"><i class="fas fa-file-excel mr-1"></i>Descargar Hoja de Ruta del día</a>
+            @endif
             @endif
         </div>
     </div>
@@ -291,6 +297,7 @@ $role = auth()->user()->role->name;
                         <table class="table table-head-fixed text-nowrap">
                             <thead>
                                 <tr class="text-center">
+                                    <th scope="col" rowspan="2" class="align-content-center">Usuario</th>
                                     <th scope="col" rowspan="2" class="align-content-center">Usuario</th>
                                     <th scope="col" rowspan="2" class="align-content-center">Estado del pedido</th>
                                     <th scope="col" rowspan="2" class="align-content-center">Fecha del estado</th>

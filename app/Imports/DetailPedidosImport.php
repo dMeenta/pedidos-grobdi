@@ -2,69 +2,308 @@
 
 namespace App\Imports;
 
+use App\Imports\BaseImport;
 use App\Models\DetailPedidos;
 use App\Models\Pedidos;
-use Carbon\Carbon;
-use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\ToCollection;
+use App\Services\Import\DetailPedidosImportService;
+use Maatwebsite\Excel\Concerns\WithStartRow;
 
-class DetailPedidosImport implements ToCollection
+class DetailPedidosImport extends BaseImport implements WithStartRow
 {
+    protected DetailPedidosImportService $detailService;
+    private array $excelPedidos = []; // NUEVO: Para trackear pedidos del Excel
+    
     /**
-    * @param array $row
-    *
-    * @return \Illuminate\Database\Eloquent\Model|null
-    */
-    public $data;
-    public $key;
-
-    public function collection(Collection $rows)
+     * Constructor de la clase DetailPedidosImport
+     * 
+     * Inicializa la instancia del servicio DetailPedidosImportService
+     * que se utilizará para manejar la lógica de negocio de los detalles de pedidos.
+     */
+    public function __construct()
     {
-        $row_nuevos = 0;
-        $row_no_encontrados = 0;
-        $row_existentes = 0;
-        $mensaje = "";
-        $msj = "DETALLADO DE PEDIDOS EXISTENTES: ";
-        foreach($rows as $row){
-            if($row[16]==="Distrito"){
-                $mensaje = "Formato Incorrecto";
-                $key = "danger";
-                break;
+        $this->detailService = new DetailPedidosImportService();
+    }
+    
+    /**
+     * Define la fila inicial para comenzar el procesamiento
+     * 
+     * Este método indica que el procesamiento debe comenzar desde la fila 2
+     * del archivo Excel para poder leer las cabeceras en la fila 2.
+     * 
+     * @return int El número de fila inicial (2)
+     */
+    public function startRow(): int
+    {
+        return 2; // Comenzar desde la fila 2 para incluir cabeceras
+    }
+    
+    /**
+     * Obtiene el mapeo de columnas por defecto para detalles de pedidos
+     * 
+     * Este método define el mapeo estándar de columnas para archivos Excel
+     * que contienen detalles de pedidos, relacionando índices de columna
+     * con nombres de campos específicos del sistema.
+     * 
+     * @return array Mapeo de columnas con índices y nombres de campos
+     */
+    protected function getDefaultColumnMapping(): array
+    {
+        return [
+            'numero' => 3,            // Columna D: Numero (orderId del pedido)
+            'articulo' => 16,         // Columna Q: Articulo
+            'cantidad' => 17,         // Columna R: Cantidad  
+            'precio_unitario' => 18,  // Columna S: PrecioUnitario
+            'subtotal' => 19,         // Columna T: SubTotal
+        ];
+    }
+
+    /**
+     * Detecta columnas dinámicamente (soporta formatos nuevo A..E y antiguo D/Q/R/S/T)
+     */
+    protected function detectColumns(array $rows): array
+    {
+        // Por defecto, usar el formato NUEVO compacto (A..E => 0..4)
+        $colMap = [
+            'numero' => 0,
+            'articulo' => 1,
+            'cantidad' => 2,
+            'precio_unitario' => 3,
+            'subtotal' => 4,
+        ];
+
+        if (empty($rows)) {
+            return $colMap;
+        }
+
+        // Heuristic: detect OLD format when col[2] says 'PEDIDO' and col[16] has article
+        $maxProbe = min(10, count($rows));
+        for ($i = 0; $i < $maxProbe; $i++) {
+            $row = is_array($rows[$i]) ? $rows[$i] : (array)$rows[$i];
+            // Skip empty rows
+            if (empty(array_filter($row, fn($v) => $v !== null && trim((string)$v) !== ''))) {
+                continue;
             }
-            if($row[2] == "PEDIDO"){
-                $pedido = Pedidos::where('orderId',$row[3])->first();
-                if($pedido){
-                    $pedido_exist = DetailPedidos::select("articulo")->where('pedidos_id',$pedido->id)->where('articulo',$row[16])->where('cantidad',$row[17])->first();
-                    if(empty($pedido_exist)){
-                        $detallePedido = new DetailPedidos();
-                        $detallePedido->pedidos_id = $pedido->id;
-                        $detallePedido->articulo = $row[16];
-                        $detallePedido->cantidad = $row[17];
-                        $detallePedido->unit_prize = $row[18];
-                        $detallePedido->sub_total = $row[19];
-                        $detallePedido->created_at = Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[21]))->format('Y-m-d H:i:s');
-                        $detallePedido->save();
-                        ++$row_nuevos;
-                    }else{
-                        $msj = $msj.'Pedido: '.$row[3].' '.$row[16].' cantidad:'.$row[17]."\n";
-                        ++$row_existentes;
+            $col2 = isset($row[2]) ? strtoupper(trim((string)$row[2])) : '';
+            $hasOldArticleCol = array_key_exists(16, $row) && trim((string)($row[16] ?? '')) !== '';
+            if ($col2 === 'PEDIDO' && $hasOldArticleCol) {
+                // Old format (D/Q/R/S/T)
+                return [
+                    'numero' => 3,
+                    'articulo' => 16,
+                    'cantidad' => 17,
+                    'precio_unitario' => 18,
+                    'subtotal' => 19,
+                ];
+            }
+        }
+
+        // Intentar mapear por nombres de encabezado en la primera fila (índice 0, que es la fila 2 de Excel)
+        if (isset($rows[0]) && is_array($rows[0])) {
+            $headers = array_map(fn($v) => is_string($v) ? strtolower(trim($v)) : $v, $rows[0]);
+            $aliases = [
+                'numero' => ['numero', 'número', 'pedido', 'nro', 'nro pedido'],
+                'articulo' => ['articulo', 'artículo', 'producto', 'item'],
+                'cantidad' => ['cantidad', 'cant'],
+                'precio_unitario' => ['preciounitario', 'precio unitario', 'precio', 'p. unitario'],
+                'subtotal' => ['subtotal', 'sub total', 'total linea', 'total línea'],
+            ];
+            foreach ($aliases as $key => $names) {
+                foreach ($headers as $idx => $label) {
+                    if (is_string($label) && in_array($label, $names, true)) {
+                        $colMap[$key] = (int)$idx;
+                        break;
                     }
-                }else{
-                    ++$row_no_encontrados;
                 }
-                $key = "success";
             }
         }
-        if($row_no_encontrados>0){
-            $key = "warning";
+
+        return $colMap;
+    }
+    
+    /**
+     * Procesa una fila individual de detalles de pedido
+     * 
+     * Este método procesa cada fila del archivo Excel, valida los datos,
+     * busca el pedido correspondiente y crea o actualiza el detalle de pedido.
+     * Maneja casos especiales como pedidos preparados que no deben modificarse.
+     * 
+     * @param array $row La fila de datos a procesar
+     * @param int $index El índice de la fila en el archivo
+     * @param array $colMap El mapeo de columnas detectado
+     * @return void
+     */
+    protected function processRow(array $row, int $index, array $colMap): void
+    {
+        // Omitir la fila de encabezado (índice 0 = fila 2 en Excel)
+        if ($index < 1) {
+            $this->incrementStat('skipped');
+            return;
         }
-        if($mensaje =="Formato Incorrecto"){
-            $rpta = $mensaje;
-            $key = "danger";
-        }else{
-            $rpta = 'Articulos registrados: '.$row_nuevos."\n".'Articulos Existentes: '.$row_existentes."\n".'Articulos no encontrados: '.$row_no_encontrados."\n".' No fueron registrados estos productos, ya fueron registrados con la misma cantidad: '.$msj;
+        // Skip header rows
+    $numeroRaw = isset($row[$colMap['numero']]) ? strtolower(trim((string)$row[$colMap['numero']])) : '';
+        if ($numeroRaw === 'numero' || $numeroRaw === 'número' || $numeroRaw === 'pedido') {
+            $this->incrementStat('skipped');
+            return;
         }
-        $this->data= $rpta;
-        $this->key = $key;
+        
+        $pedidoId = trim((string)($row[$colMap['numero']] ?? ''));
+        $articulo = trim((string)($row[$colMap['articulo']] ?? ''));
+        $cantidad = (float)($row[$colMap['cantidad']] ?? 0);
+        $precioUnitario = isset($colMap['precio_unitario']) ? round((float)($row[$colMap['precio_unitario']] ?? 0), 2) : 0.0;
+        $subtotal = isset($colMap['subtotal']) ? round((float)($row[$colMap['subtotal']] ?? 0), 2) : 0.0;
+        if ($subtotal === 0.0 && $cantidad > 0 && $precioUnitario > 0) {
+            $subtotal = round($cantidad * $precioUnitario, 2);
+        }
+        
+        // Omitir si faltan datos esenciales
+        if (empty($pedidoId) || empty($articulo)) {
+            $this->incrementStat('errors');
+            return;
+        }
+        
+        // NUEVO: Trackear artículos del Excel para posterior eliminación
+        $this->trackExcelArticle($pedidoId, $articulo, $cantidad, $precioUnitario);
+        
+        try {
+            // Buscar el pedido
+            $pedido = $this->detailService->findPedido($pedidoId);
+            if (!$pedido) {
+                $this->incrementStat('errors');
+                return;
+            }
+            
+            // Omitir si el pedido ya está preparado (productionStatus = 2)
+            if ($pedido->productionStatus == 2) {
+                $this->incrementStat('skipped');
+                return;
+            }
+            
+            // Verificar si el detalle ya existe usando pedidos_id (no pedido_id)
+            // Regla: solo omitir si ya existe un detalle con el MISMO artículo + cantidad + precio.
+            // Si alguno de estos difiere, crear un NUEVO detalle (NO actualizar el existente).
+            $newUnit = round((float)$precioUnitario, 2);
+            $newSub = round((float)$subtotal, 2);
+
+            $exactExists = DetailPedidos::where('pedidos_id', $pedido->id)
+                ->whereRaw('UPPER(TRIM(articulo)) = UPPER(TRIM(?))', [$articulo])
+                ->where('cantidad', $cantidad)
+                ->whereRaw('ROUND(unit_prize, 2) = ?', [$newUnit])
+                ->exists();
+
+            if ($exactExists) {
+                // La misma línea exacta ya existe -> omitir
+                $this->incrementStat('skipped');
+                return;
+            }
+
+            // Crear nuevo detalle (difiere cantidad o precio o no existe)
+            $detailData = [
+                'pedidos_id' => $pedido->id,  // Nota: usando pedidos_id según el esquema existente
+                'articulo' => $articulo,
+                'cantidad' => $cantidad,
+                'unit_prize' => $newUnit,
+                'sub_total' => $newSub,
+            ];
+            
+            $this->detailService->createDetailWithCorrectSchema($detailData);
+            
+            $this->incrementStat('created');
+            
+        } catch (\Exception $e) {
+            $this->incrementStat('errors');
+            // El error se registra automáticamente por el framework
+        }
+    }
+    
+    /**
+     * NUEVO: Trackea artículos del Excel para posterior eliminación
+     * 
+     * Este método registra los artículos que aparecen en el Excel para después
+     * poder determinar cuáles existen en BD pero no en Excel y eliminarlos.
+     * 
+     * @param string $pedidoId ID del pedido
+     * @param string $articulo Nombre del artículo
+     * @param float $cantidad Cantidad del artículo
+     * @param float $precioUnitario Precio unitario del artículo
+     * @return void
+     */
+    private function trackExcelArticle(string $pedidoId, string $articulo, float $cantidad, float $precioUnitario): void
+    {
+        $pedidoKey = strtoupper(trim($pedidoId));
+        
+        if (!isset($this->excelPedidos[$pedidoKey])) {
+            $this->excelPedidos[$pedidoKey] = [];
+        }
+        
+        // Crear clave única para el artículo (artículo + cantidad + precio)
+        $articleKey = strtoupper(trim($articulo)) . '|' . $cantidad . '|' . round($precioUnitario, 2);
+        
+        $this->excelPedidos[$pedidoKey][$articleKey] = [
+            'articulo' => $articulo,
+            'cantidad' => $cantidad,
+            'unit_prize' => round($precioUnitario, 2),
+        ];
+    }
+    
+    /**
+     * NUEVO: Sobrescribe el método de finalización para eliminar artículos
+     * 
+     * Este método se ejecuta al final del procesamiento de importación
+     * y elimina los artículos que existen en BD pero no en el Excel.
+     * 
+     * @return void
+     */
+    protected function finalizeImport(): void
+    {
+        $this->deleteArticlesNotInExcel();
+        parent::finalizeImport();
+    }
+    
+    /**
+     * NUEVO: Elimina artículos que no están en el Excel
+     * 
+     * Para cada pedido procesado, compara los artículos actuales en BD
+     * con los del Excel y elimina los que no aparecen en el nuevo archivo.
+     * 
+     * @return void
+     */
+    private function deleteArticlesNotInExcel(): void
+    {
+        $deletedCount = 0;
+        
+        foreach ($this->excelPedidos as $pedidoKey => $excelArticles) {
+            // Buscar el pedido en BD
+            $pedido = $this->detailService->findPedido($pedidoKey);
+            
+            if (!$pedido) {
+                continue; // Ya se maneja en not_found
+            }
+            
+            // Omitir pedidos preparados
+            if ($pedido->productionStatus === 2) {
+                continue; // Ya se maneja en prepared_orders
+            }
+            
+            // Obtener todos los artículos actuales de este pedido en BD
+            $currentArticles = DetailPedidos::where('pedidos_id', $pedido->id)->get();
+            
+            foreach ($currentArticles as $currentArticle) {
+                // Crear clave única para comparar con Excel
+                $currentKey = strtoupper(trim($currentArticle->articulo)) . '|' . 
+                             $currentArticle->cantidad . '|' . 
+                             round((float)$currentArticle->unit_prize, 2);
+                
+                // Si este artículo NO está en el Excel, eliminarlo
+                if (!isset($excelArticles[$currentKey])) {
+                    $currentArticle->delete();
+                    $deletedCount++;
+                }
+            }
+        }
+        
+        // Actualizar estadísticas si se implementan contadores para eliminaciones
+        if (isset($this->stats['deleted'])) {
+            $this->stats['deleted'] = $deletedCount;
+        }
     }
 }

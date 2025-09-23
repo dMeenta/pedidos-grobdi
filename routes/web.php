@@ -23,6 +23,9 @@ use App\Http\Controllers\rutas\mantenimiento\EspecialidadController;
 use App\Http\Controllers\muestras\MuestrasController;
 use App\Http\Controllers\muestras\gerenciaController;
 
+//Modulo - Reports
+use App\Http\Controllers\ReportsController;
+
 use App\Http\Controllers\pedidos\laboratorio\PresentacionFarmaceuticaController;
 use App\Http\Controllers\pedidos\produccion\OrdenesController;
 use App\Http\Controllers\pedidos\reportes\FormatosController;
@@ -100,6 +103,23 @@ Route::middleware(['check.permission'])->group(function () {
     Route::put('/cargarpedidos/cargarImagenReceta/{id}',CargarPedidosController::class . '@cargarImagenReceta')->name('cargarpedidos.cargarImagenReceta');
     Route::delete('cargarpedidos/eliminarFotoVoucher/{id}', CargarPedidosController::class . '@eliminarFotoVoucher')->name('cargarpedidos.eliminarFotoVoucher');
     Route::put('/cargarpedidos/actualizarTurno/{id}', CargarPedidosController::class . '@actualizarTurno')->name('cargarpedidos.actualizarTurno');
+
+    // New routes for preview functionality
+    Route::get('/cargarpedidos/preview/changes', CargarPedidosController::class . '@preview')->name('cargarpedidos.preview');
+    Route::post('/cargarpedidos/confirm/changes', CargarPedidosController::class . '@confirmChanges')->name('cargarpedidos.confirm');
+    Route::post('/cargarpedidos/cancel/changes', CargarPedidosController::class . '@cancelChanges')->name('cargarpedidos.cancel');
+
+    // New routes for articles preview functionality
+    Route::get('/cargarpedidos/preview/articulos', CargarPedidosController::class . '@previewArticulos')->name('cargarpedidos.preview-articulos');
+    Route::post('/cargarpedidos/confirm/articulos', CargarPedidosController::class . '@confirmArticulos')->name('cargarpedidos.confirm-articulos');
+    Route::post('/cargarpedidos/cancel/articulos', CargarPedidosController::class . '@cancelArticulos')->name('cargarpedidos.cancel-articulos');
+
+    Route::get('/pedidos/sincronizar', CargarPedidosController::class . '@sincronizarDoctoresPedidos')->name('pedidos.sincronizar');
+    Route::get('/api/doctores/search', CargarPedidosController::class . '@searchDoctores')->name('api.doctores.search');
+
+    // Incluir ruta de prueba
+    require __DIR__ . '/test.php';
+
     Route::resource('asignarpedidos', AsignarPedidoController::class);
     Route::post('/cargarpedidos/downloadWord', CargarPedidosController::class . '@downloadWord')->name('cargarpedidos.downloadWord');
     //counter - jefe de operaciones -laboratorio
@@ -173,6 +193,7 @@ Route::middleware(['check.permission'])->group(function () {
 
     Route::get('/pedidoslaboratorio/{fecha}/downloadWord/{turno}', PedidoslabController::class . '@downloadWord')
         ->name('pedidoslaboratorio.downloadWord');
+    Route::post('/pedidoslaboratorio/cambio-masivo', [PedidoslabController::class, 'cambioMasivo'])->name('pedidoslaboratorio.cambioMasivo');
     Route::get('/pedidoslaboratoriodetalles', [PedidoslabController::class, 'pedidosDetalles'])->name('pedidosLaboratorio.detalles');
     Route::put('pedidoslaboratoriodetalles/asignar/{id}/', [PedidoslabController::class, 'asignarTecnicoProd'])->name('pedidosLaboratorio.asignarTecnicoProd');
     Route::post('/pedidoslaboratoriodetalles/asignarmultiple', [PedidoslabController::class, 'asignarmultipletecnico'])->name('pedidosLaboratorio.asignarmultipletecnico');

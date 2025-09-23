@@ -3,10 +3,11 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Domain\Reports\Doctor\DoctorReportRepositoryInterface;
+use App\Domain\Reports\Doctor\DoctorReportRepository;
 use App\Models\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use JeroenNoten\LaravelAdminLte\Events\BuildingMenu;
 use Illuminate\Support\Facades\Schema;
@@ -19,6 +20,10 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         //
+        $this->app->bind(
+            DoctorReportRepositoryInterface::class,
+            DoctorReportRepository::class
+        );
     }
 
     /**

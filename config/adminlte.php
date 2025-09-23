@@ -329,6 +329,24 @@ return [
         //     'label_color' => 'success',
         // ],
         [
+            'text' => 'Reportes Visitadoras Prueba',
+            'url' => 'reports/visitadoras',
+            'icon' => 'fas fa-briefcase',
+            'can' => ['admin']
+        ],
+        [
+            'text' => 'Reportes Ventas Prueba',
+            'url' => 'reports/ventas',
+            'icon' => 'fas fa-briefcase',
+            'can' => ['admin']
+        ],
+        [
+            'text' => 'Reportes Ventas DOCTORES',
+            'url' => 'reports/doctores',
+            'icon' => 'fas fa-briefcase',
+            'can' => ['admin']
+        ],
+        [
             'text' => 'Muestras',
             'url' => 'muestras',
             'icon' => 'fas fa-pump-medical',

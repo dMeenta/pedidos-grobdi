@@ -1,66 +1,614 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🏥 GROBDI - Sistema de Gestión de Pedidos Magistrales
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+<div align="center">
 
-## About Laravel
+[![Laravel](https://img.shields.io/badge/Laravel-11.31-red?style=flat-square&logo=laravel)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.2+-blue?style=flat-square&logo=php)](https://php.net)
+[![AdminLTE](https://img.shields.io/badge/AdminLTE-3.14-green?style=flat-square)](https://adminlte.io)
+[![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+*Plataforma integral para la gestión de pedidos magistrales con módulos especializados para cada etapa del proceso*
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+</div>
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 📋 Tabla de Contenidos
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- [🎯 Descripción General](#-descripción-general)
+- [⚡ Características Principales](#-características-principales)
+- [🏗️ Arquitectura del Sistema](#️-arquitectura-del-sistema)
+- [🚀 Instalación y Configuración](#-instalación-y-configuración)
+- [📦 Módulos del Sistema](#-módulos-del-sistema)
+- [🗄️ Base de Datos](#️-base-de-datos)
+- [🛣️ Rutas Principales](#️-rutas-principales)
+- [🔧 Tecnologías y Dependencias](#-tecnologías-y-dependencias)
+- [📊 Formatos de Importación](#-formatos-de-importación)
+- [🔒 Seguridad y Roles](#-seguridad-y-roles)
+- [⚙️ Comandos de Desarrollo](#️-comandos-de-desarrollo)
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 🎯 Descripción General
 
-## Laravel Sponsors
+**GROBDI** es una plataforma robusta desarrollada en Laravel que gestiona de manera integral el ciclo completo de pedidos magistrales, desde la captura inicial hasta la entrega final. El sistema incluye módulos especializados para laboratorio, producción, despacho motorizado, contabilidad, gestión de rutas, muestras médicas y un completo ERP con funcionalidades de compras, inventario y control de stock.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 🌟 Beneficios Clave
+- ✅ **Trazabilidad completa** del pedido desde origen hasta entrega
+- ✅ **Automatización** de procesos operativos críticos
+- ✅ **Control de inventario** en tiempo real
+- ✅ **Gestión de rutas** optimizada para visitadoras médicas
+- ✅ **Reportería avanzada** para toma de decisiones
+- ✅ **Interfaz responsive** y amigable para diferentes dispositivos
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+## ⚡ Características Principales
 
-## Contributing
+<div align="center">
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+| 🎯 **Captura de Pedidos** | 🧪 **Laboratorio** | 🏭 **Producción** | 🏍️ **Motorizado** |
+|:------------------------:|:------------------:|:-----------------:|:------------------:|
+| Importación Excel masiva | Control de turnos | Asignación técnicos | Gestión de entregas |
+| Validación automática | Hojas de ruta | Firmas digitales | Fotos de evidencia |
+| Gestión de vouchers | Estados de producción | Control de calidad | Geolocalización |
 
-## Code of Conduct
+| 💰 **Contabilidad** | 🗺️ **Rutas/Visitadoras** | 🧪 **Muestras** | 📊 **ERP/Softlyn** |
+|:------------------:|:-------------------------:|:----------------:|:-------------------:|
+| Conciliación bancaria | Enrutamiento inteligente | Flujo de aprobación | Control de compras |
+| Exportación Excel | Calendario de visitas | Estados de elaboración | Gestión de stock |
+| Control de pagos | Gestión de doctores | Reportes gerenciales | Tipo de cambio |
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+</div>
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 🏗️ Arquitectura del Sistema
 
-## License
+```
+📁 pedidos-grobdi/
+├── 📁 app/
+│   ├── 📁 Http/Controllers/
+│   │   ├── 📁 pedidos/          # Controladores de pedidos
+│   │   ├── 📁 rutas/           # Gestión de rutas y visitadoras
+│   │   ├── 📁 muestras/        # Módulo de muestras médicas
+│   │   ├── 📁 softlyn/         # ERP y gestión de inventario
+│   │   └── 📁 ajustes/         # Configuraciones del sistema
+│   ├── 📁 Models/              # Modelos Eloquent
+│   ├── 📁 Imports/             # Importadores Excel
+│   └── 📁 Events/              # Eventos del sistema
+├── 📁 resources/views/         # Vistas Blade por módulo
+├── 📁 routes/                  # Definición de rutas
+├── 📁 database/migrations/     # Esquemas de base de datos
+└── 📁 public/                  # Assets públicos y uploads
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 🎨 Stack Tecnológico
+- **Backend**: Laravel 11.31 + PHP 8.2+
+- **Frontend**: AdminLTE 3.14 + Bootstrap 5 + Tailwind CSS
+- **Base de Datos**: MySQL/MariaDB
+- **Tiempo Real**: Laravel Echo + Pusher
+- **Procesamiento**: Excel (Maatwebsite), Word (PhpOffice), PDF (DomPDF)
+
+---
+
+## 🚀 Instalación y Configuración
+
+### 📋 Requisitos Previos
+- PHP 8.2 o superior
+- Composer
+- Node.js y npm
+- MySQL/MariaDB
+- Extensiones PHP: GD, BCMath, Ctype, Fileinfo, JSON, Mbstring, OpenSSL, PDO, Tokenizer, XML
+
+### ⚙️ Pasos de Instalación
+
+```bash
+# 1️⃣ Clonar el repositorio
+git clone https://github.com/tu-usuario/pedidos-grobdi.git
+cd pedidos-grobdi
+
+# 2️⃣ Instalar dependencias PHP
+composer install
+
+# 3️⃣ Instalar dependencias Node.js
+npm install
+
+# 4️⃣ Configurar entorno
+cp .env.example .env
+php artisan key:generate
+
+# 5️⃣ Configurar base de datos en .env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=grobdi
+DB_USERNAME=tu_usuario
+DB_PASSWORD=tu_contraseña
+
+# 6️⃣ Ejecutar migraciones
+php artisan migrate
+
+# 7️⃣ Crear enlace simbólico para storage
+php artisan storage:link
+
+# 8️⃣ Compilar assets
+npm run build
+
+# 9️⃣ Iniciar servidor de desarrollo
+php artisan serve
+```
+
+### 🔧 Configuración Adicional
+
+<details>
+<summary><strong>📡 Broadcasting (Pusher)</strong></summary>
+
+```env
+BROADCAST_DRIVER=pusher
+PUSHER_APP_ID=tu_app_id
+PUSHER_APP_KEY=tu_app_key
+PUSHER_APP_SECRET=tu_app_secret
+PUSHER_APP_CLUSTER=mt1
+```
+</details>
+
+<details>
+<summary><strong>📧 Configuración de Email</strong></summary>
+
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=tu_email
+MAIL_PASSWORD=tu_contraseña
+MAIL_ENCRYPTION=tls
+```
+</details>
+
+---
+
+## 📦 Módulos del Sistema
+
+### 🎯 Counter (Captura/Asignación)
+> **Rol**: `counter`, `admin`, `Administracion`
+
+<details>
+<summary><strong>📋 Funcionalidades</strong></summary>
+
+- ✅ **Importación masiva Excel** de pedidos y detalles
+- ✅ **Gestión de vouchers** con validación de imágenes
+- ✅ **Sincronización automática** de doctores
+- ✅ **Asignación de zonas** por distrito
+- ✅ **Control de numeración** secuencial por fecha
+- ✅ **Reprogramación** con recálculo automático
+- ✅ **Exportación Word** para laboratorio
+
+**Estados manejados**:
+- `paymentStatus`: PENDIENTE → PAGADO
+- `productionStatus`: 0 → 1
+- `deliveryStatus`: Pendiente → Reprogramado → Entregado
+
+</details>
+
+### 🧪 Laboratorio
+> **Rol**: `laboratorio`, `admin`
+
+<details>
+<summary><strong>🔬 Funcionalidades</strong></summary>
+
+- ✅ **Vista por fecha y turno** con filtros avanzados
+- ✅ **Control de estados de producción** por pedido
+- ✅ **Asignación de técnicos** individual y masiva
+- ✅ **Parsing inteligente** de presentaciones e ingredientes
+- ✅ **Hojas de ruta** exportables a Word
+- ✅ **Seguimiento detallado** por artículo
+
+</details>
+
+### 🏭 Producción (Técnico)
+> **Rol**: `tecnico_produccion`, `admin`
+
+<details>
+<summary><strong>⚡ Funcionalidades</strong></summary>
+
+- ✅ **Vista personalizada** por técnico asignado
+- ✅ **Firma digital** para confirmación de elaboración
+- ✅ **Estados de producción** en tiempo real
+- ✅ **Filtros por fecha** de entrega
+- ✅ **Exclusión automática** de productos no elaborables
+
+</details>
+
+### 🏍️ Motorizado
+> **Rol**: `motorizado`, `admin`
+
+<details>
+<summary><strong>🚚 Funcionalidades</strong></summary>
+
+- ✅ **Gestión por zonas** asignadas al motorizado
+- ✅ **Estados de entrega** con seguimiento completo
+- ✅ **Fotografías de evidencia** (domicilio y entrega)
+- ✅ **Procesamiento automático** de imágenes
+- ✅ **Notificaciones en tiempo real** via Pusher
+- ✅ **Geolocalización** y timestamps automáticos
+
+</details>
+
+### 💰 Contabilidad
+> **Rol**: `contabilidad`, `admin`
+
+<details>
+<summary><strong>📊 Funcionalidades</strong></summary>
+
+- ✅ **Filtros por rango de fechas** y estados
+- ✅ **Actualización AJAX** de estados contables
+- ✅ **Gestión de bancos destino** por pedido
+- ✅ **Exportación Excel** de arqueos
+- ✅ **Conciliación bancaria** automática
+
+</details>
+
+### 🗺️ Rutas/Visitadoras
+> **Rol**: `supervisor`, `visitador`, `admin`
+
+<details>
+<summary><strong>🎯 Funcionalidades</strong></summary>
+
+**Mantenimiento**:
+- ✅ Centros de Salud
+- ✅ Especialidades médicas
+- ✅ Base de datos de doctores
+- ✅ Categorización profesional
+
+**Enrutamiento**:
+- ✅ **Creación de rutas** optimizadas
+- ✅ **Asignación por distritos** automática
+- ✅ **Aprobación de nuevos doctores** en el sistema
+- ✅ **Calendario de visitadoras** con estados completos
+
+</details>
+
+### 🧪 Muestras Médicas
+> **Rol**: `visitador`, `jefe-comercial`, `coordinador-lineas`, `laboratorio`, `gerencia-general`, `admin`
+
+<details>
+<summary><strong>🔄 Flujo de Trabajo</strong></summary>
+
+1. **Visitadora** → Crea solicitud con evidencia
+2. **Jefe Comercial** → Confirma la solicitud
+3. **Coordinadora** → Aprueba/Rechaza, ajusta fecha/comentarios
+4. **Laboratorio** → Cambia estado a Elaborado, añade comentarios
+5. **Gerencia** → Accede a reportes PDF completos
+
+**Estados**: `Pendiente` → `Confirmado` → `Aprobado` → `Elaborado`
+
+</details>
+
+### 📊 ERP/Softlyn
+> **Rol**: `Administracion`, `admin`
+
+<details>
+<summary><strong>💼 Funcionalidades Empresariales</strong></summary>
+
+**Gestión de Compras**:
+- ✅ **Registro con proveedores** y validación de duplicados
+- ✅ **Manejo multi-moneda** con tipo de cambio automático
+- ✅ **Cálculo de IGV** y totales
+
+**Guías de Ingreso**:
+- ✅ **Selección de compras** via AJAX
+- ✅ **Validación anti sobre-ingreso**
+- ✅ **Gestión de lotes** con trazabilidad
+- ✅ **Actualización automática** de stock
+
+**Control de Inventario**:
+- ✅ **Stock en tiempo real** por artículo
+- ✅ **Transacciones reversibles** con integridad
+- ✅ **Histórico completo** de movimientos
+
+</details>
+
+---
+
+## 🗄️ Base de Datos
+
+### 📊 Modelos Principales
+
+<details>
+<summary><strong>🎯 Pedidos</strong></summary>
+
+```sql
+-- Campos principales
+- orderId (único)
+- nroOrder (secuencial por fecha)
+- deliveryDate, turno (0/1)
+- zone_id, user_id
+
+-- Cliente/Doctor
+- customerName, customerNumber
+- doctorName
+
+-- Dirección
+- address, reference, district
+
+-- Estados
+- paymentStatus (PENDIENTE/PAGADO)
+- productionStatus (0/1)
+- deliveryStatus (Pendiente/Reprogramado/Entregado)
+- accountingStatus (0/1)
+
+-- Evidencias
+- voucher, receta
+- fotoDomicilio, fotoEntrega
+- fechaFoto* (timestamps)
+
+-- Pago
+- paymentMethod, operationNumber
+- bancoDestino
+```
+
+**Relaciones**: `detailpedidos` (hasMany), `user` (belongsTo), `zone` (belongsTo)
+
+</details>
+
+<details>
+<summary><strong>🧪 DetailPedidos</strong></summary>
+
+```sql
+- pedidos_id (FK)
+- articulo, cantidad
+- precios parciales
+- estado_produccion (0/1)
+- usuario_produccion_id (FK)
+```
+
+</details>
+
+<details>
+<summary><strong>💰 Sistema ERP</strong></summary>
+
+```sql
+-- Compras
+Compra -> DetalleCompra (artículo, cantidad, precio, moneda/TC)
+
+-- Inventario  
+GuiaIngreso -> DetalleGuiaIngreso -> Lote -> Articulo.stock
+
+-- Finanzas
+TipoCambio (valores compra/venta, fecha) -> TipoMoneda
+```
+
+</details>
+
+---
+
+## 🛣️ Rutas Principales
+
+<div align="center">
+
+| 🎯 **Módulo** | 🔗 **Ruta Base** | 📋 **Rutas Específicas** |
+|:-------------:|:----------------:|:------------------------:|
+| **Counter** | `cargarpedidos.*` | `downloadWord`, `sincronizar` |
+| **Laboratorio** | `pedidoslaboratorio.*` | `detalles`, `asignarTecnicoProd` |
+| **Producción** | `produccion.index` | `actualizarEstado` |
+| **Motorizado** | `pedidosmotorizado.*` | `cargarfotos` |
+| **Contabilidad** | `pedidoscontabilidad.*` | `downloadExcel` |
+| **Rutas** | `enrutamiento.*` | `rutasvisitadora.*` |
+| **Muestras** | `muestras.*` | Por rol específico |
+| **ERP** | `compras.*`, `guia_ingreso.*` | `tipo_cambio.*` |
+
+</div>
+
+---
+
+## 🔧 Tecnologías y Dependencias
+
+### 🐘 Backend (PHP/Composer)
+
+<details>
+<summary><strong>📦 Dependencias Principales</strong></summary>
+
+```json
+{
+  "laravel/framework": "^11.31",
+  "php": "^8.2",
+  "jeroennoten/laravel-adminlte": "^3.14",
+  "maatwebsite/excel": "^3.1",
+  "phpoffice/phpword": "^1.3",
+  "barryvdh/laravel-dompdf": "^3.1",
+  "intervention/image-laravel": "^1.5",
+  "pusher/pusher-php-server": "^7.2"
+}
+```
+
+**Características**:
+- 🔒 **Laravel Sanctum** para autenticación API
+- 📊 **AdminLTE** como tema principal
+- 📈 **Excel Import/Export** con validaciones
+- 📝 **Generación Word/PDF** automática
+- 🖼️ **Procesamiento de imágenes** optimizado
+- ⚡ **Broadcasting en tiempo real**
+
+</details>
+
+### 🎨 Frontend (JavaScript/CSS)
+
+<details>
+<summary><strong>🎯 Stack Frontend</strong></summary>
+
+```json
+{
+  "vite": "^6.0.11",
+  "laravel-vite-plugin": "^1.2.0",
+  "tailwindcss": "^3.4.13",
+  "bootstrap": "^5.2.3",
+  "laravel-echo": "^2.2.0",
+  "pusher-js": "^8.4.0",
+  "axios": "^1.7.4"
+}
+```
+
+**Funcionalidades**:
+- ⚡ **Vite** para compilación rápida
+- 🎨 **Tailwind CSS** + **Bootstrap** hybrid
+- 📡 **Laravel Echo** para tiempo real
+- 📊 **Axios** para peticiones AJAX
+- 📱 **Responsive Design** completo
+
+</details>
+
+---
+
+## 📊 Formatos de Importación
+
+### 📋 Pedidos Excel
+
+<details>
+<summary><strong>🎯 Estructura de Importación</strong></summary>
+
+**Validación**: `row[2] == "PEDIDO"` y `row[16] !== "Articulo"`
+
+| **Campo** | **Columna** | **Descripción** |
+|:----------|:------------|:----------------|
+| `orderId` | row[3] | Identificador único del pedido |
+| `customerName` | row[4] | Nombre del cliente |
+| `customerNumber` | row[5] | Número de cliente |
+| `prize` | row[8] | Precio total |
+| `paymentMethod` | row[10] | Método de pago |
+| `deliveryDate` | row[13] | Fecha de entrega (Excel date) |
+| `doctorName` | row[15] | Nombre del doctor |
+| `district` | row[16] | Distrito de entrega |
+| `address` | row[17] | Dirección completa |
+
+**Estados automáticos**:
+- `paymentStatus` = 'PENDIENTE'
+- `deliveryStatus` = 'Pendiente'  
+- `turno` = 0
+- `nroOrder` = secuencial por fecha
+
+</details>
+
+### 📦 Detalle Pedidos Excel
+
+<details>
+<summary><strong>🧪 Estructura de Detalles</strong></summary>
+
+| **Campo** | **Columna** | **Descripción** |
+|:----------|:------------|:----------------|
+| `orderId` | row[3] | Vinculación con pedido principal |
+| `articulo` | row[16] | Nombre del artículo/medicamento |
+| `cantidad` | row[17] | Cantidad solicitada |
+| `unit_prize` | row[18] | Precio unitario |
+| `sub_total` | row[19] | Subtotal calculado |
+
+</details>
+
+---
+
+## 🔒 Seguridad y Roles
+
+### 👥 Sistema de Roles
+
+<div align="center">
+
+| 🎭 **Rol** | 📋 **Módulos de Acceso** | 🔐 **Permisos** |
+|:-----------|:-------------------------|:-----------------|
+| `counter` | Captura de Pedidos | Crear, editar, sincronizar |
+| `laboratorio` | Laboratorio | Ver, asignar técnicos, exportar |
+| `tecnico_produccion` | Producción | Ver asignados, firmar |
+| `motorizado` | Entregas | Ver zona, actualizar estado |
+| `contabilidad` | Contabilidad | Conciliar, exportar |
+| `supervisor` | Rutas/Mantenimiento | CRUD maestros |
+| `visitador` | Rutas/Muestras | Ejecutar visitas |
+| `jefe-comercial` | Muestras | Confirmar solicitudes |
+| `coordinador-lineas` | Muestras | Aprobar/rechazar |
+| `gerencia-general` | Reportes | Acceso completo |
+| `Administracion` | ERP/Softlyn | Compras, inventario |
+| `admin` | **TODOS** | Acceso total |
+
+</div>
+
+### 🛡️ Medidas de Seguridad
+
+- ✅ **Middleware checkRole** por módulo
+- ✅ **Validación de inputs** con Form Requests
+- ✅ **Sanitización de archivos** subidos
+- ✅ **Límites de tamaño** para imágenes
+- ✅ **Transacciones** para integridad de datos
+- ✅ **Logs de auditoría** automáticos
+
+### 📁 Validaciones de Archivos
+
+<details>
+<summary><strong>📸 Límites por Módulo</strong></summary>
+
+**Counter**:
+- Voucher: `jpeg,png,jpg,gif|max:3048KB`
+- Receta: `jpeg,png,jpg,gif,webp|max:2048KB` (múltiple)
+
+**Motorizado**:
+- Fotos: Procesadas automáticamente a 800x700px
+- Formatos: JPEG optimizado con calidad 85%
+
+**Muestras**:
+- Evidencia: `jpeg,png,jpg,gif|max:2048KB`
+
+</details>
+
+---
+
+## ⚙️ Comandos de Desarrollo
+
+### 🚀 Comandos Rápidos
+
+```bash
+# 🔥 Desarrollo completo (servidor + cola + assets)
+composer run dev
+
+# 🌐 Solo servidor web
+php artisan serve
+
+# 📡 Cola de trabajos
+php artisan queue:listen --tries=1
+
+# 🎨 Assets en desarrollo (watch)
+npm run dev
+
+# 📦 Build para producción
+npm run build
+
+# 🔍 Linter de código
+./vendor/bin/pint
+
+# 🧪 Ejecutar tests
+php artisan test
+```
+
+### 🛠️ Comandos de Mantenimiento
+
+<details>
+<summary><strong>⚡ Comandos Útiles</strong></summary>
+
+```bash
+# 🗄️ Base de datos
+php artisan migrate --force
+php artisan db:seed
+
+# 🔗 Storage link
+php artisan storage:link
+
+# 🧹 Limpiar cache
+php artisan config:clear
+php artisan view:clear
+php artisan route:clear
+
+# 📊 Generar caches de producción
+php artisan config:cache
+php artisan view:cache
+php artisan route:cache
+```
+
+</details>
+
+---
