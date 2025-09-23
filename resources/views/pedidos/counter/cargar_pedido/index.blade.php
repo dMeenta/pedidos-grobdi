@@ -20,11 +20,9 @@ $role = auth()->user()->role->name;
     <div class="card-header">
         <div class="d-flex justify-content-between align-items-center">
             <h2 class="mb-0">Pedidos del día: {{ request()->query('fecha')?request()->query('fecha'):date('Y-m-d') }}</h2>
-            @if(in_array($role, ['admin', 'Administracion']))
-            @if(in_array($role, ['admin', 'Administracion']))
-            <a href="{{ route('export.hojaDeRuta') }}" class="btn btn-outline-success"><i class="fas fa-file-excel mr-1"></i>Descargar Hoja de Ruta del día</a>
-            @endif
-            @endif
+            @can('motorizado.viewFormHojaDeRuta')
+            <a href="{{ route('motorizado.viewFormHojaDeRuta') }}" class="btn btn-outline-success"><i class="fas fa-file-excel mr-1"></i>Descargar Hoja de Ruta del día</a>
+            @endcan
         </div>
     </div>
     <div class="card-body">
