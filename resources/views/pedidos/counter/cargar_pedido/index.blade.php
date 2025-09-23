@@ -8,22 +8,26 @@
 @stop
 
 @php
-$role = auth()->user()->role->name;
+    $role = auth()->user()->role->name;
 @endphp
 
 @section('content')
 <div class="card mt-2">
     <div class="card-header">
         <div class="d-flex justify-content-between align-items-center">
-            <h2 class="mb-0">Pedidos del día: {{ request()->query('fecha')?request()->query('fecha'):date('Y-m-d') }}</h2>
+            <h2 class="mb-0">Pedidos del día:
+                {{ request()->query('fecha') ? request()->query('fecha') : date('Y-m-d') }}
+            </h2>
             @if(in_array($role, ['admin', 'Administracion']))
-            <a href="{{ route('export.hojaDeRuta') }}" class="btn btn-outline-success"><i class="fas fa-file-excel mr-1"></i>Descargar Hoja de Ruta del día</a>
+                <a href="{{ route('export.hojaDeRuta') }}" class="btn btn-outline-success"><i
+                        class="fas fa-file-excel mr-1"></i>Descargar Hoja de Ruta del día</a>
             @endif
         </div>
     </div>
     <div class="card-body">
         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-            <a class="btn btn-success btn-sm" href="{{ route('cargarpedidos.create') }}"> <i class="fa fa-plus"></i> Cargar datos</a>
+            <a class="btn btn-success btn-sm" href="{{ route('cargarpedidos.create') }}"> <i class="fa fa-plus"></i>
+                Cargar datos</a>
         </div>
         <br>
         <div class="row">
@@ -36,14 +40,18 @@ $role = auth()->user()->role->name;
                         <div class="col-xs-3 col-sm-3 col-md-3">
                             <select name="filtro" class="form-control">
                                 <option value="deliveryDate">Fecha de Entrega</option>
-                                <option value="created_at" {{ request()->query('filtro')=='created_at'?'selected':'' }}>Fecha de Registro</option>
+                                <option value="created_at" {{ request()->query('filtro') == 'created_at' ? 'selected' : '' }}>
+                                    Fecha de Registro</option>
                             </select>
                         </div>
                         <div class="col-xs-4 col-sm-4 col-md-4">
-                            <input class="form-control" type="date" name="fecha" id="fecha" value="{{ request()->query('fecha')?request()->query('fecha'):date('Y-m-d') }}" required>
+                            <input class="form-control" type="date" name="fecha" id="fecha"
+                                value="{{ request()->query('fecha') ? request()->query('fecha') : date('Y-m-d') }}"
+                                required>
                         </div>
                         <div class="col-xs-4 col-sm-4 col-md-4">
-                            <button type="submit" class="btn btn-outline-success"><i class="fa fa-search"></i> Buscar</button>
+                            <button type="submit" class="btn btn-outline-success"><i class="fa fa-search"></i>
+                                Buscar</button>
                         </div>
                     </div>
                 </form>
@@ -69,18 +77,19 @@ $role = auth()->user()->role->name;
                         </div>
                         <div class="col-xs-2 col-sm-2 col-md-2">
                             @if(request()->get('fecha'))
-                            <input type="hidden" value={{ request()->get('fecha') }} name="fecha">
+                                <input type="hidden" value={{ request()->get('fecha') }} name="fecha">
                             @else
-                            <input type="hidden" value={{ date('Y-m-d') }} name="fecha">
+                                <input type="hidden" value={{ date('Y-m-d') }} name="fecha">
                             @endif
-                            <button class="btn btn-outline-primary" type="submit"><i class="fa fa-file-word"></i> Descargar Word</button>
+                            <button class="btn btn-outline-primary" type="submit"><i class="fa fa-file-word"></i>
+                                Descargar Word</button>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
         @error('message')
-        <p style="color: red;">{{ $message }}</p>
+            <p style="color: red;">{{ $message }}</p>
         @enderror
 
         <br>
@@ -105,85 +114,93 @@ $role = auth()->user()->role->name;
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($pedidos as $arr)
-                    <tr>
-                        <td>{{ $arr["nroOrder"] }}</td>
-                        <td>{{ $arr["orderId"] }}</td>
-                        <td>{{ $arr["customerName"] }}</td>
-                        <td>{{ $arr["doctorName"] }}</td>
-                        <td>{{ $arr["paymentStatus"] }}</td>
-                        <form action="{{ route('cargarpedidos.actualizarTurno',$arr->id) }}" method="POST">
-                            @csrf
-                            @method('PUT')
-                            <td>
-                                <select class="form-select form-select-sm" aria-label=".form-select-sm" name="turno" id="turno" onchange="this.form.submit()">
-                                    <option disabled>Cambiar turno</option>
-                                    <option value=0 {{ $arr->turno ===  0  ? 'selected' : '' }}>Mañana</option>
-                                    <option value=1 {{ $arr->turno ===  1  ? 'selected' : '' }}>Tarde</option>
-                                </select>
-                            </td>
-                        </form>
-                        @if($arr->user->role->name == 'motorizado' && $arr["paymentStatus"] === "Reprogramado")
-                        <td class="table-danger">{{ $arr["deliveryStatus"] }}</td>
-                        @else
-                        <td>
-                            <div class="d-flex justify-content-center align-items-center">
-                                <button class="btn btn-info btn-sm btn-show-delivery-states" data-id="{{ $arr['id'] }}">
-                                    Ver estado
-                                </button>
-                            </div>
-                        </td>
-                        @endif
-                        <td>{{ $arr["district"] }}</td>
-                        <td>
-                            @if ( $arr["voucher"] == 0)
-                            <span class="badge rounded-pill bg-danger">Sin imagen</span>
-                            @else
-                            <span class="badge rounded-pill bg-success">Imagen</span>
-                            @endif
-                        </td>
-                        <td>{{ $arr["productionStatus"] == true ? 'Realizado' : 'Pendiente' }}</td>
-                        <td>
-                            @if ( $arr["receta"] == 0)
-                            <span class="badge rounded-pill bg-danger">Sin imagen</span>
-                            @else
-                            <span class="badge rounded-pill bg-success">Imagen</span>
-                            @endif
-                        </td>
-                        <td>{{ $arr->zone->name }}</td>
-                        <td>{{ $arr->user->name }}</td>
-                        <td>
-                            <form action="{{ route('cargarpedidos.destroy',$arr->id) }}" method="POST">
-                                <a class="btn btn-danger btn-sm" href="{{ route('cargarpedidos.uploadfile',$arr->id) }}"><i class="fa fa-upload"></i>Carga</a>
-                                <a class="btn btn-info btn-sm" href="{{ route('cargarpedidos.show',$arr->id) }}" target="_blank"><i class="fa fa-eye"></i> Ver</a>
-
-                                <a class="btn btn-primary btn-sm" href="{{ route('cargarpedidos.edit',$arr->id) }}"><i class="fa-pencil"></i> Editar</a>
-
+                    @foreach ($pedidos as $pedido)
+                        <tr>
+                            <td>{{ $pedido["nroOrder"] }}</td>
+                            <td>{{ $pedido["orderId"] }}</td>
+                            <td>{{ $pedido["customerName"] }}</td>
+                            <td>{{ $pedido["doctorName"] }}</td>
+                            <td>{{ $pedido["paymentStatus"] }}</td>
+                            <form action="{{ route('cargarpedidos.actualizarTurno', $pedido->id) }}" method="POST">
                                 @csrf
-                                @method('DELETE')
-
-                                <!-- <button type="submit" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash"></i> Delete</button> -->
+                                @method('PUT')
+                                <td>
+                                    <select class="form-select form-select-sm" aria-label=".form-select-sm" name="turno"
+                                        id="turno" onchange="this.form.submit()">
+                                        <option disabled>Cambiar turno</option>
+                                        <option value=0 {{ $pedido->turno === 0 ? 'selected' : '' }}>Mañana</option>
+                                        <option value=1 {{ $pedido->turno === 1 ? 'selected' : '' }}>Tarde</option>
+                                    </select>
+                                </td>
                             </form>
-                        </td>
-                    </tr>
+                            @if($pedido->user->role->name == 'motorizado' && $pedido["paymentStatus"] === "Reprogramado")
+                                <td class="table-danger">{{ $pedido["deliveryStatus"] }}</td>
+                            @else
+                                <td class="align-middle" style="min-height: 80px;">
+                                    <div class="d-flex flex-column justify-content-center h-100">
+                                        <span
+                                            class="badge bg-dark mb-2 text-wrap">{{ $pedido->currentDeliveryState->state ?? 'Sin estado' }}</span>
+                                        <button class="btn btn-info btn-sm btn-show-delivery-states w-100"
+                                            data-id="{{ $pedido['id'] }}">
+                                            Historial
+                                        </button>
+                                    </div>
+                                </td>
+                            @endif
+                            <td>{{ $pedido["district"] }}</td>
+                            <td>
+                                @if ($pedido["voucher"] == 0)
+                                    <span class="badge rounded-pill bg-danger">Sin imagen</span>
+                                @else
+                                    <span class="badge rounded-pill bg-success">Imagen</span>
+                                @endif
+                            </td>
+                            <td>{{ $pedido["productionStatus"] == true ? 'Realizado' : 'Pendiente' }}</td>
+                            <td>
+                                @if ($pedido["receta"] == 0)
+                                    <span class="badge rounded-pill bg-danger">Sin imagen</span>
+                                @else
+                                    <span class="badge rounded-pill bg-success">Imagen</span>
+                                @endif
+                            </td>
+                            <td>{{ $pedido->zone->name }}</td>
+                            <td>{{ $pedido->user->name }}</td>
+                            <td>
+                                <form action="{{ route('cargarpedidos.destroy', $pedido->id) }}" method="POST">
+                                    <a class="btn btn-danger btn-sm"
+                                        href="{{ route('cargarpedidos.uploadfile', $pedido->id) }}"><i
+                                            class="fa fa-upload"></i>Carga</a>
+                                    <a class="btn btn-info btn-sm" href="{{ route('cargarpedidos.show', $pedido->id) }}"
+                                        target="_blank"><i class="fa fa-eye"></i> Ver</a>
+
+                                    <a class="btn btn-primary btn-sm"
+                                        href="{{ route('cargarpedidos.edit', $pedido->id) }}"><i class="fa-pencil"></i>
+                                        Editar</a>
+
+                                    @csrf
+                                    @method('DELETE')
+                                </form>
+                            </td>
+                        </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
         @if(session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
 
         @endif
         @if(session('danger'))
-        <div class="alert alert-danger">
-            {{ session('danger') }}
-        </div>
+            <div class="alert alert-danger">
+                {{ session('danger') }}
+            </div>
         @endif
     </div>
 </div>
-<div class="modal fade" id="deliveryStatesModal" tabindex="-1" role="dialog" aria-labelledby="deliveryStateModal" aria-hidden="true">
+<div class="modal fade" id="deliveryStatesModal" tabindex="-1" role="dialog" aria-labelledby="deliveryStateModal"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
         <div class="modal-content overflow-hidden">
             <div class="modal-header bg-info">
@@ -197,7 +214,8 @@ $role = auth()->user()->role->name;
         </div>
     </div>
 </div>
-<div class="modal fade" id="deliveryPhotoModal" tabindex="-1" role="dialog" aria-labelledby="deliveryPhotoModalLabel" aria-hidden="true">
+<div class="modal fade" id="deliveryPhotoModal" tabindex="-1" role="dialog" aria-labelledby="deliveryPhotoModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content overflow-hidden">
             <div class="modal-header bg-dark text-white">
@@ -216,7 +234,8 @@ $role = auth()->user()->role->name;
 
 @section('css')
 {{-- Add here extra stylesheets --}}
-{{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
+{{--
+<link rel="stylesheet" href="/css/admin_custom.css"> --}}
 <style type="text/css">
     .observaciones-cell {
         max-width: 300px;
@@ -239,7 +258,7 @@ $role = auth()->user()->role->name;
 @section('js')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         const pedidoId = $(this).data('id');
         const modal = $('#deliveryStatesModal');
         const modalContent = $('#modal-content');
@@ -254,7 +273,7 @@ $role = auth()->user()->role->name;
             ] // Opciones de cantidad
         });
 
-        $(document).on('click', '.btn-show-details', function() {
+        $(document).on('click', '.btn-show-details', function () {
             const imgUrl = $(this).data('img');
             const datetime = $(this).data('datetime');
             const nombre = $(this).data('nombre')
@@ -265,23 +284,23 @@ $role = auth()->user()->role->name;
 
             detailsContent.html(`
             <img src="${imgUrl}" class="img-fluid rounded mb-3" style="max-height:60vh;">
-                ${datetime ? `<p><strong>Fecha y hora:</strong> ${datetime}</p>` : `<p><strong>Nombre del receptor: </strong> ${nombre}</p>` }
+                ${datetime ? `<p><strong>Fecha y hora:</strong> ${datetime}</p>` : `<p><strong>Nombre del receptor: </strong> ${nombre}</p>`}
                 ${lat && lng ? `<a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank">
                         Ver ubicación de la foto
                     </a>` : ''}`);
             $('#deliveryPhotoModal').modal('show');
         });
 
-        $('#detailsDeliveryState').on('click', function() {
+        $('#detailsDeliveryState').on('click', function () {
             $(this).fadeOut();
         });
 
-        $('.btn-show-delivery-states').on('click', function() {
+        $('.btn-show-delivery-states').on('click', function () {
             const pedidoId = $(this).data('id');
             $.ajax({
                 url: `pedido/${pedidoId}/state`,
                 type: 'GET',
-                success: function(response) {
+                success: function (response) {
                     if (!response.success) {
                         toastr.error('No se pudieron cargar los estados del pedido.');
                         return;
@@ -304,14 +323,14 @@ $role = auth()->user()->role->name;
                                 </tr>
                             </thead>
                             <tbody class="text-center">
-                                ${response.states.map(estado => 
-                                `
+                                ${response.states.map(estado =>
+                        `
                                 <tr data-id="${estado.id}">
                                     <td class="align-content-center">${estado.user}</td>
                                     <td class="align-content-center">${estado.state.toUpperCase()}</td>
                                     <td class="align-content-center">${estado.created_at_formatted}</td>
                                     <td class="px-2 py-1 observaciones-cell">
-                                        <p class="observaciones-col">${estado.observacion ? ''}</p>
+                                        <p class="observaciones-col">${estado.observacion ?? ''}</p>
                                     </td>
                                     <td class="text-center align-content-center">${estado.foto_domicilio ? `
                                         <button class="btn btn-info btn-sm btn-show-details" 
@@ -351,7 +370,7 @@ $role = auth()->user()->role->name;
                         </div>`}`);
                     modal.modal('show');
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     toastr.error(xhr.responseJSON || 'No se pudieron cargar los estados del pedido.');
                     console.error(xhr.responseJSON);
 
