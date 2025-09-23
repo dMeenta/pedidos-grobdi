@@ -42,7 +42,7 @@
             </div>
         </form>
         <br>
-        <form action="{{ route('cargarpedidos.store') }}" method="POST" enctype="multipart/form-data" id="articulosForm">
+        <form action="{{ route('cargarpedidos.articulos.store') }}" method="POST" enctype="multipart/form-data" id="articulosForm">
             @csrf
             <div class="mb-5">
                 <label for="detail_excel" class="form-label"><strong>Cargar Pedidos con articulos:</strong></label>
