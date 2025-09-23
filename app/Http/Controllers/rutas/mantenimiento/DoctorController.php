@@ -28,8 +28,7 @@ class DoctorController extends Controller
 
         $search = $request->input('search');
         if ($search) {
-            $doctores = Doctor::where('name', 'like', '%' . $search . '%')
-                                ->orderBy($ordenarPor, $direccion)->paginate(20);  // Paginación, 20 por página
+            $doctores = Doctor::where('name', 'like', '%' . $search . '%')->orWhere('cmp', 'like', '%' . $search . '%')->orderBy($ordenarPor, $direccion)->paginate(20);  // Paginación, 20 por página
         } else {
             $doctores = Doctor::orderBy($ordenarPor, $direccion)->paginate(20);
         }
@@ -292,9 +291,9 @@ class DoctorController extends Controller
     {
         $query = $request->get('q');
 
-        $doctors = Doctor::where('name', 'LIKE', '%' . $query . '%')
+        $doctors = Doctor::where('name', 'LIKE', '%' . $query . '%')->orWhere('first_lastname', 'LIKE', '%' . $query . '%')->orWhere('second_lastname', 'LIKE', '%' . $query . '%')
             ->limit(10)
-            ->get(['id', 'name']);
+            ->get(['id', 'name','first_lastname','second_lastname']);
 
         return response()->json($doctors);
     }

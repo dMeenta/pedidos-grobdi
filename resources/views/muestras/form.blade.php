@@ -227,7 +227,8 @@
                         let html = '';
                         if (data.length > 0) {
                             data.forEach(function(doctor) {
-                                html += `<a href="" class="list-group-item list-group-item-action doctor-item" data-id="${doctor.id}" data-name="${doctor.name}">${doctor.name}</a>`;
+                                const firstLastname = doctor.first_lastname ? doctor.first_lastname : '';
+                                html += `<a href="" class="list-group-item list-group-item-action doctor-item" data-id="${doctor.id}" data-name="${doctor.name}">${doctor.name} ${firstLastname}</a>`;
                             });
                             selectedIndex = -1;
                         }

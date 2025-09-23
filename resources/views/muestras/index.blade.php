@@ -136,7 +136,7 @@ $currentParams = request()->except(['page']);
                     <th>Precio Por Unidad</th>
                     <th>Precio Total</th>
                     @endif
-                    @if(in_array($role, ['admin','coordinador-lineas','jefe-comercial','jefe-operaciones']))
+                    @if(in_array($role, ['admin','coordinador-lineas','jefe-comercial','jefe-operaciones','supervisor']))
                     <th>Aprobar Muestra</th>
                     @endif
                     @if(in_array($role, ['admin','laboratorio']))
@@ -212,7 +212,7 @@ $currentParams = request()->except(['page']);
                         {{ $muestra->precio && $muestra->cantidad_de_muestra ? 'S/ ' . number_format($muestra->precio * $muestra->cantidad_de_muestra, 2) : 'No asignado' }}
                     </td>
                     @endif
-                    @if(in_array($role, ['admin','coordinador-lineas','jefe-comercial','jefe-operaciones']))
+                    @if(in_array($role, ['admin','coordinador-lineas','jefe-comercial','jefe-operaciones','supervisor']))
                     <td>
                         @php
                         $rolesCheckbox = [
@@ -220,6 +220,11 @@ $currentParams = request()->except(['page']);
                                 'class' => 'coordinadora-checkbox',
                                 'checked' => $muestra->aprobado_coordinadora,
                                 'canApprove' => in_array($role, ['admin', 'coordinador-lineas','supervisor']) && $muestra->state,
+                            ],
+                            'supervisor' => [
+                                'class' => 'coordinadora-checkbox',
+                                'checked' => $muestra->aprobado_coordinadora,
+                                'canApprove' => in_array($role, ['admin','supervisor']) && $muestra->state,
                             ],
                             'jefe-comercial' => [
                                 'class' => 'jcomercial-checkbox',

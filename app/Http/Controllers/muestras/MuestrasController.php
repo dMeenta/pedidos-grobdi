@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Maatwebsite\Excel\Facades\Excel;
 
 class MuestrasController extends Controller
@@ -30,11 +31,8 @@ class MuestrasController extends Controller
 
     public function store(Request $request)
     {
-        $role = Auth::user()->role->name;
+        $this->authorize('muestras.store');
 
-        if (!in_array($role, ['admin', 'coordinador-lineas', 'visitador'])) {
-            return redirect()->route('muestras.index')->with('error', `No tienes permiso para realizar esta operación. Tu rol actual es: $role`);
-        }
 
         $validated = $request->validate([
             'nombre_muestra' => 'required|string|max:255',
