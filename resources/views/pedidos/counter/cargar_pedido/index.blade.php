@@ -127,9 +127,6 @@ $role = auth()->user()->role->name;
                                 </select>
                             </td>
                         </form>
-                        @if($arr->user->role->name == 'motorizado' && $arr["paymentStatus"] === "Reprogramado")
-                        <td class="table-danger">{{ $arr["deliveryStatus"] }}</td>
-                        @else
                         <td>
                             <div class="d-flex justify-content-center align-items-center">
                                 <button class="btn btn-info btn-sm btn-show-delivery-states" data-id="{{ $arr['id'] }}">
@@ -295,7 +292,6 @@ $role = auth()->user()->role->name;
                         <table class="table table-head-fixed text-nowrap">
                             <thead>
                                 <tr class="text-center">
-                                    <th scope="col" rowspan="2" class="align-content-center">Usuario</th>
                                     <th scope="col" rowspan="2" class="align-content-center">Usuario</th>
                                     <th scope="col" rowspan="2" class="align-content-center">Estado del pedido</th>
                                     <th scope="col" rowspan="2" class="align-content-center">Fecha del estado</th>
