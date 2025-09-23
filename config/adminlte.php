@@ -329,7 +329,6 @@ return [
         //     'label_color' => 'success',
         // ],
         [
-<<<<<<< HEAD
             'text' => 'Reportes Visitadoras Prueba',
             'url' => 'reports/visitadoras',
             'icon' => 'fas fa-briefcase',
@@ -346,38 +345,6 @@ return [
             'url' => 'reports/doctores',
             'icon' => 'fas fa-briefcase',
             'can' => ['admin']
-=======
-            'header' => 'Reporte Comercial',
-            'can' => ['jefe-comercial', 'admin']
-        ],
-        [
-            'text' => 'Reportes',
-            'icon' => 'fas fa-chart-bar',
-            'submenu' => [
-                [
-                    'text' => 'Rutas',
-                    'url' => 'reporte/visitadoras',
-                    'icon' => 'fas fa-route',
-                    'can' => ['admin', 'jefe-comercial']
-                ],
-                [
-                    'text' => 'Ventas',
-                    'url' => 'reporte/ventas',
-                    'icon' => 'fas fa-briefcase',
-                    'can' => ['admin']
-                ],
-                [
-                    'text' => 'Doctores',
-                    'url' => 'reporte/doctores',
-                    'icon' => 'fas fa-fw fa-user-md',
-                    'can' => ['admin']
-                ],
-            ]
-        ],
-        [
-            'header' => 'Muestras',
-            'can' => ['admin', 'visitador', 'coordinador-lineas', 'jefe-comercial', 'contabilidad', 'jefe-operaciones', 'laboratorio']
->>>>>>> f76f4ac7a11c11334cc0a0e9b770a16c887d9683
         ],
         [
             'text' => 'Muestras',

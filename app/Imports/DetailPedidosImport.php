@@ -5,11 +5,7 @@ namespace App\Imports;
 use App\Imports\BaseImport;
 use App\Models\DetailPedidos;
 use App\Models\Pedidos;
-<<<<<<< HEAD
 use App\Services\Import\DetailPedidosImportService;
-=======
-use App\Application\Services\Import\DetailPedidosImportService;
->>>>>>> f76f4ac7a11c11334cc0a0e9b770a16c887d9683
 use Maatwebsite\Excel\Concerns\WithStartRow;
 
 class DetailPedidosImport extends BaseImport implements WithStartRow
@@ -38,11 +34,7 @@ class DetailPedidosImport extends BaseImport implements WithStartRow
      */
     public function startRow(): int
     {
-<<<<<<< HEAD
         return 2; // Comenzar desde la fila 2 para incluir cabeceras
-=======
-        return 2;
->>>>>>> f76f4ac7a11c11334cc0a0e9b770a16c887d9683
     }
     
     /**
@@ -309,10 +301,7 @@ class DetailPedidosImport extends BaseImport implements WithStartRow
             }
         }
         
-<<<<<<< HEAD
         // Actualizar estadísticas si se implementan contadores para eliminaciones
-=======
->>>>>>> f76f4ac7a11c11334cc0a0e9b770a16c887d9683
         if (isset($this->stats['deleted'])) {
             $this->stats['deleted'] = $deletedCount;
         }

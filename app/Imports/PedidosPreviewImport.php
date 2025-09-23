@@ -84,24 +84,12 @@ class PedidosPreviewImport implements ToCollection
                     $pedidos->turno = 0;
                     $pedidos->last_data_update = now(); // Registrar fecha de actualización
                     
-<<<<<<< HEAD
                     $usuario = User::where('name', $row[19])->first();
                     if(empty($usuario)){
                         $pedidos->user_id = Auth::user()->id;
                     } else {
                         $pedidos->user_id = $usuario->id;
                     }
-=======
-                    // Buscar visitadora por name_softlynn (nuevo requerimiento)
-                    $visitadora = null;
-                    if(isset($row[19]) && trim($row[19]) !== ''){
-                        $visitadora = User::where('name_softlynn', trim($row[19]))->first();
-                    }
-                    // user_id siempre será el usuario autenticado que hace la importación
-                    $pedidos->user_id = Auth::user()->id;
-                    // visitadora_id se guarda si se encontró coincidencia por name_softlynn
-                    $pedidos->visitadora_id = $visitadora?->id;
->>>>>>> f76f4ac7a11c11334cc0a0e9b770a16c887d9683
                     
                     $pedidos->save();
                     ++$rows_nuevos;
@@ -190,19 +178,6 @@ class PedidosPreviewImport implements ToCollection
                     }
                     // If status is "Preparado" (2), no changes are made to productionStatus
                     
-<<<<<<< HEAD
-=======
-                    // Re-evaluar visitadora por name_softlynn del excel
-                    $visitadora = null;
-                    if(isset($row[19]) && trim($row[19]) !== ''){
-                        $visitadora = User::where('name_softlynn', trim($row[19]))->first();
-                    }
-                    if($visitadora && $pedido_exist->visitadora_id != $visitadora->id){
-                        $pedido_exist->visitadora_id = $visitadora->id;
-                        $hasChanges = true;
-                    }
-
->>>>>>> f76f4ac7a11c11334cc0a0e9b770a16c887d9683
                     if($hasChanges) {
                         $pedido_exist->last_data_update = now(); // Registrar fecha de actualización
                         $pedido_exist->save();
@@ -226,8 +201,4 @@ class PedidosPreviewImport implements ToCollection
         $this->data = $rpta;
         $this->key = $key;
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> f76f4ac7a11c11334cc0a0e9b770a16c887d9683

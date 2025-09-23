@@ -9,11 +9,7 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 
 abstract class BaseImport implements ToCollection
 {
-<<<<<<< HEAD
     use HasImportResponse, HasDataValidation;
-=======
-    use HasImportResponse;
->>>>>>> f76f4ac7a11c11334cc0a0e9b770a16c887d9683
     
     /**
     * Estadísticas del proceso de importación

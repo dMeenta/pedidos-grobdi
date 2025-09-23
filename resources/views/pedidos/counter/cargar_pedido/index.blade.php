@@ -104,7 +104,9 @@ $role = auth()->user()->role->name;
                         <th>Doctor</th>
                         <th>Est. Pago</th>
                         <th>Turno</th>
+                        @can('pedidos.showDeliveryStates')
                         <th>Est. Entrega</th>
+                        @endcan
                         <th width="200px">distrito</th>
                         <th width="200px">Voucher</th>
                         <th width="200px">Estado Producción</th>
@@ -133,6 +135,7 @@ $role = auth()->user()->role->name;
                                 </select>
                             </td>
                         </form>
+                        @can('pedidos.showDeliveryStates')
                         <td>
                             <div class="d-flex justify-content-center align-items-center">
                                 <button class="btn btn-info btn-sm btn-show-delivery-states" data-id="{{ $arr['id'] }}">
@@ -140,7 +143,7 @@ $role = auth()->user()->role->name;
                                 </button>
                             </div>
                         </td>
-                        @endif
+                        @endcan
                         <td>{{ $arr["district"] }}</td>
                         <td>
                             @if ( $arr["voucher"] == 0)
@@ -165,7 +168,7 @@ $role = auth()->user()->role->name;
                                 <a class="btn btn-info btn-sm" href="{{ route('cargarpedidos.show',$arr->id) }}" target="_blank"><i class="fa fa-eye"></i> Ver</a>
 
                                     <a class="btn btn-primary btn-sm"
-                                        href="{{ route('cargarpedidos.edit', $pedido->id) }}"><i class="fa-pencil"></i>
+                                        href="{{ route('cargarpedidos.edit', $arr->id) }}"><i class="fa-pencil"></i>
                                         Editar</a>
 
                                     @csrf

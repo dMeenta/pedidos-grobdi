@@ -13,10 +13,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-<<<<<<< HEAD
-use Illuminate\Support\Facades\Gate;
-=======
->>>>>>> f76f4ac7a11c11334cc0a0e9b770a16c887d9683
 use Maatwebsite\Excel\Facades\Excel;
 
 class MuestrasController extends Controller

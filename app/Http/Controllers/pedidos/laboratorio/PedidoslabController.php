@@ -108,10 +108,6 @@ class PedidoslabController extends Controller
             Log::error('Stack trace: ' . $e->getTraceAsString());
             return response()->json(['error' => 'Error al cargar el detalle del pedido'], 500);
         }
-<<<<<<< HEAD
-        return response()->json($pedido);
-=======
->>>>>>> f76f4ac7a11c11334cc0a0e9b770a16c887d9683
     }
     public function pedidosDetalles(Request $request){
         // dd($request->all());

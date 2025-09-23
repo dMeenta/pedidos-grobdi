@@ -26,8 +26,6 @@ use App\Http\Controllers\muestras\gerenciaController;
 //Modulo - Reports
 use App\Http\Controllers\ReportsController;
 
-//Modulo - Reports
-use App\Http\Controllers\ReportsController;
 
 use App\Http\Controllers\pedidos\laboratorio\PresentacionFarmaceuticaController;
 use App\Http\Controllers\pedidos\produccion\OrdenesController;
@@ -122,8 +120,6 @@ Route::middleware(['check.permission'])->group(function () {
     Route::get('/pedidos/sincronizar', CargarPedidosController::class . '@sincronizarDoctoresPedidos')->name('pedidos.sincronizar');
     Route::get('/api/doctores/search', CargarPedidosController::class . '@searchDoctores')->name('api.doctores.search');
 
-    // Incluir ruta de prueba
-    require __DIR__ . '/test.php';
 
 
     // New routes for preview functionality
@@ -310,4 +306,3 @@ Route::middleware(['check.permission'])->group(function () {
     //contabilidad  marcará si el insumo es caro o no
     Route::get('/insumo/marcar-caro', [InsumoController::class, 'marcarCaro'])->name('insumos.marcar-caro');
     Route::post('/insumo/marcar-caro', [InsumoController::class, 'actualizarEsCaro'])->name('insumos.actualizar-es-caro');
-});

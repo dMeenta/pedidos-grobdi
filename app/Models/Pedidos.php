@@ -55,29 +55,17 @@ class Pedidos extends Model
     {
         return $this->hasMany(DetailPedidos::class);
     }
-<<<<<<< HEAD
     
-=======
-
->>>>>>> f76f4ac7a11c11334cc0a0e9b770a16c887d9683
     public function doctor()
     {
         return $this->belongsTo(Doctor::class, 'id_doctor');
     }
-<<<<<<< HEAD
     
-=======
-
->>>>>>> f76f4ac7a11c11334cc0a0e9b770a16c887d9683
     public function deliveryStates()
     {
         return $this->hasMany(PedidosDeliveryState::class, 'pedido_id');
     }
-<<<<<<< HEAD
     
-=======
-
->>>>>>> f76f4ac7a11c11334cc0a0e9b770a16c887d9683
     public function currentDeliveryState()
     {
         return $this->hasOne(PedidosDeliveryState::class, 'pedido_id')->latestOfMany();
