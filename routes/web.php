@@ -136,8 +136,6 @@ Route::middleware(['check.permission'])->group(function () {
     Route::put('roles/{role}/permissions', [RolesController::class, 'updatePermissions'])->name('roles.updatePermissions');
     Route::resource('modules', ModuleController::class);
     Route::resource('views', ViewController::class);
-    Route::get('sincronizarpedidos', action: [CargarPedidosController::class, 'sincronizarDoctoresPedidos'])->name('pedidos.sincronizar');
-
     Route::resource('pedidoscontabilidad', PedidosContaController::class);
     Route::get('/pedidoscontabilidad/downloadExcel/{fechainicio}/{fechafin}', PedidosContaController::class . '@downloadExcel')->name('pedidoscontabilidad.downloadExcel');
 

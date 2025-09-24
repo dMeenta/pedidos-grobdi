@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Doctor;
 use App\Models\Pedidos;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
@@ -25,9 +26,15 @@ class DoctorSyncService
         ];
 
         try {
+            $fechaInicio = '2025-09-01';
+            $fechaFin = '2025-09-24';
             // Obtener pedidos sin doctor asignado
             $pedidosSinDoctor = Pedidos::whereNull('id_doctor')
                 ->whereNotNull('doctorName')
+                ->whereBetween('created_at', [
+                    Carbon::parse($fechaInicio)->startOfDay(),
+                    Carbon::parse($fechaFin)->endOfDay()
+                ])
                 ->get();
 
             $resultados['procesados'] = $pedidosSinDoctor->count();
