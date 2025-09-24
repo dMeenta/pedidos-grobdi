@@ -235,6 +235,28 @@ Route::middleware(['check.permission'])->group(function () {
     Route::get('/api/reportes/filtros/ventas', [ReporteController::class, 'filtrosVentas'])->name('api.reportes.filtros.ventas');
     Route::get('/api/reportes/filtros/doctores', [ReporteController::class, 'filtrosDoctores'])->name('api.reportes.filtros.doctores');
     Route::get('/api/reportes/filtros/visitadoras', [ReporteController::class, 'filtrosVisitadoras'])->name('api.reportes.filtros.visitadoras');
+
+    Route::prefix('reports')
+    ->middleware(['checkRole:admin'])
+    ->group(function () {
+
+        Route::prefix('visitadoras')->group(function () {
+            //! Migrado a ReporteController para unificar lógica de reportes comerciales
+            Route::get('/', [\App\Http\Controllers\ReporteController::class, 'visitadoras'])->name('reports.visitadoras.index');
+            Route::get('/distritos/{zoneId}', [\App\Http\Controllers\ReporteController::class, 'getDistritosByZone'])->name('getDistritosByZone');
+            Route::get('/filter', [\App\Http\Controllers\ReporteController::class, 'filterVisitasDoctor'])->name('reports.visitas.filter');
+        });
+
+        Route::prefix('ventas')->group(function () {
+            Route::get('/', [ReportsController::class, 'indexVentas'])->name('reports.ventas.index');
+        });
+
+        Route::prefix('doctores')->group(function () {
+            // Rutas legacy migradas a ReporteController
+            Route::get('/', [ReporteController::class, 'doctoresLegacy'])->name('reports.doctores.index');
+            Route::get('get-doctor-report', [ReporteController::class, 'getDoctorReportLegacy'])->name('reports.doctores.getDoctorReport');
+        });
+    });
 });
 
     /*
