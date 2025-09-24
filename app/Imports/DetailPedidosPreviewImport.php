@@ -483,6 +483,90 @@ class DetailPedidosPreviewImport implements ToCollection
     }
 
     /**
+<<<<<<< HEAD
+     * Verifica las modificaciones necesarias en un artículo existente
+     * 
+     * Este método compara los valores actuales de un artículo con los nuevos valores
+     * del archivo Excel y determina qué campos necesitan ser actualizados.
+     * 
+     * @param array $row La fila de datos nueva
+     * @param int $rowIndex El índice de la fila
+     * @param array $colMap El mapeo de columnas
+     * @param mixed $pedido El pedido al que pertenece
+     * @param mixed $existing El artículo existente en la base de datos
+     * @param float $cantidad La nueva cantidad
+     * @param float $unit El nuevo precio unitario
+     * @param float $sub El nuevo subtotal
+     * @return void
+     */
+    private function checkModifications($row, int $rowIndex, array $colMap, $pedido, $existing, float $cantidad, float $unit, float $sub)
+    {
+        $modifications = [];
+
+        if ((float)$existing->cantidad != $cantidad) {
+            $modifications[] = [
+                'field' => 'cantidad',
+                'label' => 'Cantidad',
+                'old_value' => (float)$existing->cantidad,
+                'new_value' => $cantidad,
+            ];
+        }
+
+    if (round((float)$existing->unit_prize, 2) !== $unit) {
+            $modifications[] = [
+                'field' => 'unit_prize', 
+                'label' => 'Precio Unitario',
+                'old_value' => 'S/ ' . round((float)$existing->unit_prize, 2),
+                'new_value' => 'S/ ' . $unit,
+            ];
+        }
+
+    if (round((float)$existing->sub_total, 2) !== $sub) {
+            $modifications[] = [
+                'field' => 'sub_total',
+                'label' => 'Sub Total',
+                'old_value' => 'S/ ' . round((float)$existing->sub_total, 2),
+                'new_value' => 'S/ ' . $sub,
+            ];
+        }
+
+        if (!empty($modifications)) {
+            $this->stats['modified_count']++;
+            $this->changes['modified'][] = [
+                'row_index' => $rowIndex + 1,
+                'pedido_id' => $pedido->orderId ?? $pedido->nroOrder,
+                'modifications' => $modifications,
+                'existing' => [
+                    'pedido_id' => $pedido->orderId ?? $pedido->nroOrder,
+                    'pedido_cliente' => $pedido->customerName ?? $pedido->customer_name ?? 'N/A',
+                    'articulo' => $existing->articulo,
+                    'cantidad' => (float)$existing->cantidad,
+                    'unit_prize' => round((float)$existing->unit_prize, 2),
+                    'sub_total' => round((float)$existing->sub_total, 2),
+                    'last_data_update' => $existing->updated_at ? $existing->updated_at->format('Y-m-d H:i:s') : 'N/A',
+                ],
+                'new' => [
+                    'pedido_id' => $pedido->orderId ?? $pedido->nroOrder,
+                    'pedido_cliente' => $pedido->customerName ?? $pedido->customer_name ?? 'N/A',
+                    'articulo' => trim((string)$row[$colMap['articulo']]),
+                    'cantidad' => $cantidad,
+                    'unit_prize' => $unit,
+                    'sub_total' => $sub,
+                ]
+            ];
+        } else {
+            $this->stats['no_changes_count']++;
+            $this->changes['no_changes'][] = [
+                'row_index' => $rowIndex + 1,
+                'pedido_id' => $pedido->orderId ?? $pedido->nroOrder,
+                'articulo' => $existing->articulo,
+            ];
+        }
+    }
+
+    /**
+=======
+>>>>>>> f76f4ac7a11c11334cc0a0e9b770a16c887d9683
      * Finaliza los resultados del análisis de vista previa
      * 
      * Este método completa el proceso de vista previa, genera el resumen final,

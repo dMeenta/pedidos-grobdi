@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\pedidos\counter;
 
 use App\Http\Controllers\Controller;
-use App\Application\Services\PedidoAssignmentService;
+use App\Services\PedidoAssignmentService;
 use Illuminate\Http\Request;
 
 class AsignarPedidoController extends Controller
@@ -26,11 +26,5 @@ class AsignarPedidoController extends Controller
     {
         $this->pedidoAssignmentService->assignZoneToPedido($id, $request->zone_id);
         return back()->with('success', 'Pedido modificado exitosamente');
-    }
-
-    public function show($pedido)
-    {
-        $pedido = $this->pedidoAssignmentService->getPedidoById($pedido);
-        return view('pedidos.counter.asignar_pedido.index', compact('pedido'));
     }
 }

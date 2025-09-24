@@ -43,7 +43,7 @@ class VentasDTO extends ReporteDTO
         );
 
         // Inicializar solo las propiedades livianas primero
-        $this->visitadoras = $this->getDatosVisitadoras($filtros);
+        $this->visitadoras = $this->getVentasByVisitadoraData($filtros);
         $this->general = $this->getDatosGeneral($filtros);
 
         // Las propiedades pesadas (productos, provincias) se inicializan solo cuando se necesiten
@@ -78,29 +78,34 @@ class VentasDTO extends ReporteDTO
      * @param array $filtros
      * @return array Datos de visitadoras con ventas y visitas
      */
-    private function getDatosVisitadoras(array $filtros = []): array
+    public function getVentasByVisitadoraData(array $filtros = [])
     {
-        // Consulta real a la tabla pedidos con join a users
-        $query = Pedidos::selectRaw('users.name as visitadora, SUM(pedidos.prize) as ventas, COUNT(pedidos.id) as visitas')
-            ->join('users', 'pedidos.user_id', '=', 'users.id')
-            ->groupBy('users.id', 'users.name')
-            ->orderByRaw('SUM(pedidos.prize) DESC');
+        $query = DB::table('pedidos as p')
+            ->join('users as u', 'u.id', '=', 'p.visitadora_id')
+            ->select(
+                'u.id as visitadora_id',
+                'u.name as visitadora',
+                DB::raw('SUM(p.prize) as total_monto'),
+                DB::raw('COUNT(p.id) as total_pedidos')
+            )
+            ->where('u.role_id', 6);
 
-        // Aplicar filtros si existen
-        if (isset($filtros['anio_general'])) {
-            $query->whereYear('pedidos.created_at', $filtros['anio_general']);
+        if (isset($filtros['start_date']) && isset($filtros['end_date'])) {
+            $query->whereBetween('p.created_at', [$filtros['start_date'], $filtros['end_date']]);
         }
-        if (isset($filtros['mes_general'])) {
-            $query->whereMonth('pedidos.created_at', $filtros['mes_general']);
-        }
 
-        $resultados = $query->get();
+        $res = $query->groupBy('u.id', 'u.name')->get();
 
-        return [
-            'labels' => $resultados->pluck('visitadora')->toArray(),
-            'ventas' => $resultados->pluck('ventas')->map(function($venta) { return (float) $venta; })->toArray(),
-            'visitas' => $resultados->pluck('visitas')->map(function($visita) { return (int) $visita; })->toArray()
-        ];
+        $totalPedidos = $res->sum('total_pedidos');
+
+        return $res->map(function ($item) use ($totalPedidos) {
+            return [
+                'visitadora' => $item->visitadora,
+                'total_monto' => (float) $item->total_monto,
+                'total_pedidos' => (int) $item->total_pedidos,
+                'porcentaje_pedidos' => $totalPedidos > 0 ? round(($item->total_pedidos / $totalPedidos) * 100, 1) : 0,
+            ];
+        })->toArray();
     }
 
     /**
@@ -124,7 +129,7 @@ class VentasDTO extends ReporteDTO
             ->whereRaw('LOWER(detail_pedidos.articulo) NOT LIKE ?', ['bolsa%'])
             ->groupBy('detail_pedidos.articulo')
             ->orderByRaw('SUM(detail_pedidos.sub_total) DESC')
-            ->limit(100); 
+            ->limit(100);
 
         // Aplicar filtros si existen
         if (isset($filtros['anio_general'])) {
@@ -144,20 +149,26 @@ class VentasDTO extends ReporteDTO
 
         // Filtro por defecto: si NO se especificó año, mes ni rangos de fecha para productos,
         // limitar desde el primer día del mes actual hasta hoy.
-        if (!isset($filtros['anio_general']) && !isset($filtros['mes_general'])
-            && !isset($filtros['fecha_inicio_producto']) && !isset($filtros['fecha_fin_producto'])) {
+        if (
+            !isset($filtros['anio_general']) && !isset($filtros['mes_general'])
+            && !isset($filtros['fecha_inicio_producto']) && !isset($filtros['fecha_fin_producto'])
+        ) {
             $primerDiaMes = date('Y-m-01');
             $hoy = date('Y-m-d');
             $query->whereDate('pedidos.created_at', '>=', $primerDiaMes)
-                  ->whereDate('pedidos.created_at', '<=', $hoy);
+                ->whereDate('pedidos.created_at', '<=', $hoy);
         }
 
         $resultados = $query->get();
 
         return [
             'labels' => $resultados->pluck('producto')->toArray(),
-            'ventas' => $resultados->pluck('ventas')->map(function($venta) { return (float) $venta; })->toArray(),
-            'unidades' => $resultados->pluck('unidades')->map(function($unidad) { return (int) $unidad; })->toArray()
+            'ventas' => $resultados->pluck('ventas')->map(function ($venta) {
+                return (float) $venta;
+            })->toArray(),
+            'unidades' => $resultados->pluck('unidades')->map(function ($unidad) {
+                return (int) $unidad;
+            })->toArray()
         ];
     }
 
@@ -233,7 +244,9 @@ class VentasDTO extends ReporteDTO
         return [
             'tipo' => 'diario',
             'periodo' => "Mes $mes del $anio",
-            'labels' => array_map(function($dia) { return str_pad($dia, 2, '0', STR_PAD_LEFT); }, $dias),
+            'labels' => array_map(function ($dia) {
+                return str_pad($dia, 2, '0', STR_PAD_LEFT);
+            }, $dias),
             'ventas' => $ventas,
             'visitas' => $visitas,
             'total_ventas' => array_sum($ventas),
@@ -258,8 +271,20 @@ class VentasDTO extends ReporteDTO
             ->get()
             ->keyBy('mes');
 
-        $meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-                 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        $meses = [
+            'Enero',
+            'Febrero',
+            'Marzo',
+            'Abril',
+            'Mayo',
+            'Junio',
+            'Julio',
+            'Agosto',
+            'Septiembre',
+            'Octubre',
+            'Noviembre',
+            'Diciembre'
+        ];
         $ventas = [];
         $visitas = [];
 
@@ -290,12 +315,11 @@ class VentasDTO extends ReporteDTO
     public function getDatosProductosCompletos(array $filtros = []): array
     {
         $productos = $this->getProductosLazy();
-        
+
         if (empty($productos['labels'])) {
             return [
                 'productos' => $productos,
                 'estadisticas' => $this->getEstadisticasVacias(),
-                'tabla_html' => $this->getTablaVaciaHtml(),
                 'configuracion_grafico' => $this->getConfiguracionGraficoVacio(),
                 'mensaje' => 'No hay datos disponibles para los filtros seleccionados'
             ];
@@ -303,15 +327,15 @@ class VentasDTO extends ReporteDTO
 
         // Procesar datos para gráficos
         $productorProcesados = $this->procesarProductosParaGraficos($productos);
-        
+
         return [
             'productos' => $productos,
             'productos_procesados' => $productorProcesados,
             'estadisticas' => $this->calcularEstadisticasProductos($productos),
-            'tabla_html' => $this->generarTablaProductosHtml($productos),
             'configuracion_grafico' => $this->getConfiguracionGrafico(count($productos['labels'])),
             'datos_pareto' => $this->calcularDatosPareto($productos),
-            'indicador_rango' => $this->generarIndicadorRango($filtros),
+            // Enviar información estructurada del rango (sin HTML) para que el frontend lo renderice
+            'indicador' => $this->getIndicadorRango($filtros),
             'mensaje' => null
         ];
     }
@@ -337,7 +361,7 @@ class VentasDTO extends ReporteDTO
         }
 
         // Ordenar por ventas descendente
-        usort($productosArray, function($a, $b) {
+        usort($productosArray, function ($a, $b) {
             return $b['ventas'] <=> $a['ventas'];
         });
 
@@ -352,7 +376,7 @@ class VentasDTO extends ReporteDTO
             $ventasOrdenadas[] = $producto['ventas'];
             $unidadesOrdenadas[] = $producto['unidades'];
             $rankings[] = $index + 1;
-            
+
             // Generar colores según el ranking
             if ($index === 0) {
                 $colores[] = 'rgba(255, 193, 7, 0.8)'; // Oro para #1
@@ -406,69 +430,7 @@ class VentasDTO extends ReporteDTO
         ];
     }
 
-    /**
-     * Genera HTML de la tabla de productos
-     */
-    private function generarTablaProductosHtml(array $productos): string
-    {
-        if (empty($productos['labels'])) {
-            return '<tr><td colspan="6" class="text-center py-5"><div class="text-muted"><i class="fas fa-inbox fa-3x mb-3 opacity-25"></i><h5>No hay datos disponibles</h5><p>Los filtros aplicados no devolvieron resultados.</p></div></td></tr>';
-        }
-
-        $totalVentas = array_sum($productos['ventas']);
-        $html = '';
-
-        // Crear array combinado y ordenar
-        $productosArray = [];
-        for ($i = 0; $i < count($productos['labels']); $i++) {
-            $productosArray[] = [
-                'nombre' => $productos['labels'][$i],
-                'ventas' => $productos['ventas'][$i] ?? 0,
-                'unidades' => $productos['unidades'][$i] ?? 0
-            ];
-        }
-
-        // Ordenar por ventas descendente
-        usort($productosArray, function($a, $b) {
-            return $b['ventas'] <=> $a['ventas'];
-        });
-
-        // Generar filas HTML
-        foreach ($productosArray as $index => $producto) {
-            $precioPromedio = $producto['unidades'] > 0 ? ($producto['ventas'] / $producto['unidades']) : 0;
-            $porcentaje = $totalVentas > 0 ? ($producto['ventas'] / $totalVentas) * 100 : 0;
-            $ranking = $index + 1;
-
-            // Determinar badge de ranking
-            $rankingBadge = '';
-            if ($ranking === 1) {
-                $rankingBadge = '<span class="badge bg-warning text-dark">🏆 #1</span>';
-            } elseif ($ranking === 2) {
-                $rankingBadge = '<span class="badge bg-secondary">🥈 #2</span>';
-            } elseif ($ranking === 3) {
-                $rankingBadge = '<span class="badge bg-info">🥉 #3</span>';
-            } elseif ($ranking <= 10) {
-                $rankingBadge = '<span class="badge bg-success">#' . $ranking . '</span>';
-            } else {
-                $rankingBadge = '<span class="badge bg-light text-dark">#' . $ranking . '</span>';
-            }
-
-            $html .= '<tr>';
-            $html .= '<td class="text-center">' . $rankingBadge . '</td>';
-            $html .= '<td><strong>' . htmlspecialchars($producto['nombre']) . '</strong></td>';
-            $html .= '<td class="text-center"><span class="badge bg-primary">' . number_format($producto['unidades']) . '</span></td>';
-            $html .= '<td class="text-end"><strong class="text-success">S/ ' . number_format($producto['ventas'], 2) . '</strong></td>';
-            $html .= '<td class="text-end">S/ ' . number_format($precioPromedio, 2) . '</td>';
-            $html .= '<td class="text-center">';
-            $html .= '<div class="progress" style="height: 20px;">';
-            $html .= '<div class="progress-bar bg-success" role="progressbar" style="width: ' . $porcentaje . '%" aria-valuenow="' . $porcentaje . '" aria-valuemin="0" aria-valuemax="100">';
-            $html .= number_format($porcentaje, 1) . '%';
-            $html .= '</div></div></td>';
-            $html .= '</tr>';
-        }
-
-        return $html;
-    }
+    // Eliminado: generación de HTML de tabla. El frontend debe renderizar con los datos estructurados.
 
     /**
      * Calcula datos para análisis Pareto
@@ -488,7 +450,7 @@ class VentasDTO extends ReporteDTO
             ];
         }
 
-        usort($productosArray, function($a, $b) {
+        usort($productosArray, function ($a, $b) {
             return $b['ventas'] <=> $a['ventas'];
         });
 
@@ -590,27 +552,46 @@ class VentasDTO extends ReporteDTO
     }
 
     /**
-     * Genera indicador de rango de fechas
+     * Devuelve un indicador estructurado del rango de fechas seleccionado (sin HTML)
      */
-    private function generarIndicadorRango(array $filtros): string
+    private function getIndicadorRango(array $filtros): array
     {
         $fechaInicio = $filtros['fecha_inicio_producto'] ?? null;
         $fechaFin = $filtros['fecha_fin_producto'] ?? null;
-        
         $today = date('Y-m-d');
         $primerDiaMes = date('Y-m-01');
 
         if ($fechaInicio === $primerDiaMes && $fechaFin === $today) {
-            return '<small class="badge bg-light text-dark px-3 py-1"><i class="fas fa-calendar-alt me-1"></i>Datos por defecto: <strong>' . date('d/m/Y', strtotime($primerDiaMes)) . ' - ' . date('d/m/Y', strtotime($today)) . '</strong> <span class="text-muted">(Mes actual)</span></small>';
+            return [
+                'tipo' => 'por_defecto',
+                'desde' => $primerDiaMes,
+                'hasta' => $today
+            ];
         } elseif ($fechaInicio && $fechaFin) {
-            return '<small class="badge bg-info text-white px-3 py-1"><i class="fas fa-calendar-alt me-1"></i>Rango personalizado: <strong>' . date('d/m/Y', strtotime($fechaInicio)) . ' - ' . date('d/m/Y', strtotime($fechaFin)) . '</strong></small>';
+            return [
+                'tipo' => 'personalizado',
+                'desde' => $fechaInicio,
+                'hasta' => $fechaFin
+            ];
         } elseif ($fechaInicio) {
-            return '<small class="badge bg-info text-white px-3 py-1"><i class="fas fa-calendar-alt me-1"></i>Desde: <strong>' . date('d/m/Y', strtotime($fechaInicio)) . '</strong></small>';
+            return [
+                'tipo' => 'desde',
+                'desde' => $fechaInicio,
+                'hasta' => null
+            ];
         } elseif ($fechaFin) {
-            return '<small class="badge bg-info text-white px-3 py-1"><i class="fas fa-calendar-alt me-1"></i>Hasta: <strong>' . date('d/m/Y', strtotime($fechaFin)) . '</strong></small>';
-        } else {
-            return '<small class="badge bg-warning text-dark px-3 py-1"><i class="fas fa-calendar-alt me-1"></i><strong>Todos los datos históricos</strong></small>';
+            return [
+                'tipo' => 'hasta',
+                'desde' => null,
+                'hasta' => $fechaFin
+            ];
         }
+
+        return [
+            'tipo' => 'todos',
+            'desde' => null,
+            'hasta' => null
+        ];
     }
 
     /**
@@ -629,13 +610,7 @@ class VentasDTO extends ReporteDTO
         ];
     }
 
-    /**
-     * Retorna HTML de tabla vacía
-     */
-    private function getTablaVaciaHtml(): string
-    {
-        return '<tr><td colspan="6" class="text-center py-5"><div class="text-muted"><i class="fas fa-inbox fa-3x mb-3 opacity-25"></i><h5>No hay datos disponibles</h5><p>Los filtros aplicados no devolvieron resultados. Intente con diferentes fechas.</p></div></td></tr>';
-    }
+    // Eliminado: HTML de tabla vacía. El frontend gestiona mensajes vacíos.
 
     /**
      * Retorna configuración de gráfico vacío
@@ -684,7 +659,9 @@ class VentasDTO extends ReporteDTO
             ->selectRaw('district, SUM(prize) as ventas, COUNT(*) as pedidos')
             ->whereNotNull('district')
             ->where('district', '!=', '')
-            ->where('zone_id', 1); 
+            ->whereRaw('LOWER(district) NOT LIKE ?', ['%retiro de tienda%'])
+            ->whereRaw('LOWER(district) NOT LIKE ?', ['%recojo en tienda%'])
+            ->where('zone_id', 1);
 
         // Aplicar filtros de fecha
         if (!empty($filtros['fecha_inicio_provincia'])) {
@@ -724,6 +701,9 @@ class VentasDTO extends ReporteDTO
             ->leftJoin('users', 'pedidos.user_id', '=', 'users.id')
             ->whereNotNull('pedidos.district')
             ->where('pedidos.district', '!=', '')
+            // Excluir registros de retiro/recogida en tienda
+            ->whereRaw('LOWER(pedidos.district) NOT LIKE ?', ['%retiro de tienda%'])
+            ->whereRaw('LOWER(pedidos.district) NOT LIKE ?', ['%recojo en tienda%'])
             ->where('pedidos.zone_id', 1);
 
         // Aplicar filtros de fecha

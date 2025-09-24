@@ -90,7 +90,6 @@ class GeoVentasService
             'pedidos' => $pedidos,
             'total_ventas' => $total,
             'total_pedidos' => array_sum($pedidos),
-            'tabla_html' => $this->generarTablaUbigeoHtml($labels, $ventas, $porcentaje, $pedidos),
             'titulo' => $agrupacion === 'provincia' ? 'Ventas por Provincia' : 'Ventas por Departamento',
         ];
     }

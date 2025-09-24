@@ -44,7 +44,9 @@ class DoctorController extends Controller
 
         // Aplicar filtros
         if ($search) {
-            $query->where('name', 'like', '%' . $search . '%');
+            $doctores = Doctor::where('name', 'like', '%' . $search . '%')->orWhere('cmp', 'like', '%' . $search . '%')->orderBy($ordenarPor, $direccion)->paginate(20);  // Paginación, 20 por página
+        } else {
+            $doctores = Doctor::orderBy($ordenarPor, $direccion)->paginate(20);
         }
 
         if ($startDate && $endDate) {
@@ -121,8 +123,6 @@ class DoctorController extends Controller
     }
     public function guardarDoctorVisitador(Request $request)
     {
-        Logger($request->all());
-        // dd($request->all());
         $request->validate([
             'CMP' => 'required|numeric|unique:doctor,CMP',
             'first_lastname' => 'required|string|max:100',
@@ -330,9 +330,9 @@ class DoctorController extends Controller
     {
         $query = $request->get('q');
 
-        $doctors = Doctor::where('name', 'LIKE', '%' . $query . '%')
+        $doctors = Doctor::where('name', 'LIKE', '%' . $query . '%')->orWhere('first_lastname', 'LIKE', '%' . $query . '%')->orWhere('second_lastname', 'LIKE', '%' . $query . '%')
             ->limit(10)
-            ->get(['id', 'name']);
+            ->get(['id', 'name','first_lastname','second_lastname']);
 
         return response()->json($doctors);
     }

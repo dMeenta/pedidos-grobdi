@@ -4,7 +4,7 @@ namespace App\Imports;
 
 use App\Imports\BaseImport;
 use App\Models\Pedidos;
-use App\Application\Services\Import\PedidosImportService;
+use App\Services\Import\PedidosImportService;
 
 class PedidosImport extends BaseImport
 {
