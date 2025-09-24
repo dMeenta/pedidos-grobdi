@@ -236,9 +236,7 @@ Route::middleware(['check.permission'])->group(function () {
     Route::get('/api/reportes/filtros/doctores', [ReporteController::class, 'filtrosDoctores'])->name('api.reportes.filtros.doctores');
     Route::get('/api/reportes/filtros/visitadoras', [ReporteController::class, 'filtrosVisitadoras'])->name('api.reportes.filtros.visitadoras');
 
-    Route::prefix('reports')
-    ->middleware(['checkRole:admin'])
-    ->group(function () {
+    Route::prefix('reports')->group(function () {
 
         Route::prefix('visitadoras')->group(function () {
             //! Migrado a ReporteController para unificar lógica de reportes comerciales
