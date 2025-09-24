@@ -104,9 +104,7 @@ $role = auth()->user()->role->name;
                         <th>Doctor</th>
                         <th>Est. Pago</th>
                         <th>Turno</th>
-                        @can('pedidos.showDeliveryStates')
                         <th>Est. Entrega</th>
-                        @endcan
                         <th width="200px">distrito</th>
                         <th width="200px">Voucher</th>
                         <th width="200px">Estado Producción</th>
@@ -135,15 +133,17 @@ $role = auth()->user()->role->name;
                                 </select>
                             </td>
                         </form>
-                        @can('pedidos.showDeliveryStates')
-                        <td>
-                            <div class="d-flex justify-content-center align-items-center">
-                                <button class="btn btn-info btn-sm btn-show-delivery-states" data-id="{{ $arr['id'] }}">
-                                    Ver estado
+                        <td class="align-middle" style="min-height: 80px;">
+                            <div class="d-flex flex-column justify-content-center h-100">
+                                <span class="badge bg-dark mb-2 text-wrap">{{ $arr->currentDeliveryState->state ?? 'Sin estado' }}</span>
+                                @can('pedidos.showDeliveryStates')
+                                <button class="btn btn-info btn-sm btn-show-delivery-states w-100"
+                                        data-id="{{ $arr['id'] }}">
+                                    Historial
                                 </button>
+                                @endcan
                             </div>
                         </td>
-                        @endcan
                         <td>{{ $arr["district"] }}</td>
                         <td>
                             @if ( $arr["voucher"] == 0)
