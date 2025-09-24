@@ -216,6 +216,25 @@ Route::middleware(['check.permission'])->group(function () {
     //JEFE COMERCIAL
     Route::resource('categoriadoctor', CategoriaDoctorController::class);
     Route::get('/ventascliente', [PedidosController::class, 'listPedCliente'])->name('pedidosxcliente.listar');
+
+    // Vistas de reportes
+    Route::get('/reporte/ventas', [ReporteController::class, 'ventas'])->name('reporte.ventas');
+    Route::get('/reporte/doctores', [ReporteController::class, 'doctores'])->name('reporte.doctores');
+    Route::get('/reporte/visitadoras', [ReporteController::class, 'visitadoras'])->name('reporte.visitadoras');
+
+    // API endpoints para datos dinámicos
+    Route::get('/api/reportes/ventas', [ReporteController::class, 'apiVentas'])->name('api.reportes.ventas');
+    Route::get('/api/reportes/ventas-general', [ReporteController::class, 'apiVentasGeneral'])->name('api.reportes.ventas-general');
+    Route::get('/api/reportes/ventas-provincias', [ReporteController::class, 'apiVentasProvincias'])->name('api.reportes.ventas-provincias');
+    Route::get('/api/reportes/pedidos-departamento', [ReporteController::class, 'apiPedidosPorDepartamento'])->name('api.reportes.pedidos-departamento');
+    Route::get('/api/reportes/doctores', [ReporteController::class, 'apiDoctores'])->name('api.reportes.doctores');
+    Route::get('/api/reportes/visitadoras', [ReporteController::class, 'apiVisitadoras'])->name('api.reportes.visitadoras');
+    Route::get('/api/visitadoras/visitadora', [ReporteController::class, 'apiVentasVisitadora'])->name('reporte.api.ventas.visitadora');
+
+    // Endpoints para configuración de filtros
+    Route::get('/api/reportes/filtros/ventas', [ReporteController::class, 'filtrosVentas'])->name('api.reportes.filtros.ventas');
+    Route::get('/api/reportes/filtros/doctores', [ReporteController::class, 'filtrosDoctores'])->name('api.reportes.filtros.doctores');
+    Route::get('/api/reportes/filtros/visitadoras', [ReporteController::class, 'filtrosVisitadoras'])->name('api.reportes.filtros.visitadoras');
 });
 
     /*
