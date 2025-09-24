@@ -135,7 +135,16 @@ $role = auth()->user()->role->name;
                         </form>
                         <td class="align-middle" style="min-height: 80px;">
                             <div class="d-flex flex-column justify-content-center h-100">
-                                <span class="badge bg-dark mb-2 text-wrap">{{ $arr->currentDeliveryState->state ?? 'Sin estado' }}</span>
+                                @php
+                                    $estado = $arr->currentDeliveryState->state ?? 'Sin estado';
+
+                                    $color = match ($estado) {
+                                        'reprogramado' => 'bg-warning',
+                                        'entregado' => 'bg-success',
+                                        default => 'bg-dark',
+                                    };
+                                @endphp
+                                <span class="badge {{ $color }} mb-2 text-wrap">{{ $estado }}</span>
                                 @can('pedidos.showDeliveryStates')
                                 <button class="btn btn-info btn-sm btn-show-delivery-states w-100"
                                         data-id="{{ $arr['id'] }}">
