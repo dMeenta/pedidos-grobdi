@@ -242,9 +242,9 @@ Route::middleware(['check.permission'])->group(function () {
 
         Route::prefix('visitadoras')->group(function () {
             //! Migrado a ReporteController para unificar lógica de reportes comerciales
-            Route::get('/', [\App\Http\Controllers\ReporteController::class, 'visitadoras'])->name('reports.visitadoras.index');
-            Route::get('/distritos/{zoneId}', [\App\Http\Controllers\ReporteController::class, 'getDistritosByZone'])->name('getDistritosByZone');
-            Route::get('/filter', [\App\Http\Controllers\ReporteController::class, 'filterVisitasDoctor'])->name('reports.visitas.filter');
+            Route::get('/', [ReporteController::class, 'visitadoras'])->name('reports.visitadoras.index');
+            Route::get('/distritos/{zoneId}', [ReporteController::class, 'getDistritosByZone'])->name('getDistritosByZone');
+            Route::get('/filter', [ReporteController::class, 'filterVisitasDoctor'])->name('reports.visitas.filter');
         });
 
         Route::prefix('ventas')->group(function () {
