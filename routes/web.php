@@ -226,7 +226,7 @@ Route::middleware(['check.permission'])->group(function () {
     Route::get('/api/reportes/ventas-provincias', [ReporteController::class, 'apiVentasProvincias'])->name('api.reportes.ventas-provincias');
     Route::get('/api/reportes/pedidos-departamento', [ReporteController::class, 'apiPedidosPorDepartamento'])->name('api.reportes.pedidos-departamento');
     Route::get('/api/reportes/doctores', [ReporteController::class, 'apiDoctores'])->name('api.reportes.doctores');
-    Route::get('/api/reportes/visitadoras', [ReporteController::class, 'apiVisitadoras'])->name('api.reportes.visitadoras');
+    // Route::get('/api/reportes/visitadoras', [ReporteController::class, 'apiVisitadoras'])->name('api.reportes.visitadoras');
     Route::get('/api/visitadoras/visitadora', [ReporteController::class, 'apiVentasVisitadora'])->name('reporte.api.ventas.visitadora');
 
     // Endpoints para configuración de filtros
