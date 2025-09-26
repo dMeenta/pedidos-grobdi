@@ -45,7 +45,12 @@ class CargarPedidosController extends Controller
             $dia = now()->format('Y-m-d');
         }
         $filtro = $request->filtro ?: "deliveryDate";
-        $pedidos = Pedidos::whereDate($filtro, $dia)->orderBy('nroOrder')->get();
+        $pedidos = Pedidos::whereDate($filtro, $dia);
+        $turno = $request->query('turno');
+        if ($turno !== null && $turno !== '') {
+            $pedidos = $pedidos->where('turno', $turno);
+        }
+        $pedidos = $pedidos->orderBy('nroOrder')->get();
         return view('pedidos.counter.cargar_pedido.index', compact('pedidos'));
     }
 

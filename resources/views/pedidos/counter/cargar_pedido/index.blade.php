@@ -26,64 +26,92 @@ $role = auth()->user()->role->name;
             <a class="btn btn-success btn-sm" href="{{ route('cargarpedidos.create') }}"> <i class="fa fa-plus"></i> Cargar datos</a>
         </div>
         <br>
-        <div class="row">
-            <div class="col-xs-6 col-sm-6 col-md-6">
-                <form action="{{ route('cargarpedidos.index') }}" method="GET">
-                    <div class="row">
-                        <div class="col-xs-1 col-sm-1 col-md-1">
-                            <label for="fecha">Fecha:</label>
-                        </div>
-                        <div class="col-xs-3 col-sm-3 col-md-3">
-                            <select name="filtro" class="form-control">
-                                <option value="deliveryDate">Fecha de Entrega</option>
-                                <option value="created_at" {{ request()->query('filtro')=='created_at'?'selected':'' }}>Fecha de Registro</option>
-                            </select>
-                        </div>
-                        <div class="col-xs-4 col-sm-4 col-md-4">
-                            <input class="form-control" type="date" name="fecha" id="fecha" value="{{ request()->query('fecha')?request()->query('fecha'):date('Y-m-d') }}" required>
-                        </div>
-                        <div class="col-xs-4 col-sm-4 col-md-4">
-                            <button type="submit" class="btn btn-outline-success"><i class="fa fa-search"></i> Buscar</button>
-                        </div>
-                    </div>
-                </form>
+        <div class="card border-success shadow-lg">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0"><i class="fa fa-filter"></i> Filtros y Opciones</h5>
             </div>
-            <div class="col-xs-6 col-sm-6 col-md-6">
-                <form action="{{ route('cargarpedidos.downloadWord') }}" method="POST">
-                    @csrf
-                    <div class="row">
-                        <div class="col-xs-3 col-sm-3 col-md-3">
-                            <b>Seleccione Turno</b>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="turno" id="turno0" value=0 checked>
-                                <label class="form-check-label" for="turno0">
-                                    Mañana
-                                </label>
+            <div class="card-body bg-light">
+                <div class="row g-4">
+                    <div class="col-lg-8 col-md-12">
+                        <div class="card border-info shadow-sm h-100">
+                            <div class="card-header bg-info text-white">
+                                <h6 class="card-title mb-0"><i class="fa fa-search"></i> Filtrar Pedidos</h6>
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="turno" id="turno1" value=1>
-                                <label class="form-check-label" for="turno1">
-                                    Tarde
-                                </label>
+                            <div class="card-body">
+                                <form action="{{ route('cargarpedidos.index') }}" method="GET">
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-6">
+                                            <label for="filtro" class="form-label fw-bold text-success"><i class="fa fa-calendar-alt"></i> Tipo de Fecha</label>
+                                            <select name="filtro" class="form-control form-select-lg bg-light shadow-sm" style="width: 100%;">
+                                                <option value="deliveryDate">Fecha de Entrega</option>
+                                                <option value="created_at" {{ request()->query('filtro')=='created_at'?'selected':'' }}>Fecha de Registro</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="fecha" class="form-label fw-bold text-success"><i class="fa fa-calendar"></i> Fecha</label>
+                                            <input class="form-control form-control-lg bg-light shadow-sm" type="date" name="fecha" id="fecha" value="{{ request()->query('fecha')?request()->query('fecha'):date('Y-m-d') }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label for="turno" class="form-label fw-bold text-success"><i class="fa fa-clock"></i> Turno</label>
+                                            <select name="turno" class="form-control form-select-lg bg-light shadow-sm" style="width: 100%;">
+                                                <option value="">Todos</option>
+                                                <option value="0" {{ request()->query('turno')=='0'?'selected':'' }}>Mañana</option>
+                                                <option value="1" {{ request()->query('turno')=='1'?'selected':'' }}>Tarde</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 d-flex align-items-end">
+                                            <button type="submit" class="btn btn-success w-100 shadow-sm"><i class="fa fa-search"></i> Buscar</button>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
-                        </div>
-                        <div class="col-xs-2 col-sm-2 col-md-2">
-                            @if(request()->get('fecha'))
-                            <input type="hidden" value={{ request()->get('fecha') }} name="fecha">
-                            @else
-                            <input type="hidden" value={{ date('Y-m-d') }} name="fecha">
-                            @endif
-                            <button class="btn btn-outline-primary" type="submit"><i class="fa fa-file-word"></i> Descargar Word</button>
                         </div>
                     </div>
-                </form>
+                    <div class="col-lg-4 col-md-12">
+                        <div class="card border-warning shadow-sm h-100">
+                            <div class="card-header bg-warning text-dark">
+                                <h6 class="card-title mb-0"><i class="fa fa-download"></i> Descargar Documento</h6>
+                            </div>
+                            <div class="card-body">
+                                <form action="{{ route('cargarpedidos.downloadWord') }}" method="POST" class="row g-3">
+                                    @csrf
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold text-warning"><i class="fa fa-clock"></i> Turno</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="turno" id="turno0" value="0" checked>
+                                            <label class="form-check-label text-success fw-bold" for="turno0">
+                                                Mañana
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="turno" id="turno1" value="1">
+                                            <label class="form-check-label text-danger fw-bold" for="turno1">
+                                                Tarde
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 d-flex align-items-end">
+                                        @if(request()->get('fecha'))
+                                        <input type="hidden" value="{{ request()->get('fecha') }}" name="fecha">
+                                        @else
+                                        <input type="hidden" value="{{ date('Y-m-d') }}" name="fecha">
+                                        @endif
+                                        <button class="btn btn-primary w-100 shadow-sm" type="submit"><i class="fa fa-file-word"></i> Descargar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         @error('message')
-        <p style="color: red;">{{ $message }}</p>
+        <div class="alert alert-danger mt-2 mb-2">
+            {{ $message }}
+        </div>
         @enderror
-
-        <br>
         <div class="table table-responsive">
             <table class="table table-striped table-hover" id="miTabla">
                 <thead>
