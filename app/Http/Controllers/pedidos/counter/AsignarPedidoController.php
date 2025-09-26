@@ -19,6 +19,14 @@ class AsignarPedidoController extends Controller
     {
         $zonas = $this->pedidoAssignmentService->getZonas();
         $pedidos = $this->pedidoAssignmentService->getPedidosForDate($request->query("fecha"));
+
+        // Filtrar por nroOrder si se proporciona
+        if ($request->query("nroOrder")) {
+            $pedidos = $pedidos->filter(function ($pedido) use ($request) {
+                return strpos($pedido->nroOrder, $request->query("nroOrder")) !== false;
+            });
+        }
+
         return view('pedidos.counter.asignar_pedido.index', compact("zonas", "pedidos"));
     }
 
