@@ -3,7 +3,7 @@
 @section('title', 'Reporte de Visitadoras')
 
 @section('content_header')
-    <h1><i class="fas fa-user-friends text-success"></i> Reporte de Visitadoras</h1>
+<h1><i class="fas fa-user-friends text-success"></i> Reporte de Visitadoras</h1>
 @stop
 
 @section('css')
@@ -25,7 +25,7 @@
 
         <div class="card-body">
             <div class="tab-content" id="visitadorasTabsContent">
-                @include('reporte.componentes.visitadoras.rutas')
+                @include('reports.visitadoras.index')
             </div>
         </div>
     </div>
@@ -41,5 +41,7 @@
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<script>// Lógica dinámica migrada al partial rutas.blade.php</script>
+<script>
+    // Lógica dinámica migrada al partial rutas.blade.php
+</script>
 @endsection

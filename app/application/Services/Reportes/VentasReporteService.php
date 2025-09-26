@@ -3,7 +3,7 @@
 namespace App\Application\Services\Reportes;
 
 use App\Application\DTOs\Reportes\VentasDTO;
-use App\Application\DTOs\Reportes\ReporteDTO;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -50,6 +50,18 @@ class VentasReporteService extends BaseReporteService
         $this->saveToCache($cacheKey, $data);
 
         return $data;
+    }
+
+    public function getVisitadoraData(string $start_date, string $end_date)
+    {
+        $filtros = [
+            'start_date' => Carbon::parse($start_date)->startOfDay(),
+            'end_date'   => Carbon::parse($end_date)->endOfDay(),
+        ];
+
+        $dto = new VentasDTO($filtros);
+
+        return $dto->getVentasByVisitadoraData($filtros);
     }
 
     /**

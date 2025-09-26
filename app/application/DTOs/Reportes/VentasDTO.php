@@ -43,7 +43,7 @@ class VentasDTO extends ReporteDTO
         );
 
         // Inicializar solo las propiedades livianas primero
-        $this->visitadoras = $this->getDatosVisitadoras($filtros);
+        $this->visitadoras = $this->getVentasByVisitadoraData($filtros);
         $this->general = $this->getDatosGeneral($filtros);
 
         // Las propiedades pesadas (productos, provincias) se inicializan solo cuando se necesiten
@@ -78,29 +78,34 @@ class VentasDTO extends ReporteDTO
      * @param array $filtros
      * @return array Datos de visitadoras con ventas y visitas
      */
-    private function getDatosVisitadoras(array $filtros = []): array
+    public function getVentasByVisitadoraData(array $filtros = [])
     {
-        // Consulta real a la tabla pedidos con join a users
-        $query = Pedidos::selectRaw('users.name as visitadora, SUM(pedidos.prize) as ventas, COUNT(pedidos.id) as visitas')
-            ->join('users', 'pedidos.user_id', '=', 'users.id')
-            ->groupBy('users.id', 'users.name')
-            ->orderByRaw('SUM(pedidos.prize) DESC');
+        $query = DB::table('pedidos as p')
+            ->join('users as u', 'u.id', '=', 'p.visitadora_id')
+            ->select(
+                'u.id as visitadora_id',
+                'u.name as visitadora',
+                DB::raw('SUM(p.prize) as total_monto'),
+                DB::raw('COUNT(p.id) as total_pedidos')
+            )
+            ->where('u.role_id', 6);
 
-        // Aplicar filtros si existen
-        if (isset($filtros['anio_general'])) {
-            $query->whereYear('pedidos.created_at', $filtros['anio_general']);
+        if (isset($filtros['start_date']) && isset($filtros['end_date'])) {
+            $query->whereBetween('p.created_at', [$filtros['start_date'], $filtros['end_date']]);
         }
-        if (isset($filtros['mes_general'])) {
-            $query->whereMonth('pedidos.created_at', $filtros['mes_general']);
-        }
 
-        $resultados = $query->get();
+        $res = $query->groupBy('u.id', 'u.name')->get();
 
-        return [
-            'labels' => $resultados->pluck('visitadora')->toArray(),
-            'ventas' => $resultados->pluck('ventas')->map(function($venta) { return (float) $venta; })->toArray(),
-            'visitas' => $resultados->pluck('visitas')->map(function($visita) { return (int) $visita; })->toArray()
-        ];
+        $totalPedidos = $res->sum('total_pedidos');
+
+        return $res->map(function ($item) use ($totalPedidos) {
+            return [
+                'visitadora' => $item->visitadora,
+                'total_monto' => (float) $item->total_monto,
+                'total_pedidos' => (int) $item->total_pedidos,
+                'porcentaje_pedidos' => $totalPedidos > 0 ? round(($item->total_pedidos / $totalPedidos) * 100, 1) : 0,
+            ];
+        })->toArray();
     }
 
     /**
@@ -124,7 +129,7 @@ class VentasDTO extends ReporteDTO
             ->whereRaw('LOWER(detail_pedidos.articulo) NOT LIKE ?', ['bolsa%'])
             ->groupBy('detail_pedidos.articulo')
             ->orderByRaw('SUM(detail_pedidos.sub_total) DESC')
-            ->limit(100); 
+            ->limit(100);
 
         // Aplicar filtros si existen
         if (isset($filtros['anio_general'])) {
@@ -144,20 +149,26 @@ class VentasDTO extends ReporteDTO
 
         // Filtro por defecto: si NO se especificó año, mes ni rangos de fecha para productos,
         // limitar desde el primer día del mes actual hasta hoy.
-        if (!isset($filtros['anio_general']) && !isset($filtros['mes_general'])
-            && !isset($filtros['fecha_inicio_producto']) && !isset($filtros['fecha_fin_producto'])) {
+        if (
+            !isset($filtros['anio_general']) && !isset($filtros['mes_general'])
+            && !isset($filtros['fecha_inicio_producto']) && !isset($filtros['fecha_fin_producto'])
+        ) {
             $primerDiaMes = date('Y-m-01');
             $hoy = date('Y-m-d');
             $query->whereDate('pedidos.created_at', '>=', $primerDiaMes)
-                  ->whereDate('pedidos.created_at', '<=', $hoy);
+                ->whereDate('pedidos.created_at', '<=', $hoy);
         }
 
         $resultados = $query->get();
 
         return [
             'labels' => $resultados->pluck('producto')->toArray(),
-            'ventas' => $resultados->pluck('ventas')->map(function($venta) { return (float) $venta; })->toArray(),
-            'unidades' => $resultados->pluck('unidades')->map(function($unidad) { return (int) $unidad; })->toArray()
+            'ventas' => $resultados->pluck('ventas')->map(function ($venta) {
+                return (float) $venta;
+            })->toArray(),
+            'unidades' => $resultados->pluck('unidades')->map(function ($unidad) {
+                return (int) $unidad;
+            })->toArray()
         ];
     }
 
@@ -233,7 +244,9 @@ class VentasDTO extends ReporteDTO
         return [
             'tipo' => 'diario',
             'periodo' => "Mes $mes del $anio",
-            'labels' => array_map(function($dia) { return str_pad($dia, 2, '0', STR_PAD_LEFT); }, $dias),
+            'labels' => array_map(function ($dia) {
+                return str_pad($dia, 2, '0', STR_PAD_LEFT);
+            }, $dias),
             'ventas' => $ventas,
             'visitas' => $visitas,
             'total_ventas' => array_sum($ventas),
@@ -258,8 +271,20 @@ class VentasDTO extends ReporteDTO
             ->get()
             ->keyBy('mes');
 
-        $meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-                 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        $meses = [
+            'Enero',
+            'Febrero',
+            'Marzo',
+            'Abril',
+            'Mayo',
+            'Junio',
+            'Julio',
+            'Agosto',
+            'Septiembre',
+            'Octubre',
+            'Noviembre',
+            'Diciembre'
+        ];
         $ventas = [];
         $visitas = [];
 
@@ -290,7 +315,7 @@ class VentasDTO extends ReporteDTO
     public function getDatosProductosCompletos(array $filtros = []): array
     {
         $productos = $this->getProductosLazy();
-        
+
         if (empty($productos['labels'])) {
             return [
                 'productos' => $productos,
@@ -302,7 +327,7 @@ class VentasDTO extends ReporteDTO
 
         // Procesar datos para gráficos
         $productorProcesados = $this->procesarProductosParaGraficos($productos);
-        
+
         return [
             'productos' => $productos,
             'productos_procesados' => $productorProcesados,
@@ -336,7 +361,7 @@ class VentasDTO extends ReporteDTO
         }
 
         // Ordenar por ventas descendente
-        usort($productosArray, function($a, $b) {
+        usort($productosArray, function ($a, $b) {
             return $b['ventas'] <=> $a['ventas'];
         });
 
@@ -351,7 +376,7 @@ class VentasDTO extends ReporteDTO
             $ventasOrdenadas[] = $producto['ventas'];
             $unidadesOrdenadas[] = $producto['unidades'];
             $rankings[] = $index + 1;
-            
+
             // Generar colores según el ranking
             if ($index === 0) {
                 $colores[] = 'rgba(255, 193, 7, 0.8)'; // Oro para #1
@@ -425,7 +450,7 @@ class VentasDTO extends ReporteDTO
             ];
         }
 
-        usort($productosArray, function($a, $b) {
+        usort($productosArray, function ($a, $b) {
             return $b['ventas'] <=> $a['ventas'];
         });
 
@@ -636,7 +661,7 @@ class VentasDTO extends ReporteDTO
             ->where('district', '!=', '')
             ->whereRaw('LOWER(district) NOT LIKE ?', ['%retiro de tienda%'])
             ->whereRaw('LOWER(district) NOT LIKE ?', ['%recojo en tienda%'])
-            ->where('zone_id', 1); 
+            ->where('zone_id', 1);
 
         // Aplicar filtros de fecha
         if (!empty($filtros['fecha_inicio_provincia'])) {

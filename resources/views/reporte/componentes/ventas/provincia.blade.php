@@ -181,11 +181,12 @@
                                 <th>Total (S/)</th>
                                 <th>Distrito Original</th>
                                 <th>Visitadora</th>
+                                <th>Estado</th>
                             </tr>
                         </thead>
                         <tbody id="tablaPedidosDetallados">
                             <tr>
-                                <td colspan="5" class="text-center py-4">
+                                <td colspan="6" class="text-center py-4">
                                 </td>
                             </tr>
                         </tbody>
