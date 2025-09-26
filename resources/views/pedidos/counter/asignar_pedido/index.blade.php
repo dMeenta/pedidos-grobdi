@@ -17,8 +17,8 @@
                             <input class="form-control border-info bg-light shadow-sm" type="date" name="fecha" id="fecha" value="{{ request()->query('fecha') }}" required>
                         </div>
                         <div class="col-md-4">
-                            <label for="nroOrder" class="form-label fw-bold text-info"><i class="fa fa-hashtag"></i> Nro de Orden</label>
-                            <input class="form-control border-info bg-light shadow-sm" type="text" name="nroOrder" id="nroOrder" value="{{ request()->query('nroOrder') }}" placeholder="Ingrese número de orden">
+                            <label for="orderId" class="form-label fw-bold text-info"><i class="fa fa-hashtag"></i> Nro de Pedido</label>
+                            <input class="form-control border-info bg-light shadow-sm" type="text" name="orderId" id="orderId" value="{{ request()->query('orderId') }}" placeholder="Ingrese número de pedido">
                         </div>
                         <div class="col-md-4 d-flex align-items-end">
                             <button id="searchBtn" type="submit" class="btn btn-info w-100 shadow-sm"><i class="fa fa-search"></i> Buscar</button>

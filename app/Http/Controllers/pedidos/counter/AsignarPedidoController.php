@@ -21,9 +21,9 @@ class AsignarPedidoController extends Controller
         $pedidos = $this->pedidoAssignmentService->getPedidosForDate($request->query("fecha"));
 
         // Filtrar por nroOrder si se proporciona
-        if ($request->query("nroOrder")) {
+        if ($request->query("orderId")) {
             $pedidos = $pedidos->filter(function ($pedido) use ($request) {
-                return strpos($pedido->nroOrder, $request->query("nroOrder")) !== false;
+                return strpos($pedido->orderId, $request->query("orderId")) !== false;
             });
         }
 
