@@ -35,6 +35,7 @@
         <br>
         <div class="row">
             @foreach($zonas as $zona)
+            <div class="table table-responsive">
                 <div class="col-xs-6 col-sm-6 col-md-6">
                     <label for="fecha_inicio">{{ $zona->name }}</label>
 
@@ -87,7 +88,7 @@
             
                     </table>
                 </div>
-
+            </div>
             @endforeach
         </div>
         @error('message')

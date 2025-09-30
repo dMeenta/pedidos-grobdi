@@ -145,12 +145,12 @@ class PedidosPreviewImport implements ToCollection
                     if($pedido_exist->deliveryDate != $new_fecha) {
                         $pedido_exist->deliveryDate = $new_fecha;
                         // Recalcular nroOrder para la nueva fecha
-                        $contador_registro = Pedidos::where('deliveryDate', $new_fecha)->orderBy('nroOrder', 'desc')->first();
-                        $ultimo_nro = 1;
-                        if($contador_registro){
-                            $ultimo_nro = $contador_registro->nroOrder + 1;
-                        }
-                        $pedido_exist->nroOrder = $ultimo_nro;
+                        // $contador_registro = Pedidos::where('deliveryDate', $new_fecha)->orderBy('nroOrder', 'desc')->first();
+                        // $ultimo_nro = 1;
+                        // if($contador_registro){
+                        //     $ultimo_nro = $contador_registro->nroOrder + 1;
+                        // }
+                        // $pedido_exist->nroOrder = $ultimo_nro;
                         $hasChanges = true;
                     }
                     
