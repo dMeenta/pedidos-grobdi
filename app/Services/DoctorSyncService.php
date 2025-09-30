@@ -26,14 +26,15 @@ class DoctorSyncService
         ];
 
         try {
-            $fechaInicio = '2025-09-01';
-            $fechaFin = '2025-09-24';
+            $fechaFin = Carbon::now(); // Hoy
+            $fechaInicio = Carbon::now()->subDays(10); // 10 días antes
+
             // Obtener pedidos sin doctor asignado
             $pedidosSinDoctor = Pedidos::whereNull('id_doctor')
                 ->whereNotNull('doctorName')
                 ->whereBetween('created_at', [
-                    Carbon::parse($fechaInicio)->startOfDay(),
-                    Carbon::parse($fechaFin)->endOfDay()
+                    $fechaInicio->startOfDay(),
+                    $fechaFin->endOfDay()
                 ])
                 ->get();
 
