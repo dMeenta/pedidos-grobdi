@@ -86,11 +86,15 @@ class PedidosPreviewImport implements ToCollection
                     
                     // Buscar visitadora por name_softlynn (nuevo requerimiento)
                     $visitadora = null;
-                    if(isset($row[19]) && trim($row[19]) !== ''){
-                        $visitadora = User::where('name_softlynn', trim($row[19]))->first();
+                    if(isset($row[14]) && trim($row[14]) !== ''){
+                        $visitadora = User::where('name_softlynn', trim($row[14]))->first();
                     }
-                    // user_id siempre será el usuario autenticado que hace la importación
-                    $pedidos->user_id = Auth::user()->id;
+                    $usuario = User::where('name', $row[19])->first();
+                    if(empty($usuario)){
+                        $pedidos->user_id = Auth::user()->id;
+                    } else {
+                        $pedidos->user_id = $usuario->id;
+                    }
                     // visitadora_id se guarda si se encontró coincidencia por name_softlynn
                     $pedidos->visitadora_id = $visitadora?->id;
                     
@@ -183,8 +187,8 @@ class PedidosPreviewImport implements ToCollection
                     
                     // Re-evaluar visitadora por name_softlynn del excel
                     $visitadora = null;
-                    if(isset($row[19]) && trim($row[19]) !== ''){
-                        $visitadora = User::where('name_softlynn', trim($row[19]))->first();
+                    if(isset($row[14]) && trim($row[14]) !== ''){
+                        $visitadora = User::where('name_softlynn', trim($row[14]))->first();
                     }
                     if($visitadora && $pedido_exist->visitadora_id != $visitadora->id){
                         $pedido_exist->visitadora_id = $visitadora->id;

@@ -4,6 +4,7 @@ namespace App\Application\DTOs\Reportes;
 
 use App\Models\Pedidos;
 use App\Application\Services\Reportes\GeoVentasService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -91,7 +92,9 @@ class VentasDTO extends ReporteDTO
             ->where('u.role_id', 6);
 
         if (isset($filtros['start_date']) && isset($filtros['end_date'])) {
-            $query->whereBetween('p.created_at', [$filtros['start_date'], $filtros['end_date']]);
+            $startDate = Carbon::parse($filtros['start_date'])->startOfDay();
+            $endDate = Carbon::parse($filtros['end_date'])->endOfDay();
+            $query->whereBetween('p.created_at', [$startDate, $endDate]);
         }
 
         $res = $query->groupBy('u.id', 'u.name')->get();
