@@ -252,6 +252,10 @@ Route::middleware(['check.permission'])->group(function () {
             Route::get('/', [ReporteController::class, 'doctoresLegacy'])->name('reports.doctores.index');
             Route::get('get-doctor-report', [ReporteController::class, 'getDoctorReportLegacy'])->name('reports.doctores.getDoctorReport');
         });
+        
+        Route::prefix('motorizados')->group(function(){
+            Route::get('/', [ReportsController::class, 'motorizadosView'])->name('reports.motorizados');
+        });
     });
 });
 

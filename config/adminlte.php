@@ -329,6 +329,16 @@ return [
         //     'label_color' => 'success',
         // ],
         [
+            'header' => 'Prueba Motorizado',
+            'can' => ['admin']
+        ],
+        [
+            'text' => 'Reportes Motorizado',
+            'url' => 'reports/motorizados',
+            'icon' => 'fas fa-briefcase',
+            'can' => ['admin']
+        ],
+        [
             'text' => 'Reportes Visitadoras Prueba',
             'url' => 'reports/visitadoras',
             'icon' => 'fas fa-briefcase',

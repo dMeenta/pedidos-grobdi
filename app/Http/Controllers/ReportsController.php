@@ -20,6 +20,10 @@ class ReportsController extends Controller
         $this->reportsService = $reportsService;
     }
 
+    public function motorizadosView(){
+        return view('reports.motorizados.index');
+    }
+
     public function indexVisitadoras(Request $request)
     {
         // DEPRECATED: Lógica movida a ReporteController::visitadoras
