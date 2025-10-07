@@ -20,28 +20,30 @@ use Illuminate\Support\Facades\DB;
 
 class EnrutamientoController extends Controller
 {
-    public function index(){
-        $rutas = Enrutamiento::orderBy('fecha','desc')->get();
-        return view('rutas.enrutamiento.index',compact('rutas'));
+    public function index()
+    {
+        $rutas = Enrutamiento::orderBy('fecha', 'desc')->get();
+        return view('rutas.enrutamiento.index', compact('rutas'));
     }
-    public function store(Request $request){
+    public function store(Request $request)
+    {
         // Validación
         // dd($request->all());
         $request->validate([
             'fecha_mes' => 'required',
         ]);
         // dd($request->fecha_mes.'-00');
-        $zonas = Zone::whereNotIn('name',['Recojo en tienda','Otros'])->get();
-        $existe_fecha = Enrutamiento::where('fecha',$request->fecha_mes.'-01')->first();
-        if(!$existe_fecha){
+        $zonas = Zone::whereNotIn('name', ['Recojo en tienda', 'Otros'])->get();
+        $existe_fecha = Enrutamiento::where('fecha', $request->fecha_mes . '-01')->first();
+        if (!$existe_fecha) {
             foreach ($zonas as $zona) {
                 $enrutamiento = new Enrutamiento();
-                $enrutamiento->fecha = $request->fecha_mes.'-01';
+                $enrutamiento->fecha = $request->fecha_mes . '-01';
                 $enrutamiento->zone_id = $zona->id;
                 $enrutamiento->save();
-                
+
             }
-        }else{
+        } else {
             return redirect()->route('enrutamiento.index')->with('danger', 'Mes ya existente');
         }
         // Si la validación es correcta, guardar el item
@@ -49,29 +51,30 @@ class EnrutamientoController extends Controller
 
         return redirect()->route('enrutamiento.index')->with('success', 'Mes añadido correctamente');
     }
-    public function agregarLista($id){
+    public function agregarLista($id)
+    {
         $enrutamiento = Enrutamiento::find($id);
         $visitas = VisitaDoctor::whereHas('enrutamientoLista', function ($query) use ($id) {
             $query->where('enrutamiento_id', $id);
-        })->where('estado_visita_id','like',6)->get();
-        $listas = Lista::where('zone_id',$enrutamiento->zone_id)->get();
-        $enrutamiento_lista = EnrutamientoLista::where('enrutamiento_id',$id)->get();
+        })->where('estado_visita_id', 'like', 6)->get();
+        $listas = Lista::where('zone_id', $enrutamiento->zone_id)->get();
+        $enrutamiento_lista = EnrutamientoLista::where('enrutamiento_id', $id)->get();
         $fechas_seleccionadas = [];
         $fecha_fin = Carbon::parse($enrutamiento->fecha)->endOfMonth()->toDateString();
-        if($enrutamiento_lista){
-            foreach($enrutamiento_lista as $ruta_lista){
+        if ($enrutamiento_lista) {
+            foreach ($enrutamiento_lista as $ruta_lista) {
                 $rangoInicio = Carbon::parse($ruta_lista->fecha_inicio);
                 $rangoFin = Carbon::parse($ruta_lista->fecha_fin);
                 while ($rangoInicio <= $rangoFin) {
                     // Agregar el día actual al arreglo
                     $fechas_seleccionadas[] = $rangoInicio->toDateString();
-                
+
                     // Avanzar un día
                     $rangoInicio->addDay();
                 }
             }
         }
-        return view('rutas.enrutamiento.enrutamientolista', compact('listas','enrutamiento','fechas_seleccionadas','visitas','fecha_fin'));
+        return view('rutas.enrutamiento.enrutamientolista', compact('listas', 'enrutamiento', 'fechas_seleccionadas', 'visitas', 'fecha_fin'));
     }
     public function Enrutamientolistastore(Request $request)
     {
@@ -176,23 +179,79 @@ class EnrutamientoController extends Controller
         return redirect()->route('enrutamiento.agregarlista', $request->enrutamiento_id);
     }
 
-    public function DoctoresLista(Request $request,$id){
-        $doctores = VisitaDoctor::where('enrutamientolista_id',$id)->whereNot('estado_visita_id','like',6)->get();
-        $enruta = VisitaDoctor::where('enrutamientolista_id',$id)->first();
-        if(!$enruta){
-            return redirect()->back()->with('danger','No hay doctores asignados a esta ruta, por favor asigne una lista');
+    public function DoctoresLista(Request $request, $id)
+    {
+        $doctores = VisitaDoctor::where('enrutamientolista_id', $id)->whereNot('estado_visita_id', 'like', 6)->get();
+        $enruta = VisitaDoctor::where('enrutamientolista_id', $id)->first();
+        if (!$enruta) {
+            return redirect()->back()->with('danger', 'No hay doctores asignados a esta ruta, por favor asigne una lista');
         }
         $id = $enruta->enrutamientolista->enrutamiento->id;
-        return view('rutas.enrutamiento.doctoreslista',compact('doctores','id'));
+        $dateRange = [
+            'start_date' => $enruta->enrutamientolista->fecha_inicio,
+            'end_date' => $enruta->enrutamientolista->fecha_fin,
+        ];
+
+        return view('rutas.enrutamiento.doctoreslista', compact('doctores', 'id', 'dateRange'));
     }
-    public function DoctoresListaUpdate(Request $request,$id){
+    public function DoctoresListaUpdate(Request $request, $id)
+    {
         $visita_doctor = VisitaDoctor::find($id);
         $visita_doctor->fecha = $request->fecha;
-        $visita_doctor->estado_visita_id = $visita_doctor->estado_visita_id == 3 ? 5 :2;
+        $visita_doctor->estado_visita_id = $visita_doctor->estado_visita_id == 3 ? 5 : 2;
         $visita_doctor->save();
-        return back()->with('success','Doctor Asignado exitosamente');
+        return back()->with('success', 'Doctor Asignado exitosamente');
     }
-    public function calendariovisitadora(Request $request){
+
+    public function addSpontaneousVisitaDoctor(Request $request)
+    {
+        $request->validate([
+            'doctor_id' => 'required|integer',
+            'enrutamientolista_id' => 'required|integer',
+            'fecha' => 'required|date',
+        ]);
+
+        $date = $request->fecha;
+        $dateSelected = Carbon::parse($date);
+        $doctorId = $request->doctor_id;
+        $enrutamientoListaId = $request->enrutamientolista_id;
+
+        $row = VisitaDoctor::with('enrutamientolista')->where('doctor_id', $doctorId)
+            ->where('enrutamientolista_id', $enrutamientoListaId)->first();
+
+        $allowedStartDate = Carbon::parse($row->enrutamientolista->fecha_inicio);
+        $allowedEndDate = Carbon::parse($row->enrutamientolista->fecha_fin);
+
+        if ($row) {
+            if ($row->estado_visita_id === 4) {
+                return response()->json(['success' => false, 'message' => 'El doctor ya fue visitado anteriormente.']);
+            }
+
+            if ($dateSelected->lt($allowedStartDate) || $dateSelected->gt($allowedEndDate)) {
+                return response()->json(['success' => false, 'message' => 'La fecha seleccionada esta fuera del rangoi permitido.']);
+            }
+
+            $row->estado_visita_id = 4;
+            $row->fecha = $date;
+            $row->save();
+            $message = 'Doctor marcado como visitado correctamente.';
+        } else {
+            $row = VisitaDoctor::create([
+                'doctor_id' => $doctorId,
+                'enrutamientolista_id' => $enrutamientoListaId,
+                'fecha' => $date,
+                'estado_visita_id' => 4,
+            ]);
+            $message = 'Visita registrada exitosamente.';
+        }
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+        ]);
+    }
+
+    public function calendariovisitadora(Request $request)
+    {
         // $doctoresSinFecha = VisitaDoctor::with('doctor')->get();
         $visitas = VisitaDoctor::whereHas('enrutamientolista.enrutamiento.zone.users', function ($query) {
             $query->where('users.id', Auth::id());
@@ -200,18 +259,18 @@ class EnrutamientoController extends Controller
         $estados = EstadoVisita::all(['id', 'name', 'color']);
         // dd($visitas);
         $eventos = $visitas->map(function ($visita) {
-            if($visita->doctor->categoriadoctor->name=='AAA'){
+            if ($visita->doctor->categoriadoctor->name == 'AAA') {
                 $categoriadoctor = '★★★';
-            }elseif($visita->doctor->categoriadoctor->name=='AA'){
+            } elseif ($visita->doctor->categoriadoctor->name == 'AA') {
                 $categoriadoctor = '★★';
-            }elseif($visita->doctor->categoriadoctor->name=='A'){
+            } elseif ($visita->doctor->categoriadoctor->name == 'A') {
                 $categoriadoctor = '★';
-            }else{
+            } else {
                 $categoriadoctor = $visita->doctor->categoriadoctor->name;
             }
             return [
                 'id' => $visita->id,
-                'title' => $categoriadoctor.' - '.$visita->doctor->name .' '.$visita->doctor->first_lastname .' '. $visita->doctor->second_lastname,
+                'title' => $categoriadoctor . ' - ' . $visita->doctor->name . ' ' . $visita->doctor->first_lastname . ' ' . $visita->doctor->second_lastname,
                 'start' => $visita->fecha,
                 'color' => $visita->estado_visita->color ?? '#cccccc',
             ];
@@ -223,13 +282,14 @@ class EnrutamientoController extends Controller
         //     $query->where('users.id', Auth::id());
         // })->whereNotIn('id', $doctoresConVisita)->get();
 
-        return view('rutas.visita.calendario', compact('eventos','estados'));
+        return view('rutas.visita.calendario', compact('eventos', 'estados'));
     }
-    public function DetalleDoctorRutas(Request $request,$id){
+    public function DetalleDoctorRutas(Request $request, $id)
+    {
         $visita = VisitaDoctor::findOrFail($id);
         $id_doctor = $visita->doctor_id;
         $doctor = Doctor::with(['distrito', 'especialidad', 'centroSalud'])->find($id_doctor);
-        $estados = EstadoVisita::whereNotIn('id',[1,2])->get();
+        $estados = EstadoVisita::whereNotIn('id', [1, 2])->get();
         $fecha_inicio = $visita->enrutamientolista->fecha_inicio;
         $fecha_fin = $visita->enrutamientolista->fecha_fin;
 
@@ -243,7 +303,7 @@ class EnrutamientoController extends Controller
         //         ->where('day_id', $diaSemana)
         //         ->value('turno'); // trae directamente el campo turno
 
-                $turno = $visita->turno == 1 ? 'Tarde' : 'Mañana';
+        $turno = $visita->turno == 1 ? 'Tarde' : 'Mañana';
         // }
         if (!$doctor) {
             return response()->json(['error' => 'Doctor no encontrado'], 404);
@@ -253,29 +313,30 @@ class EnrutamientoController extends Controller
             'visita' => $visita,
             'turno' => $turno,
             'estados' => $estados,
-            'rango'=>[
-                'fecha_inicio'=>$fecha_inicio,
-                'fecha_fin'=>$fecha_fin,
+            'rango' => [
+                'fecha_inicio' => $fecha_inicio,
+                'fecha_fin' => $fecha_fin,
             ]
         ]);
     }
-    public function GuardarVisita(Request $request){
+    public function GuardarVisita(Request $request)
+    {
         $request->validate([
             'doctor_id' => 'required|exists:doctor,id',
             'estado_visita_id' => 'required|exists:estado_visita,id',
             'observaciones' => 'nullable|string',
         ]);
         $visita = VisitaDoctor::findOrFail($request->visita_id);
-        if($request['estado_visita_id'] == 5){
-            if($visita->reprogramar == 1){
+        if ($request['estado_visita_id'] == 5) {
+            if ($visita->reprogramar == 1) {
                 return response()->json(['error' => 'Ya no se puede reprogramar su visita, contactar con su supervisora'], 404);
-            }else{
+            } else {
                 $visita->reprogramar = 1;
             }
         }
         $visita->estado_visita_id = $request['estado_visita_id'];
         $visita->observaciones_visita = $request['observaciones'];
-        if($request['fecha_visita']){
+        if ($request['fecha_visita']) {
             $visita->fecha = $request['fecha_visita'];
         }
         $visita->latitude = $request['latitude'] ?? 19.4326;
@@ -295,6 +356,6 @@ class EnrutamientoController extends Controller
             'extendedProps' => [
                 'turno' => $visita->turno, // 0 = mañana, 1 = tarde
             ],
-        ]);    
+        ]);
     }
 }

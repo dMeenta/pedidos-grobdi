@@ -223,6 +223,9 @@ Route::middleware(['checkRole:supervisor,admin'])->group(function () {
     Route::post('/visitadoctornuevo/{id}/rechazar', [VisitaDoctorController::class, 'rechazar']);
     Route::resource('categoriadoctor', CategoriaDoctorController::class);
 });
+
+Route::post('/visita-doctor/add-spontaneous', [EnrutamientoController::class, 'addSpontaneousVisitaDoctor'])->name('visita.doctor.add.spontaneous');
+
 //VISITADOR
 Route::middleware(['checkRole:visitador,admin'])->group(function () {
 
