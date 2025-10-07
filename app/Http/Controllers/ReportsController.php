@@ -4,59 +4,102 @@ namespace App\Http\Controllers;
 
 use App\Models\Distrito;
 use App\Models\EstadoVisita;
-use App\Models\VisitaDoctor;
 use App\Models\Zone;
 use App\Domain\Reports\ReportsService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class ReportsController extends Controller
 {
-
-    protected ReportsService $reportsService;
-
-    public function __construct(ReportsService $reportsService)
+    public function __construct(protected readonly ReportsService $reportsService)
     {
-        $this->reportsService = $reportsService;
     }
 
-    public function indexVisitadoras(Request $request)
+    /* Ventas */
+    public function ventasView()
     {
-        // DEPRECATED: Lógica movida a ReporteController::visitadoras
-        $month = $request->input('month', now()->month);
+        $data = $this->reportsService->ventas()->createInitialReport();
+        return view('reports.ventas.index', compact('data'));
+    }
+    public function getGeneralReport(Request $request)
+    {
+        $filters = [
+            'month' => $request->input('month'),
+            'year' => $request->input('year'),
+        ];
+        return response()->json($this->reportsService->ventas()->getGeneralReport($filters)->toArray(), 200);
+    }
+    public function getVisitadorasReport(Request $request)
+    {
+        $filters = [
+            'start_date' => $request->input('start_date'),
+            'end_date' => $request->input('end_date'),
+        ];
+        return response()->json($this->reportsService->ventas()->getVisitadorasReport($filters)->toArray(), 200);
+    }
+    public function getProductosReport(Request $request)
+    {
+        $filters = [
+            'start_date' => $request->input('start_date'),
+            'end_date' => $request->input('end_date'),
+        ];
 
-        $initialValues = VisitaDoctor::select('estado_visita_id', DB::raw('COUNT(*) as total'))
-            ->whereMonth('fecha', $month)
-            ->whereYear('fecha', now()->year)
-            ->groupBy('estado_visita_id')
-            ->pluck('total', 'estado_visita_id');
+        return response()->json($this->reportsService->ventas()->getProductosReport($filters)->toArray(), 200);
+    }
+    public function getProvinciasReport(Request $request)
+    {
+        $filters = [
+            'start_date' => $request->input('start_date'),
+            'end_date' => $request->input('end_date'),
+        ];
 
+        return response()->json($this->reportsService->ventas()->getProvinciasReport($filters)->toArray(), 200);
+    }
+    public function getPedidosDetailsByProvincia(Request $request)
+    {
+        $filters = [
+            'start_date' => $request->input('start_date'),
+            'end_date' => $request->input('end_date'),
+            'departamento' => $request->input('departamento')
+        ];
+
+        if (!isset($filters['departamento'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'El parámetro { departamento } es requerido'
+            ], 400);
+        }
+
+        return response()->json($this->reportsService->ventas()->getDetailsPedidosByDepartamento($filters)->toArray(), 200);
+    }
+
+    /* Rutas */
+    public function rutasView()
+    {
         $zones = Zone::select('id', 'name')->get();
-
         $estadosVisitas = EstadoVisita::all();
-        return view('reports.visitadoras.index', compact('estadosVisitas', 'initialValues', 'zones'));
-    }
+        $data = $this->reportsService->rutas()->createInitialReport();
 
-    public function indexVentas(Request $request)
+        return view('reports.rutas.index', compact('data', 'zones', 'estadosVisitas'));
+    }
+    public function getZonesReport(Request $request)
     {
-        return view('reports.ventas.index');
-    }
+        $filters = [
+            'month' => $request->input('month'),
+            'year' => $request->input('year'),
+            'distritos' => $request->input('distritos')
+        ];
 
-    public function indexDoctores()
-    {
-        // DEPRECATED: lógica migrada a ReporteController::doctoresLegacy
-        abort(410, 'Endpoint deprecated, use /reporte/doctores');
+        return response()->json($this->reportsService->rutas()->getZonesReport($filters)->toArray(), 200);
     }
-
-    public function getDoctorReport(Request $request)
-    {
-        // DEPRECATED: lógica migrada a ReporteController::getDoctorReportLegacy
-        return response()->json(['message' => 'Deprecated endpoint. Use nueva ruta en ReporteController'], 410);
-    }
-
     public function getDistritosByZone($zoneId)
     {
-        // DEPRECATED: usar ReporteController::getDistritosByZone
+        if (!isset($zoneId)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'El parámetro { zoneId } es requerido'
+            ], 400);
+        }
+
         $distritosByZone = Distrito::whereHas('listas', function ($q) use ($zoneId) {
             $q->where('zone_id', $zoneId);
         })->get();
@@ -64,55 +107,26 @@ class ReportsController extends Controller
         return response()->json($distritosByZone);
     }
 
-    public function filterVisitasDoctor(Request $request)
+    /* Doctores */
+    public function doctorsView()
     {
-        // DEPRECATED: usar ReporteController::filterVisitasDoctor
-        $month = $request->input('month', now()->month);
-        $distritos = $request->input('distritos', []);
-
-        if (is_string($distritos)) {
-            $distritos = trim($distritos) === '[]' || trim($distritos) === '' ?
-                [] : explode(',', trim($distritos, '[]'));
-        }
-
-        $distritos = array_filter(array_map('intval', $distritos));
-
-        if (empty($distritos)) {
-            $resumenVisitas = VisitaDoctor::select('estado_visita_id', DB::raw('COUNT(*) as total'))
-                ->whereMonth('fecha', $month)
-                ->whereYear('fecha', now()->year)
-                ->groupBy('estado_visita_id')
-                ->pluck('total', 'estado_visita_id');
-
-            return response()->json([
-                'Total' => $resumenVisitas
-            ]);
-        }
-
-        $resultados = VisitaDoctor::query()
-            ->select([
-                'distritos.id as distrito_id',
-                'distritos.name as distrito_name',
-                'visita_doctor.estado_visita_id',
-                DB::raw('COUNT(*) as total')
-            ])
-            ->join('doctor', 'doctor.id', '=', 'visita_doctor.doctor_id')
-            ->join('distritos', 'distritos.id', '=', 'doctor.distrito_id')
-            ->whereMonth('visita_doctor.fecha', $month)
-            ->whereYear('visita_doctor.fecha', now()->year)
-            ->whereIn('doctor.distrito_id', $distritos)
-            ->groupBy('distritos.id', 'distritos.name', 'visita_doctor.estado_visita_id')
-            ->get();
-
-        $resumen = $resultados->groupBy('distrito_id')->map(function ($rows) {
-            return [
-                'distrito' => $rows->first()->distrito_name,
-                'estados'  => $rows->pluck('total', 'estado_visita_id'),
-            ];
-        });
-
-        $resumen['Total'] = $resultados->groupBy('estado_visita_id')->map->sum('total');
-
-        return response()->json($resumen);
+        $data = $this->reportsService->doctors()->createInitialReport();
+        return view('reports.doctores.index', compact('data'));
+    }
+    public function getDoctorReport(Request $request)
+    {
+        $filters = [
+            'id_doctor' => $request->input('id_doctor'),
+            'month' => $request->input('month'),
+            'year' => $request->input('year'),
+        ];
+        return response()->json($this->reportsService->doctors()->getDoctorReport($filters)->toArray(), 200);
+    }
+    public function getTipoDoctorReport(Request $request)
+    {
+        $filters = [
+            'year' => $request->input('year'),
+        ];
+        return response()->json($this->reportsService->doctors()->getTipoDoctorReport($filters)->toArray(), 200);
     }
 }
