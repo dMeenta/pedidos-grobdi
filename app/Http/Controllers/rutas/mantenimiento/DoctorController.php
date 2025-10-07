@@ -44,9 +44,14 @@ class DoctorController extends Controller
 
         // Aplicar filtros
         if ($search) {
-            $doctores = Doctor::where('name', 'like', '%' . $search . '%')->orWhere('cmp', 'like', '%' . $search . '%')->orderBy($ordenarPor, $direccion)->paginate(20);  // Paginación, 20 por página
-        } else {
-            $doctores = Doctor::orderBy($ordenarPor, $direccion)->paginate(20);
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                ->orWhere('first_lastname', 'like', "%{$search}%")
+                ->orWhere('second_lastname', 'like', "%{$search}%")
+                ->orWhere('cmp', 'like', "%{$search}%")
+                ->orWhere('name_softlynn', 'like', "%{$search}%")
+                ->orWhere(DB::raw("CONCAT(name, ' ', first_lastname, ' ', second_lastname)"), 'like', "%{$search}%");
+            });
         }
 
         if ($startDate && $endDate) {

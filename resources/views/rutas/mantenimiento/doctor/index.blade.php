@@ -40,7 +40,7 @@
             <div class="card-body">
                 <form method="GET" action="{{ route('doctor.index') }}" class="row g-3">
                     <div class="col-md-6">
-                        <label for="search" class="form-label"><i class="fa fa-search"></i> Buscar por Nombre</label>
+                        <label for="search" class="form-label"><i class="fa fa-search"></i> Buscar por Nombre o CMP</label>
                         <input type="text" name="search" id="search" placeholder="Buscar..." value="{{ $search }}" class="form-control">
                     </div>
                     <div class="col-md-3">
