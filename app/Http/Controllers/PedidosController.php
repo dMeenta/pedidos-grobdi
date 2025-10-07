@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\counter\CargarPedidosUpdateRequest;
+use App\Traits\Query\ExcludeWordsFromQuery;
 use Illuminate\Http\Request;
 use App\Models\Pedidos;
 use App\Models\Zone;
@@ -20,6 +21,9 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
 class PedidosController extends Controller
 {
+
+    use ExcludeWordsFromQuery;
+
     public function index(Request $request)
     {
         if ($request->query("fecha")) {
@@ -50,7 +54,7 @@ class PedidosController extends Controller
         $delimitadores = ["\n"];
         array_shift($partes);
         foreach ($partes as $parte) {
-            $find   = '# PROGRAMAR';
+            $find = '# PROGRAMAR';
             $bool_formato = strpos($parte, $find);
             if ($bool_formato !== false) {
                 $regex = '/[' . implode('', array_map('preg_quote', $delimitadores)) . ']+/';
@@ -266,10 +270,11 @@ class PedidosController extends Controller
             $query = DB::table('detail_pedidos')
                 ->join('pedidos', 'detail_pedidos.pedidos_id', '=', 'pedidos.id')
                 ->select('pedidos.customerName', 'pedidos.customerNumber', 'detail_pedidos.articulo', DB::raw('SUM(detail_pedidos.cantidad) as total_comprado'), DB::raw('MAX(pedidos.created_at) as ultima_compra'))
-                ->whereNotLike('detail_pedidos.articulo', '%bolsa%')
-                ->whereNotLike('detail_pedidos.articulo', '%delivery%')
-                ->groupBy('pedidos.customerName', 'pedidos.customerNumber', 'detail_pedidos.articulo');
-            $query->whereBetween('pedidos.created_at', [$desde, $hasta]);
+                ->groupBy('pedidos.customerName', 'pedidos.customerNumber', 'detail_pedidos.articulo')
+                ->whereBetween('pedidos.created_at', [$desde, $hasta]);
+
+            $this->excludeArrayFromDataResults($query, 'detail_pedidos.articulo', ['%bolsa%', '%delivery%']);
+            ;
 
             $resultados = $query->get();
         }
@@ -321,9 +326,11 @@ class PedidosController extends Controller
         $motorizados = User::select('id', 'name')
             ->where('active', true)
             ->where('role_id', 5)
-            ->with(['zones' => function ($q) {
-                $q->select('zones.name');
-            }])
+            ->with([
+                'zones' => function ($q) {
+                    $q->select('zones.name');
+                }
+            ])
             ->get()
             ->map(function ($user) {
                 $user->zone = $user->zones->first();
@@ -371,26 +378,28 @@ class PedidosController extends Controller
                     ->where('motorizado_id', $motorizado->id);
             })
             ->withSum('detailPedidos', 'cantidad')
-            ->with(['deliveryStates' => function ($q) use ($requestedDate, $motorizado) {
-                $q->select([
-                    'id',
-                    'pedido_id',
-                    'datetime_foto_domicilio',
-                    'datetime_foto_entrega',
-                    'receptor_nombre',
-                    'receptor_firma',
-                    'observacion',
-                    'created_at'
-                ])
-                    ->whereDate('created_at', $requestedDate)
-                    ->where('motorizado_id', $motorizado->id);
-            }])
+            ->with([
+                'deliveryStates' => function ($q) use ($requestedDate, $motorizado) {
+                    $q->select([
+                        'id',
+                        'pedido_id',
+                        'datetime_foto_domicilio',
+                        'datetime_foto_entrega',
+                        'receptor_nombre',
+                        'receptor_firma',
+                        'observacion',
+                        'created_at'
+                    ])
+                        ->whereDate('created_at', $requestedDate)
+                        ->where('motorizado_id', $motorizado->id);
+                }
+            ])
             ->get();
 
         $allStates = collect();
         foreach ($pedidos as $pedido) {
             foreach ($pedido->deliveryStates as $state) {
-                $allStates->push((object)[
+                $allStates->push((object) [
                     'district' => $pedido->district,
                     'orderId' => $pedido->orderId,
                     'customerName' => $pedido->customerName,
