@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Domain\Interfaces\ReportsRepositoryInterface;
+use App\Infrastructure\Repository\ReportsRepository;
 use App\Models\User;
 use App\Domain\Reports\Doctor\DoctorReportRepositoryInterface;
 use App\Domain\Reports\Doctor\DoctorReportRepository;
@@ -20,6 +22,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             DoctorReportRepositoryInterface::class,
             DoctorReportRepository::class
+        );
+        $this->app->bind(
+            ReportsRepositoryInterface::class,
+            ReportsRepository::class
         );
     }
 
