@@ -2,30 +2,37 @@
 
 namespace App\Domain\Reports;
 
-use App\Domain\Reports\Doctor\DoctorReportService;
+use App\Application\Services\Reports\RutasReport\RutasReportService;
+use App\Application\Services\Reports\VentasReport\VentasReportService;
+use App\Application\Services\Reports\DoctorsReport\DoctorsReportService;
+
 
 class ReportsService
 {
-    protected DoctorReportService $doctorService;
+    protected RutasReportService $rutasReportService;
+    protected VentasReportService $ventasReportService;
+    protected DoctorsReportService $doctorsReportService;
 
     public function __construct(
-        DoctorReportService $doctorService,
+        RutasReportService $rutasReportService,
+        VentasReportService $ventasReportService,
+        DoctorsReportService $doctorsReportService,
     ) {
-        $this->doctorService = $doctorService;
+        $this->rutasReportService = $rutasReportService;
+        $this->ventasReportService = $ventasReportService;
+        $this->doctorsReportService = $doctorsReportService;
     }
 
-    public function doctor()
+    public function rutas()
     {
-        return $this->doctorService;
+        return $this->rutasReportService;
     }
-
-    /* public function pedido()
+    public function ventas()
     {
-        return $this->pedidoService;
+        return $this->ventasReportService;
     }
-
-    public function zona()
+    public function doctors()
     {
-        return $this->zonaService;
-    } */
+        return $this->doctorsReportService;
+    }
 }
