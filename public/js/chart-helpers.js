@@ -23,9 +23,14 @@ function createChart(canvasId, labels, datasets, type, extraOptions = {}) {
 }
 
 /* Must include the [empty-chart] partial for this functions */
-function detectChartDataLength(chart, dataLength) {
+function detectChartDataLength(chart) {
     const $canvas = $(chart.canvas);
-    if (dataLength < 1) {
+
+    const allDataValues = chart.data.datasets
+        .flatMap((ds) => ds.data)
+        .filter((v) => v !== null && v !== undefined && v !== 0);
+
+    if (chart.data.datasets.length === 0 || allDataValues.length === 0) {
         $canvas.siblings(".chart-message").fadeIn();
     } else {
         $canvas.siblings(".chart-message").hide();
