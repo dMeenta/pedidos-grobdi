@@ -17,6 +17,7 @@ class ReportsRepository implements ReportsRepositoryInterface
 {
     use ExcludeWordsFromQuery;
 
+    /* -------- Ventas -------- */
     public function getVentasGeneralReport(int $month, int $year): Collection
     {
         $periodColumn = $month > 0 ? 'DAY(created_at)' : 'MONTH(created_at)';
@@ -25,6 +26,7 @@ class ReportsRepository implements ReportsRepositoryInterface
         {$periodColumn} as period,
         SUM(prize) as total_amount,
         COUNT(*) as total_pedidos")->whereYear('created_at', $year)
+            ->where('status', true)
             ->when($month > 0, fn($q) => $q->whereMonth('created_at', $month))
             ->orderBy('period')
             ->groupBy('period')
@@ -38,7 +40,7 @@ class ReportsRepository implements ReportsRepositoryInterface
                 u.name as visitadora,
                 SUM(p.prize) as total_amount,
                 COUNT(p.id) as total_pedidos'
-            )->where('u.role_id', 6)
+            )->where('u.role_id', 6)->where('status', true)
             ->when($startDate && $endDate, function ($q) use ($startDate, $endDate) {
                 $q->whereBetween('p.created_at', [$startDate, $endDate]);
             })->groupBy('u.id', 'u.name')
@@ -59,6 +61,7 @@ class ReportsRepository implements ReportsRepositoryInterface
             SUM(dp.sub_total) as total_amount,
             SUM(dp.cantidad) as total_products
             ')->join('pedidos as p', 'dp.pedidos_id', '=', 'p.id')
+            ->where('p.status', true)
             ->whereNotNull('dp.articulo')->where('dp.articulo', '!=', '')
             ->when($startDate && $endDate, fn($q) => $q->whereBetween('p.created_at', [$startDate, $endDate]))
             ->groupBy('dp.articulo')
@@ -75,6 +78,8 @@ class ReportsRepository implements ReportsRepositoryInterface
             ];
         });
     }
+
+    /* -------- Rutas -------- */
     public function getRutasZonesReport(int $month, int $year, array $distritos): Collection
     {
         return VisitaDoctor::query()
@@ -93,15 +98,16 @@ class ReportsRepository implements ReportsRepositoryInterface
             ->get();
     }
 
+    /* -------- Doctores -------- */
     public function getAmountSpentAnuallyByDoctor(int $year, int $doctorId): array
     {
         $rawData = Pedidos::selectRaw('MONTH(created_at) as month, SUM(prize) as total_amount')
+            ->where('status', true)
             ->whereYear('created_at', $year)->where('id_doctor', $doctorId)
             ->groupBy('month')->pluck('total_amount', 'month')
             ->all();
         return array_replace(array_fill(1, 12, 0), $rawData);
     }
-
     public function getMostConsumedProductsMonthlyByDoctor(int $year, int $month, int $doctorId): Collection
     {
         $excludedWords = ['%delivery%', 'bolsa%'];
@@ -110,7 +116,8 @@ class ReportsRepository implements ReportsRepositoryInterface
         $query = DB::table('detail_pedidos as dp')
             ->join('pedidos as p', 'dp.pedidos_id', '=', 'p.id')->select($cols)
             ->whereYear('p.created_at', $year)->whereMonth('p.created_at', $month)
-            ->where('p.id_doctor', $doctorId);
+            ->where('p.id_doctor', $doctorId)
+            ->where('p.status', true);
 
         $this->excludeArrayFromDataResults($query, 'dp.articulo', $excludedWords);
 
@@ -155,6 +162,7 @@ class ReportsRepository implements ReportsRepositoryInterface
                 UPPER(SUBSTRING_INDEX(dp.articulo, " ", 1)) as tipo,
                 SUM(dp.sub_total) as total_sub_total
             ')
+            ->where('p.status', true)
             ->whereYear('p.created_at', $year)
             ->whereMonth('p.created_at', $month)
             ->when($doctorId, fn($q) => $q->where('p.id_doctor', $doctorId))
@@ -199,7 +207,7 @@ class ReportsRepository implements ReportsRepositoryInterface
             'id' => $doctor['id'],
             'name' => $doctor['name'],
             'tipo_medico' => $doctor['tipo_medico'],
-            'is_top_doctor' => true,
+            'is_top_doctor' => false,
         ];
     }
     public function getDoctoresByTipoAndYear(int $year): Collection
@@ -209,138 +217,43 @@ class ReportsRepository implements ReportsRepositoryInterface
                 $join->on('dr.id', '=', 'p.id_doctor')
                     ->whereYear('p.created_at', $year);
             })
-            ->select(
-                'dr.tipo_medico',
-                DB::raw('COUNT(DISTINCT dr.id) as total_doctores'),
-                DB::raw('COALESCE(SUM(p.prize), 0) as total_amount'),
-                DB::raw('COUNT(p.id) as total_pedidos')
+            ->select('
+                dr.tipo_medico,
+                COUNT(DISTINCT dr.id) as total_doctores,
+                COALESCE(SUM(p.prize), 0) as total_amount,
+                COUNT(p.id) as total_pedidos'
             )
+            ->where('p.status', true)
             ->whereNotNull('dr.tipo_medico')
             ->groupBy('dr.tipo_medico')
             ->get();
     }
-
     public function getPedidosByTipoAndMonth(int $year): Collection
     {
         return DB::table('doctor as dr')
             ->join('pedidos as p', 'dr.id', '=', 'p.id_doctor')
-            ->select(
-                DB::raw('MONTH(p.created_at) as month'),
-                DB::raw('dr.tipo_medico'),
-                DB::raw('SUM(p.prize) as total_amount'),
-                DB::raw('COUNT(p.id) as total_pedidos')
+            ->selectRaw(
+                'MONTH(p.created_at) as month,
+                dr.tipo_medico,
+                SUM(p.prize) as total_amount,
+                COUNT(p.id) as total_pedidos'
             )
+            ->where('p.status', true)
             ->whereNotNull('dr.tipo_medico')
             ->whereYear('p.created_at', $year)
             ->groupBy('month', 'dr.tipo_medico')
             ->get();
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /* ---- Lo más profundo de este lugar... Provincias ---- */
-
+    /* -------- Provincias -------- */
     public function getRawDataGeoVentas(string $startDate, string $endDate): Collection
     {
         $query = Pedidos::query()
             ->selectRaw('district, SUM(prize) as total_amount, COUNT(*) as total_pedidos')
             ->whereNotNull('district')->where('district', '!=', '')
             ->whereBetween('created_at', [$startDate, $endDate])
-            ->where('zone_id', 1);
+            ->where('zone_id', 1)
+            ->where('status', true);
         $this->excludeArrayFromDataResults($query, 'district', ['%retiro en tienda%', '%recojo en tienda%']);
 
         return $query->groupBy('district')->get();
@@ -358,51 +271,37 @@ class ReportsRepository implements ReportsRepositoryInterface
             ->leftJoin('users', 'pedidos.user_id', '=', 'users.id')
             ->whereNotNull('pedidos.district')->where('pedidos.district', '!=', '')
             ->where('pedidos.zone_id', 1)
+            ->where('pedidos.status', true)
             ->whereBetween('pedidos.created_at', [$startDate, $endDate]);
         $this->excludeArrayFromDataResults($query, 'pedidos.district', ['%retiro en tienda%', '%recojo en tienda%']);
 
         return $query->orderBy('pedidos.created_at', 'desc')->get();
     }
-
-    public function getDepartamentosForMap(): array
+    public function getDepartamentosForMap(): Collection
     {
-        return Departamento::select('id', 'name')->get()->toArray();
+        return Departamento::select('id', 'name')->get();
     }
-
-    public function getProvinciasForMap(): array
+    public function getProvinciasForMap(): Collection
     {
-        return Provincia::select('id', 'name')->get()->toArray();
+        return Provincia::select('id', 'name')->get();
     }
-
-    public function getProvinciasWithDepartamentoForMap(): array
+    public function getProvinciasWithDepartamentoForMap(): Collection
     {
         return Provincia::select('id', 'name', 'departamento_id')
-            ->with(['departamento:id,name'])
-            ->get()
-            ->toArray();
+            ->with(['departamento:id,name'])->get();
     }
-
-    public function getDistritosWithProvinciaAndDepartamentoForMap(): array
+    public function getDistritosWithProvinciaAndDepartamentoForMap(): Collection
     {
         return Distrito::select('id', 'name', 'provincia_id')
             ->with([
                 'provincia:id,name,departamento_id',
                 'provincia.departamento:id,name'
             ])
-            ->get()
-            ->toArray();
+            ->get();
     }
-
-    public function getDistritosWithProvinciaForMap(): array
+    public function getDistritosWithProvinciaForMap(): Collection
     {
         return Distrito::select('id', 'name', 'provincia_id')
-            ->with(['provincia:id,name'])
-            ->get()
-            ->toArray();
+            ->with(['provincia:id,name'])->get();
     }
-
-
-
-
-
 }

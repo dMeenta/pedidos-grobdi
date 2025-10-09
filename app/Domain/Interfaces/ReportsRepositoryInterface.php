@@ -17,9 +17,9 @@ interface ReportsRepositoryInterface
     public function getDoctorInfo(int $doctorId): mixed;
     public function getRawDataGeoVentas(string $startDate, string $endDate): Collection;
     public function getRawDataGeoVentasDetails(string $startDate, string $endDate): Collection;
-    public function getDepartamentosForMap(): array;
-    public function getProvinciasForMap(): array;
-    public function getProvinciasWithDepartamentoForMap(): array;
-    public function getDistritosWithProvinciaAndDepartamentoForMap(): array;
-    public function getDistritosWithProvinciaForMap(): array;
+    public function getDepartamentosForMap(): Collection;
+    public function getProvinciasForMap(): Collection;
+    public function getProvinciasWithDepartamentoForMap(): Collection;
+    public function getDistritosWithProvinciaAndDepartamentoForMap(): Collection;
+    public function getDistritosWithProvinciaForMap(): Collection;
 }
