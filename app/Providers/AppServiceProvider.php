@@ -5,8 +5,6 @@ namespace App\Providers;
 use App\Domain\Interfaces\ReportsRepositoryInterface;
 use App\Infrastructure\Repository\ReportsRepository;
 use App\Models\User;
-use App\Domain\Reports\Doctor\DoctorReportRepositoryInterface;
-use App\Domain\Reports\Doctor\DoctorReportRepository;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Gate;
@@ -19,10 +17,6 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         //
-        $this->app->bind(
-            DoctorReportRepositoryInterface::class,
-            DoctorReportRepository::class
-        );
         $this->app->bind(
             ReportsRepositoryInterface::class,
             ReportsRepository::class
