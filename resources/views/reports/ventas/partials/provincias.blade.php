@@ -498,7 +498,7 @@
                     provinciasModalTotalAmountCard.html(`
                         <i class="fas fa-dollar-sign fa-2x mb-2"></i>
                         <h4>S/ ${getFormattedMoneyValue(response.general_stats.total_amount)}</h4>
-                        <small>Total de Pedidos</small>`)
+                        <small>Total de Ingresos</small>`)
                     provinciasUpdateDetailsPedidosByDepartamentoTable(response.data);
                 },
                 error: function(xhr) {

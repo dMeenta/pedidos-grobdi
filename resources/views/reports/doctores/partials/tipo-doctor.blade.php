@@ -412,6 +412,7 @@
             }));
 
             tipoDoctorBarChart.update();
+            detectChartDataLength(tipoDoctorBarChart);
         }
 
         $('#tipo-doctor-clean-filter').on('click', function(e) {

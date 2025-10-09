@@ -424,29 +424,25 @@
             const data = response.data;
             doctorNameLabel
                 .text(
-                    `${doctorInfo.is_top_doctor ? 'Top Doctor:': ''} ${doctorInfo.doctor} - Tipo: ${doctorInfo.tipo_doctor}`
+                    `${doctorInfo.is_top_doctor ? 'Top Doctor:': 'Dr.'} ${doctorInfo.doctor} - Tipo: ${doctorInfo.tipo_doctor}`
                 );
-            try {
-                doctorUpdateAmountSpentAnuallyChart(response.data.amount_spent_anually);
-                doctorUpdateBarCharts(
-                    doctorMostConsumedProductsChart,
-                    data.most_consumed_products_monthly.slice(0, 3).map(i => i.articulo),
-                    data.most_consumed_products_monthly.slice(0, 3).map(i => i.total_cantidad));
-                doctorUpdateBarCharts(
-                    doctorAmountSpentMonthlyGroupedByTipoChart,
-                    data.amount_spent_monthly_grouped_by_tipo.map(i => i.tipo),
-                    data.amount_spent_monthly_grouped_by_tipo.map(i => i.total_sub_total));
+            doctorUpdateAmountSpentAnuallyChart(response.data.amount_spent_anually);
+            doctorUpdateBarCharts(
+                doctorMostConsumedProductsChart,
+                data.most_consumed_products_monthly.slice(0, 3).map(i => i.articulo),
+                data.most_consumed_products_monthly.slice(0, 3).map(i => i.total_cantidad));
+            doctorUpdateBarCharts(
+                doctorAmountSpentMonthlyGroupedByTipoChart,
+                data.amount_spent_monthly_grouped_by_tipo.map(i => i.tipo),
+                data.amount_spent_monthly_grouped_by_tipo.map(i => i.total_sub_total));
 
-                tableRenderRows(doctorProductsDetailsTable, data.most_consumed_products_monthly, (i) => `
+            tableRenderRows(doctorProductsDetailsTable, data.most_consumed_products_monthly, (i) => `
                 <tr>
                     <td>${i.articulo}</td>
                     <td class="text-center">${i.total_cantidad}</td>
                     <td class="text-center">S/ ${(i.total_sub_total / i.total_cantidad).toFixed(2)}</td>
                     <td class="text-center">S/ ${i.total_sub_total.toFixed(2)}</td>
                 </tr>`);
-            } catch (error) {
-                console.log(error);
-            }
         }
 
         function doctorUpdateAmountSpentAnuallyChart(amountSpentAnuallyData) {
