@@ -6,21 +6,13 @@ use App\Application\Services\Reports\RutasReport\RutasReportService;
 use App\Application\Services\Reports\VentasReport\VentasReportService;
 use App\Application\Services\Reports\DoctorsReport\DoctorsReportService;
 
-
 class ReportsService
 {
-    protected RutasReportService $rutasReportService;
-    protected VentasReportService $ventasReportService;
-    protected DoctorsReportService $doctorsReportService;
-
     public function __construct(
-        RutasReportService $rutasReportService,
-        VentasReportService $ventasReportService,
-        DoctorsReportService $doctorsReportService,
+        protected RutasReportService $rutasReportService,
+        protected VentasReportService $ventasReportService,
+        protected DoctorsReportService $doctorsReportService,
     ) {
-        $this->rutasReportService = $rutasReportService;
-        $this->ventasReportService = $ventasReportService;
-        $this->doctorsReportService = $doctorsReportService;
     }
 
     public function rutas()
