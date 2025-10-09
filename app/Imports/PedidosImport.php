@@ -4,7 +4,9 @@ namespace App\Imports;
 
 use App\Imports\BaseImport;
 use App\Models\Pedidos;
+use App\Models\Distritos_zonas;
 use App\Application\Services\Import\PedidosImportService;
+use Illuminate\Support\Facades\Auth;
 
 class PedidosImport extends BaseImport
 {
@@ -33,27 +35,30 @@ class PedidosImport extends BaseImport
     protected function getDefaultColumnMapping(): array
     {
         return [
-            0 => 'campo0',
-            1 => 'campo1', 
+            0 => 'row_number',
+            1 => 'fecha',
             2 => 'tipo_registro',
             3 => 'orderId',
             4 => 'customerName',
-            5 => 'customerNumber',
-            6 => 'doctorName',
-            7 => 'turno',
+            5 => 'customerPhone_1',
+            6 => 'customerPhone_2',
+            7 => 'vence',
             8 => 'prize',
-            9 => 'campo9',
+            9 => 'saldo',
             10 => 'paymentMethod',
-            11 => 'campo11',
+            11 => 'salesStatus',
             12 => 'productionStatus',
             13 => 'deliveryDate_excel',
-            14 => 'campo14',
-            15 => 'campo15',
+            14 => 'visitadora_name',
+            15 => 'doctorName',
             16 => 'district',
             17 => 'address',
             18 => 'reference',
-            19 => 'zone_name',
-            20 => 'visitadora_name',
+            19 => 'usuario_nombre',
+            20 => 'fecha_registro',
+            21 => 'cpe_codigo',
+            22 => 'cpe_fecha',
+            23 => 'status_text',
         ];
     }
     
@@ -89,43 +94,45 @@ class PedidosImport extends BaseImport
             // Convert Excel date
             $deliveryDate = $this->pedidosService->convertExcelDate($row[$colMap['deliveryDate_excel']])
                 ->format('Y-m-d');
-            
+
             // Get next order number
             $nroOrder = $this->pedidosService->getNextOrderNumber($deliveryDate);
-            
-            // Find zone and visitadora
-            $zone = null;
+
+            $district = trim($row[$colMap['district']] ?? '');
+            $zoneId = $district !== '' ? Distritos_zonas::zonificar($district) : null;
+
             $visitadora = null;
-            
-            if (!empty($row[$colMap['zone_name']] ?? '')) {
-                $zone = $this->pedidosService->findZone($row[$colMap['zone_name']]);
-            }
-            
             if (!empty($row[$colMap['visitadora_name']] ?? '')) {
                 $visitadora = $this->pedidosService->findVisitadora($row[$colMap['visitadora_name']]);
             }
-            
+
+            $status = $this->pedidosService->mapExcelStatus($row[$colMap['status_text']] ?? null);
+
             // Prepare pedido data
             $pedidoData = [
                 'orderId' => $orderId,
                 'nroOrder' => $nroOrder,
                 'deliveryDate' => $deliveryDate,
                 'customerName' => trim($row[$colMap['customerName']] ?? ''),
-                'customerNumber' => trim($row[$colMap['customerNumber']] ?? ''),
+                'customerNumber' => trim($row[$colMap['customerPhone_1']] ?? ''),
                 'doctorName' => trim($row[$colMap['doctorName']] ?? ''),
                 'address' => trim($row[$colMap['address']] ?? ''),
-                'district' => trim($row[$colMap['district']] ?? ''),
+                'district' => $district,
                 'reference' => trim($row[$colMap['reference']] ?? ''),
                 'prize' => floatval($row[$colMap['prize']] ?? 0),
-                'zone_id' => $zone?->id,
+                'zone_id' => $zoneId,
                 'visitadora_id' => $visitadora?->id,
+                'paymentMethod' => trim($row[$colMap['paymentMethod']] ?? ''),
+                'status' => $status,
+                'productionStatusExcel' => trim($row[$colMap['productionStatus']] ?? ''),
+                'user_id' => Auth::id(),
             ];
-            
+
             // Create pedido
             $pedido = $this->pedidosService->createPedido($pedidoData);
-            
+
             $this->incrementStat('created');
-            
+
         } catch (\Exception $e) {
             $this->incrementStat('errors');
             // Error logged automatically by framework
