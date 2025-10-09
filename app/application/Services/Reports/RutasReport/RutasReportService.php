@@ -24,28 +24,15 @@ class RutasReportService extends ReportBaseService
 
     public function getZonesReport(array $filters = []): ReportZonesDto
     {
-        if (empty($filters)) {
-            $filters = [
-                'month' => now()->month,
-                'year' => now()->year,
-                'distritos' => []
-            ];
-        }
+        $month = $filters['month'] ?? now()->month;
+        $year = $filters['year'] ?? now()->year;
+        $distritos = $filters['distritos'] ?? [];
 
-        $distritos = $filters['distritos'];
-        if (is_string($distritos)) {
-            $distritos = trim($distritos) === '[]' || trim($distritos) === '' ?
-                [] : explode(',', trim($distritos, '[]'));
-        }
-        $filters['distritos'] = array_filter(array_map('intval', $distritos));
+        $dataRaw = $this->repo->getRutasZonesReport($month, $year, $distritos);
 
-        $dataRaw = $this->repo->getRutasZonesReport($filters);
-        $collection = collect($dataRaw);
+        $estadosVisitasKeys = array_fill_keys(EstadoVisita::pluck('id')->toArray(), 0);
 
-        $estadosVisitas = EstadoVisita::pluck('id')->toArray();
-        $estadosVisitasKeys = array_fill_keys($estadosVisitas, 0);
-
-        $data = $collection->groupBy('distrito_id')
+        $data = $dataRaw->groupBy('distrito_id')
             ->map(function ($rows) use ($estadosVisitasKeys) {
                 $estados = collect($rows)->pluck('total', 'estado_visita_id')->toArray();
                 $allEstados = array_replace($estadosVisitasKeys, $estados);
@@ -57,7 +44,7 @@ class RutasReportService extends ReportBaseService
                 ];
             })->values()->toArray();
 
-        $totalPerEstado = $collection->groupBy('estado_visita_id')->map->sum('total')->toArray();
+        $totalPerEstado = $dataRaw->groupBy('estado_visita_id')->map->sum('total')->toArray();
         $totalPerEstado = array_replace($estadosVisitasKeys, $totalPerEstado);
         $totalVisitas = array_sum($totalPerEstado);
 
@@ -65,7 +52,7 @@ class RutasReportService extends ReportBaseService
             $totalVisitas,
             $totalPerEstado,
             $data,
-            $filters
+            compact('month', 'year', 'distritos')
         );
     }
 }

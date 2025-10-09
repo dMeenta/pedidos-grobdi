@@ -10,7 +10,7 @@ interface ReportsRepositoryInterface
     public function getVentasVisitadorasReport(string $startDate, string $endDate): array;
     public function getVentasProductosReport(string $startDate, string $endDate): array;
     public function getVentasProvinciasReport(array $filters = []): array;
-    public function getRutasZonesReport(array $filters = []): array;
+    public function getRutasZonesReport(int $month, int $year, array $distritos): Collection;
     public function getAmountSpentAnuallyByDoctor(int $year, int $doctorId): array;
     public function getMostConsumedProductsMonthlyByDoctor(int $year, int $month, int $doctorId): Collection;
     public function getAmountSpentMonthlyGroupedByTipo(int $year, int $month, int $doctorId): Collection;

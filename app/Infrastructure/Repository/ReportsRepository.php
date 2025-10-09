@@ -85,28 +85,22 @@ class ReportsRepository implements ReportsRepositoryInterface
         return [];
 
     }
-    public function getRutasZonesReport(array $filters = []): array
+    public function getRutasZonesReport(int $month, int $year, array $distritos): Collection
     {
-        $month = $filters['month'];
-        $year = $filters['year'];
-        $distritos = $filters['distritos'] ?? [];
-
-        $query = VisitaDoctor::query()
-            ->select([
-                'd.id as distrito_id',
-                'd.name as distrito_name',
-                'visita_doctor.estado_visita_id',
-                DB::raw('COUNT(*) as total')
-            ])
-            ->join('doctor as dr', 'dr.id', '=', 'visita_doctor.doctor_id')
-            ->join('distritos as d', 'd.id', '=', 'dr.distrito_id')
-            ->whereMonth('fecha', $month)->whereYear('fecha', $year);
-
-        if (!empty($distritos)) {
-            $query->whereIn('dr.distrito_id', $distritos);
-        }
-
-        return $query->groupBy('d.id', 'd.name', 'visita_doctor.estado_visita_id')->get()->toArray();
+        return VisitaDoctor::query()
+            ->selectRaw(
+                'd.id AS distrito_id,
+                d.name AS distrito_name,
+                visita_doctor.estado_visita_id,
+                COUNT(*) AS total'
+            )
+            ->join('doctor AS dr', 'dr.id', '=', 'visita_doctor.doctor_id')
+            ->join('distritos AS d', 'd.id', '=', 'dr.distrito_id')
+            ->when($month, fn($q) => $q->whereMonth('fecha', $month))
+            ->when($year, fn($q) => $q->whereYear('fecha', $year))
+            ->when(!empty($distritos), fn($q) => $q->whereIn('dr.distrito_id', $distritos))
+            ->groupBy('d.id', 'd.name', 'visita_doctor.estado_visita_id')
+            ->get();
     }
 
     public function getAmountSpentAnuallyByDoctor(int $year, int $doctorId): array
@@ -218,8 +212,6 @@ class ReportsRepository implements ReportsRepositoryInterface
             'is_top_doctor' => true,
         ];
     }
-
-    // Repository
     public function getDoctoresByTipoAndYear(int $year): Collection
     {
         return DB::table('doctor as dr')

@@ -73,7 +73,7 @@ class DoctorsReportService extends ReportBaseService
             $resume['top_tipo_by_pedidos'],
             $resume['tipos'],
             $data,
-            $filters
+            compact('year')
         );
     }
 
@@ -114,21 +114,16 @@ class DoctorsReportService extends ReportBaseService
 
     private function buildDataByMonth(Collection $raw): array
     {
-
         $range = range(1, 12);
-        $months = array_map(
-            fn($d) => str_pad($d, 2, '0', STR_PAD_LEFT),
-            $range
-        );
 
         $grouped = [];
         foreach ($raw as $item) {
-            $mes = str_pad($item->month, 2, '0', STR_PAD_LEFT);
+            $mes = (int) $item->month;
             $grouped[$mes][] = $item;
         }
 
         $data = [];
-        foreach ($months as $month) {
+        foreach ($range as $month) {
             $items = $grouped[$month] ?? [];
 
             $totalAmount = array_sum(array_column($items, 'total_amount'));
@@ -153,7 +148,7 @@ class DoctorsReportService extends ReportBaseService
             }
 
             $data[] = [
-                'month' => $month,
+                'month' => $month, // 👈 ahora es int (1–12)
                 'total_amount' => (float) $totalAmount,
                 'total_pedidos' => (int) $totalPedidos,
                 'tipos_resume' => $tiposResume,
