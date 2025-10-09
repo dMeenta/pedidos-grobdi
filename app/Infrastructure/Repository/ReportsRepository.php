@@ -19,19 +19,16 @@ class ReportsRepository implements ReportsRepositoryInterface
 
     public function getVentasGeneralReport(int $month, int $year): Collection
     {
-        $query = Pedidos::selectRaw("CASE
-        WHEN ? > 0 THEN DAY(created_at)
-        ELSE MONTH(created_at)
-        END as period,
+        $periodColumn = $month > 0 ? 'DAY(created_at)' : 'MONTH(created_at)';
+
+        return Pedidos::selectRaw("
+        {$periodColumn} as period,
         SUM(prize) as total_amount,
-        COUNT(*) as total_pedidos", [$month])->whereYear('created_at', $year)->groupBy('period')
-            ->orderBy('period');
-
-        if ($month > 0) {
-            $query->whereMonth('created_at', $month);
-        }
-
-        return $query->get();
+        COUNT(*) as total_pedidos")->whereYear('created_at', $year)
+            ->when($month > 0, fn($q) => $q->whereMonth('created_at', $month))
+            ->orderBy('period')
+            ->groupBy('period')
+            ->get();
     }
     public function getVentasVisitadorasReport(string $startDate, string $endDate): Collection
     {
@@ -71,17 +68,12 @@ class ReportsRepository implements ReportsRepositoryInterface
         $query = $this->excludeArrayFromDataResults($query, 'dp.articulo', ['%delivery%', 'bolsa%']);
 
         return $query->get()->map(function ($item) {
-            return (object)[
+            return (object) [
                 'product' => $item->product,
                 'total_amount' => (float) $item->total_amount,
                 'total_products' => (int) $item->total_products,
             ];
         });
-    }
-    public function getVentasProvinciasReport(array $filters = []): array
-    {
-        return [];
-
     }
     public function getRutasZonesReport(int $month, int $year, array $distritos): Collection
     {
