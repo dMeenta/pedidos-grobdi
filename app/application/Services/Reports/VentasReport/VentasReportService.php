@@ -127,7 +127,7 @@ class VentasReportService extends ReportBaseService
                 'product' => $item->product,
                 'total_amount' => $item->total_amount,
                 'total_products' => $item->total_products,
-                'average_price_per_unit' => $item->total_products > 0 ? round($item->total_amount / $item->total_products,2): 0,
+                'average_price_per_unit' => $item->total_products > 0 ? round($item->total_amount / $item->total_products, 2) : 0,
                 'percentage_amount' => GetPercentageHelper::calculate($item->total_amount, $totalAmount)
             ];
         })->toArray();
@@ -258,27 +258,27 @@ class VentasReportService extends ReportBaseService
     private function getMaps(): array
     {
         $departamentosMap = $this->buildNormalizeMap(
-            $this->repo->getDepartamentosForMap(),
+            $this->repo->getDepartamentosForMap()->toArray(),
             fn($item) => $this->normalizeUbicationText($item['name']),
             fn($item) => $item['name']
         );
         $provinciasMap = $this->buildNormalizeMap(
-            $this->repo->getProvinciasForMap(),
+            $this->repo->getProvinciasForMap()->toArray(),
             fn($item) => $this->normalizeUbicationText($item['name']),
             fn($item) => $item['name']
         );
         $provinciaToDepartamentoMap = $this->buildNormalizeMap(
-            $this->repo->getProvinciasWithDepartamentoForMap(),
+            $this->repo->getProvinciasWithDepartamentoForMap()->toArray(),
             fn($item) => $this->normalizeUbicationText($item['name']),
             fn($item) => $item['departamento']['name'] ?? null
         );
         $distritoToDepartamentoMap = $this->buildNormalizeMap(
-            $this->repo->getDistritosWithProvinciaAndDepartamentoForMap(),
+            $this->repo->getDistritosWithProvinciaAndDepartamentoForMap()->toArray(),
             fn($item) => $this->normalizeUbicationText($item['name']),
             fn($item) => $item['provincia']['departamento']['name'] ?? null
         );
         $distritoToProvinciaMap = $this->buildNormalizeMap(
-            $this->repo->getDistritosWithProvinciaForMap(),
+            $this->repo->getDistritosWithProvinciaForMap()->toArray(),
             fn($item) => $this->normalizeUbicationText($item['name']),
             fn($item) => $item['provincia']['name'] ?? null
         );
