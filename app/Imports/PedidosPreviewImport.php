@@ -97,6 +97,7 @@ class PedidosPreviewImport implements ToCollection
                     $visitadora = null;
                     if(isset($row[14]) && trim($row[14]) !== ''){
                         $visitadora = User::where('name_softlynn', trim($row[14]))->first();
+                    }
                     if(isset($row[14]) && trim($row[14]) !== ''){
                         $visitadora = User::where('name_softlynn', trim($row[14]))->first();
                     }
@@ -205,6 +206,7 @@ class PedidosPreviewImport implements ToCollection
                     $visitadora = null;
                     if(isset($row[14]) && trim($row[14]) !== ''){
                         $visitadora = User::where('name_softlynn', trim($row[14]))->first();
+                    }
                     if(isset($row[14]) && trim($row[14]) !== ''){
                         $visitadora = User::where('name_softlynn', trim($row[14]))->first();
                     }
@@ -232,7 +234,8 @@ class PedidosPreviewImport implements ToCollection
                         $pedido_exist->last_data_update = now(); // Registrar fecha de actualización
                         $pedido_exist->save();
                         ++$rows_modificados;
-                    } else {
+                    }
+                    else {
                         ++$rows_existentes;
                     }
                 }
