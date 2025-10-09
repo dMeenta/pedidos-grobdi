@@ -4,6 +4,7 @@ namespace App\Imports;
 
 use App\Models\Distritos_zonas;
 use App\Models\Pedidos;
+use App\Models\DetailPedidos;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -33,20 +34,22 @@ class PedidosPreviewImport implements ToCollection
         $mensaje = "";
         
         foreach($rows as $row){
-            if($row[16] === "Articulo"){
+            if(($row[16] ?? '') === "Articulo"){
                 $mensaje = "Formato Incorrecto";
                 $key = "danger";
                 break;
             }
             
-            if($row[2] == "PEDIDO"){
-                $pedido_exist = Pedidos::where('orderId', $row[3])->first();
+            if(($row[2] ?? '') == "PEDIDO"){
+                $pedido_exist = Pedidos::withInactive()->where('orderId', $row[3])->first();
                 
                 if(empty($pedido_exist)){
                     // Crear nuevo pedido
                     $pedidos = new Pedidos();
-                    $fecha = Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[13]))->format('Y-m-d');
-                    $contador_registro = Pedidos::where('deliveryDate', $fecha)->orderBy('nroOrder', 'desc')->first();
+                    $fechaEntregaDateTime = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[13]);
+                    $fechaEntregaDateTime->setTime(0, 0, 0);
+                    $fechaEntrega = Carbon::instance($fechaEntregaDateTime);
+                    $contador_registro = Pedidos::whereDate('deliveryDate', $fechaEntrega)->orderBy('nroOrder', 'desc')->first();
                     $ultimo_nro = 1;
                     if($contador_registro){
                         $ultimo_nro = $contador_registro->nroOrder + 1;
@@ -63,7 +66,9 @@ class PedidosPreviewImport implements ToCollection
                     $pedidos->prize = $row[8];
                     $pedidos->paymentStatus = 'PENDIENTE';
                     $pedidos->paymentMethod = $row[10];
-                    $pedidos->deliveryDate = $fecha;
+
+                    $estadoPedido = $this->mapExcelStatus($row[23] ?? null);
+                    $pedidos->status = $estadoPedido;
                     
                     // Apply production status rules for new orders
                     $excelStatus = strtoupper(trim($row[12]));
@@ -78,16 +83,20 @@ class PedidosPreviewImport implements ToCollection
                     $pedidos->deliveryStatus = "Pendiente";
                     $pedidos->accountingStatus = 0;
                     
-                    $hora_fecha = Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[20]))->format('Y-m-d H:i:s');
+                    $hora_fecha = Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[20]));
                     $pedidos->zone_id = Distritos_zonas::zonificar($pedidos->district);
-                    $pedidos->created_at = $hora_fecha;
+                    $pedidos->forceFill([
+                        'deliveryDate' => $fechaEntrega->toDateString(),
+                        'created_at' => $hora_fecha,
+                        'updated_at' => $hora_fecha,
+                    ]);
                     $pedidos->turno = 0;
                     $pedidos->last_data_update = now(); // Registrar fecha de actualización
                     
                     // Buscar visitadora por name_softlynn (nuevo requerimiento)
                     $visitadora = null;
-                    if(isset($row[19]) && trim($row[19]) !== ''){
-                        $visitadora = User::where('name_softlynn', trim($row[19]))->first();
+                    if(isset($row[14]) && trim($row[14]) !== ''){
+                        $visitadora = User::where('name_softlynn', trim($row[14]))->first();
                     }
                     // user_id siempre será el usuario autenticado que hace la importación
                     $pedidos->user_id = Auth::user()->id;
@@ -101,7 +110,10 @@ class PedidosPreviewImport implements ToCollection
                     // Actualizar pedido existente si hay cambios
                     $hasChanges = false;
                     
-                    $new_fecha = Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[13]))->format('Y-m-d');
+                    $newFechaDateTime = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[13]);
+                    $newFechaDateTime->setTime(0, 0, 0);
+                    $new_fecha_carbon = Carbon::instance($newFechaDateTime);
+                    $new_fecha = $new_fecha_carbon->toDateString();
                     
                     // Comparar y actualizar campos
                     if($pedido_exist->customerName != $row[4]) {
@@ -145,10 +157,12 @@ class PedidosPreviewImport implements ToCollection
                         $hasChanges = true;
                     }
                     
-                    if($pedido_exist->deliveryDate != $new_fecha) {
-                        $pedido_exist->deliveryDate = $new_fecha;
+                    if(optional($pedido_exist->deliveryDate)->toDateString() !== $new_fecha) {
+                        $pedido_exist->forceFill([
+                            'deliveryDate' => $new_fecha_carbon->toDateString(),
+                        ]);
                         // Recalcular nroOrder para la nueva fecha
-                        $contador_registro = Pedidos::where('deliveryDate', $new_fecha)->orderBy('nroOrder', 'desc')->first();
+                        $contador_registro = Pedidos::whereDate('deliveryDate', $new_fecha_carbon)->orderBy('nroOrder', 'desc')->first();
                         $ultimo_nro = 1;
                         if($contador_registro){
                             $ultimo_nro = $contador_registro->nroOrder + 1;
@@ -183,12 +197,27 @@ class PedidosPreviewImport implements ToCollection
                     
                     // Re-evaluar visitadora por name_softlynn del excel
                     $visitadora = null;
-                    if(isset($row[19]) && trim($row[19]) !== ''){
-                        $visitadora = User::where('name_softlynn', trim($row[19]))->first();
+                    if(isset($row[14]) && trim($row[14]) !== ''){
+                        $visitadora = User::where('name_softlynn', trim($row[14]))->first();
                     }
                     if($visitadora && $pedido_exist->visitadora_id != $visitadora->id){
                         $pedido_exist->visitadora_id = $visitadora->id;
                         $hasChanges = true;
+                    }
+
+                    $nuevoEstado = $this->mapExcelStatus($row[23] ?? null);
+                    if($pedido_exist->status !== $nuevoEstado){
+                        $pedido_exist->status = $nuevoEstado;
+                        $hasChanges = true;
+
+                        DetailPedidos::where('pedidos_id', $pedido_exist->id)
+                            ->update(['status' => $nuevoEstado]);
+                    }
+
+                    if($nuevoEstado === false){
+                        // asegurar estados de producción coherentes cuando se anula
+                        DetailPedidos::where('pedidos_id', $pedido_exist->id)
+                            ->update(['estado_produccion' => 0]);
                     }
 
                     if($hasChanges) {
@@ -213,5 +242,21 @@ class PedidosPreviewImport implements ToCollection
         
         $this->data = $rpta;
         $this->key = $key;
+    }
+
+    private function mapExcelStatus($value): bool
+    {
+        if (is_null($value)) {
+            return true;
+        }
+
+        $normalized = strtoupper(trim((string) $value));
+    $normalized = preg_replace('/[^A-Z0-9]/', '', $normalized) ?? '';
+
+        if ($normalized === 'ANULADO' || $normalized === '0') {
+            return false;
+        }
+
+        return true;
     }
 }
