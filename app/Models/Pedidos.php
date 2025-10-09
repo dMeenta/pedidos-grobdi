@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class Pedidos extends Model
@@ -31,6 +32,7 @@ class Pedidos extends Model
         'observacion_laboratorio',
         'fecha_reprogramacion',
         'last_data_update',
+        'status',
     ];
 
     protected $casts = [
@@ -38,7 +40,25 @@ class Pedidos extends Model
         'deliveryDate' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'status' => 'boolean',
     ];
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope('active', function (Builder $builder) {
+            $builder->where('status', true);
+        });
+    }
+
+    public function scopeWithInactive(Builder $query): Builder
+    {
+        return $query->withoutGlobalScope('active');
+    }
+
+    public function scopeOnlyInactive(Builder $query): Builder
+    {
+        return $query->withInactive()->where('status', false);
+    }
     public function user()
     {
         return $this->belongsTo(User::class); 
@@ -52,6 +72,11 @@ class Pedidos extends Model
         return $this->belongsTo(Zone::class); 
     }
     public function detailpedidos()
+    {
+        return $this->hasMany(DetailPedidos::class)->where('status', true);
+    }
+
+    public function detailpedidosWithInactive()
     {
         return $this->hasMany(DetailPedidos::class);
     }

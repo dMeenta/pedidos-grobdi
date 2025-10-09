@@ -21,7 +21,8 @@ class OrdenesController extends Controller
         }else{
             $fecha = date('Y-m-d');
         }
-        $detallepedidos = DetailPedidos::whereHas('pedido', function ($query) use($fecha) {
+        $detallepedidos = DetailPedidos::where('status', true)
+        ->whereHas('pedido', function ($query) use($fecha) {
             $query->whereDate('deliveryDate', $fecha);
         })
         ->where('usuario_produccion_id',Auth::user()->id)

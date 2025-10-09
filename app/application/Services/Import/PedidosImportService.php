@@ -5,6 +5,7 @@ namespace App\Application\Services\Import;
 use App\Models\Zone;
 use App\Models\Pedidos;
 use App\Models\User;
+use App\Models\Distritos_zonas;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
@@ -89,20 +90,10 @@ class PedidosImportService
     public function createPedido(array $data): Pedidos
     {
         $pedido = new Pedidos();
-        
-        // Set order information
+
         $pedido->orderId = $data['orderId'];
         $pedido->nroOrder = $data['nroOrder'];
         $pedido->deliveryDate = $data['deliveryDate'];
-        $pedido->cliente = $data['cliente'] ?? null;
-        $pedido->total = $data['total'] ?? 0;
-        
-        // Set relationships
-        $pedido->zone_id = $data['zone_id'] ?? null;
-        $pedido->user_id = $data['user_id'] ?? Auth::id();
-        $pedido->visitadora_id = $data['visitadora_id'] ?? null;
-        
-        // Set additional fields from spreadsheet
         $pedido->customerName = $data['customerName'] ?? null;
         $pedido->customerNumber = $data['customerNumber'] ?? null;
         $pedido->doctorName = $data['doctorName'] ?? null;
@@ -110,15 +101,22 @@ class PedidosImportService
         $pedido->district = $data['district'] ?? null;
         $pedido->reference = $data['reference'] ?? null;
         $pedido->prize = $data['prize'] ?? 0;
-        
-        // Set default values
-        $pedido->estado = $data['estado'] ?? 'Pendiente';
-        $pedido->paymentStatus = 'Pendiente';
-        $pedido->productionStatus = 'Pendiente';
-        $pedido->accountingStatus = 'Pendiente';
-        
+        $pedido->paymentMethod = $data['paymentMethod'] ?? null;
+
+        $pedido->zone_id = $data['zone_id'] ?? null;
+        $pedido->visitadora_id = $data['visitadora_id'] ?? null;
+        $pedido->user_id = $data['user_id'] ?? Auth::id();
+
+        $pedido->paymentStatus = 'PENDIENTE';
+        $pedido->productionStatus = $this->mapProductionStatus($data['productionStatusExcel'] ?? null);
+        $pedido->accountingStatus = 0;
+        $pedido->status = $data['status'] ?? true;
+        $pedido->deliveryStatus = 'Pendiente';
+        $pedido->turno = 0;
+        $pedido->last_data_update = now();
+
         $pedido->save();
-        
+
         return $pedido;
     }
     
@@ -135,13 +133,9 @@ class PedidosImportService
      */
     public function validatePedidoData(array $row): bool
     {
-        // Check if this is a header row
-        if (($row[16] ?? '') === 'Articulo') {
-            return false;
-        }
-        
         // Check if this is a pedido row
-        if (($row[2] ?? '') !== 'PEDIDO') {
+        $tipoRegistro = strtoupper(trim((string) ($row[2] ?? '')));
+        if ($tipoRegistro !== 'PEDIDO') {
             return false;
         }
         
@@ -161,6 +155,33 @@ class PedidosImportService
      */
     public function pedidoExists(string $orderId): bool
     {
-        return Pedidos::where('orderId', $orderId)->exists();
+        return Pedidos::withInactive()->where('orderId', $orderId)->exists();
+    }
+
+    public function mapExcelStatus($value): bool
+    {
+        if (is_null($value)) {
+            return true;
+        }
+
+        $normalized = strtoupper(trim((string) $value));
+    $normalized = preg_replace('/[^A-Z0-9]/', '', $normalized) ?? '';
+
+        if ($normalized === 'ANULADO' || $normalized === '0') {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function mapProductionStatus(?string $value): int
+    {
+        if (!$value) {
+            return 0;
+        }
+
+        $normalized = strtoupper(trim($value));
+
+        return $normalized === 'PENDIENTE' ? 0 : 1;
     }
 }
