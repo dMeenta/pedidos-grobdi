@@ -88,7 +88,7 @@ class MuestrasController extends Controller
         $query = Muestras::with(['clasificacion.unidadMedida', 'tipoMuestra', 'doctor', 'clasificacionPresentacion']);
 
         // Filtros por rol
-        if ($user->hasRole('admin') || $user->hasRole('coordinador-lineas') ||$user->hasRole('supervisor')) {
+        if ($user->hasRole('admin') || $user->hasRole('coordinador-lineas') || $user->hasRole('supervisor')) {
             $tiposMuestra = TipoMuestra::get();
         } else if ($user->hasRole('visitador')) {
             $query->where('created_by', $user->id);
@@ -133,20 +133,11 @@ class MuestrasController extends Controller
             });
         }
 
-        $filterBy = $request->filter_by_date;
-        $dateSince = $request->date_since;
-        $dateTo = $request->date_to;
+        $filterBy = $request->filter_by_date && $request->filter_by_date === 'entrega' ? 'datetime_scheduled' : 'created_at';
+        $dateSince = Carbon::parse($request->date_since ?? now()->startOfMonth())->startOfDay();
+        $dateTo = Carbon::parse($request->date_to ?? now())->endOfDay();
 
-        if ($filterBy && $dateSince && $dateTo) {
-
-            $column = $request->filter_by_date === 'entrega' ? 'datetime_scheduled' : 'created_at';
-
-            $query->whereDate($column, '>=', $request->date_since);
-            $query->whereDate($column, '<=', $request->date_to);
-        }
-
-        if ($request->filled('date_to')) {
-        }
+        $query->whereBetween($filterBy, [$dateSince, $dateTo]);
 
         if ($request->filled('lab_state')) {
             $estado = $request->lab_state === 'Elaborado' ? true : false;
