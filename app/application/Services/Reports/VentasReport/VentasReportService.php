@@ -80,27 +80,26 @@ class VentasReportService extends ReportBaseService
             compact('month', 'year')
         );
     }
-
     public function getVisitadorasReport(array $filters = []): ReportVisitadorasDto
     {
         $start_date = Carbon::parse($filters['start_date'] ?? now()->startOfMonth())->startOfDay();
-        $end_date = Carbon::parse($filters['end_date'] ?? now())->startOfDay();
+        $end_date = Carbon::parse($filters['end_date'] ?? now())->endOfDay();
 
         $data = $this->repo->getVentasVisitadorasReport($start_date, $end_date);
 
-        $totalAmount = array_sum(array_column($data, 'total_amount'));
-        $totalPedidos = array_sum(array_column($data, 'total_pedidos'));
-        $topVisitadora = collect($data)->sortByDesc('total_amount')->first()['visitadora'] ?? 'No hay top visitadora';
+        $totalAmount = $data->sum('total_amount');
+        $totalPedidos = $data->sum('total_pedidos');
+        $topVisitadora = $data->sortByDesc('total_amount')->first()->visitadora;
 
-        $data = array_map(function ($item) use ($totalAmount, $totalPedidos) {
+        $data = $data->map(function ($item) use ($totalAmount, $totalPedidos) {
             return [
-                'visitadora' => $item['visitadora'],
-                'total_amount' => $item['total_amount'],
-                'total_pedidos' => $item['total_pedidos'],
-                'pedidos_percentage' => GetPercentageHelper::calculate($item['total_pedidos'], $totalPedidos),
-                'amount_percentage' => GetPercentageHelper::calculate($item['total_amount'], $totalAmount),
+                'visitadora' => $item->visitadora,
+                'total_amount' => $item->total_amount,
+                'total_pedidos' => $item->total_pedidos,
+                'pedidos_percentage' => GetPercentageHelper::calculate($item->total_pedidos, $totalPedidos),
+                'amount_percentage' => GetPercentageHelper::calculate($item->total_amount, $totalAmount),
             ];
-        }, $data);
+        })->toArray();
 
         return new ReportVisitadorasDto(
             $totalAmount,
@@ -114,25 +113,24 @@ class VentasReportService extends ReportBaseService
     {
         $start_date = Carbon::parse($filters['start_date'] ?? now()->startOfMonth())->startOfDay();
         $end_date = Carbon::parse($filters['end_date'] ?? now())->endOfDay();
-
         $numberOfDays = $start_date->diffInDays($end_date) + 1;
 
         $data = $this->repo->getVentasProductosReport($start_date, $end_date);
 
-        $totalGroupedProducts = count($data);
-        $totalProducts = array_sum(array_column($data, 'total_products'));
-        $totalAmount = array_sum(array_column($data, 'total_amount'));
+        $totalGroupedProducts = $data->count();
+        $totalProducts = $data->sum('total_products');
+        $totalAmount = $data->sum('total_amount');
         $averageProductsPerDay = round($totalProducts / $numberOfDays, 2);
 
-        $data = array_map(function ($item) use ($totalAmount) {
+        $data = $data->map(function ($item) use ($totalAmount) {
             return [
-                'product' => $item['product'],
-                'total_amount' => $item['total_amount'],
-                'total_products' => $item['total_products'],
-                'average_price_per_unit' => $item['total_amount'] / $item['total_products'],
-                'percentage_amount' => GetPercentageHelper::calculate($item['total_amount'], $totalAmount)
+                'product' => $item->product,
+                'total_amount' => $item->total_amount,
+                'total_products' => $item->total_products,
+                'average_price_per_unit' => $item->total_products > 0 ? round($item->total_amount / $item->total_products,2): 0,
+                'percentage_amount' => GetPercentageHelper::calculate($item->total_amount, $totalAmount)
             ];
-        }, $data);
+        })->toArray();
 
         return new ReportProductosDto(
             $totalGroupedProducts,

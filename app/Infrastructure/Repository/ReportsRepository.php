@@ -33,52 +33,50 @@ class ReportsRepository implements ReportsRepositoryInterface
 
         return $query->get();
     }
-    public function getVentasVisitadorasReport(string $startDate, string $endDate): array
+    public function getVentasVisitadorasReport(string $startDate, string $endDate): Collection
     {
-        $query = DB::table('pedidos as p')->join('users as u', 'u.id', '=', 'p.visitadora_id')
-            ->select(
-                'u.id as visitadora_id',
-                'u.name as visitadora',
-                DB::raw('SUM(p.prize) as total_amount'),
-                DB::raw('COUNT(p.id) as total_pedidos')
-            )->where('u.role_id', 6);
-
-        if ($startDate && $endDate) {
-            $query->whereBetween('p.created_at', [$startDate, $endDate]);
-        }
-
-        $results = $query->groupBy('u.id', 'u.name')->get();
-
-        return $results->map(function ($item) {
-            return [
-                'visitadora' => $item->visitadora,
-                'total_amount' => (float) $item->total_amount,
-                'total_pedidos' => (int) $item->total_pedidos,
-            ];
-        })->toArray();
+        return DB::table('pedidos as p')->join('users as u', 'u.id', '=', 'p.visitadora_id')
+            ->selectRaw(
+                'u.id as visitadora_id,
+                u.name as visitadora,
+                SUM(p.prize) as total_amount,
+                COUNT(p.id) as total_pedidos'
+            )->where('u.role_id', 6)
+            ->when($startDate && $endDate, function ($q) use ($startDate, $endDate) {
+                $q->whereBetween('p.created_at', [$startDate, $endDate]);
+            })->groupBy('u.id', 'u.name')
+            ->get()->map(
+                fn($item) => (object) 
+                [
+                    'visitadora' => $item->visitadora,
+                    'total_amount' => (float) $item->total_amount,
+                    'total_pedidos' => (int) $item->total_pedidos,
+                ]
+            );
     }
-    public function getVentasProductosReport(string $startDate, string $endDate): array
+    public function getVentasProductosReport(string $startDate, string $endDate): Collection
     {
         $query = DB::table('detail_pedidos as dp')
-            ->selectRaw('dp.articulo as product, SUM(dp.sub_total) as total_amount, SUM(dp.cantidad) as total_products')
-            ->join('pedidos as p', 'dp.pedidos_id', '=', 'p.id')
-            ->whereNotNull('dp.articulo')
-            ->where('dp.articulo', '!=', '')
+            ->selectRaw('
+            dp.articulo as product,
+            SUM(dp.sub_total) as total_amount,
+            SUM(dp.cantidad) as total_products
+            ')->join('pedidos as p', 'dp.pedidos_id', '=', 'p.id')
+            ->whereNotNull('dp.articulo')->where('dp.articulo', '!=', '')
+            ->when($startDate && $endDate, fn($q) => $q->whereBetween('p.created_at', [$startDate, $endDate]))
             ->groupBy('dp.articulo')
             ->orderBy('total_amount', 'desc')
-            ->limit(100)
-            ->whereBetween('p.created_at', [$startDate, $endDate]);
+            ->limit(100);
 
         $query = $this->excludeArrayFromDataResults($query, 'dp.articulo', ['%delivery%', 'bolsa%']);
 
-
         return $query->get()->map(function ($item) {
-            return [
+            return (object)[
                 'product' => $item->product,
                 'total_amount' => (float) $item->total_amount,
                 'total_products' => (int) $item->total_products,
             ];
-        })->toArray();
+        });
     }
     public function getVentasProvinciasReport(array $filters = []): array
     {
