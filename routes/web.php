@@ -48,8 +48,6 @@ use App\Http\Controllers\softlyn\MerchandiseController;
 use App\Http\Controllers\softlyn\CompraController;
 use App\Http\Controllers\softlyn\UtilController;
 
-use App\Http\Controllers\ReporteController;
-
 // use App\Http\Middleware\RoleMiddleware;
 
 // use Auth;
@@ -57,6 +55,39 @@ Auth::routes();
 
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+Route::prefix('reports')->group(function () {
+
+    Route::prefix('rutas')->group(function () {
+        Route::get('/', [ReportsController::class, 'rutasView'])->name('reports.rutas');
+
+        Route::prefix('api/v1')->group(function () {
+            Route::get('zones', [ReportsController::class, 'getZonesReport'])->name('reports.rutas.zones');
+            Route::get('/distritos/{zoneId}', [ReportsController::class, 'getDistritosByZone'])->name('rutas.zones.distritos');
+        });
+    });
+
+    Route::prefix('ventas')->group(function () {
+        Route::get('/', [ReportsController::class, 'ventasView'])->name('reports.ventas');
+
+        Route::prefix('api/v1')->group(function () {
+            Route::get('general', [ReportsController::class, 'getGeneralReport'])->name('reports.ventas.general');
+            Route::get('visitadoras', [ReportsController::class, 'getVisitadorasReport'])->name('reports.ventas.visitadoras');
+            Route::get('productos', [ReportsController::class, 'getProductosReport'])->name('reports.ventas.productos');
+            Route::get('provincias', [ReportsController::class, 'getProvinciasReport'])->name('reports.ventas.provincias');
+            Route::get('detail-pedidos-by-departamento', [ReportsController::class, 'getPedidosDetailsByProvincia'])->name('reports.ventas.provincias.departamento');
+        });
+    });
+
+    Route::prefix('doctores')->group(function () {
+        Route::get('/', [ReportsController::class, 'doctorsView'])->name('reports.doctors');
+
+        Route::prefix('api/v1')->group(function () {
+            Route::get('doctors', [ReportsController::class, 'getDoctorReport'])->name('reports.doctores.doctores');
+            Route::get('tipo-doctor', [ReportsController::class, 'getTipoDoctorReport'])->name('reports.doctores.tipo-doctor');
+        });
+    });
+});
 
 //Modulo de Muestras
 Route::prefix('muestras')
@@ -106,29 +137,6 @@ Route::prefix('muestras')
     });
 
 Route::get('/doctors/search', [DoctorController::class, 'showByNameLike'])->name('doctors.search')->middleware(['checkRole:admin,coordinador-lineas,visitador']);
-
-Route::prefix('reports')
-    ->middleware(['checkRole:admin'])
-    ->group(function () {
-
-        Route::prefix('visitadoras')->group(function () {
-            //! Migrado a ReporteController para unificar lógica de reportes comerciales
-            Route::get('/', [\App\Http\Controllers\ReporteController::class, 'visitadoras'])->name('reports.visitadoras.index');
-            Route::get('/distritos/{zoneId}', [\App\Http\Controllers\ReporteController::class, 'getDistritosByZone'])->name('getDistritosByZone');
-            Route::get('/filter', [\App\Http\Controllers\ReporteController::class, 'filterVisitasDoctor'])->name('reports.visitas.filter');
-        });
-
-        Route::prefix('ventas')->group(function () {
-            Route::get('/', [ReportsController::class, 'indexVentas'])->name('reports.ventas.index');
-        });
-
-        Route::prefix('doctores')->group(function () {
-            // Rutas legacy migradas a ReporteController
-            Route::get('/', [ReporteController::class, 'doctoresLegacy'])->name('reports.doctores.index');
-            Route::get('get-doctor-report', [ReporteController::class, 'getDoctorReportLegacy'])->name('reports.doctores.getDoctorReport');
-        });
-    });
-
 
 //COUNTER
 Route::middleware(['checkRole:counter,admin,Administracion'])->group(function () {
@@ -284,28 +292,6 @@ Route::post('pedidosproduccion/{detalleId}/actualizarestado', [OrdenesController
 Route::middleware(['checkRole:jefe-comercial,admin'])->group(function () {
     Route::resource('categoriadoctor', CategoriaDoctorController::class);
     Route::get('/ventascliente', [PedidosController::class, 'listPedCliente'])->name('pedidosxcliente.listar');
-});
-
-//Jefe Comercial Reportes
-Route::middleware(['checkRole:jefe-comercial,admin'])->group(function () {
-    // Vistas de reportes
-    Route::get('/reporte/ventas', [ReporteController::class, 'ventas'])->name('reporte.ventas');
-    Route::get('/reporte/doctores', [ReporteController::class, 'doctores'])->name('reporte.doctores');
-    Route::get('/reporte/visitadoras', [ReporteController::class, 'visitadoras'])->name('reporte.visitadoras');
-
-    // API endpoints para datos dinámicos
-    Route::get('/api/reportes/ventas', [ReporteController::class, 'apiVentas'])->name('api.reportes.ventas');
-    Route::get('/api/reportes/ventas-general', [ReporteController::class, 'apiVentasGeneral'])->name('api.reportes.ventas-general');
-    Route::get('/api/reportes/ventas-provincias', [ReporteController::class, 'apiVentasProvincias'])->name('api.reportes.ventas-provincias');
-    Route::get('/api/reportes/pedidos-departamento', [ReporteController::class, 'apiPedidosPorDepartamento'])->name('api.reportes.pedidos-departamento');
-    Route::get('/api/reportes/doctores', [ReporteController::class, 'apiDoctores'])->name('api.reportes.doctores');
-    Route::get('/api/reportes/visitadoras', [ReporteController::class, 'apiVisitadoras'])->name('api.reportes.visitadoras');
-    Route::get('/api/visitadoras/visitadora', [ReporteController::class, 'apiVentasVisitadora'])->name('reporte.api.ventas.visitadora');
-
-    // Endpoints para configuración de filtros
-    Route::get('/api/reportes/filtros/ventas', [ReporteController::class, 'filtrosVentas'])->name('api.reportes.filtros.ventas');
-    Route::get('/api/reportes/filtros/doctores', [ReporteController::class, 'filtrosDoctores'])->name('api.reportes.filtros.doctores');
-    Route::get('/api/reportes/filtros/visitadoras', [ReporteController::class, 'filtrosVisitadoras'])->name('api.reportes.filtros.visitadoras');
 });
 
 /*
