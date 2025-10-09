@@ -329,22 +329,36 @@ return [
         //     'label_color' => 'success',
         // ],
         [
-            'text' => 'Reportes Visitadoras Prueba',
-            'url' => 'reports/visitadoras',
-            'icon' => 'fas fa-briefcase',
+            'header' => 'Reportes',
             'can' => ['admin']
         ],
         [
-            'text' => 'Reportes Ventas Prueba',
-            'url' => 'reports/ventas',
-            'icon' => 'fas fa-briefcase',
-            'can' => ['admin']
+            'text' => 'Reportes Comercial',
+            'icon' => 'fas fa-chart-bar',
+            'submenu' => [
+                [
+                    'text' => 'Rutas',
+                    'url' => 'reports/rutas',
+                    'icon' => 'fas fa-route',
+                    'can' => ['admin', 'jefe-comercial']
+                ],
+                [
+                    'text' => 'Ventas',
+                    'url' => 'reports/ventas',
+                    'icon' => 'fas fa-briefcase',
+                    'can' => ['admin']
+                ],
+                [
+                    'text' => 'Doctores',
+                    'url' => 'reports/doctores',
+                    'icon' => 'fas fa-fw fa-user-md',
+                    'can' => ['admin']
+                ],
+            ]
         ],
         [
-            'text' => 'Reportes Ventas DOCTORES',
-            'url' => 'reports/doctores',
-            'icon' => 'fas fa-briefcase',
-            'can' => ['admin']
+            'header' => 'Muestras',
+            'can' => ['admin', 'visitador', 'coordinador-lineas', 'jefe-comercial', 'contabilidad', 'jefe-operaciones', 'laboratorio']
         ],
         [
             'text' => 'Muestras',
@@ -851,13 +865,40 @@ return [
                 ],
             ],
         ],
+        'Flatpickr' => [
+            'active' => true,
+            'files' => [
+                [
+                    'type' => 'js',
+                    'asset' => false,
+                    'location' => 'https://cdn.jsdelivr.net/npm/flatpickr',
+                ],
+                [
+                    'type' => 'js',
+                    'asset' => false,
+                    'location' => 'https://npmcdn.com/flatpickr/dist/l10n/es.js',
+                ],
+                [
+                    'type' => 'css',
+                    'asset' => false,
+                    'location' => 'https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css',
+                ],
+            ],
+        ],
+
+        // SweetAlert2
         'Sweetalert2' => [
             'active' => true,
             'files' => [
                 [
                     'type' => 'js',
                     'asset' => false,
-                    'location' => '//cdn.jsdelivr.net/npm/sweetalert2@8',
+                    'location' => 'https://cdn.jsdelivr.net/npm/sweetalert2@11',
+                ],
+                [
+                    'type' => 'css',
+                    'asset' => false,
+                    'location' => 'https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css',
                 ],
             ],
         ],
@@ -928,6 +969,21 @@ return [
                     'type' => 'js',
                     'asset' => false,
                     'location' => '//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.es.min.js',
+                ],
+            ],
+        ],
+        'Toastr' => [
+            'active' => true,
+            'files' => [
+                [
+                    'type' => 'css',
+                    'asset' => false,
+                    'location' => '//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css',
+                ],
+                [
+                    'type' => 'js',
+                    'asset' => false,
+                    'location' => '//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js',
                 ],
             ],
         ],
