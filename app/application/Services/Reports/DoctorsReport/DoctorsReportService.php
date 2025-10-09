@@ -99,8 +99,8 @@ class DoctorsReportService extends ReportBaseService
                 ];
             })->values();
 
-        $topTipoByAmount = $raw->sortByDesc('total_amount')->first()?->tipo_medico;
-        $topTipoByPedidos = $raw->sortByDesc('total_pedidos')->first()?->tipo_medico;
+        $topTipoByAmount = $raw->sortByDesc('total_amount')->first()?->tipo_medico ?? 'N/A';
+        $topTipoByPedidos = $raw->sortByDesc('total_pedidos')->first()?->tipo_medico ?? 'N/A';
 
         return [
             'total_doctores' => $totalDoctores,
@@ -148,7 +148,7 @@ class DoctorsReportService extends ReportBaseService
             }
 
             $data[] = [
-                'month' => $month, // 👈 ahora es int (1–12)
+                'month' => $month,
                 'total_amount' => (float) $totalAmount,
                 'total_pedidos' => (int) $totalPedidos,
                 'tipos_resume' => $tiposResume,
