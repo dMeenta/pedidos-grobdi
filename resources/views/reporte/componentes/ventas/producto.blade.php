@@ -25,14 +25,16 @@
                                 <div class="col-6">
                                     <div class="text-center">
                                         <h5 class="mb-0" id="header_total_productos">
-                                            {{ count($data['productos']['labels'] ?? []) }}</h5>
+                                            {{ count($data['productos']['labels'] ?? []) }}
+                                        </h5>
                                         <small class="opacity-75">Productos</small>
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="text-center">
                                         <h5 class="mb-0" id="header_total_ventas">S/
-                                            {{ number_format(array_sum($data['productos']['ventas'] ?? []), 0) }}</h5>
+                                            {{ number_format(array_sum($data['productos']['ventas'] ?? []), 0) }}
+                                        </h5>
                                         <small class="opacity-75">Ventas Totales</small>
                                     </div>
                                 </div>
@@ -103,7 +105,8 @@
                         <i class="fas fa-shopping-cart fa-2x opacity-75"></i>
                     </div>
                     <h4 class="mb-1" id="stat_total_unidades">
-                        {{ number_format(array_sum($data['productos']['unidades'] ?? [])) }}</h4>
+                        {{ number_format(array_sum($data['productos']['unidades'] ?? [])) }}
+                    </h4>
                     <p class="mb-0 small opacity-75">Unidades Vendidas</p>
                 </div>
             </div>
@@ -115,7 +118,8 @@
                         <i class="fas fa-dollar-sign fa-2x opacity-75"></i>
                     </div>
                     <h4 class="mb-1" id="stat_total_ingresos">S/
-                        {{ number_format(array_sum($data['productos']['ventas'] ?? []), 0) }}</h4>
+                        {{ number_format(array_sum($data['productos']['ventas'] ?? []), 0) }}
+                    </h4>
                     <p class="mb-0 small opacity-75">Ingresos Totales</p>
                 </div>
             </div>
@@ -240,115 +244,115 @@
                             </thead>
                             <tbody id="tabla_productos">
                                 @if (isset($data['productos']['labels']) && count($data['productos']['labels']) > 0)
-                                    @php
-                                        $totalVentas = array_sum($data['productos']['ventas'] ?? []);
+                                @php
+                                $totalVentas = array_sum($data['productos']['ventas'] ?? []);
 
-                                        // Crear array combinado para ordenar por ventas
-                                        $productos = [];
-                                        foreach ($data['productos']['labels'] as $index => $producto) {
-                                            $productos[] = [
-                                                'nombre' => $producto,
-                                                'unidades' => $data['productos']['unidades'][$index] ?? 0,
-                                                'ventas' => $data['productos']['ventas'][$index] ?? 0,
-                                            ];
-                                        }
+                                // Crear array combinado para ordenar por ventas
+                                $productos = [];
+                                foreach ($data['productos']['labels'] as $index => $producto) {
+                                $productos[] = [
+                                'nombre' => $producto,
+                                'unidades' => $data['productos']['unidades'][$index] ?? 0,
+                                'ventas' => $data['productos']['ventas'][$index] ?? 0,
+                                ];
+                                }
 
-                                        // Ordenar por ventas descendente
-                                        usort($productos, function ($a, $b) {
-                                            return $b['ventas'] <=> $a['ventas'];
-                                        });
+                                // Ordenar por ventas descendente
+                                usort($productos, function ($a, $b) {
+                                return $b['ventas'] <=> $a['ventas'];
+                                    });
                                     @endphp
 
                                     @foreach ($productos as $index => $producto)
-                                        @php
-                                            $porcentaje =
-                                                $totalVentas > 0 ? ($producto['ventas'] / $totalVentas) * 100 : 0;
-                                            $precioPromedio =
-                                                $producto['unidades'] > 0
-                                                    ? $producto['ventas'] / $producto['unidades']
-                                                    : 0;
+                                    @php
+                                    $porcentaje =
+                                    $totalVentas > 0 ? ($producto['ventas'] / $totalVentas) * 100 : 0;
+                                    $precioPromedio =
+                                    $producto['unidades'] > 0
+                                    ? $producto['ventas'] / $producto['unidades']
+                                    : 0;
 
-                                            // Colores para el ranking
-                                            $badgeClass = 'bg-secondary';
-                                            if ($index == 0) {
-                                                $badgeClass = 'bg-warning';
-                                            } elseif ($index == 1) {
-                                                $badgeClass = 'bg-secondary';
-                                            } elseif ($index == 2) {
-                                                $badgeClass = 'bg-info';
-                                            } elseif ($index < 10) {
-                                                $badgeClass = 'bg-success';
-                                            }
+                                    // Colores para el ranking
+                                    $badgeClass = 'bg-secondary';
+                                    if ($index == 0) {
+                                    $badgeClass = 'bg-warning';
+                                    } elseif ($index == 1) {
+                                    $badgeClass = 'bg-secondary';
+                                    } elseif ($index == 2) {
+                                    $badgeClass = 'bg-info';
+                                    } elseif ($index < 10) {
+                                        $badgeClass='bg-success' ;
+                                        }
                                         @endphp
                                         <tr class="border-bottom">
-                                            <td class="text-center py-3">
-                                                <span class="badge {{ $badgeClass }} px-3 py-2 fs-6">
-                                                    @if ($index == 0)
-                                                        🥇
-                                                    @elseif($index == 1)
-                                                        🥈
-                                                    @elseif($index == 2)
-                                                        🥉
-                                                    @endif
-                                                    {{ $index + 1 }}
-                                                </span>
-                                            </td>
-                                            <td class="py-3">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="me-3">
-                                                        <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center"
-                                                            style="width: 40px; height: 40px;">
-                                                            <i class="fas fa-box"></i>
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <h6 class="mb-0 fw-bold">{{ $producto['nombre'] }}</h6>
-                                                        <small class="text-muted">Ranking:
-                                                            #{{ $index + 1 }}</small>
+                                        <td class="text-center py-3">
+                                            <span class="badge {{ $badgeClass }} px-3 py-2 fs-6">
+                                                @if ($index == 0)
+                                                🥇
+                                                @elseif($index == 1)
+                                                🥈
+                                                @elseif($index == 2)
+                                                🥉
+                                                @endif
+                                                {{ $index + 1 }}
+                                            </span>
+                                        </td>
+                                        <td class="py-3">
+                                            <div class="d-flex align-items-center">
+                                                <div class="me-3">
+                                                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center"
+                                                        style="width: 40px; height: 40px;">
+                                                        <i class="fas fa-box"></i>
                                                     </div>
                                                 </div>
-                                            </td>
-                                            <td class="text-center py-3">
-                                                <span
-                                                    class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 fs-6">
-                                                    {{ number_format($producto['unidades']) }}
-                                                </span>
-                                            </td>
-                                            <td class="text-end py-3">
-                                                <h6 class="mb-0 text-success fw-bold">
-                                                    S/ {{ number_format($producto['ventas'], 2) }}
-                                                </h6>
-                                            </td>
-                                            <td class="text-end py-3">
-                                                <span class="fw-medium">
-                                                    S/ {{ number_format($precioPromedio, 2) }}
-                                                </span>
-                                            </td>
-                                            <td class="text-center py-3">
-                                                <div class="progress"
-                                                    style="height: 25px; background-color: #e9ecef;">
-                                                    <div class="progress-bar bg-success progress-bar-striped"
-                                                        role="progressbar" style="width: {{ $porcentaje }}%;"
-                                                        aria-valuenow="{{ $porcentaje }}" aria-valuemin="0"
-                                                        aria-valuemax="100">
-                                                        <span
-                                                            class="fw-bold">{{ number_format($porcentaje, 1) }}%</span>
-                                                    </div>
+                                                <div>
+                                                    <h6 class="mb-0 fw-bold">{{ $producto['nombre'] }}</h6>
+                                                    <small class="text-muted">Ranking:
+                                                        #{{ $index + 1 }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center py-3">
+                                            <span
+                                                class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 fs-6">
+                                                {{ number_format($producto['unidades']) }}
+                                            </span>
+                                        </td>
+                                        <td class="text-end py-3">
+                                            <h6 class="mb-0 text-success fw-bold">
+                                                S/ {{ number_format($producto['ventas'], 2) }}
+                                            </h6>
+                                        </td>
+                                        <td class="text-end py-3">
+                                            <span class="fw-medium">
+                                                S/ {{ number_format($precioPromedio, 2) }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center py-3">
+                                            <div class="progress"
+                                                style="height: 25px; background-color: #e9ecef;">
+                                                <div class="progress-bar bg-success progress-bar-striped"
+                                                    role="progressbar" style="width: {{ $porcentaje }}%;"
+                                                    aria-valuenow="{{ $porcentaje }}" aria-valuemin="0"
+                                                    aria-valuemax="100">
+                                                    <span
+                                                        class="fw-bold">{{ number_format($porcentaje, 1) }}%</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        </tr>
+                                        @endforeach
+                                        @else
+                                        <tr>
+                                            <td colspan="6" class="text-center py-5">
+                                                <div class="text-muted">
+                                                    <i class="fas fa-inbox fa-3x mb-3 opacity-25"></i>
+                                                    <h5>No hay datos disponibles</h5>
+                                                    <p>Ajusta los filtros para mostrar información</p>
                                                 </div>
                                             </td>
                                         </tr>
-                                    @endforeach
-                                @else
-                                    <tr>
-                                        <td colspan="6" class="text-center py-5">
-                                            <div class="text-muted">
-                                                <i class="fas fa-inbox fa-3x mb-3 opacity-25"></i>
-                                                <h5>No hay datos disponibles</h5>
-                                                <p>Ajusta los filtros para mostrar información</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endif
+                                        @endif
                             </tbody>
                             <tfoot class="sticky-bottom bg-light border-top">
                                 <tr class="fw-bold">
@@ -710,11 +714,11 @@
         function initializeDates() {
             const today = new Date();
             const primerDiaMes = new Date(today.getFullYear(), today.getMonth(), 1);
-            const formatDate = (d) => d.toISOString().slice(0,10);
-            
+            const formatDate = (d) => d.toISOString().slice(0, 10);
+
             const $fechaInicio = $('#fecha_inicio_producto');
             const $fechaFin = $('#fecha_fin_producto');
-            
+
             if ($fechaInicio.length && !$fechaInicio.val()) {
                 $fechaInicio.val(formatDate(primerDiaMes));
             }
@@ -727,13 +731,13 @@
         function aplicarFiltros() {
             const fechaInicio = $('#fecha_inicio_producto').val();
             const fechaFin = $('#fecha_fin_producto').val();
-            
+
             // Mostrar loading
             $('#filtrar_producto').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Cargando...');
 
             // Petición AJAX optimizada
             $.ajax({
-                url: '{{ route('api.reportes.ventas') }}',
+                url: '{{ route('api.reportes.ventas')}}',
                 method: 'GET',
                 data: {
                     fecha_inicio_producto: fechaInicio || '',
@@ -761,8 +765,8 @@
         function limpiarFiltros() {
             const today = new Date();
             const primerDiaMes = new Date(today.getFullYear(), today.getMonth(), 1);
-            const formatDate = (d) => d.toISOString().slice(0,10);
-            
+            const formatDate = (d) => d.toISOString().slice(0, 10);
+
             $('#fecha_inicio_producto').val(formatDate(primerDiaMes));
             $('#fecha_fin_producto').val(formatDate(today));
             aplicarFiltros();
@@ -810,11 +814,15 @@
                 const ventas = response.productos.ventas || [];
                 const unidades = response.productos.unidades || [];
                 for (let i = 0; i < labels.length; i++) {
-                    productos.push({ nombre: labels[i], ventas: ventas[i] || 0, unidades: unidades[i] || 0 });
+                    productos.push({
+                        nombre: labels[i],
+                        ventas: ventas[i] || 0,
+                        unidades: unidades[i] || 0
+                    });
                 }
-                productos.sort((a,b) => b.ventas - a.ventas);
+                productos.sort((a, b) => b.ventas - a.ventas);
 
-                const totalVentas = ventas.reduce((a,b)=>a+(b||0),0);
+                const totalVentas = ventas.reduce((a, b) => a + (b || 0), 0);
                 let html = '';
                 productos.forEach((p, idx) => {
                     const porcentaje = totalVentas > 0 ? (p.ventas / totalVentas) * 100 : 0;
@@ -879,8 +887,12 @@
                 const promedio = totalUnidades > 0 ? totalVentas / totalUnidades : 0;
 
                 $('#total_unidades').text(totalUnidades.toLocaleString());
-                $('#total_ventas').text('S/ ' + totalVentas.toLocaleString('es-PE', {minimumFractionDigits: 2}));
-                $('#promedio_precio').text('S/ ' + promedio.toLocaleString('es-PE', {minimumFractionDigits: 2}));
+                $('#total_ventas').text('S/ ' + totalVentas.toLocaleString('es-PE', {
+                    minimumFractionDigits: 2
+                }));
+                $('#promedio_precio').text('S/ ' + promedio.toLocaleString('es-PE', {
+                    minimumFractionDigits: 2
+                }));
             }
 
             // Actualizar gráficos con datos procesados del backend
@@ -901,7 +913,7 @@
 
             // Crear gráfico de barras con datos procesados del backend
             crearGraficoVentas(response);
-            
+
             // Crear gráfico Pareto con datos procesados del backend  
             crearGraficoPareto(response);
         }
@@ -944,11 +956,13 @@
                         },
                         y: {
                             ticks: {
-                                font: { size: config.fontSizeY },
+                                font: {
+                                    size: config.fontSizeY
+                                },
                                 callback: function(value, index) {
                                     const label = this.getLabelForValue(value);
                                     const ranking = `#${index + 1}`;
-                                    const displayLabel = label.length > config.maxChars ? 
+                                    const displayLabel = label.length > config.maxChars ?
                                         label.substring(0, config.maxChars - 3) + '...' : label;
                                     return `${ranking} ${displayLabel}`;
                                 }
@@ -956,7 +970,9 @@
                         }
                     },
                     plugins: {
-                        legend: { display: false },
+                        legend: {
+                            display: false
+                        },
                         tooltip: {
                             callbacks: {
                                 title: function(context) {
@@ -1029,16 +1045,47 @@
             if (ctxVentas) {
                 productosVentasChart = new Chart(ctxVentas, {
                     type: 'bar',
-                    data: { labels: ['Sin datos'], datasets: [{ label: 'Sin datos', data: [0], backgroundColor: 'rgba(108, 117, 125, 0.3)' }] },
-                    options: { responsive: true, indexAxis: 'y', plugins: { title: { display: true, text: 'No hay datos disponibles' } } }
+                    data: {
+                        labels: ['Sin datos'],
+                        datasets: [{
+                            label: 'Sin datos',
+                            data: [0],
+                            backgroundColor: 'rgba(108, 117, 125, 0.3)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        indexAxis: 'y',
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'No hay datos disponibles'
+                            }
+                        }
+                    }
                 });
             }
 
             if (ctxPareto) {
                 productosLineChart = new Chart(ctxPareto, {
                     type: 'line',
-                    data: { labels: ['Sin datos'], datasets: [{ label: 'Sin datos', data: [0], borderColor: 'rgba(23, 162, 184, 1)' }] },
-                    options: { responsive: true, plugins: { title: { display: true, text: 'No hay datos disponibles' } } }
+                    data: {
+                        labels: ['Sin datos'],
+                        datasets: [{
+                            label: 'Sin datos',
+                            data: [0],
+                            borderColor: 'rgba(23, 162, 184, 1)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'No hay datos disponibles'
+                            }
+                        }
+                    }
                 });
             }
         }
@@ -1049,7 +1096,7 @@
             $('#header_total_ventas, #stat_total_ingresos').text('S/ 0');
             $('#stat_total_unidades').text('0');
             $('#stat_precio_promedio').text('S/ 0.00');
-            
+
             $('#tabla_productos').html(`
                 <tr><td colspan="6" class="text-center py-5">
                     <div class="text-muted">
@@ -1062,7 +1109,7 @@
                     </div>
                 </td></tr>
             `);
-            
+
             crearGraficosVacios();
         }
 
@@ -1077,7 +1124,10 @@
         window.exportarTabla = () => alert('Función de exportación lista para implementar');
         window.compartirReporte = () => {
             if (navigator.share) {
-                navigator.share({ title: 'Reporte de Productos', url: window.location.href });
+                navigator.share({
+                    title: 'Reporte de Productos',
+                    url: window.location.href
+                });
             } else {
                 navigator.clipboard.writeText(window.location.href);
                 alert('Link copiado al portapapeles');
@@ -1086,35 +1136,35 @@
 
         // Inicializar al cargar la página si hay datos
         @if(isset($data['productos']) && !empty($data['productos']['labels']))
-            const datosIniciales = @json($data['productos']);
-            if (datosIniciales && datosIniciales.labels && datosIniciales.labels.length > 0) {
-                // Simular respuesta del backend para inicialización
-                const respuestaSimulada = {
-                    productos: datosIniciales,
-                    productos_procesados: datosIniciales,
-                    estadisticas: {
-                        total_productos: datosIniciales.labels.length,
-                        total_ventas: datosIniciales.ventas.reduce((a, b) => a + b, 0),
-                        total_unidades: datosIniciales.unidades.reduce((a, b) => a + b, 0),
-                        total_ventas_formateado: 'S/ ' + datosIniciales.ventas.reduce((a, b) => a + b, 0).toLocaleString('es-PE'),
-                        total_unidades_formateado: datosIniciales.unidades.reduce((a, b) => a + b, 0).toLocaleString(),
-                        precio_promedio: datosIniciales.unidades.reduce((a, b) => a + b, 0) > 0 ? 
-                            datosIniciales.ventas.reduce((a, b) => a + b, 0) / datosIniciales.unidades.reduce((a, b) => a + b, 0) : 0,
-                        precio_promedio_formateado: 'S/ ' + (datosIniciales.unidades.reduce((a, b) => a + b, 0) > 0 ? 
-                            (datosIniciales.ventas.reduce((a, b) => a + b, 0) / datosIniciales.unidades.reduce((a, b) => a + b, 0)).toFixed(2) : '0.00')
-                    },
-                    configuracion_grafico: {
-                        altura: Math.max(500, datosIniciales.labels.length * 25),
-                        fontSizeY: datosIniciales.labels.length > 50 ? 10 : 12,
-                        maxChars: datosIniciales.labels.length > 50 ? 35 : 45,
-                        borderWidth: 2,
-                        borderRadius: 4
-                    },
-                    datos_pareto: null, // Se calculará después
-                    indicador: null
-                };
-                actualizarInterfaz(respuestaSimulada);
-            }
+        const datosIniciales = @json($data['productos']);
+        if (datosIniciales && datosIniciales.labels && datosIniciales.labels.length > 0) {
+            // Simular respuesta del backend para inicialización
+            const respuestaSimulada = {
+                productos: datosIniciales,
+                productos_procesados: datosIniciales,
+                estadisticas: {
+                    total_productos: datosIniciales.labels.length,
+                    total_ventas: datosIniciales.ventas.reduce((a, b) => a + b, 0),
+                    total_unidades: datosIniciales.unidades.reduce((a, b) => a + b, 0),
+                    total_ventas_formateado: 'S/ ' + datosIniciales.ventas.reduce((a, b) => a + b, 0).toLocaleString('es-PE'),
+                    total_unidades_formateado: datosIniciales.unidades.reduce((a, b) => a + b, 0).toLocaleString(),
+                    precio_promedio: datosIniciales.unidades.reduce((a, b) => a + b, 0) > 0 ?
+                        datosIniciales.ventas.reduce((a, b) => a + b, 0) / datosIniciales.unidades.reduce((a, b) => a + b, 0) : 0,
+                    precio_promedio_formateado: 'S/ ' + (datosIniciales.unidades.reduce((a, b) => a + b, 0) > 0 ?
+                        (datosIniciales.ventas.reduce((a, b) => a + b, 0) / datosIniciales.unidades.reduce((a, b) => a + b, 0)).toFixed(2) : '0.00')
+                },
+                configuracion_grafico: {
+                    altura: Math.max(500, datosIniciales.labels.length * 25),
+                    fontSizeY: datosIniciales.labels.length > 50 ? 10 : 12,
+                    maxChars: datosIniciales.labels.length > 50 ? 35 : 45,
+                    borderWidth: 2,
+                    borderRadius: 4
+                },
+                datos_pareto: null, // Se calculará después
+                indicador: null
+            };
+            actualizarInterfaz(respuestaSimulada);
+        }
         @endif
     });
 </script>

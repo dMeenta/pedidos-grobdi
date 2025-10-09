@@ -44,7 +44,7 @@
                         General
                     </div>
                     <div class="tab-pane fade show active" id="tabs-por-visitadora" role="tabpanel" aria-labelledby="tabs-por-visitadora-tab">
-                        @include('reports.doctores.partials.porDoctor')
+                        @include('reports.doctores.partials.doctor')
                     </div>
                     <div class="tab-pane fade" id="tabs-por-producto" role="tabpanel" aria-labelledby="tabs-por-producto-tab">
                         Producto
