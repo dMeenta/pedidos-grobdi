@@ -35,10 +35,10 @@
         <br>
         <div class="row">
             @foreach($zonas as $zona)
-            <div class="table table-responsive">
-                <div class="col-xs-6 col-sm-6 col-md-6">
-                    <label for="fecha_inicio">{{ $zona->name }}</label>
-
+            <div class="col-xs-6 col-sm-6 col-md-6">
+                <label for="fecha_inicio">{{ $zona->name }}</label>
+                
+                <div class="table table-responsive">
                     <table class="table table-striped table-hover border shadow-sm">
                         <thead class="bg-dark text-white">
                             <tr>

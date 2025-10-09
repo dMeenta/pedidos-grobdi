@@ -16,6 +16,11 @@ class DetailPedidos extends Model
         'sub_total',
         'estado_produccion',
         'usuario_produccion_id',
+        'status',
+    ];
+
+    protected $casts = [
+        'status' => 'boolean',
     ];
     public function pedido()
     {

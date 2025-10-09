@@ -46,6 +46,11 @@
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                     Resumen de Cambios
                                 </div>
+                                @php
+                                    $inactiveCount = $changes['stats']['inactive_count'] ?? 0;
+                                    $statusChanges = $changes['stats']['status_changes'] ?? 0;
+                                    $unchangedCount = ($changes['stats']['total_count'] ?? 0) - ($changes['stats']['new_count'] ?? 0) - ($changes['stats']['modified_count'] ?? 0);
+                                @endphp
                                 <div class="row">
                                     <div class="col-md-3">
                                         <div class="d-flex align-items-center">
@@ -86,8 +91,32 @@
                                                 <i class="fas fa-equals fa-2x"></i>
                                             </div>
                                             <div>
-                                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $changes['stats']['total_count'] - $changes['stats']['new_count'] - $changes['stats']['modified_count'] }}</div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $unchangedCount }}</div>
                                                 <div class="text-xs text-muted">Sin Cambios</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center">
+                                            <div class="text-danger mr-2">
+                                                <i class="fas fa-ban fa-2x"></i>
+                                            </div>
+                                            <div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $inactiveCount }}</div>
+                                                <div class="text-xs text-muted">Pedidos que quedarán Anulados</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center">
+                                            <div class="text-warning mr-2">
+                                                <i class="fas fa-retweet fa-2x"></i>
+                                            </div>
+                                            <div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $statusChanges }}</div>
+                                                <div class="text-xs text-muted">Cambios de Estado Detectados</div>
                                             </div>
                                         </div>
                                     </div>
@@ -123,12 +152,13 @@
                                 <th>Precio</th>
                                 <th>F. Entrega</th>
                                 <th>Zona</th>
+                                <th>Estado</th>
                                 <th>Será creado</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($changes['new'] as $newOrder)
-                            <tr class="table-success">
+                            <tr class="{{ ($newOrder['data']['status'] ?? true) ? 'table-success' : 'table-danger' }}">
                                 <td><span class="badge badge-success">{{ $newOrder['row_index'] }}</span></td>
                                 <td><strong>{{ $newOrder['data']['orderId'] }}</strong></td>
                                 <td>{{ $newOrder['data']['customerName'] }}</td>
@@ -141,6 +171,11 @@
                                 <td>S/ {{ $newOrder['data']['prize'] }}</td>
                                 <td>{{ $newOrder['data']['deliveryDate'] }}</td>
                                 <td><span class="badge badge-info">{{ $newOrder['data']['zone_name'] }}</span></td>
+                                <td>
+                                    <span class="badge {{ ($newOrder['data']['status'] ?? true) ? 'badge-success' : 'badge-danger' }}">
+                                        {{ $newOrder['data']['status_label'] ?? (($newOrder['data']['status'] ?? true) ? 'Activo' : 'Anulado') }}
+                                    </span>
+                                </td>
                                 <td><span class="badge badge-success">{{ now()->format('Y-m-d H:i:s') }}</span></td>
                             </tr>
                             @endforeach

@@ -125,14 +125,14 @@ class PedidoslabController extends Controller
         }
         if($request->presentacion){
             // dd($request->presentacion);
-            $detallepedidos = DetailPedidos::whereHas('pedido', function ($query) use($fecha) {
+            $detallepedidos = DetailPedidos::where('status', true)->whereHas('pedido', function ($query) use($fecha) {
                 $query->whereDate('deliveryDate', $fecha);
             })
             ->where('articulo', 'not like', '%bolsa%')
             ->where('articulo', 'like', '%'.$request->presentacion.'%')
             ->where('articulo', 'not like', '%delivery%')->get();
         }else{
-            $detallepedidos = DetailPedidos::whereHas('pedido', function ($query) use($fecha) {
+            $detallepedidos = DetailPedidos::where('status', true)->whereHas('pedido', function ($query) use($fecha) {
                 $query->whereDate('deliveryDate', $fecha);
             })
             ->where('articulo', 'not like', '%bolsa%')

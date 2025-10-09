@@ -93,7 +93,13 @@ class PedidoImportService
         $changes = [
             'new' => [],
             'modified' => [],
-            'stats' => ['new_count' => 0, 'modified_count' => 0, 'total_count' => 0]
+            'stats' => [
+                'new_count' => 0,
+                'modified_count' => 0,
+                'total_count' => 0,
+                'inactive_count' => 0,
+                'status_changes' => 0,
+            ]
         ];
 
         foreach ($data as $index => $row) {
@@ -104,26 +110,39 @@ class PedidoImportService
 
             $changes['stats']['total_count']++;
             $orderIdRaw = isset($row[3]) ? trim((string)$row[3]) : '';
-            $existingOrder = Pedidos::where('orderId', $orderIdRaw)->first();
+            $existingOrder = Pedidos::withInactive()->where('orderId', $orderIdRaw)->first();
 
             if (!$existingOrder) {
+                $formatted = $this->formatRowData($row);
                 $changes['new'][] = [
                     'row_index' => $index + 1,
-                    'data' => $this->formatRowData($row),
+                    'data' => $formatted,
                     'type' => 'new'
                 ];
                 $changes['stats']['new_count']++;
+                if (($formatted['status'] ?? true) === false) {
+                    $changes['stats']['inactive_count']++;
+                }
             } else {
                 $modifications = $this->compareOrderData($existingOrder, $row);
                 if (!empty($modifications)) {
+                    $formatted = $this->formatRowData($row);
                     $changes['modified'][] = [
                         'row_index' => $index + 1,
                         'existing' => $this->formatExistingOrderData($existingOrder),
-                        'new' => $this->formatRowData($row),
+                        'new' => $formatted,
                         'modifications' => $modifications,
                         'type' => 'modified'
                     ];
                     $changes['stats']['modified_count']++;
+                    foreach ($modifications as $modification) {
+                        if ($modification['field'] === 'status' && ($modification['new_value'] ?? '') === 'Anulado') {
+                            $changes['stats']['inactive_count']++;
+                        }
+                        if ($modification['field'] === 'status') {
+                            $changes['stats']['status_changes']++;
+                        }
+                    }
                 }
             }
         }
@@ -135,6 +154,9 @@ class PedidoImportService
     {
         $zoneId = Distritos_zonas::zonificar($row[16]);
         $zone = Zone::find($zoneId);
+        $status = $this->mapExcelStatus($row[23] ?? null);
+        $visitadoraName = isset($row[14]) ? trim((string)$row[14]) : '';
+        $usuarioName = isset($row[19]) ? trim((string)$row[19]) : '';
 
         return [
             'nroOrder' => '',
@@ -149,11 +171,13 @@ class PedidoImportService
             'paymentMethod' => $row[10],
             'deliveryDate' => $row[13] ? Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[13]))->format('Y-m-d') : '',
             'productionStatus' => $row[12] !== 'PENDIENTE' ? 'Completado' : 'Pendiente',
-            'visitadora_softlynn' => isset($row[19]) ? trim((string)$row[19]) : '',
+            'visitadora_softlynn' => $visitadoraName,
             'created_at' => $row[20] ? Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[20]))->format('Y-m-d H:i:s') : '',
             'zone_name' => $zone ? $zone->name : 'Sin zona',
-            'user_name' => $row[19] ? (User::where('name', $row[19])->first()->name ?? Auth::user()->name) : Auth::user()->name,
-            'last_data_update' => now()->format('Y-m-d H:i:s')
+            'user_name' => $usuarioName ? (User::where('name', $usuarioName)->first()->name ?? Auth::user()->name) : Auth::user()->name,
+            'last_data_update' => now()->format('Y-m-d H:i:s'),
+            'status' => $status,
+            'status_label' => $status ? 'Activo' : 'Anulado',
         ];
     }
 
@@ -177,6 +201,8 @@ class PedidoImportService
             'user_name' => $order->user->name ?? 'Sin usuario',
             'last_data_update' => $order->last_data_update ? $order->last_data_update->format('Y-m-d H:i:s') : 'Nunca actualizado',
             'visitadora_softlynn' => $order->visitadora?->name_softlynn,
+            'status' => (bool) $order->status,
+            'status_label' => $order->status ? 'Activo' : 'Anulado',
         ];
     }
 
@@ -197,6 +223,7 @@ class PedidoImportService
             'paymentMethod' => 'Método de Pago',
             'deliveryDate' => 'Fecha de Entrega',
             'visitadora_softlynn' => 'Visitadora',
+            'status_label' => 'Estado',
         ];
 
         foreach ($fieldsToCompare as $field => $label) {
@@ -209,6 +236,15 @@ class PedidoImportService
                         'label' => $label,
                         'old_value' => $existingDate,
                         'new_value' => $newDate
+                    ];
+                }
+            } elseif ($field === 'status_label') {
+                if ($existingData[$field] !== $newData[$field]) {
+                    $modifications[] = [
+                        'field' => 'status',
+                        'label' => $label,
+                        'old_value' => $existingData[$field],
+                        'new_value' => $newData[$field]
                     ];
                 }
             } else {
@@ -224,6 +260,18 @@ class PedidoImportService
         }
 
         return $modifications;
+    }
+
+    private function mapExcelStatus($value): bool
+    {
+        if (is_null($value)) {
+            return true;
+        }
+
+        $normalized = strtoupper(trim((string) $value));
+    $normalized = preg_replace('/[^A-Z0-9]/', '', $normalized) ?? '';
+
+        return $normalized !== 'ANULADO' && $normalized !== '0';
     }
 
     /**
