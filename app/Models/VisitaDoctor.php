@@ -7,6 +7,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class VisitaDoctor extends Model
 {
+
+    /**
+     * The attributes that are mass assignable.
+     * Modificar según necesidad 😊
+     * @var array
+     */
+    protected $fillable = [
+        'doctor_id',
+        'enrutamientolista_id',
+        'fecha',
+        'estado_visita_id',
+        'created_by',
+        'updated_by'
+    ];
+
     // 0 = mañana, 1 = tarde
     protected $table = 'visita_doctor';
 
