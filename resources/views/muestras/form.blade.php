@@ -152,6 +152,7 @@
 @stop
 
 @section('js')
+    <script src="{{ asset('js/autocomplete-input.js') }}"></script>
     <script>
         $(document).ready(function() {
             const presentacionInfo = $('#presentacion_info');

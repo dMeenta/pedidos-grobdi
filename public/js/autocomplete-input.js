@@ -241,7 +241,7 @@ function initAutocompleteInput({
     }
 
     function handleClickOutside(e) {
-        if (!$(e.target).closest(inputSelector + ", " + listSelector).length) {
+        if (!$(e.target).closest($input, $list).length) {
             hideSuggestions();
         }
     }
