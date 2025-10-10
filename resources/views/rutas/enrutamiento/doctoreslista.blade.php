@@ -288,7 +288,7 @@
                     toast(response.message, icon);
 
                     if (response.success) {
-                        setTimeout(() => location.reload(), 2000);
+                        setTimeout(() => location.reload(), 1500);
                     }
                 },
                 error: function(err) {

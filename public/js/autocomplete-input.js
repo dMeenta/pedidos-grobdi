@@ -62,28 +62,53 @@ function initAutocompleteInput({
             : hiddenIdSelector
         : null;
 
-    if (!$input || !$list) {
+    if (!$input.length || !$list.length) {
         console.warn(
-            "⚠️ initAutocompleteInput: inputSelector y listSelector son obligatorios."
+            "⚠️ initAutocompleteInput: inputSelector o listSelector no encontraron elementos."
         );
         return;
     }
 
-    let debounceTimer;
-    let selectedIndex = -1;
+    const state = {
+        selectedIndex: -1,
+        $input,
+        $list,
+        $hidden,
+        debounceTimer: null,
+    };
 
-    $input.on("keyup", function (e) {
+    const namespace = `.autocomplete_${Date.now()}_${Math.random()
+        .toString(36)
+        .slice(2, 11)}`;
+
+    function getNestedValue(obj, path, fallback = "") {
+        return path.split(".").reduce((curr, key) => {
+            return curr && curr[key] !== undefined ? curr[key] : fallback;
+        }, obj);
+    }
+
+    const listId = $list.attr("id") || `autocomplete-list-${Date.now()}`;
+    $list
+        .attr("id", listId)
+        .attr("role", "listbox")
+        .attr("aria-labelledby", $input.attr("id") || "");
+    $input
+        .attr("aria-autocomplete", "list")
+        .attr("aria-controls", listId)
+        .attr("aria-expanded", "false");
+
+    function handleInputKeyUp(e) {
         if (["ArrowUp", "ArrowDown", "Enter"].includes(e.key)) return;
 
-        clearTimeout(debounceTimer);
+        clearTimeout(state.debounceTimer);
 
-        const query = $input.val().trim();
+        const query = state.$input.val().trim();
         if (query.length < minChars) {
-            $list.fadeOut();
+            hideSuggestions();
             return;
         }
 
-        debounceTimer = setTimeout(() => {
+        state.debounceTimer = setTimeout(() => {
             $.ajax({
                 url: apiUrl,
                 type: "GET",
@@ -97,97 +122,147 @@ function initAutocompleteInput({
                         data = [];
                     }
 
-                    let html = "";
-                    if (data.length > 0) {
-                        data.forEach((item) => {
-                            const label = item[displayField] ?? "(Sin nombre)";
-                            const value = item[valueField] ?? "";
-
-                            let dataAttrs = `data-value="${value}" data-display="${label}"`;
-
-                            extraDataFields.forEach((field) => {
-                                const val = item[field] ?? "";
-                                dataAttrs += ` data-${field}="${String(
-                                    val
-                                ).replace(/"/g, "&quot;")}"`;
-                            });
-
-                            html += renderItem
-                                ? renderItem(item)
-                                : `<a href="#" class="list-group-item list-group-item-action autocomplete-item"
-                                ${dataAttrs}>${label}</a>`;
-                        });
-                        selectedIndex = -1;
-                    } else {
-                        html =
-                            '<div class="list-group-item text-muted">Sin resultados</div>';
-                    }
-                    $list.html(html).fadeIn();
+                    renderSuggestions(data);
+                },
+                error: (xhr, status, error) => {
+                    console.error("Error en autocompletado:", error);
+                    state.$list.html(
+                        '<div class="list-group-item text-danger">Error al cargar sugerencias</div>'
+                    );
+                    showSuggestions();
                 },
             });
         }, debounceDelay);
-    });
+    }
 
-    $(document).on("click", `${listSelector} .autocomplete-item`, function (e) {
+    function renderSuggestions(data) {
+        let html = "";
+        if (data.length > 0) {
+            data.forEach((item) => {
+                const label = getNestedValue(
+                    item,
+                    displayField,
+                    "(Sin nombre)"
+                );
+                const value = getNestedValue(item, valueField, "");
+
+                let dataAttrs = `data-value="${String(value).replace(
+                    /"/g,
+                    "&quot;"
+                )}" data-display="${String(label).replace(/"/g, "&quot;")}"`;
+
+                extraDataFields.forEach((field) => {
+                    const val = getNestedValue(item, field, "");
+                    dataAttrs += ` data-${field}="${String(val).replace(
+                        /"/g,
+                        "&quot;"
+                    )}"`;
+                });
+
+                html += renderItem
+                    ? renderItem(item)
+                    : `<div role="option" class="list-group-item list-group-item-action autocomplete-item"
+                        tabindex="-1" ${dataAttrs}>${label}</div>`;
+            });
+            state.selectedIndex = -1;
+        } else {
+            html =
+                '<div class="list-group-item text-muted">Sin resultados</div>';
+        }
+        state.$list.html(html);
+        showSuggestions();
+    }
+
+    function showSuggestions() {
+        state.$list.fadeIn().attr("aria-expanded", "true");
+    }
+
+    function hideSuggestions() {
+        state.$list.fadeOut().attr("aria-expanded", "false");
+    }
+
+    function handleItemClick(e) {
         e.preventDefault();
-        const dataset = $(this).data();
-        $input.val(dataset.display);
+        const $item = $(this);
+        const dataset = $item.data();
 
-        if ($hidden) $hidden.val(dataset.value ?? "");
+        state.$input.val(dataset.display);
+
+        if (state.$hidden) state.$hidden.val(dataset.value ?? "");
 
         if (typeof onSelect === "function") {
             onSelect(dataset);
         }
 
-        $list.fadeOut();
-    });
+        hideSuggestions();
+    }
 
-    $input.on("keydown", function (e) {
-        const items = $list.find(".autocomplete-item");
-        if (!$list.is(":visible") || items.length === 0) return;
+    function handleInputKeyDown(e) {
+        const $items = state.$list.find(".autocomplete-item");
+        if (!state.$list.is(":visible") || $items.length === 0) return;
 
         if (e.key === "ArrowDown") {
             e.preventDefault();
-            selectedIndex = (selectedIndex + 1) % items.length;
-            highlightItem(items, selectedIndex);
-        }
-        if (e.key === "ArrowUp") {
+            state.selectedIndex = (state.selectedIndex + 1) % $items.length;
+            highlightItem($items, state.selectedIndex);
+        } else if (e.key === "ArrowUp") {
             e.preventDefault();
-            selectedIndex = (selectedIndex - 1 + items.length) % items.length;
-            highlightItem(items, selectedIndex);
-        }
-        if (e.key === "Enter" && selectedIndex >= 0) {
+            state.selectedIndex =
+                (state.selectedIndex - 1 + $items.length) % $items.length;
+            highlightItem($items, state.selectedIndex);
+        } else if (e.key === "Enter" && state.selectedIndex >= 0) {
             e.preventDefault();
-            $(items[selectedIndex]).trigger("click");
+            $items.eq(state.selectedIndex).trigger("click");
+        } else if (e.key === "Escape") {
+            e.preventDefault();
+            hideSuggestions();
         }
-    });
+    }
 
-    function highlightItem(items, index) {
-        items.removeClass("active");
-        if (index >= 0 && index < items.length) {
-            const item = $(items[index]);
-            item.addClass("active");
-            const itemTop = item.position().top;
-            const itemBottom = itemTop + item.outerHeight();
-            const containerHeight = $list.height();
+    function highlightItem($items, index) {
+        $items.removeClass("active").attr("aria-selected", "false");
+        if (index >= 0 && index < $items.length) {
+            const $item = $items.eq(index);
+            $item.addClass("active").attr("aria-selected", "true");
+
+            const itemTop = $item.position().top;
+            const itemHeight = $item.outerHeight();
+            const containerHeight = state.$list.height();
+            const scrollTop = state.$list.scrollTop();
 
             if (itemTop < 0) {
-                $list.scrollTop($list.scrollTop() + itemTop);
-            } else if (itemBottom > containerHeight) {
-                $list.scrollTop(
-                    $list.scrollTop() + (itemBottom - containerHeight)
+                state.$list.scrollTop(scrollTop + itemTop);
+            } else if (itemTop + itemHeight > containerHeight) {
+                state.$list.scrollTop(
+                    scrollTop + itemTop + itemHeight - containerHeight
                 );
             }
         }
     }
 
-    $(document).click((e) => {
+    function handleClickOutside(e) {
         if (!$(e.target).closest(inputSelector + ", " + listSelector).length) {
-            $list.fadeOut();
+            hideSuggestions();
         }
-    });
+    }
 
-    $input.on("input", () => {
-        if ($hidden) $hidden.val("");
-    });
+    function handleInputClear() {
+        if (state.$hidden) state.$hidden.val("");
+    }
+
+    // === 10. Vinculación de eventos con namespace ===
+    state.$input
+        .off(`${namespace}`)
+        .on(`keyup${namespace}`, handleInputKeyUp)
+        .on(`keydown${namespace}`, handleInputKeyDown)
+        .on(`input${namespace}`, handleInputClear);
+
+    $(document)
+        .off(`click${namespace}`)
+        .on(
+            `click${namespace}`,
+            `${listSelector} .autocomplete-item`,
+            handleItemClick
+        )
+        .on(`click${namespace}`, handleClickOutside);
 }
