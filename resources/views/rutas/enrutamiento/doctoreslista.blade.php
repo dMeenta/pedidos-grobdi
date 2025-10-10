@@ -31,11 +31,12 @@
                                 <div class="row">
                                     <div class="col-12 col-lg-8">
                                         <div class="form-group position-relative mb-lg-0">
-                                            <input type="text" id="name_doctor" name="name_doctor" class="form-control"
+                                            <input type="text" id="name-query" name="name-query" class="form-control"
                                                 placeholder="Escriba el nombre de un doctor..." autocomplete="off" />
-                                            <div id="doctorsList" class="list-group position-absolute overflow-auto border"
+                                            <div id="suggestions-list"
+                                                class="list-group position-absolute overflow-auto border"
                                                 style="z-index: 1000; max-height: 200px; width: 100%;"></div>
-                                            <input type="hidden" name="id_doctor" id="id_doctor" />
+                                            <input type="hidden" name="id-doctor" id="id-doctor" />
                                         </div>
                                     </div>
                                     <div class="col-12 col-lg-3 form-group mb-lg-0">
@@ -169,6 +170,8 @@
 
 @section('js')
     <script src="{{ asset('js/sweetalert2-factory.js') }}"></script>
+    <script src="{{ asset('js/autocomplete-input.js') }}"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
     </script>
@@ -258,6 +261,14 @@
             locale: "es"
         });
 
+        const doctorIdInput = $('#id-doctor');
+        initAutocompleteInput({
+            apiUrl: `{{ route('doctors.search') }}`,
+            inputSelector: '#name-query',
+            listSelector: '#suggestions-list',
+            hiddenIdSelector: doctorIdInput,
+        });
+
         $('#form-add-new').on('submit', function(e) {
             e.preventDefault();
             const doctorId = doctorIdInput.val();
@@ -290,103 +301,4 @@
             })
         })
     </script>
-
-    <script>
-        let typingTimer;
-        const debounceDelay = 300;
-        let selectedIndex = -1;
-        const doctorNameInput = $('#name_doctor');
-        const doctorIdInput = $('#id_doctor');
-        const suggestionsList = $('#doctorsList');
-        doctorNameInput.on('keyup', function(e) {
-            if (['ArrowUp', 'ArrowDown', 'Enter'].includes(e.key)) {
-                return;
-            }
-            clearTimeout(typingTimer);
-            const query = doctorNameInput.val();
-            if (query.length < 2) {
-                suggestionsList.fadeOut();
-                return;
-            }
-
-            typingTimer = setTimeout(function() {
-                $.ajax({
-                    url: `{{ route('doctors.search') }}`,
-                    type: 'GET',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        q: query
-                    },
-                    success: function(data) {
-                        let html = '';
-                        if (data.length > 0) {
-                            data.forEach(function(doctor) {
-                                html +=
-                                    `<a href="" class="list-group-item list-group-item-action doctor-item" data-id="${doctor.id}" data-name="${doctor.name}">${doctor.name}</a>`;
-                            });
-                            selectedIndex = -1;
-                        }
-                        suggestionsList.html(html).fadeIn();
-                    }
-                });
-            }, debounceDelay);
-        });
-
-        $(document).on('click', '.doctor-item', function(e) {
-            e.preventDefault();
-            doctorNameInput.val($(this).data('name'));
-            doctorIdInput.val($(this).data('id'));
-            suggestionsList.fadeOut();
-        });
-
-        doctorNameInput.on('keydown', function(e) {
-            const items = suggestionsList.find('.doctor-item')
-            if (!suggestionsList.is(':visible') || items.length === 0) return;
-
-            if (e.key === 'ArrowDown') {
-                e.preventDefault()
-                selectedIndex = (selectedIndex + 1) % items.length;
-                highlightItem(items, selectedIndex);
-            }
-            if (e.key === 'ArrowUp') {
-                e.preventDefault()
-                selectedIndex = (selectedIndex - 1 + items.length) % items.length;
-                highlightItem(items, selectedIndex);
-            }
-            if (e.key === 'Enter' && selectedIndex >= 0) {
-                e.preventDefault();
-                const selectedItem = $(items[selectedIndex]);
-                doctorNameInput.val(selectedItem.text());
-                doctorIdInput.val(selectedItem.data("id"));
-                suggestionsList.fadeOut();
-            }
-        })
-
-        function highlightItem(items, index) {
-            items.removeClass('active');
-            if (index >= 0 && index < items.length) {
-                const item = $(items[index]);
-                item.addClass('active');
-                const itemTop = item.position().top;
-                const itemBottom = itemTop + item.outerHeight();
-                const containerHeight = suggestionsList.height();
-                if (itemTop < 0) {
-                    suggestionsList.scrollTop(suggestionsList.scrollTop() + itemTop);
-                } else if (itemBottom > containerHeight) {
-                    suggestionsList.scrollTop(suggestionsList.scrollTop() + (itemBottom - containerHeight));
-                }
-            }
-        }
-
-        $(document).click(function(e) {
-            if (!$(e.target).closest('#name_doctor, #doctorsList').length) {
-                suggestionsList.fadeOut();
-            }
-        });
-
-        doctorNameInput.on('input', function() {
-            doctorIdInput.val('');
-        });
-    </script>
-
 @stop

@@ -5,11 +5,12 @@
     <div class="col-2">
         <form id="doctor-filter">
             <div class="form-group position-relative">
-                <label for="name_doctor">Nombre del doctor</label>
-                <input type="text" id="name_doctor" name="name_doctor" class="form-control" autocomplete="off" />
-                <div id="doctorsList" class="list-group position-absolute overflow-auto border"
+                <label for="doctor-name-query">Nombre del doctor</label>
+                <input type="text" id="doctor-name-query" name="doctor-name-query" class="form-control"
+                    autocomplete="off" />
+                <div id="doctor-suggestions-list" class="list-group position-absolute overflow-auto border"
                     style="z-index: 1000; max-height: 200px; width: 100%;"></div>
-                <input type="hidden" name="id_doctor" id="id_doctor"
+                <input type="hidden" name="doctor-id-doctor" id="doctor-id-doctor"
                     value="{{ $doctorReport['filters']['id_doctor'] }}" />
             </div>
             <div class="form-group">
@@ -190,6 +191,13 @@
         const doctorProductsDetailsTable = $('#doctor-products-details-table');
         const doctorNameLabel = $('#doctor-name-label');
         const monthYearInput = $('#doctor-month-year');
+        const doctorIdInput = $('#doctor-id-doctor');
+        initAutocompleteInput({
+            apiUrl: `{{ route('doctors.search') }}`,
+            inputSelector: '#doctor-name-query',
+            listSelector: '#doctor-suggestions-list',
+            hiddenIdSelector: doctorIdInput,
+        });
         $('#doctor-month-year-picker').datepicker({
             format: 'mm/yyyy',
             startView: 'months',
@@ -295,105 +303,7 @@
                     },
                 }
             });
-    </script>
-    <script>
-        let typingTimer;
-        const debounceDelay = 300;
-        let selectedIndex = -1;
-        const doctorNameInput = $('#name_doctor');
-        const doctorIdInput = $('#id_doctor');
-        const suggestionsList = $('#doctorsList');
-        doctorNameInput.on('keyup', function(e) {
-            if (['ArrowUp', 'ArrowDown', 'Enter'].includes(e.key)) {
-                return;
-            }
-            clearTimeout(typingTimer);
-            const query = doctorNameInput.val();
-            if (query.length < 2) {
-                suggestionsList.fadeOut();
-                return;
-            }
 
-            typingTimer = setTimeout(function() {
-                $.ajax({
-                    url: `{{ route('doctors.search') }}`,
-                    type: 'GET',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        q: query
-                    },
-                    success: function(data) {
-                        let html = '';
-                        if (data.length > 0) {
-                            data.forEach(function(doctor) {
-                                html +=
-                                    `<a href="" class="list-group-item list-group-item-action doctor-item" data-id="${doctor.id}" data-name="${doctor.name}">${doctor.name}</a>`;
-                            });
-                            selectedIndex = -1;
-                        }
-                        suggestionsList.html(html).fadeIn();
-                    }
-                });
-            }, debounceDelay);
-        });
-
-        $(document).on('click', '.doctor-item', function(e) {
-            e.preventDefault();
-            doctorNameInput.val($(this).data('name'));
-            doctorIdInput.val($(this).data('id'));
-            suggestionsList.fadeOut();
-        });
-
-        doctorNameInput.on('keydown', function(e) {
-            const items = suggestionsList.find('.doctor-item')
-            if (!suggestionsList.is(':visible') || items.length === 0) return;
-
-            if (e.key === 'ArrowDown') {
-                e.preventDefault()
-                selectedIndex = (selectedIndex + 1) % items.length;
-                highlightItem(items, selectedIndex);
-            }
-            if (e.key === 'ArrowUp') {
-                e.preventDefault()
-                selectedIndex = (selectedIndex - 1 + items.length) % items.length;
-                highlightItem(items, selectedIndex);
-            }
-            if (e.key === 'Enter' && selectedIndex >= 0) {
-                e.preventDefault();
-                const selectedItem = $(items[selectedIndex]);
-                doctorNameInput.val(selectedItem.text());
-                doctorIdInput.val(selectedItem.data("id"));
-                suggestionsList.fadeOut();
-            }
-        })
-
-        function highlightItem(items, index) {
-            items.removeClass('active');
-            if (index >= 0 && index < items.length) {
-                const item = $(items[index]);
-                item.addClass('active');
-                const itemTop = item.position().top;
-                const itemBottom = itemTop + item.outerHeight();
-                const containerHeight = suggestionsList.height();
-                if (itemTop < 0) {
-                    suggestionsList.scrollTop(suggestionsList.scrollTop() + itemTop);
-                } else if (itemBottom > containerHeight) {
-                    suggestionsList.scrollTop(suggestionsList.scrollTop() + (itemBottom - containerHeight));
-                }
-            }
-        }
-
-        $(document).click(function(e) {
-            if (!$(e.target).closest('#name_doctor, #doctorsList').length) {
-                suggestionsList.fadeOut();
-            }
-        });
-
-        doctorNameInput.on('input', function() {
-            doctorIdInput.val('');
-        });
-    </script>
-    <script>
         function doctorFetchReportData() {
             const id = doctorIdInput.val().trim();
             const monthYear = monthYearInput.val().trim();
