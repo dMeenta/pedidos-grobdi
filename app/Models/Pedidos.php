@@ -25,7 +25,7 @@ class Pedidos extends Model
         'deliveryDate',
         'detailMotorizado',
         'user_id',
-    'visitadora_id',
+        'visitadora_id',
         'zone_id',
         'voucher',
         'receta',

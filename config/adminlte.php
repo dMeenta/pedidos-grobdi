@@ -329,36 +329,22 @@ return [
         //     'label_color' => 'success',
         // ],
         [
-            'header' => 'Reporte Comercial',
-            'can' => ['jefe-comercial', 'admin']
+            'text' => 'Reportes Visitadoras Prueba',
+            'url' => 'reports/visitadoras',
+            'icon' => 'fas fa-briefcase',
+            'can' => ['admin']
         ],
         [
-            'text' => 'Reportes',
-            'icon' => 'fas fa-chart-bar',
-            'submenu' => [
-                [
-                    'text' => 'Rutas',
-                    'url' => 'reporte/visitadoras',
-                    'icon' => 'fas fa-route',
-                    'can' => ['admin', 'jefe-comercial']
-                ],
-                [
-                    'text' => 'Ventas',
-                    'url' => 'reporte/ventas',
-                    'icon' => 'fas fa-briefcase',
-                    'can' => ['admin']
-                ],
-                [
-                    'text' => 'Doctores',
-                    'url' => 'reporte/doctores',
-                    'icon' => 'fas fa-fw fa-user-md',
-                    'can' => ['admin']
-                ],
-            ]
+            'text' => 'Reportes Ventas Prueba',
+            'url' => 'reports/ventas',
+            'icon' => 'fas fa-briefcase',
+            'can' => ['admin']
         ],
         [
-            'header' => 'Muestras',
-            'can' => ['admin', 'visitador', 'coordinador-lineas', 'jefe-comercial', 'contabilidad', 'jefe-operaciones', 'laboratorio']
+            'text' => 'Reportes Ventas DOCTORES',
+            'url' => 'reports/doctores',
+            'icon' => 'fas fa-briefcase',
+            'can' => ['admin']
         ],
         [
             'text' => 'Muestras',
@@ -558,6 +544,54 @@ return [
             'icon' => 'fas fa-fw fa-user',
             'can' => 'jefe-operaciones'
         ],
+        [
+            'text' => 'Roles',
+            'url' => 'roles',
+            'icon' => 'fas fa-fw fa-user-shield',
+            'can' => 'jefe-operaciones'
+        ],
+        // [
+        //     'text' => 'Permisos',
+        //     'url' => 'permisos',
+        //     'icon' => 'fas fa-fw fa-key',
+        //     'can' => 'jefe-operaciones'
+        // ],
+        [
+            'text' => 'Modulos',
+            'url' => 'modules',
+            'icon' => 'fas fa-fw fa-th-large',
+            'can' => 'jefe-operaciones'
+        ],
+        [
+            'text' => 'Vistas',
+            'url' => 'views',
+            'icon' => 'fas fa-fw fa-eye',
+            'can' => 'jefe-operaciones'
+        ],
+        // [
+        //     'text' => 'Bitacora',
+        //     'url' => 'bitacora',
+        //     'icon' => 'fas fa-fw fa-book',
+        //     'can' => 'jefe-operaciones'
+        // ],
+        // [
+        //     'text' => 'Logs',
+        //     'url' => 'logs',
+        //     'icon' => 'fas fa-fw fa-file-alt',
+        //     'can' => 'jefe-operaciones'
+        // ],
+        // [
+        //     'text' => 'Backups',
+        //     'url' => 'backups',
+        //     'icon' => 'fas fa-fw fa-database',
+        //     'can' => 'jefe-operaciones'
+        // ],
+        // [
+        //     'text' => 'Configuracion',
+        //     'url' => 'ajustes',
+        //     'icon' => 'fas fa-fw fa-cogs',
+        //     'can' => 'jefe-operaciones'
+        // ],
         //sidebar Supervisor
         [
             'header' => 'Supervisor',

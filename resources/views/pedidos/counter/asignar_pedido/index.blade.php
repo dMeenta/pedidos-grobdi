@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Dashboard')
+@section('title', 'Asignar Pedidos')
 @section('content')
 <div class="card mt-5">
     <h2 class="card-header">Pedidos</h2>
@@ -17,8 +17,8 @@
                             <input class="form-control border-info bg-light shadow-sm" type="date" name="fecha" id="fecha" value="{{ request()->query('fecha') }}" required>
                         </div>
                         <div class="col-md-4">
-                            <label for="nroOrder" class="form-label fw-bold text-info"><i class="fa fa-hashtag"></i> Nro de Orden</label>
-                            <input class="form-control border-info bg-light shadow-sm" type="text" name="nroOrder" id="nroOrder" value="{{ request()->query('nroOrder') }}" placeholder="Ingrese número de orden">
+                            <label for="orderId" class="form-label fw-bold text-info"><i class="fa fa-hashtag"></i> Nro de Pedido</label>
+                            <input class="form-control border-info bg-light shadow-sm" type="text" name="orderId" id="orderId" value="{{ request()->query('orderId') }}" placeholder="Ingrese número de pedido">
                         </div>
                         <div class="col-md-4 d-flex align-items-end">
                             <button id="searchBtn" type="submit" class="btn btn-info w-100 shadow-sm"><i class="fa fa-search"></i> Buscar</button>
@@ -35,9 +35,10 @@
         <br>
         <div class="row">
             @foreach($zonas as $zona)
-                <div class="col-xs-6 col-sm-6 col-md-6">
-                    <label for="fecha_inicio">{{ $zona->name }}</label>
-
+            <div class="col-xs-6 col-sm-6 col-md-6">
+                <label for="fecha_inicio">{{ $zona->name }}</label>
+                
+                <div class="table table-responsive">
                     <table class="table table-striped table-hover border shadow-sm">
                         <thead class="bg-dark text-white">
                             <tr>
@@ -87,7 +88,7 @@
             
                     </table>
                 </div>
-
+            </div>
             @endforeach
         </div>
         @error('message')

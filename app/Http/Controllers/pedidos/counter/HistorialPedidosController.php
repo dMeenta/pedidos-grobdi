@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\pedidos\counter;
 
 use App\Http\Controllers\Controller;
-use App\Application\Services\PedidoHistoryService;
+use App\Services\PedidoHistoryService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Pedidos;
