@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 
 use App\Http\Controllers\pedidos\laboratorio\PedidoslabController;
 use App\Http\Controllers\pedidos\contabilidad\PedidosContaController;
+use App\Http\Controllers\pedidos\comercial\PedidosComercialController;
 use App\Http\Controllers\pedidos\counter\AsignarPedidoController;
 use App\Http\Controllers\pedidos\counter\CargarPedidosController;
 use App\Http\Controllers\pedidos\counter\HistorialPedidosController;
@@ -277,10 +278,12 @@ Route::post('pedidosproduccion/{detalleId}/actualizarestado', [OrdenesController
 // Ruta para la gestión de precios en la vista de jefe de proyectos
 
 
-//JEFE COMERCIAL
+//JEFE COMERCIALA
 Route::middleware(['checkRole:jefe-comercial,admin'])->group(function () {
     Route::resource('categoriadoctor', CategoriaDoctorController::class);
     Route::get('/ventascliente', [PedidosController::class, 'listPedCliente'])->name('pedidosxcliente.listar');
+    Route::get('pedidoscomercial', [PedidosComercialController::class, 'index'])->name('pedidoscomercial.index');
+    Route::get('pedidoscomercial/export', [PedidosComercialController::class, 'export'])->name('pedidoscomercial.export');
 });
 
 //Jefe Comercial Reportes
