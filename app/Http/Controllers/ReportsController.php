@@ -129,4 +129,16 @@ class ReportsController extends Controller
         ];
         return response()->json($this->reportsService->doctors()->getTipoDoctorReport($filters)->toArray(), 200);
     }
+
+    /* Muestras */
+    public function muestrasView()
+    {
+        $arrayTabs = [
+            ['name' => 'resumen', 'icon' => 'fas fa-tablets'],
+            ['name' => 'operaciones', 'icon' => 'fas fa-capsules'],
+            ['name' => 'comercial', 'icon' => 'fas fa-syringe'],
+        ];
+
+        return view('reports.muestras.index', compact('arrayTabs'));
+    }
 }
