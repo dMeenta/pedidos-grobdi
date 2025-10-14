@@ -6,6 +6,8 @@ use App\Application\Services\PedidosComercial\PedidosComercialService;
 use App\Exports\PedidosComercial\PedidosComercialExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\pedidos\comercial\PedidosComercialFilterRequest;
+use App\Models\Doctor;
+use App\Models\Distrito;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -27,6 +29,8 @@ class PedidosComercialController extends Controller
         return view('pedidos.comercial.index', [
             'pedidos' => $pedidos,
             'filters' => $filters,
+            'doctorOptions' => $this->getDoctorOptions(),
+            'distritoOptions' => $this->getDistritoOptions(),
         ]);
     }
 
@@ -50,5 +54,17 @@ class PedidosComercialController extends Controller
         }
 
         return $filters;
+    }
+
+    protected function getDoctorOptions()
+    {
+        return Doctor::orderBy('name')->get(['id', 'name']);
+    }
+
+    protected function getDistritoOptions()
+    {
+        return Distrito::whereIn('provincia_id', [67, 128])
+            ->orderBy('name')
+            ->get(['id', 'name']);
     }
 }
