@@ -217,7 +217,7 @@ class ReportsRepository implements ReportsRepositoryInterface
                 $join->on('dr.id', '=', 'p.id_doctor')
                     ->whereYear('p.created_at', $year);
             })
-            ->select('
+            ->selectRaw('
                 dr.tipo_medico,
                 COUNT(DISTINCT dr.id) as total_doctores,
                 COALESCE(SUM(p.prize), 0) as total_amount,

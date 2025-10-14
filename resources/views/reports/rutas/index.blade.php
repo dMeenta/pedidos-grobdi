@@ -254,7 +254,7 @@
             zonesUpdateChart(response.general_stats.total_per_estado);
             tableRenderRows(distritosDataTable, response.data,
                 (i) => {
-                    const estadosCols = estados.map(e => `<td>${estados[i.id] ?? 0}</td>`).join('');
+                    const estadosCols = estados.map(e => `<td>${i.estados[e.id] ?? 0}</td>`).join('');
                     return `
                             <tr class="text-center">
                                 <td>${i.distrito}</td>
