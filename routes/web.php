@@ -5,6 +5,7 @@ use App\Http\Controllers\ajustes\RolesController;
 use App\Http\Controllers\ajustes\UbigeoController;
 use App\Http\Controllers\ajustes\UsuariosController;
 use App\Http\Controllers\ajustes\ViewController;
+use App\Http\Controllers\pedidos\comercial\PedidosComercialController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -91,6 +92,8 @@ Route::middleware(['check.permission'])->group(function () {
         Route::put('/aprove-joperaciones', [MuestrasController::class, 'aproveMuestraByJefeOperaciones'])->name('muestras.aproveJefeOperaciones');
     });
 
+    Route::get('pedidoscomercial', [PedidosComercialController::class, 'index'])->name('pedidoscomercial.index');
+    Route::get('pedidoscomercial/export', [PedidosComercialController::class, 'export'])->name('pedidoscomercial.export');
 
     Route::get('/doctors/search', [DoctorController::class, 'showByNameLike'])->name('doctors.search');
 
