@@ -119,6 +119,22 @@
                             >
                         </div>
                     </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="distrito" class="text-muted font-weight-bold">Distrito</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-white"><i class="fa fa-map-marker"></i></span>
+                            </div>
+                            <input
+                                type="text"
+                                name="distrito"
+                                id="distrito"
+                                class="form-control"
+                                placeholder="Buscar distrito del doctor"
+                                value="{{ $filters['distrito'] ?? '' }}"
+                            >
+                        </div>
+                    </div>
                 </div>
                 <div class="text-right">
                     <button type="submit" class="btn btn-primary shadow-sm mr-2">
