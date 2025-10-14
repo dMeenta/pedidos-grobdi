@@ -55,6 +55,17 @@ class PedidosComercialRepository
             });
         }
 
+        if (!empty($filters['distrito'])) {
+            $query->where(function (Builder $builder) use ($filters) {
+                $search = $filters['distrito'];
+
+                $builder->where('district', 'like', '%'.$search.'%')
+                    ->orWhereHas('doctor.distrito', function (Builder $distritoQuery) use ($search) {
+                        $distritoQuery->where('name', 'like', '%'.$search.'%');
+                    });
+            });
+        }
+
         if (!empty($filters['visitadora'])) {
             $query->whereHas('visitadora', function (Builder $visitadoraQuery) use ($filters) {
                 $visitadoraQuery->where('name', 'like', '%'.$filters['visitadora'].'%');
