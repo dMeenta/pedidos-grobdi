@@ -90,6 +90,10 @@ Route::prefix('reports')->group(function () {
             Route::get('tipo-doctor', [ReportsController::class, 'getTipoDoctorReport'])->name('reports.doctores.tipo-doctor');
         });
     });
+
+    Route::prefix('muestras')->group(function () {
+        Route::get('/', [ReportsController::class, 'muestrasView'])->name('reports.muestras');
+    });
 });
 
 //Modulo de Muestras

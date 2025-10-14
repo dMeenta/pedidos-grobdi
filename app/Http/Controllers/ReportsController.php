@@ -139,6 +139,8 @@ class ReportsController extends Controller
             ['name' => 'comercial', 'icon' => 'fas fa-syringe'],
         ];
 
-        return view('reports.muestras.index', compact('arrayTabs'));
+        $data = $this->reportsService->rutas()->getMuestrasReport();
+
+        return view('reports.muestras.index', compact('arrayTabs', 'data'));
     }
 }
