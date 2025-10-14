@@ -44,7 +44,7 @@
                         <label for="fecha_fin" class="text-muted font-weight-bold">Fecha fin</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text bg-white"><i class="fa fa-calendar-check-o"></i></span>
+                                <span class="input-group-text bg-white"><i class="fas fa-calendar-check"></i></span>
                             </div>
                             <input
                                 type="date"
@@ -150,6 +150,7 @@
                 <thead>
                     <tr>
                         <th>Order ID</th>
+                        <th>Fecha</th>
                         <th>Cliente</th>
                         <th>Visitadora</th>
                         <th>Doctor</th>
@@ -168,6 +169,7 @@
                         @endphp
                         <tr>
                             <td>{{ $pedido->orderId }}</td>
+                            <td>{{ optional($pedido->created_at)->format('d/m/Y H:i') }}</td>
                             <td>
                                 <div class="font-weight-bold">{{ $pedido->customerName }}</div>
                                 <small class="text-muted">{{ $pedido->customerNumber }}</small>
@@ -208,7 +210,7 @@
 
                     @empty
                         <tr>
-                            <td colspan="10" class="text-center">No se encontraron pedidos con los filtros seleccionados.</td>
+                            <td colspan="11" class="text-center">No se encontraron pedidos con los filtros seleccionados.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -241,7 +243,7 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <strong>Tipo médico:</strong>
-                                        <div>{{ $modalPedido->doctor->tipo_medico ?? 'Sin definir' }}</div>
+                                        <div>{{ optional($modalPedido->doctor)->tipo_medico }}</div>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <strong>Especialidad:</strong>
