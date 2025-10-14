@@ -37,11 +37,11 @@ class PedidosComercialRepository
         $fechaFin = $filters['fecha_fin'] ?? null;
 
         if ($fechaInicio) {
-            $query->whereDate('deliveryDate', '>=', Carbon::parse($fechaInicio)->format('Y-m-d'));
+            $query->whereDate('created_at', '>=', Carbon::parse($fechaInicio)->format('Y-m-d'));
         }
 
         if ($fechaFin) {
-            $query->whereDate('deliveryDate', '<=', Carbon::parse($fechaFin)->format('Y-m-d'));
+            $query->whereDate('created_at', '<=', Carbon::parse($fechaFin)->format('Y-m-d'));
         }
 
         if (!empty($filters['doctor'])) {
@@ -69,6 +69,6 @@ class PedidosComercialRepository
             $query->where('orderId', 'like', '%'.$filters['order_id'].'%');
         }
 
-        return $query->orderByDesc('deliveryDate')->orderByDesc('created_at');
+        return $query->orderByDesc('created_at');
     }
 }

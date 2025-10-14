@@ -20,7 +20,7 @@ class PedidosComercialExport implements FromCollection, WithHeadings
                 'orderId' => $pedido->orderId,
                 'cliente' => $pedido->customerName,
                 'visitadora' => optional($pedido->visitadora)->name,
-                'nombre' => $pedido->customerNumber,
+                'nombre' => $pedido->customerName,
                 'doctor' => optional($pedido->doctor)->name ?? $pedido->doctorName,
                 'tipo_medico' => optional($pedido->doctor)->tipo_medico,
             ];

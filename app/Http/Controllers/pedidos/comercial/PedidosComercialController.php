@@ -18,7 +18,9 @@ class PedidosComercialController extends Controller
 
     public function index(PedidosComercialFilterRequest $request)
     {
-        $filters = $this->service->sanitizeFilters($request->validated());
+        $filters = $this->applyDefaultDateFilters(
+            $this->service->sanitizeFilters($request->validated())
+        );
         $pedidos = $this->service->getListado($filters, 25);
         $pedidos->appends($filters);
 
@@ -30,10 +32,23 @@ class PedidosComercialController extends Controller
 
     public function export(PedidosComercialFilterRequest $request): BinaryFileResponse
     {
-        $filters = $this->service->sanitizeFilters($request->validated());
+        $filters = $this->applyDefaultDateFilters(
+            $this->service->sanitizeFilters($request->validated())
+        );
         $pedidos = $this->service->getListadoExport($filters);
         $filename = 'pedidos-comercial-' . now()->format('Ymd_His') . '.xlsx';
 
         return Excel::download(new PedidosComercialExport($pedidos), $filename);
+    }
+
+    protected function applyDefaultDateFilters(array $filters): array
+    {
+        if (!isset($filters['fecha_inicio']) && !isset($filters['fecha_fin'])) {
+            $today = now()->toDateString();
+            $filters['fecha_inicio'] = $today;
+            $filters['fecha_fin'] = $today;
+        }
+
+        return $filters;
     }
 }
