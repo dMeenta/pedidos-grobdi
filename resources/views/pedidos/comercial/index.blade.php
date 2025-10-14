@@ -109,30 +109,44 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text bg-white"><i class="fa fa-stethoscope"></i></span>
                             </div>
-                            <input
-                                type="text"
+                            <select
                                 name="doctor"
                                 id="doctor"
                                 class="form-control"
-                                placeholder="Buscar doctor"
-                                value="{{ $filters['doctor'] ?? '' }}"
                             >
+                                <option value="">Selecciona un doctor</option>
+                                @foreach ($doctorOptions as $doctorOption)
+                                    <option
+                                        value="{{ $doctorOption->id }}"
+                                        {{ (string)($filters['doctor'] ?? '') === (string)$doctorOption->id ? 'selected' : '' }}
+                                    >
+                                        {{ $doctorOption->name }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label for="distrito" class="text-muted font-weight-bold">Distrito</label>
+                        <label for="distrito" class="text-muted font-weight-bold">Distrito (Lima y Callao)</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text bg-white"><i class="fa fa-map-marker"></i></span>
                             </div>
-                            <input
-                                type="text"
+                            <select
                                 name="distrito"
                                 id="distrito"
                                 class="form-control"
-                                placeholder="Buscar distrito del doctor"
-                                value="{{ $filters['distrito'] ?? '' }}"
                             >
+                                <option value="">Selecciona un distrito</option>
+                                @foreach ($distritoOptions as $distritoOption)
+                                    <option
+                                        value="{{ $distritoOption->id }}"
+                                        {{ (string)($filters['distrito'] ?? '') === (string)$distritoOption->id ? 'selected' : '' }}
+                                    >
+                                        {{ $distritoOption->name }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -170,7 +184,7 @@
                         <th>Cliente</th>
                         <th>Visitadora</th>
                         <th>Doctor</th>
-                        <th>Distrito</th>
+                        <th>Distrito de entrega</th>
                         <th>Estado</th>
                         <th>Precio total</th>
                         <th>Zona de entrega</th>
@@ -201,7 +215,7 @@
                                     Ver doctor
                                 </button>
                             </td>
-                            <td>{{ $pedido->district ?? optional(optional($pedido->doctor)->distrito)->name }}</td>
+                            <td>{{ $pedido->district ?? optional(optional($pedido->doctor)->distrito)->name ?? 'Sin distrito' }}</td>
                             <td>
                                 @if ($pedido->status)
                                     <span class="badge badge-success">Activo</span>

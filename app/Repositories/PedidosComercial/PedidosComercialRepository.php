@@ -2,6 +2,7 @@
 
 namespace App\Repositories\PedidosComercial;
 
+use App\Models\Distrito;
 use App\Models\Pedidos;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -45,24 +46,23 @@ class PedidosComercialRepository
         }
 
         if (!empty($filters['doctor'])) {
-            $query->where(function (Builder $builder) use ($filters) {
-                $search = $filters['doctor'];
-
-                $builder->where('doctorName', 'like', "%{$search}%")
-                    ->orWhereHas('doctor', function (Builder $doctorQuery) use ($search) {
-                        $doctorQuery->where('name', 'like', "%{$search}%");
-                    });
-            });
+            $query->where('id_doctor', $filters['doctor']);
         }
 
-        if (!empty($filters['distrito'])) {
-            $query->where(function (Builder $builder) use ($filters) {
-                $search = $filters['distrito'];
+        $distritoIdFilter = $filters['distrito'] ?? null;
 
-                $builder->where('district', 'like', '%'.$search.'%')
-                    ->orWhereHas('doctor.distrito', function (Builder $distritoQuery) use ($search) {
-                        $distritoQuery->where('name', 'like', '%'.$search.'%');
-                    });
+        if ($distritoIdFilter) {
+            $distritoId = (int) $distritoIdFilter;
+            $distritoNombre = Distrito::find($distritoId)?->name;
+
+            $query->where(function (Builder $builder) use ($distritoId, $distritoNombre) {
+                $builder->whereHas('doctor', function (Builder $doctorQuery) use ($distritoId) {
+                    $doctorQuery->where('distrito_id', $distritoId);
+                });
+
+                if ($distritoNombre) {
+                    $builder->orWhere('district', 'like', '%'.$distritoNombre.'%');
+                }
             });
         }
 

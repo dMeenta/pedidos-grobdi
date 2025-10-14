@@ -24,11 +24,11 @@ class PedidosComercialFilterRequest extends FormRequest
         return [
             'fecha_inicio' => ['nullable', 'date'],
             'fecha_fin' => ['nullable', 'date', 'after_or_equal:fecha_inicio'],
-            'doctor' => ['nullable', 'string', 'max:255'],
+            'doctor' => ['nullable', 'integer', 'exists:doctor,id'],
             'visitadora' => ['nullable', 'string', 'max:255'],
             'cliente' => ['nullable', 'string', 'max:255'],
             'order_id' => ['nullable', 'string', 'max:255'],
-            'distrito' => ['nullable', 'string', 'max:255'],
+            'distrito' => ['nullable', 'integer', 'exists:distritos,id'],
         ];
     }
 }
