@@ -28,6 +28,7 @@ class PedidosComercialFilterRequest extends FormRequest
             'visitadora' => ['nullable', 'string', 'max:255'],
             'cliente' => ['nullable', 'string', 'max:255'],
             'order_id' => ['nullable', 'string', 'max:255'],
+            'distrito' => ['nullable', 'string', 'max:255'],
         ];
     }
 }
