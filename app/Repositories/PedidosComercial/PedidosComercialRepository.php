@@ -2,7 +2,6 @@
 
 namespace App\Repositories\PedidosComercial;
 
-use App\Models\Distrito;
 use App\Models\Pedidos;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -53,17 +52,12 @@ class PedidosComercialRepository
 
         if ($distritoIdFilter) {
             $distritoId = (int) $distritoIdFilter;
-            $distritoNombre = Distrito::find($distritoId)?->name;
 
-            $query->where(function (Builder $builder) use ($distritoId, $distritoNombre) {
-                $builder->whereHas('doctor', function (Builder $doctorQuery) use ($distritoId) {
+            if ($distritoId > 0) {
+                $query->whereHas('doctor', function (Builder $doctorQuery) use ($distritoId) {
                     $doctorQuery->where('distrito_id', $distritoId);
                 });
-
-                if ($distritoNombre) {
-                    $builder->orWhere('district', 'like', '%'.$distritoNombre.'%');
-                }
-            });
+            }
         }
 
         if (!empty($filters['visitadora'])) {
