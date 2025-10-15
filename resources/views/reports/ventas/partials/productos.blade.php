@@ -399,7 +399,6 @@
 
 @push('partial-js')
     <script>
-        let ignoreNextChange = false;
         let productosReport = @json($productosReport);
         const productosTableBody = $('#productos-table-body');
         const orderTableSelect = $('#productos-order-table');

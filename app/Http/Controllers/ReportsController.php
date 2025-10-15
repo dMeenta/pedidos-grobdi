@@ -143,4 +143,12 @@ class ReportsController extends Controller
 
         return view('reports.muestras.index', compact('arrayTabs', 'data'));
     }
+    public function getMuestrasReport(Request $request)
+    {
+        $filters = [
+            'start_date' => $request->input('start_date'),
+            'end_date' => $request->input('end_date'),
+        ];
+        return response()->json($this->reportsService->rutas()->getMuestrasReport($filters), 200);
+    }
 }

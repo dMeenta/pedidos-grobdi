@@ -11,55 +11,51 @@
                     <div class="col-6">
                         <small class="badge bg-light text-dark p-2 float-sm-right">
                             <i class="fas fa-calendar-alt"></i>
-                            <span class="d-none d-md-inline">Mostrando datos del mes: </span>
-                            <i id="resumen-filter-indicator">{{ ucfirst(now()->translatedFormat('F')) }}</i>
+                            <span class="d-none d-md-inline">Data de: </span>
+                            <i
+                                id="resumen-start-date-indicator">{{ ucfirst(now()->startOfMonth()->format('d/m/Y')) }}</i>
+                            - <i id="resumen-end-date-indicator">{{ ucfirst(now()->format('d/m/Y')) }}</i>
                         </small>
                     </div>
                 </div>
             </div>
             <div class="card-body py-1">
-                <form id="resumen-filter">
-                    <div class="row">
-                        <div class="col-12 col-sm-6">
-                            <div class="form-group">
-                                <label for="resumen-month-year-picker">Mes y Año</label>
-                                <div class="input-group date" id="resumen-month-year-picker">
-                                    <input type="text" id="resumen-month-year" name="resumen-month-year"
-                                        class="form-control datetimepicker-input" value="{{ now()->format('m/Y') }}"
-                                        required="">
-                                    <div class="input-group-append" data-target="#resumen-month-year-picker"
-                                        data-toggle="datetimepicker">
-                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                <div class="row">
+                    <div class="col-12 col-md-9">
+                        <form id="resume-filter">
+                            <div class="row">
+                                <div class="col-12 col-sm-6 col-md-4">
+                                    <div class="form-group">
+                                        <label class="form-label">
+                                            Fecha Inicio
+                                        </label>
+                                        <input type="date" class="form-control"
+                                            name="start_date"value="{{ now()->startOfMonth()->toDateString() }}">
                                     </div>
                                 </div>
+                                <div class="col-12 col-sm-6 col-md-4">
+                                    <div class="form-group">
+                                        <label class="form-label">
+                                            Fecha Fin
+                                        </label>
+                                        <input type="date" class="form-control" name="end_date"
+                                            value="{{ now()->toDateString() }}">
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-4 align-content-end align-content-md-end mb-md-3">
+                                    <button class="btn btn-danger w-100" type="submit">
+                                        <i class="fas fa-filter"></i> Filtrar
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-12 col-sm-6 align-content-end align-content-md-end mb-md-3">
-                            <button class="btn btn-danger w-100" type="submit">
-                                <i class="fas fa-filter"></i> Filtrar
-                            </button>
-                        </div>
+                        </form>
                     </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-12">
-        <div class="card card-danger">
-            <div class="card-header">
-                <div class="col">
-                    <h5 class="mb-0 align-content-end">
-                        <i class="fas fa-chart-line"></i> Tendencia de ingresos por muestras
-                    </h5>
-                    <small>
-                        <i>Comparativa detallada con el año anterior</i>
-                    </small>
+                    <div class="col-12 col-md-3 mt-3 mt-md-0 align-content-md-end mb-md-3">
+                        <button class="btn btn-outline-light w-100" id="resume-clean-filter">
+                            <i class="fas fa-eraser"></i> Limpiar
+                        </button>
+                    </div>
                 </div>
-            </div>
-            <div class="card-body">
-                <canvas id="resume-yearly-comparative-chart" height="350" class="chartjs-render-monitor"></canvas>
             </div>
         </div>
     </div>
@@ -90,29 +86,40 @@
                     <i class="far fa-chart-bar"></i> Comparativa por Tipos de Frasco
                 </h5>
             </div>
-        </div>
-        <div class="card-body">
-            <div class="position-relative">
-                <canvas id="resume-tipo-frasco-chart" height="300px">
-                </canvas>
-                @include('empty-chart', [
-                    'dataLength' => $data['general_stats']['total_muestras'],
-                ])
+            <div class="card-body">
+                <div class="position-relative">
+                    <canvas id="resume-tipo-frasco-chart" height="300px">
+                    </canvas>
+                    @include('empty-chart', [
+                        'dataLength' => $data['general_stats']['total_muestras'],
+                    ])
+                </div>
             </div>
         </div>
     </div>
 </div>
-</div>
 
 @push('partial-js')
     <script>
+        flatpickr('#resume-filter input[name="start_date"]', {
+            dateFormat: 'Y-m-d',
+            locale: 'es',
+            maxDate: "today"
+        });
+        flatpickr('#resume-filter input[name="end_date"]', {
+            dateFormat: 'Y-m-d',
+            locale: 'es',
+            maxDate: "today"
+        });
         const data = @json($data);
-        console.log(data);
-        const resumeTipoMuestraLabels = data.data.by_tipo_muestra.map(i => i.tipo);
-        const resumeTipoFrascoLabels = data.data.by_tipo_frasco.map(i => i.tipo_frasco);
+
+        const resumeTipoMuestras = data.data.by_tipo_muestra;
+        const resumeTipoFrasco = data.data.by_tipo_frasco;
+        const resumeTipoMuestraLabels = resumeTipoMuestras.map(i => i.tipo);
+        const resumeTipoFrascoLabels = resumeTipoFrasco.map(i => i.tipo_frasco);
         const resumeTipoMuestraChartDataset = [{
             label: 'Cantidad de muestras',
-            data: [20, 10, 25],
+            data: resumeTipoMuestras.map(i => i.total),
             backgroundColor: generateHslColors(resumeTipoMuestraLabels, 0.5),
             hoverOffset: 4
         }];
@@ -125,62 +132,17 @@
         };
         const resumeTipoFrascoChartDataset = [{
             label: 'Cantidad de muestras',
-            data: [20, 10],
+            data: resumeTipoFrasco.map(i => i.total),
             borderColor: generateHslColors(resumeTipoFrascoLabels),
             borderWidth: 1.5,
             backgroundColor: generateHslColors(resumeTipoFrascoLabels, 0.5),
-            hidden: false
         }];
-
-        const resumeYearlyComparativeChartDatasets = [{
-            label: 'Cantidad de muestras',
-            data: data.data.comparative_with_last_year.map(i => i.total_current_year),
-            backgroundColor: 'rgba(212, 12, 13, 0.5)',
-            borderColor: 'rgba(212, 12, 13, 1)',
-            borderWidth: 2,
-            pointStyle: 'circle',
-            pointRadius: 8,
-            pointHoverRadius: 12,
-        }, {
-            label: 'Cantidad de muestras',
-            data: data.data.comparative_with_last_year.map(i => i.total_last_year),
-            backgroundColor: 'rgba(53, 53, 53, 0.55)',
-            borderColor: 'rgba(53, 53, 53, 1)',
-            borderWidth: 2,
-            pointStyle: 'circle',
-            pointRadius: 8,
-            pointHoverRadius: 12,
-        }];
-
-        resumeYearlyComparativeChartOptions = {
-            interaction: {
-                mode: 'index',
-                intersect: false
-            },
-            stacked: false,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            },
-        };
 
         const resumeTipoMuestraChart = createChart('#resume-tipo-muestras-chart', resumeTipoMuestraLabels,
             resumeTipoMuestraChartDataset, 'pie');
 
         const resumeTipoFrascoChart = createChart('#resume-tipo-frasco-chart', resumeTipoFrascoLabels,
             resumeTipoFrascoChartDataset, 'bar', resumeTipoFrascoChartOptions);
-
-        function monthLabel(monthNumber) {
-            return new Date(2025, parseInt(monthNumber) - 1, 1)
-                .toLocaleString("es-ES", {
-                    month: "long"
-                });
-        }
-
-        const resumeYearlyComparativeChart = createChart('#resume-yearly-comparative-chart', data.data
-            .comparative_with_last_year.map(i => monthLabel(i.month)), resumeYearlyComparativeChartDatasets, 'line',
-            resumeYearlyComparativeChartOptions);
 
         $('#resumen-tipo-muestra-dataset-selector').on('change', function(e) {
             const selectedIndex = parseInt($(this).val());
@@ -192,5 +154,84 @@
             $('#resume-tipo-frasco-showing-label').text($(this).find('option:selected').text());
             updateActiveDataset(resumeTipoFrascoChart, selectedIndex);
         })
+
+        function resumeTipoMuestraUpdateChart(data) {
+            resumeTipoMuestraChart.data.labels = data.map(i => i.tipo);
+            resumeTipoMuestraChart.data.datasets[0].data = data.map(i => i.total);
+            resumeTipoMuestraChart.data.datasets[0].backgroundColor = generateHslColors(data, 0.5);
+            resumeTipoMuestraChart.update();
+            detectChartDataLength(resumeTipoMuestraChart);
+        }
+
+        function resumeTipoFrascoUpdateChart(data) {
+            resumeTipoMuestraChart.data.labels = data.map(i => i.tipo_frasco);
+            resumeTipoFrascoChart.data.datasets[0].data = data.map(i => i.total);
+            resumeTipoFrascoChart.data.datasets[0].backgroundColor = generateHslColors(data, 0.5);
+            resumeTipoFrascoChart.data.datasets[0].borderColor = generateHslColors(data);
+            resumeTipoFrascoChart.update();
+            detectChartDataLength(resumeTipoFrascoChart);
+        }
+
+        function resumeUpdateGraphics(response) {
+            $("#resumen-start-date-indicator").text(new Date(response.filters.start_date).toLocaleDateString(
+                'es-PE'));
+            $("#resumen-end-date-indicator").text(new Date(response.filters.end_date).toLocaleDateString(
+                'es-PE'));
+
+            resumeTipoMuestraUpdateChart(response.data.by_tipo_muestra);
+            resumeTipoFrascoUpdateChart(response.data.by_tipo_frasco);
+        }
+
+        $('#resume-filter').on('submit', function(e) {
+            e.preventDefault();
+            const formData = $(this).serializeArray();
+            const start_date = formData.find(i => i.name === 'start_date').value;
+            const end_date = formData.find(i => i.name === 'end_date').value;
+
+            $.ajax({
+                url: "{{ route('reports.muestras.api') }}",
+                method: "GET",
+                data: {
+                    start_date,
+                    end_date
+                },
+                success: function(response) {
+                    resumeUpdateGraphics(response);
+                },
+                error: function(xhr) {
+                    $('#productos-filter button[type="submit"]').prop('disabled', false)
+                        .html('<i class="fas fa-filter"></i> Filtrar');
+                    const message = xhr.responseJSON?.message || xhr.statusText ||
+                        "Error desconocido";
+                    toast(message, ToastIcon.ERROR);
+                }
+            });
+        });
+
+        const resumeCleanFilter = $('#resume-clean-filter');
+        resumeCleanFilter.on('click', function(e) {
+            e.preventDefault();
+
+            // Desactivar botón mientras carga
+            resumeCleanFilter.prop('disabled', true)
+                .html('<i class="fas fa-spinner fa-spin"></i> Cargando...');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+            // Resetear valores en los flatpickr
+            const startPicker = $('#resume-filter input[name="start_date"]')[0]._flatpickr;
+            const endPicker = $('#resume-filter input[name="end_date"]')[0]._flatpickr;
+
+            if (startPicker) startPicker.setDate(startOfMonth, true);
+            if (endPicker) endPicker.setDate(today, true);
+
+            // Enviar formulario
+            $('#resume-filter').trigger('submit');
+
+            // Restaurar botón
+            resumeCleanFilter.prop('disabled', false)
+                .html('<i class="fas fa-eraser"></i> Limpiar');
+        });
     </script>
 @endpush('partial-js')

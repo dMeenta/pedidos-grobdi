@@ -12,7 +12,9 @@ class RutasReportService extends ReportBaseService
 {
     protected string $cachePrefix = 'rutas_report_';
 
-    public function __construct(protected ReportsRepository $repo) {}
+    public function __construct(protected ReportsRepository $repo)
+    {
+    }
 
     public function createInitialReport(): mixed
     {
@@ -60,21 +62,19 @@ class RutasReportService extends ReportBaseService
         $start_date = Carbon::parse($filters['start_date'] ?? now()->startOfMonth())->startOfDay();
         $end_date = Carbon::parse($filters['end_date'] ?? now())->endOfDay();
 
-        $dataByTipoMuestra = $this->repo->countMuestrasByTipo($start_date, $end_date);
-        $dataByTipoFrasco = $this->repo->countMuestrasByTipoFrasco($start_date, $end_date);
+        $dataByTipoMuestra = $this->repo->getReportByTipoMuestra($start_date, $end_date);
+        $dataByTipoFrasco = $this->repo->getReportByTipoFrasco($start_date, $end_date);
 
-        $data = [
-            'by_tipo_muestra' => $dataByTipoMuestra,
-            'by_tipo_frasco' => $dataByTipoFrasco,
-        ];
-
-        $totalMuestras = $dataByTipoMuestra->sum('total');
+        $totalMuestras = $dataByTipoMuestra->sum('total_muestras');
 
         return [
             'general_stats' => [
-                'total_muestras' => $totalMuestras
+                'total_muestras' => $totalMuestras,
             ],
-            'data' => $data,
+            'data' => [
+                'by_tipo_muestra' => $dataByTipoMuestra,
+                'by_tipo_frasco' => $dataByTipoFrasco,
+            ],
             'filters' => compact('start_date', 'end_date')
         ];
     }

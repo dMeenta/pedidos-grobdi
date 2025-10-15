@@ -46,7 +46,7 @@ class ReportsRepository implements ReportsRepositoryInterface
                 $q->whereBetween('p.created_at', [$startDate, $endDate]);
             })->groupBy('u.id', 'u.name')
             ->get()->map(
-                fn($item) => (object)
+                fn($item) => (object) 
                 [
                     'visitadora' => $item->visitadora,
                     'total_amount' => (float) $item->total_amount,
@@ -308,34 +308,35 @@ class ReportsRepository implements ReportsRepositoryInterface
     }
 
     /* -------- Muestras -------- */
-    public function countMuestrasByTipo(string $startDate, string $endDate): Collection
+    public function getReportByTipoMuestra(string $startDate, string $endDate): Collection
     {
         return DB::table('tipo_muestras as tm')
             ->leftJoin('muestras as m', function ($join) use ($startDate, $endDate) {
                 $join->on('tm.id', '=', 'm.id_tipo_muestra')
-                    ->whereBetween('m.created_at', [$startDate, $endDate]);
+                    ->whereBetween('m.created_at', [$startDate, $endDate])
+                    ->where('m.state', true);
             })
             ->selectRaw('tm.name as tipo, COUNT(m.id) as total')
             ->groupBy('tm.name')
             ->get();
     }
-
-    public function countMuestrasByTipoFrasco(string $startDate, string $endDate): Collection
+    public function getReportByTipoFrasco(string $startDate, string $endDate): Collection
     {
         $result = Muestras::selectRaw('tipo_frasco, COUNT(*) as total')
             ->whereBetween('created_at', [$startDate, $endDate])
+            ->where('state', true)
             ->groupBy('tipo_frasco')
-            ->pluck('total', 'tipo_frasco');
+            ->get()
+            ->keyBy('tipo_frasco');
 
-        // Asegurar que todos los tipos del ENUM aparezcan, incluso con 0
-        $allTipoFrasco = collect(Muestras::TIPOS_FRASCO)->mapWithKeys(function ($tipo) use ($result) {
-            return [$tipo => $result->get($tipo, 0)];
-        });
+        return collect(Muestras::TIPOS_FRASCO)->mapWithKeys(function ($tipo) use ($result) {
+            $record = $result->get($tipo);
 
-        return $allTipoFrasco->map(function ($total, $tipo) {
-            return (object) [
-                'tipo_frasco' => $tipo,
-                'total' => $total,
+            return [
+                $tipo => [
+                    'tipo_frasco' => $tipo,
+                    'total' => $record ? (int) $record->total : 0,
+                ]
             ];
         })->values();
     }
