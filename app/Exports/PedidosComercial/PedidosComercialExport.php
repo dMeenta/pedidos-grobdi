@@ -16,13 +16,18 @@ class PedidosComercialExport implements FromCollection, WithHeadings
     public function collection(): Collection
     {
         return $this->pedidos->flatMap(function ($pedido) {
+            $doctor = $pedido->doctor;
+
             $baseRow = [
                 'orderId' => $pedido->orderId,
                 'cliente' => $pedido->customerName,
                 'visitadora' => optional($pedido->visitadora)->name,
                 'nombre' => $pedido->customerName,
-                'doctor' => optional($pedido->doctor)->name ?? $pedido->doctorName,
-                'tipo_medico' => optional($pedido->doctor)->tipo_medico,
+                'doctor' => optional($doctor)->name ?? $pedido->doctorName,
+                'tipo_medico' => optional($doctor)->tipo_medico,
+                'especialidad_doctor' => optional(optional($doctor)->especialidad)->name,
+                'distrito_doctor' => optional(optional($doctor)->distrito)->name,
+                'fecha_registro' => optional(optional($doctor)->created_at)->format('Y-m-d H:i:s'),
             ];
 
             $detalles = $pedido->detailpedidos;
@@ -62,6 +67,9 @@ class PedidosComercialExport implements FromCollection, WithHeadings
             'Nombre',
             'Doctor',
             'Tipo médico',
+            'Especialidad del doctor',
+            'Distrito del doctor',
+            'Fecha de registro',
             'Nombre producto',
             'Precio',
             'Cantidad',
