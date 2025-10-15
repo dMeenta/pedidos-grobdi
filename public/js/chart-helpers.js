@@ -36,6 +36,9 @@ function createChart(canvasQuery, labels, datasets, type, extraOptions = {}) {
  * Inserts the filter logic of Leyends for toggleable Charts Datasets
  * without overwrite other plugins.
  *
+ * Additionally it uses the existing legend label
+ * for the tooltip label if you don't configure it.
+ *
  * @param {Object} options - Base Chart config.
  * @returns {Object} New Config Object with the filter applied.
  */
@@ -52,23 +55,13 @@ function withToggleableLegend(options = {}) {
             ...(merged.plugins.legend?.labels || {}),
             filter: (legendItem, chartData) => {
                 const dataset = chartData.datasets[legendItem.datasetIndex];
+                if (!dataset) return false;
                 return !dataset.hidden;
             },
         },
     };
 
     return merged;
-}
-
-function createToggleableChart(
-    canvasId,
-    labels,
-    datasets,
-    type,
-    extraOptions = {}
-) {
-    const options = withToggleableLegend(extraOptions);
-    return createChart(canvasId, labels, datasets, type, options);
 }
 
 function updateActiveDataset(chart, selectedIndex) {

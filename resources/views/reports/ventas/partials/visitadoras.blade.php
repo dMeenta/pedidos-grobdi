@@ -74,7 +74,7 @@
         <div class="card card-outline card-dark">
             <div class="card-header">
                 <h5 class="mb-0">
-                    <i class="fas fa-chart-bar text-danger"></i> Monto por Visitadora
+                    <i class="fas fa-chart-bar text-danger"></i> Ingresos por Visitadora
                 </h5>
             </div>
             <div class="card-body">
@@ -89,7 +89,7 @@
         <div class="card card-outline card-dark">
             <div class="card-header">
                 <h5 class="mb-0">
-                    <i class="fas fa-chart-bar text-danger"></i> Cantidad de pedidos por Visitadora
+                    <i class="fas fa-chart-pie text-danger"></i> Porcentaje de pedidos por visitadora
                 </h5>
             </div>
             <div class="card-body">
@@ -171,7 +171,7 @@
         const visitadorasReport = @json($visitadorasReport);
         const visitadorasLabels = visitadorasReport.data.map(i => i.visitadora)
         const visitadorasTotalAmountChartDataset = [{
-            label: 'Monto Total',
+            label: 'Ingresos',
             data: visitadorasReport.data.map(i => i.total_amount),
             backgroundColor: 'rgba(212, 12, 13, 0.4)',
             borderColor: 'rgba(255, 0, 0, 1)',
@@ -179,7 +179,7 @@
         }];
 
         const visitadorasPercentagesChartDataset = [{
-            label: 'Pedidos por visitadora (%)',
+            label: 'Porcentaje de pedidos',
             data: visitadorasReport.data.map(i => i.pedidos_percentage),
             backgroundColor: generateHslColors(visitadorasReport.data.map(i => i.visitadora)),
             borderColor: '#fff',
@@ -214,7 +214,7 @@
                     callbacks: {
                         label: function(context) {
                             let value = context.parsed;
-                            return context.label + ': ' + value.toLocaleString() + '%';
+                            return context.dataset.label + ': ' + value.toLocaleString() + '%';
                         }
                     }
                 }

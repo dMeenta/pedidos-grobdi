@@ -11,7 +11,6 @@
         };
     }
 @endphp
-<!-- Header con título y estadísticas generales -->
 <div class="row">
     <div class="col-12">
         <div class="card border-0 shadow-sm bg-dark">
@@ -155,10 +154,10 @@
                             <div class="col-12 col-md-auto order-2 order-md-1" style="text-align: end;">
                                 <select class="badge bg-light border-0"
                                     style="padding-top: .35rem; padding-bottom: .35rem;" id="productos-order-chart">
-                                    <option value="0">Monto total descendente</option>
-                                    <option value="1">Monto total ascendente</option>
-                                    <option value="2">Cantidad descendente</option>
-                                    <option value="3">Cantidad ascendente</option>
+                                    <option value="0" data-order="desc">Monto total descendente</option>
+                                    <option value="0" data-order="asc">Monto total ascendente</option>
+                                    <option value="1" data-order="desc">Cantidad descendente</option>
+                                    <option value="1" data-order="asc">Cantidad ascendente</option>
                                 </select>
                             </div>
                             <div class="col-12 col-md-auto mb-1 mb-md-0 order-1 order-md-2" style="text-align: end;">
@@ -221,10 +220,10 @@
                         <div class="col-12 col-md-auto order-2 order-md-1" style="text-align: end;">
                             <select class="badge bg-light border-0"
                                 style="padding-top: .35rem; padding-bottom: .35rem;" id="productos-order-table">
-                                <option value="0">Monto total descendente</option>
-                                <option value="1">Monto total ascendente</option>
-                                <option value="2">Cantidad descendente</option>
-                                <option value="3">Cantidad ascendente</option>
+                                <option value="total_amount" data-order="desc">Monto total descendente</option>
+                                <option value="total_amount" data-order="asc">Monto total ascendente</option>
+                                <option value="total_products" data-order="desc">Cantidad descendente</option>
+                                <option value="total_products" data-order="asc">Cantidad ascendente</option>
                             </select>
                         </div>
                     </div>
@@ -401,10 +400,7 @@
 @push('partial-js')
     <script>
         let ignoreNextChange = false;
-        let productosInitialReport = @json($productosReport);
-        let productosUsableReport = {
-            ...productosInitialReport
-        };
+        let productosReport = @json($productosReport);
         const productosTableBody = $('#productos-table-body');
         const orderTableSelect = $('#productos-order-table');
         const orderChartSelect = $('#productos-order-chart');
@@ -435,23 +431,25 @@
             });
             return colors;
         }
+
+        const productosColors = getBackgroundColor(productosReport.data);
+
         const productosRankChartDatasets = [{
-            label: 'Ventas por producto',
-            data: productosInitialReport.data.map(i => i.total_amount),
-            backgroundColor: getBackgroundColor(productosInitialReport.data),
-            borderRadius: 3,
-        }]
-        const ProductosChartHelpers = {
-            tooltip: {
-                labelAmount(context) {
-                    const value = context.parsed.x;
-                    return `💰 Monto total: S/ ${getFormattedMoneyValue(value)}`;
-                },
-                labelQuantity(context) {
-                    const value = context.parsed.x;
-                    return `Cantidad total: ${value}`;
-                }
+                label: 'Ingresos por producto',
+                data: productosReport.data.map(i => i.total_amount),
+                backgroundColor: productosColors,
+                borderRadius: 3,
+                hidden: false,
             },
+            {
+                label: 'Cantidades vendidas',
+                data: productosReport.data.map(i => i.total_products),
+                backgroundColor: productosColors,
+                borderRadius: 3,
+                hidden: true,
+            }
+        ]
+        const ProductosChartHelpers = {
             ticks: {
                 money(value) {
                     if (value >= 1000000) return 'S/ ' + (value / 1000000).toFixed(1) + 'M';
@@ -496,43 +494,52 @@
                             const rankData = getRankData(index);
                             return `${rankData.icon} #${index + 1} - ${context[0].label.replace(/^#\d+\s/, '')}`;
                         },
-                        label: ProductosChartHelpers.tooltip.labelAmount,
+                        label: function(context) {
+                            const datasetIndex = context.datasetIndex;
+                            const value = context.parsed.x;
+                            return `${context.dataset.label}: ${datasetIndex === 0 ? 'S/ '+ getFormattedMoneyValue(value) : value}`;
+                        }
                     }
                 }
             }
         }
-        let productosRankChart = createChart('#productos-rank-chart', productosInitialReport.data
+        let productosRankChart = createChart('#productos-rank-chart', productosReport.data
             .map(i => i.product), productosRankChartDatasets, 'bar', productosRankChartOptions);
 
         $('#productos-order-table').on('change', function(e) {
-            $('#productos-chart-order-label').text($(this).find('option:selected').text());
-            let orderSelected = Number.parseInt($(this).val());
-            productosOrder(orderSelected, productosUsableReport, productosUpdateTable);
+            const $selectedOption = $(this).find('option:selected');
+            const orderDirection = $selectedOption.data('order');
+            const fieldToSort = $(this).val();
+            $('#productos-table-order-label').text($selectedOption.text());
+
+            productosOrderData(productosReport.data, orderDirection, fieldToSort);
+
+            productosUpdateTable(productosReport);
         })
 
         $('#productos-order-chart').on('change', function(e) {
-            $('#productos-table-order-label').text($(this).find('option:selected').text());
-            let orderSelected = Number.parseInt($(this).val());
-            let isOrderByAmount = orderSelected < 2;
-            productosOrder(orderSelected, productosUsableReport, productosUpdateRankChart, isOrderByAmount);
-        })
+            const $selectedOption = $(this).find('option:selected');
+            const selectedIndex = parseInt($(this).val());
+            const orderDirection = $selectedOption.data('order');
+            $('#productos-chart-order-label').text($selectedOption.text());
 
-        function productosOrder(order, response, callback, options = null) {
-            switch (order) {
-                case 1:
-                    response.data = response.data.sort((a, b) => a.total_amount - b.total_amount);
-                    break;
-                case 2:
-                    response.data = response.data.sort((a, b) => b.total_products - a.total_products);
-                    break;
-                case 3:
-                    response.data = response.data.sort((a, b) => a.total_products - b.total_products);
-                    break;
-                default:
-                    response.data = response.data.sort((a, b) => b.total_amount - a.total_amount);
-                    break;
+            if (selectedIndex === 0) {
+                productosRankChart.options.scales.x.ticks.callback = ProductosChartHelpers.ticks.money;
+            } else {
+                productosRankChart.options.scales.x.ticks.callback = ProductosChartHelpers.ticks.quantity;
             }
-            callback(response, options);
+
+            productosOrderData(productosRankChart.data.datasets[selectedIndex].data, orderDirection);
+
+            updateActiveDataset(productosRankChart, selectedIndex);
+        });
+
+        function productosOrderData(data, order = 'desc', field = null) {
+            return data.sort((a, b) => {
+                const aValue = field ? a[field] : a;
+                const bValue = field ? b[field] : b;
+                return order === 'asc' ? aValue - bValue : bValue - aValue;
+            });
         }
 
         function getRankData(rank) {
@@ -564,7 +571,8 @@
 
         function productosUpdateTable(response) {
             $('#productos-tfoot-total-products').text(response.general_stats.total_products);
-            $('#productos-tfoot-total-amount').text('S/ ' + getFormattedMoneyValue(response.general_stats.total_amount));
+            $('#productos-tfoot-total-amount').text('S/ ' + getFormattedMoneyValue(response.general_stats
+                .total_amount));
             tableRenderRows(productosTableBody, response.data,
                 (i, index) => {
                     const {
@@ -620,20 +628,17 @@
                 });
         };
 
-        function productosUpdateRankChart(response, isOrderByAmount = true) {
-            if (isOrderByAmount) {
-                productosRankChart.data.datasets[0].data = response.data.map(i => i.total_amount);
-                productosRankChart.data.labels = response.data.map(i => i.product);
-                productosRankChart.options.scales.x.ticks.callback = ProductosChartHelpers.ticks.money;
-                productosRankChart.options.plugins.tooltip.callbacks.label = ProductosChartHelpers.tooltip.labelAmount;
-            } else {
-                productosRankChart.data.datasets[0].data = response.data.map(i => i.total_products);
-                productosRankChart.data.labels = response.data.map(i => i.product);
-                productosRankChart.options.scales.x.ticks.callback = ProductosChartHelpers.ticks.quantity;
-                productosRankChart.options.plugins.tooltip.callbacks.label = ProductosChartHelpers.tooltip
-                    .labelQuantity;
-            }
-            productosRankChart.data.datasets[0].backgroundColor = getBackgroundColor(response.data);
+        function productosUpdateRankChart(response) {
+            const labels = response.data.map(i => i.product);
+            const colors = getBackgroundColor(response.data);
+
+            productosRankChart.data.labels = labels;
+
+            productosRankChart.data.datasets[0].data = response.data.map(i => i.total_amount);
+            productosRankChart.data.datasets[1].data = response.data.map(i => i.total_products);
+            productosRankChart.data.datasets[0].backgroundColor = colors;
+            productosRankChart.data.datasets[1].backgroundColor = colors;
+
             productosRankChart.update();
             detectChartDataLength(productosRankChart);
         }
@@ -656,21 +661,25 @@
                 success: function(response) {
                     $('#productos-filter button[type="submit"]').prop('disabled', false)
                         .html('<i class="fas fa-filter"></i> Filtrar');
-                    productosUsableReport = response;
                     productosUpdateGraphics(response);
                 },
                 error: function(xhr) {
                     $('#productos-filter button[type="submit"]').prop('disabled', false)
                         .html('<i class="fas fa-filter"></i> Filtrar');
-                    const message = xhr.responseJSON?.message || xhr.statusText || "Error desconocido";
+                    const message = xhr.responseJSON?.message || xhr.statusText ||
+                        "Error desconocido";
                     toast(message, ToastIcon.ERROR);
                 }
             });
         })
 
         function productosUpdateGraphics(response) {
-            $('#productos-start-date-indicator').text(new Date(response.filters.start_date).toLocaleDateString('es-PE'));
-            $('#productos-end-date-indicator').text(new Date(response.filters.end_date).toLocaleDateString('es-PE'));
+            productosReport = response;
+
+            $('#productos-start-date-indicator').text(new Date(response.filters.start_date).toLocaleDateString(
+                'es-PE'));
+            $('#productos-end-date-indicator').text(new Date(response.filters.end_date).toLocaleDateString(
+                'es-PE'));
             $('#productos-total-products-header-label')
                 .text(response.general_stats.total_grouped_products);
             $('#productos-total-amount-header-label')
@@ -714,35 +723,3 @@
         });
     </script>
 @endpush('partial-js')
-{{-- Arreglar -ALGÚN DÍA-  --}}
-{{-- 
-
-- Order: Tabla y Chart no actualiza visualmente el select al usar el filtro y traer nuevos datos
-
---}}
-
-{{-- <script>
-    // Mostrar mensaje de error
-    function mostrarError(mensaje) {
-        $('#header_total_productos, #stat_total_productos').text('0');
-        $('#header_total_ventas, #stat_total_ingresos').text('S/ 0');
-        $('#stat_total_unidades').text('0');
-        $('#stat_precio_promedio').text('S/ 0.00');
-
-        $('#tabla_productos').html(`
-                <tr><td colspan="6" class="text-center py-5">
-                    <div class="text-muted">
-                        <i class="fas fa-exclamation-triangle fa-3x mb-3 text-warning"></i>
-                        <h5>Error al cargar datos</h5>
-                        <p>${mensaje}</p>
-                        <button class="btn btn-outline-primary mt-3" onclick="location.reload()">
-                            <i class="fas fa-refresh me-2"></i>Recargar Página
-                        </button>
-                    </div>
-                </td></tr>
-            `);
-
-        crearGraficosVacios();
-    }    
-</script>
- --}}
