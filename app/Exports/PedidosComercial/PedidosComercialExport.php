@@ -27,7 +27,7 @@ class PedidosComercialExport implements FromCollection, WithHeadings
                 'tipo_medico' => optional($doctor)->tipo_medico,
                 'especialidad_doctor' => optional(optional($doctor)->especialidad)->name,
                 'distrito_doctor' => optional(optional($doctor)->distrito)->name,
-                'fecha_registro' => optional(optional($doctor)->created_at)->format('Y-m-d H:i:s'),
+                'fecha_registro' => optional($pedido->created_at)->format('Y-m-d H:i:s'),
             ];
 
             $detalles = $pedido->detailpedidos;
