@@ -12,24 +12,30 @@
     <div class="card-header bg-light border-bottom">
         <div class="d-flex justify-content-between align-items-center">
             <div class="d-flex gap-2">
-                <a class="btn btn-success btn-sm" href="{{ route('doctor.create') }}" data-bs-toggle="tooltip" title="Crear un nuevo doctor manualmente">
-                    <i class="fa fa-plus-circle"></i> Registrar Nuevo
-                </a>
-                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#itemModal" data-bs-toggle="tooltip" title="Importar doctores desde archivo Excel">
-                    <i class="fa fa-upload"></i> Importar Excel
-                </button>
-                <form action="{{ route('doctor.export') }}" method="GET" class="d-inline">
-                    <input type="hidden" name="search" value="{{ $search }}">
-                    <input type="hidden" name="start_date" value="{{ $startDate }}">
-                    <input type="hidden" name="end_date" value="{{ $endDate }}">
-                    <input type="hidden" name="tipo_medico" value="{{ $tipoMedico }}">
-                    <input type="hidden" name="distrito_id" value="{{ $distritoId }}">
-                    <input type="hidden" name="sort_by" value="{{ $ordenarPor }}">
-                    <input type="hidden" name="direction" value="{{ $direccion }}">
-                    <button type="submit" class="btn btn-outline-success btn-sm" data-bs-toggle="tooltip" title="Exportar doctores filtrados a Excel">
-                        <i class="fa fa-download"></i> Exportar Excel
+                @can('doctor.create')
+                    <a class="btn btn-success btn-sm" href="{{ route('doctor.create') }}" data-bs-toggle="tooltip" title="Crear un nuevo doctor manualmente">
+                        <i class="fa fa-plus-circle"></i> Registrar Nuevo
+                    </a>
+                @endcan
+                @can('doctor.cargadata')
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#itemModal" data-bs-toggle="tooltip" title="Importar doctores desde archivo Excel">
+                        <i class="fa fa-upload"></i> Importar Excel
                     </button>
-                </form>
+                @endcan
+                @can('doctor.export')
+                    <form action="{{ route('doctor.export') }}" method="GET" class="d-inline">
+                        <input type="hidden" name="search" value="{{ $search }}">
+                        <input type="hidden" name="start_date" value="{{ $startDate }}">
+                        <input type="hidden" name="end_date" value="{{ $endDate }}">
+                        <input type="hidden" name="tipo_medico" value="{{ $tipoMedico }}">
+                        <input type="hidden" name="distrito_id" value="{{ $distritoId }}">
+                        <input type="hidden" name="sort_by" value="{{ $ordenarPor }}">
+                        <input type="hidden" name="direction" value="{{ $direccion }}">
+                        <button type="submit" class="btn btn-outline-success btn-sm" data-bs-toggle="tooltip" title="Exportar doctores filtrados a Excel">
+                            <i class="fa fa-download"></i> Exportar Excel
+                        </button>
+                    </form>
+                @endcan
             </div>
         </div>
     </div>
@@ -124,17 +130,23 @@
                         <td>{{ $doctor->centrosalud->name }}</td>
                         <td>{{ $doctor->distrito? $doctor->distrito->name:"" }}</td>
                         <td>{{ $doctor->tipo_medico }}</td>
-                        <td>
-                            <form action="{{ route('doctor.destroy',$doctor->id) }}" method="POST">
-                                <a class="btn btn-primary btn-xs" href="{{ route('doctor.edit',$doctor->id) }}"><i class="fa-solid fa-pen-to-square"></i> Actualizar</a>
-                                @csrf
-                                @method('DELETE')
-                                @if($doctor->state == 1)
-                                    <button type="submit" class="btn btn-danger btn-xs">Inhabilitar</button>
-                                @else
-                                    <button type="submit" class="btn btn-success btn-xs">Habilitar</button>
-                                @endif
-                            </form>
+                        <td class="text-nowrap">
+                            <div class="d-flex flex-column flex-md-row gap-1">
+                                @can('doctor.edit')
+                                    <a class="btn btn-primary btn-xs" href="{{ route('doctor.edit',$doctor->id) }}"><i class="fa-solid fa-pen-to-square"></i> Actualizar</a>
+                                @endcan
+                                @can('doctor.destroy')
+                                    <form action="{{ route('doctor.destroy',$doctor->id) }}" method="POST" class="m-0">
+                                        @csrf
+                                        @method('DELETE')
+                                        @if($doctor->state == 1)
+                                            <button type="submit" class="btn btn-danger btn-xs">Inhabilitar</button>
+                                        @else
+                                            <button type="submit" class="btn btn-success btn-xs">Habilitar</button>
+                                        @endif
+                                    </form>
+                                @endcan
+                            </div>
                         </td>
                     </tr>
                 @empty
@@ -149,33 +161,35 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="itemModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="itemModalLabel">Cargar Datos de Doctores</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form action="{{ route('doctor.cargadata') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="mb-5">
-                        <label for="doctor_excel" class="form-label"><strong>Cargar target Doctores:</strong></label>
-                        <input 
-                            type="file" 
-                            name="archivo" 
-                            class="form-control"
-                            accept=".xlsx, .csv,.xls" 
-                            id="doctor_excel"
-                            required
-                        >
-                    </div>
-                    <button type="submit" class="btn btn-success">Importar</button>
-                </form>
+@can('doctor.cargadata')
+    <div class="modal fade" id="itemModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="itemModalLabel">Cargar Datos de Doctores</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ route('doctor.cargadata') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="mb-5">
+                            <label for="doctor_excel" class="form-label"><strong>Cargar target Doctores:</strong></label>
+                            <input 
+                                type="file" 
+                                name="archivo" 
+                                class="form-control"
+                                accept=".xlsx, .csv,.xls" 
+                                id="doctor_excel"
+                                required
+                            >
+                        </div>
+                        <button type="submit" class="btn btn-success">Importar</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
+@endcan
 @stop
 
 @section('css')
