@@ -118,7 +118,7 @@ $role = auth()->user()->role->name;
         </div>
         @enderror
         <div class="table table-responsive">
-            <table class="table table-striped table-hover" id="miTabla">
+            <table class="table table-striped table-hover table-grobdi" id="miTabla">
                 <thead>
                     <tr>
                         <th>Nro</th>
