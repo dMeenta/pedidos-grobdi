@@ -161,8 +161,8 @@
                                 </select>
                             </div>
                             <div class="col-12 col-md-auto mb-1 mb-md-0 order-1 order-md-2" style="text-align: end;">
-                                <span class="badge bg-light px-3 py-2" id="productos-table-data-counter">
-                                    {{ $productosReport['general_stats']['total_grouped_products'] }} Productos
+                                <span class="badge bg-light px-3 py-2" id="productos-rank-chart-data-counter">
+                                    20 de {{ $productosReport['general_stats']['total_grouped_products'] }} Productos
                                 </span>
                             </div>
                         </div>
@@ -206,6 +206,7 @@
         <div class="card">
             <div class="card-header bg-danger">
                 <div class="row align-items-center">
+
                     <div class="col">
                         <h5 class="m-0">
                             <i class="fas fa-table"></i> Detalle completo de Productos
@@ -217,14 +218,21 @@
                         </small>
                     </div>
                     <div class="col-auto">
-                        <div class="col-12 col-md-auto order-2 order-md-1" style="text-align: end;">
-                            <select class="badge bg-light border-0"
-                                style="padding-top: .35rem; padding-bottom: .35rem;" id="productos-order-table">
-                                <option value="total_amount" data-order="desc">Monto total descendente</option>
-                                <option value="total_amount" data-order="asc">Monto total ascendente</option>
-                                <option value="total_products" data-order="desc">Cantidad descendente</option>
-                                <option value="total_products" data-order="asc">Cantidad ascendente</option>
-                            </select>
+                        <div class="row">
+                            <div class="col-12 col-md-auto order-2 order-md-1" style="text-align: end;">
+                                <select class="badge bg-light border-0"
+                                    style="padding-top: .35rem; padding-bottom: .35rem;" id="productos-order-table">
+                                    <option value="total_amount" data-order="desc">Monto total descendente</option>
+                                    <option value="total_amount" data-order="asc">Monto total ascendente</option>
+                                    <option value="total_products" data-order="desc">Cantidad descendente</option>
+                                    <option value="total_products" data-order="asc">Cantidad ascendente</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-auto mb-1 mb-md-0 order-1 order-md-2" style="text-align: end;">
+                                <span class="badge bg-light px-3 py-2" id="productos-rank-chart-data-counter">
+                                    {{ $productosReport['general_stats']['total_grouped_products'] }} Productos
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -431,18 +439,18 @@
             return colors;
         }
 
-        const productosColors = getBackgroundColor(productosReport.data);
+        const productosColors = getBackgroundColor(productosReport.data.slice(0, 20));
 
         const productosRankChartDatasets = [{
                 label: 'Ingresos por producto',
-                data: productosReport.data.map(i => i.total_amount),
+                data: productosReport.data.slice(0, 20).map(i => i.total_amount),
                 backgroundColor: productosColors,
                 borderRadius: 3,
                 hidden: false,
             },
             {
                 label: 'Cantidades vendidas',
-                data: productosReport.data.map(i => i.total_products),
+                data: productosReport.data.slice(0, 20).map(i => i.total_products),
                 backgroundColor: productosColors,
                 borderRadius: 3,
                 hidden: true,
@@ -502,7 +510,7 @@
                 }
             }
         }
-        let productosRankChart = createChart('#productos-rank-chart', productosReport.data
+        let productosRankChart = createChart('#productos-rank-chart', productosReport.data.slice(0, 20)
             .map(i => i.product), productosRankChartDatasets, 'bar', productosRankChartOptions);
 
         $('#productos-order-table').on('change', function(e) {
@@ -511,7 +519,7 @@
             const fieldToSort = $(this).val();
             $('#productos-table-order-label').text($selectedOption.text());
 
-            productosOrderData(productosReport.data, orderDirection, fieldToSort);
+            productosOrderTableData(productosReport.data, orderDirection, fieldToSort);
 
             productosUpdateTable(productosReport);
         })
@@ -528,17 +536,29 @@
                 productosRankChart.options.scales.x.ticks.callback = ProductosChartHelpers.ticks.quantity;
             }
 
-            productosOrderData(productosRankChart.data.datasets[selectedIndex].data, orderDirection);
+            productosOrderChartData(productosRankChart, orderDirection, selectedIndex);
 
             updateActiveDataset(productosRankChart, selectedIndex);
         });
 
-        function productosOrderData(data, order = 'desc', field = null) {
+        function productosOrderTableData(data, order = 'desc', field) {
             return data.sort((a, b) => {
-                const aValue = field ? a[field] : a;
-                const bValue = field ? b[field] : b;
-                return order === 'asc' ? aValue - bValue : bValue - aValue;
+                return order === 'asc' ? a[field] - b[field] : b[field] - a[field];
             });
+        }
+
+        function productosOrderChartData(chart, order = 'desc', datasetIndex) {
+            const dataset = chart.data.datasets[datasetIndex];
+
+            const combined = chart.data.labels.map((label, i) => ({
+                label,
+                value: dataset.data[i],
+            }));
+
+            combined.sort((a, b) => (order === 'asc' ? a.value - b.value : b.value - a.value));
+
+            chart.data.labels = combined.map(item => item.label);
+            dataset.data = combined.map(item => item.value);
         }
 
         function getRankData(rank) {
@@ -628,13 +648,18 @@
         };
 
         function productosUpdateRankChart(response) {
-            const labels = response.data.map(i => i.product);
-            const colors = getBackgroundColor(response.data);
+            const slicedResponse = {
+                ...response,
+                data: response.data.slice(0, 20)
+            }
+
+            const labels = slicedResponse.data.map(i => i.product);
+            const colors = getBackgroundColor(slicedResponse.data);
 
             productosRankChart.data.labels = labels;
 
-            productosRankChart.data.datasets[0].data = response.data.map(i => i.total_amount);
-            productosRankChart.data.datasets[1].data = response.data.map(i => i.total_products);
+            productosRankChart.data.datasets[0].data = slicedResponse.data.map(i => i.total_amount);
+            productosRankChart.data.datasets[1].data = slicedResponse.data.map(i => i.total_products);
             productosRankChart.data.datasets[0].backgroundColor = colors;
             productosRankChart.data.datasets[1].backgroundColor = colors;
 
