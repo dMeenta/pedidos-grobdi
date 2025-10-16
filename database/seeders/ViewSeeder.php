@@ -63,6 +63,7 @@ INSERT INTO `views` (`id`, `url`, `is_menu`, `description`, `icon`, `state`, `mo
 (46,'doctor.edit',0,'Editar Doctor',NULL,1,4,'2025-09-18 19:54:58','2025-09-18 19:54:58'),
 (47,'doctor.update',0,'Actualizar doctor',NULL,1,4,'2025-09-18 19:55:25','2025-09-18 19:55:25'),
 (48,'doctor.cargadata',0,'Cargar excel de doctores',NULL,1,4,'2025-09-18 19:57:26','2025-09-23 17:27:23'),
+(141,'doctor.export',0,'Exportar doctores',NULL,1,4,'2025-10-16 00:00:00','2025-10-16 00:00:00'),
 (49,'doctor.destroy',0,'Inhabilitar / Habilitar Doctores',NULL,1,4,'2025-09-18 20:04:34','2025-09-18 20:04:34'),
 (50,'doctors.search',0,'Buscador de doctor',NULL,1,4,'2025-09-19 13:34:56','2025-09-19 13:34:56'),
 (51,'centrosalud.index',1,'Centro de salud','fas fa-fw fa-h-square',1,4,'2025-09-19 13:36:46','2025-09-19 13:36:46'),
