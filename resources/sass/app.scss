@@ -6,3 +6,63 @@
 
 // Bootstrap
 @import 'bootstrap/scss/bootstrap';
+
+:root {
+	--grobdi-navy-900: #{$grobdi-navy-900};
+	--grobdi-navy-700: #{$grobdi-navy-700};
+	--grobdi-slate-100: #{$grobdi-slate-100};
+	--grobdi-slate-150: #{$grobdi-slate-150};
+	--grobdi-slate-200: #{$grobdi-slate-200};
+	--grobdi-slate-300: #{$grobdi-slate-300};
+	--grobdi-text-base: #{$grobdi-text-base};
+	--grobdi-text-strong: #{$grobdi-text-strong};
+}
+
+.table-grobdi {
+	background-color: #fff;
+	color: var(--grobdi-text-base);
+	border-color: var(--grobdi-slate-300);
+	border-radius: 0.75rem;
+	overflow: hidden;
+	box-shadow: 0 0.75rem 1.5rem rgba(15, 23, 42, 0.08);
+
+	thead th {
+		background-color: var(--grobdi-navy-900);
+		color: #f9fafb;
+		border-color: var(--grobdi-slate-300);
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.02em;
+		text-align: center;
+		vertical-align: middle;
+	}
+
+	tbody td {
+		border-color: var(--grobdi-slate-300);
+		vertical-align: middle;
+	}
+
+	&.table-striped tbody tr:nth-of-type(odd) {
+		background-color: var(--grobdi-slate-100);
+	}
+
+	&.table-striped tbody tr:nth-of-type(even) {
+		background-color: var(--grobdi-slate-150);
+	}
+
+	&.table-hover tbody tr:hover {
+		background-color: var(--grobdi-slate-200);
+		color: var(--grobdi-text-strong);
+	}
+
+	&.table-bordered {
+		border-color: var(--grobdi-slate-300);
+	}
+
+	caption {
+		caption-side: top;
+		color: var(--grobdi-text-strong);
+		font-weight: 600;
+		text-align: center;
+	}
+}

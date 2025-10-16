@@ -176,7 +176,7 @@
         @endphp
 
         <div class="table-responsive">
-            <table class="table table-striped table-hover">
+            <table class="table table-striped table-hover table-grobdi">
                 <thead>
                     <tr>
                         <th>Order ID</th>
@@ -399,15 +399,6 @@
         .pedidos-comercial-card .btn-outline-secondary:hover {
             background: rgba(255, 255, 255, 0.1);
             color: #fff;
-        }
-
-        .pedidos-comercial-card .table thead th {
-            background-color: #f8f9fc;
-            border-top: none;
-        }
-
-        .pedidos-comercial-card .table tbody tr:hover {
-            background-color: #f1f4ff;
         }
 
         .pedidos-comercial-card .badge {
