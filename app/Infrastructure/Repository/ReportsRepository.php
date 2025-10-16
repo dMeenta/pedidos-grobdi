@@ -6,6 +6,7 @@ use App\Domain\Interfaces\ReportsRepositoryInterface;
 use App\Models\Departamento;
 use App\Models\Distrito;
 use App\Models\Doctor;
+use App\Models\Muestras;
 use App\Models\Pedidos;
 use App\Models\Provincia;
 use App\Models\VisitaDoctor;
@@ -303,5 +304,39 @@ class ReportsRepository implements ReportsRepositoryInterface
     {
         return Distrito::select('id', 'name', 'provincia_id')
             ->with(['provincia:id,name'])->get();
+    }
+
+    /* -------- Muestras -------- */
+    public function getReportByTipoMuestra(string $startDate, string $endDate): Collection
+    {
+        return DB::table('tipo_muestras as tm')
+            ->leftJoin('muestras as m', function ($join) use ($startDate, $endDate) {
+                $join->on('tm.id', '=', 'm.id_tipo_muestra')
+                    ->whereBetween('m.created_at', [$startDate, $endDate])
+                    ->where('m.state', true);
+            })
+            ->selectRaw('tm.name as tipo, COUNT(m.id) as total')
+            ->groupBy('tm.name')
+            ->get();
+    }
+    public function getReportByTipoFrasco(string $startDate, string $endDate): Collection
+    {
+        $result = Muestras::selectRaw('tipo_frasco, COUNT(*) as total')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->where('state', true)
+            ->groupBy('tipo_frasco')
+            ->get()
+            ->keyBy('tipo_frasco');
+
+        return collect(Muestras::TIPOS_FRASCO)->mapWithKeys(function ($tipo) use ($result) {
+            $record = $result->get($tipo);
+
+            return [
+                $tipo => [
+                    'tipo_frasco' => $tipo,
+                    'total' => $record ? (int) $record->total : 0,
+                ]
+            ];
+        })->values();
     }
 }

@@ -22,4 +22,6 @@ interface ReportsRepositoryInterface
     public function getProvinciasWithDepartamentoForMap(): Collection;
     public function getDistritosWithProvinciaAndDepartamentoForMap(): Collection;
     public function getDistritosWithProvinciaForMap(): Collection;
+    public function getReportByTipoMuestra(string $startDate, string $endDate): Collection;
+    public function getReportByTipoFrasco(string $startDate, string $endDate): Collection;
 }

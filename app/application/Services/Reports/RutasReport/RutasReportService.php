@@ -6,6 +6,7 @@ use App\Application\DTOs\Reports\Rutas\ReportZonesDto;
 use App\Application\Services\Reports\ReportBaseService;
 use App\Infrastructure\Repository\ReportsRepository;
 use App\Models\EstadoVisita;
+use Carbon\Carbon;
 
 class RutasReportService extends ReportBaseService
 {
@@ -54,5 +55,27 @@ class RutasReportService extends ReportBaseService
             $data,
             compact('month', 'year', 'distritos')
         );
+    }
+
+    public function getMuestrasReport(array $filters = []): array
+    {
+        $start_date = Carbon::parse($filters['start_date'] ?? now()->startOfMonth())->startOfDay();
+        $end_date = Carbon::parse($filters['end_date'] ?? now())->endOfDay();
+
+        $dataByTipoMuestra = $this->repo->getReportByTipoMuestra($start_date, $end_date);
+        $dataByTipoFrasco = $this->repo->getReportByTipoFrasco($start_date, $end_date);
+
+        $totalMuestras = $dataByTipoMuestra->sum('total_muestras');
+
+        return [
+            'general_stats' => [
+                'total_muestras' => $totalMuestras,
+            ],
+            'data' => [
+                'by_tipo_muestra' => $dataByTipoMuestra,
+                'by_tipo_frasco' => $dataByTipoFrasco,
+            ],
+            'filters' => compact('start_date', 'end_date')
+        ];
     }
 }

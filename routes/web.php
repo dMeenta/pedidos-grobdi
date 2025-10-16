@@ -244,6 +244,13 @@ Route::middleware(['check.permission'])->group(function () {
             });
         });
     });
+
+    Route::prefix('muestras')->group(function () {
+        Route::get('/', [ReportsController::class, 'muestrasView'])->name('reports.muestras');
+        Route::prefix('api/v1')->group(function () {
+            Route::get('muestras', [ReportsController::class, 'getMuestrasReport'])->name('reports.muestras.api');
+        });
+    });
 });
 
     /*
