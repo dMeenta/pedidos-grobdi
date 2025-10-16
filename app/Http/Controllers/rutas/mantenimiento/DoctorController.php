@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\rutas\mantenimiento;
 
+use App\Exports\Doctor\DoctorsExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\rutas\DoctorStoreRequest;
 use App\Imports\DoctoresImport;
@@ -30,29 +31,88 @@ class DoctorController extends Controller
      */
     public function index(Request $request)
     {
-        $ordenarPor = $request->get('sort_by', 'name'); // campo por defecto
-        $direccion = $request->get('direction', 'asc'); // dirección por defecto
+        $sortableColumns = ['name', 'CMP', 'created_at', 'tipo_medico'];
+        $ordenarPor = $request->get('sort_by', 'name');
+        if (!in_array($ordenarPor, $sortableColumns, true)) {
+            $ordenarPor = 'name';
+        }
 
-        // Obtener parámetros de filtros
+        $direccion = strtolower($request->get('direction', 'asc')) === 'desc' ? 'desc' : 'asc';
+
         $search = $request->input('search');
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
         $tipoMedico = $request->input('tipo_medico');
         $distritoId = $request->input('distrito_id');
 
-        $query = Doctor::query();
+        $query = $this->buildDoctorQuery($request);
 
-        // Aplicar filtros
-        if ($search) {
+        $doctores = (clone $query)
+            ->orderBy($ordenarPor, $direccion)
+            ->paginate(20);
+
+        $distritos = Distrito::select('id', 'name')
+            ->where('provincia_id', 128)
+            ->orWhere('provincia_id', 67)
+            ->get();
+
+        $tiposMedico = Doctor::select('tipo_medico')->distinct()->pluck('tipo_medico');
+
+        return view('rutas.mantenimiento.doctor.index', compact(
+            'doctores',
+            'distritos',
+            'tiposMedico',
+            'ordenarPor',
+            'direccion',
+            'search',
+            'startDate',
+            'endDate',
+            'tipoMedico',
+            'distritoId'
+        ));
+    }
+
+    public function export(Request $request)
+    {
+        $sortableColumns = ['name', 'CMP', 'created_at', 'tipo_medico'];
+        $sortBy = $request->get('sort_by', 'name');
+        if (!in_array($sortBy, $sortableColumns, true)) {
+            $sortBy = 'name';
+        }
+
+        $direction = strtolower($request->get('direction', 'asc')) === 'desc' ? 'desc' : 'asc';
+
+        $doctores = $this->buildDoctorQuery($request)
+            ->orderBy($sortBy, $direction)
+            ->get();
+
+        if ($doctores->isEmpty()) {
+            return back()->with('danger', 'No hay doctores para exportar con los filtros seleccionados.');
+        }
+
+        $fileName = 'doctores_' . now()->format('Ymd_His') . '.xlsx';
+
+        return Excel::download(new DoctorsExport($doctores), $fileName);
+    }
+
+    protected function buildDoctorQuery(Request $request)
+    {
+        $query = Doctor::query()
+            ->with(['distrito', 'especialidad', 'centrosalud', 'categoriadoctor']);
+
+        if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                ->orWhere('first_lastname', 'like', "%{$search}%")
-                ->orWhere('second_lastname', 'like', "%{$search}%")
-                ->orWhere('cmp', 'like', "%{$search}%")
-                ->orWhere('name_softlynn', 'like', "%{$search}%")
-                ->orWhere(DB::raw("CONCAT(name, ' ', first_lastname, ' ', second_lastname)"), 'like', "%{$search}%");
+                    ->orWhere('first_lastname', 'like', "%{$search}%")
+                    ->orWhere('second_lastname', 'like', "%{$search}%")
+                    ->orWhere('cmp', 'like', "%{$search}%")
+                    ->orWhere('name_softlynn', 'like', "%{$search}%")
+                    ->orWhere(DB::raw("CONCAT(name, ' ', first_lastname, ' ', second_lastname)"), 'like', "%{$search}%");
             });
         }
+
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
 
         if ($startDate && $endDate) {
             $query->whereBetween('created_at', [$startDate, $endDate]);
@@ -62,22 +122,15 @@ class DoctorController extends Controller
             $query->whereDate('created_at', '<=', $endDate);
         }
 
-        if ($tipoMedico) {
-            $query->where('tipo_medico', $tipoMedico);
+        if ($request->filled('tipo_medico')) {
+            $query->where('tipo_medico', $request->input('tipo_medico'));
         }
 
-        if ($distritoId) {
-            $query->where('distrito_id', $distritoId);
+        if ($request->filled('distrito_id')) {
+            $query->where('distrito_id', $request->input('distrito_id'));
         }
 
-        // Aplicar ordenamiento y paginación
-        $doctores = $query->orderBy($ordenarPor, $direccion)->paginate(20);
-
-        // Obtener datos para los selects
-        $distritos = Distrito::select('id', 'name')->where('provincia_id', 128)->orWhere('provincia_id', 67)->get();
-        $tiposMedico = Doctor::select('tipo_medico')->distinct()->pluck('tipo_medico');
-
-        return view('rutas.mantenimiento.doctor.index', compact('doctores', 'distritos', 'tiposMedico', 'ordenarPor', 'direccion', 'search', 'startDate', 'endDate', 'tipoMedico', 'distritoId'));
+        return $query;
     }
     public function buscarCMP($cmp)
     {

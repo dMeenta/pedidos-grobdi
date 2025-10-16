@@ -158,6 +158,7 @@ Route::middleware(['check.permission'])->group(function () {
     Route::resource('centrosalud', CentroSaludController::class);
     Route::post('centrosalud/creacionflotante', [CentroSaludController::class, 'creacionRapida'])->name('centrosalud.crearflorante');
     Route::resource('especialidad', EspecialidadController::class);
+    Route::get('/doctor/export', [DoctorController::class, 'export'])->name('doctor.export');
     Route::resource('doctor', DoctorController::class);
     Route::post('/doctor/cargadata', [DoctorController::class, 'cargadata'])->name('doctor.cargadata');
     Route::resource('lista', ListaController::class);

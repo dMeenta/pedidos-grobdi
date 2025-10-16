@@ -18,6 +18,18 @@
                 <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#itemModal" data-bs-toggle="tooltip" title="Importar doctores desde archivo Excel">
                     <i class="fa fa-upload"></i> Importar Excel
                 </button>
+                <form action="{{ route('doctor.export') }}" method="GET" class="d-inline">
+                    <input type="hidden" name="search" value="{{ $search }}">
+                    <input type="hidden" name="start_date" value="{{ $startDate }}">
+                    <input type="hidden" name="end_date" value="{{ $endDate }}">
+                    <input type="hidden" name="tipo_medico" value="{{ $tipoMedico }}">
+                    <input type="hidden" name="distrito_id" value="{{ $distritoId }}">
+                    <input type="hidden" name="sort_by" value="{{ $ordenarPor }}">
+                    <input type="hidden" name="direction" value="{{ $direccion }}">
+                    <button type="submit" class="btn btn-outline-success btn-sm" data-bs-toggle="tooltip" title="Exportar doctores filtrados a Excel">
+                        <i class="fa fa-download"></i> Exportar Excel
+                    </button>
+                </form>
             </div>
         </div>
     </div>
@@ -77,8 +89,8 @@
             </div>
         </div>
 
-        <div class="card-body table-responsive p-0" style="height: 800px;">
-            <table class="table table-head-fixed text-nowrap display" id="miTabla">
+        <div class="card-body table-responsive p-0" style="max-height: 800px;">
+            <table class="table table-grobdi table-striped table-hover table-bordered" id="miTabla">
                 <thead>
 
                     <tr>

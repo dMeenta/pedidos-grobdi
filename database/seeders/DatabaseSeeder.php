@@ -13,7 +13,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(RoleSeeder::class);
+        $this->call([
+            ModuleSeeder::class,
+            RoleSeeder::class,
+            ViewSeeder::class,
+            RoleModuleSeeder::class,
+            RoleViewSeeder::class,
+        ]);
         // User::factory(10)->create();
 
         User::factory()->create([
@@ -150,8 +156,7 @@ class DatabaseSeeder extends Seeder
             'role_id' => 13,
         ]);
         $this->call(ZoneSeeder::class);
-        $this->call(MotorizadoUserZoneSeeder::class);
-        $this->call(ModuleSeeder::class);
+    $this->call(MotorizadoUserZoneSeeder::class);
         $this->call(DepartamentosSeeder::class);
         $this->call(ProvinciaSeeder::class);
         $this->call(DistritoSeeder::class);
