@@ -60,7 +60,6 @@ use App\Http\Controllers\ReporteController;
 Auth::routes();
 Route::middleware(['check.permission'])->group(function () {
     Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-    Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
     //Modulo de Muestras
     Route::prefix('muestras')->group(function () {
@@ -243,14 +242,14 @@ Route::middleware(['check.permission'])->group(function () {
                 Route::get('tipo-doctor', [ReportsController::class, 'getTipoDoctorReport'])->name('reports.doctores.tipo-doctor');
             });
         });
-    });
-
-    Route::prefix('muestras')->group(function () {
-        Route::get('/', [ReportsController::class, 'muestrasView'])->name('reports.muestras');
-        Route::prefix('api/v1')->group(function () {
-            Route::get('muestras', [ReportsController::class, 'getMuestrasReport'])->name('reports.muestras.api');
+        Route::prefix('muestras')->group(function () {
+            Route::get('/', [ReportsController::class, 'muestrasView'])->name('reports.muestras');
+            Route::prefix('api/v1')->group(function () {
+                Route::get('muestras', [ReportsController::class, 'getMuestrasReport'])->name('reports.muestras.api');
+            });
         });
     });
+
 });
 
     /*
