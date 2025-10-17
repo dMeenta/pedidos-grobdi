@@ -90,7 +90,7 @@ class PedidosMotoController extends Controller
                 'success' => false,
                 'message' => 'No se puede actualizar el estado del pedido porque ya fue marcado como ENTREGADO'
             ], 400);
-        };
+        }
 
         $fields = [
             'foto_domicilio' => [
@@ -158,6 +158,9 @@ class PedidosMotoController extends Controller
         }
 
         $pedidoEstado->save();
+
+        $pedido->deliveryStatus = $pedidoEstado->state;
+        $pedido->save();
 
         foreach ($fieldsToProcess as $inputName => $config) {
             $lat = $request->input($config['lat_field']);
