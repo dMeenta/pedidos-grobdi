@@ -54,6 +54,28 @@
     </div>
 @stop
 
+@section('css')
+    <style>
+        .table-foot-fixed {
+            position: sticky;
+            bottom: 0;
+            z-index: 2;
+        }
+
+        .table-responsive::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .table-responsive::-webkit-scrollbar-track {
+            background: #d40c0c63;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: #D40C0D;
+        }
+    </style>
+@stop
+
 @section('plugins.Chartjs', true)
 @section('plugins.Sweetalert2', true)
 
