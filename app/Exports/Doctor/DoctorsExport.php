@@ -37,6 +37,7 @@ class DoctorsExport implements FromCollection, WithHeadings
                 'especialidad' => optional($doctor->especialidad)->name ?? '',
                 'centro_salud' => optional($doctor->centrosalud)->name ?? '',
                 'tipo_medico' => $doctor->tipo_medico ?? '',
+                'estado' => $doctor->state ?? '',
             ];
         });
     }
@@ -54,6 +55,7 @@ class DoctorsExport implements FromCollection, WithHeadings
             'Especialidad',
             'Centro de salud',
             'Tipo médico',
+            'Estado',
         ];
     }
 }
