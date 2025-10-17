@@ -23,7 +23,7 @@
     @yield('adminlte_css_pre')
 
     {{-- Base Stylesheets (depends on Laravel asset bundling tool) --}}
-    @if(config('adminlte.enabled_laravel_mix', false))
+    @if (config('adminlte.enabled_laravel_mix', false))
         <link rel="stylesheet" href="{{ mix(config('adminlte.laravel_mix_css_path', 'css/app.css')) }}">
     @else
         @switch(config('adminlte.laravel_asset_bundling', false))
@@ -40,15 +40,21 @@
             @break
 
             @default
+                {{-- se importa primero para definir los estilos de bootstrap --}}
+                @vite('resources/sass/app.scss')
+
+                {{-- Luego se importan estos para que AdminLTE los sobreescriba --}}
                 <link rel="stylesheet" href="{{ asset('vendor/fontawesome-free/css/all.min.css') }}">
                 <link rel="stylesheet" href="{{ asset('vendor/overlayScrollbars/css/OverlayScrollbars.min.css') }}">
                 <link rel="stylesheet" href="{{ asset('vendor/adminlte/dist/css/adminlte.min.css') }}">
 
-                @if(config('adminlte.google_fonts.allowed', true))
-                    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
-                @endif
+                {{-- ☝️Esto se hace así para que los estilos personalizados no sean afectados e igual se siga trabajando con los estilos de AdminLTE --}}
 
-                @vite('resources/sass/app.scss')
+
+                @if (config('adminlte.google_fonts.allowed', true))
+                    <link rel="stylesheet"
+                        href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+                @endif
         @endswitch
     @endif
 
@@ -56,8 +62,8 @@
     @include('adminlte::plugins', ['type' => 'css'])
 
     {{-- Livewire Styles --}}
-    @if(config('adminlte.livewire'))
-        @if(intval(app()->version()) >= 7)
+    @if (config('adminlte.livewire'))
+        @if (intval(app()->version()) >= 7)
             @livewireStyles
         @else
             <livewire:styles />
@@ -68,7 +74,7 @@
     @yield('adminlte_css')
 
     {{-- Favicon --}}
-    @if(config('adminlte.use_ico_only'))
+    @if (config('adminlte.use_ico_only'))
         <link rel="shortcut icon" href="{{ asset('favicons/favicon.ico') }}" />
     @elseif(config('adminlte.use_full_favicon'))
         <link rel="shortcut icon" href="{{ asset('favicons/favicon.ico') }}" />
@@ -98,7 +104,7 @@
     @yield('body')
 
     {{-- Base Scripts (depends on Laravel asset bundling tool) --}}
-    @if(config('adminlte.enabled_laravel_mix', false))
+    @if (config('adminlte.enabled_laravel_mix', false))
         <script src="{{ mix(config('adminlte.laravel_mix_js_path', 'js/app.js')) }}"></script>
     @else
         @switch(config('adminlte.laravel_asset_bundling', false))
@@ -122,8 +128,8 @@
     @include('adminlte::plugins', ['type' => 'js'])
 
     {{-- Livewire Script --}}
-    @if(config('adminlte.livewire'))
-        @if(intval(app()->version()) >= 7)
+    @if (config('adminlte.livewire'))
+        @if (intval(app()->version()) >= 7)
             @livewireScripts
         @else
             <livewire:scripts />
