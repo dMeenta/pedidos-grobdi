@@ -16,8 +16,10 @@ class UsuariosController extends Controller
      */
     public function index()
     {
-        $usuarios = User::with('role')->with('zones')->get();
-        // dd($usuarios);
+        $usuarios = User::with(['role', 'zones'])
+            ->orderBy('name')
+            ->paginate(25);
+
         return view('ajustes.usuarios.index', compact('usuarios'));
     }
 

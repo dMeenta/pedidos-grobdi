@@ -10,7 +10,8 @@ class ModuleController extends Controller
 {
     public function index()
     {
-        $modules = Module::all();
+        $modules = Module::orderBy('name')->paginate(25);
+
         return view('ajustes.modules.index', compact('modules'));
     }
     public function create()
