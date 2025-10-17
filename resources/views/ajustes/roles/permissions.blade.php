@@ -19,28 +19,89 @@
     <form action="{{ route('roles.updatePermissions', $role->id) }}" method="POST">
         @csrf
         @method('PUT')
+        @php
+            $selectedModules = collect(old('modules', $role->modules->pluck('id')->toArray()));
+            $selectedViews = collect(old('views', $role->views->pluck('id')->toArray()));
+        @endphp
 
-        @foreach($modules as $module)
-            <div class="card mb-3">
-                <div class="card-header">
-                    <label>
-                        <input type="checkbox" name="modules[]" value="{{ $module->id }}"
-                            {{ $role->modules->contains($module->id) ? 'checked' : '' }}>
-                        {{ $module->name }}
-                    </label>
-                </div>
-                <div class="card-body">
-                    @foreach($module->views as $view)
-                        <label class="d-block">
-                            <input type="checkbox" name="views[]" value="{{ $view->id }}"
-                                {{ $role->views->contains($view->id) ? 'checked' : '' }}>
-                            {{ $view->description }}
-                        </label>
-                    @endforeach
-                </div>
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <p class="mb-0 text-muted">Selecciona los módulos y vistas que formarán parte del rol. Usa los acordeones para explorar cada módulo.</p>
             </div>
-        @endforeach
+        </div>
 
-        <button type="submit" class="btn btn-primary">Guardar permisos</button>
+        <div class="accordion" id="modulesAccordion">
+            @foreach($modules as $module)
+                @php
+                    $collapseId = 'module-collapse-' . $module->id;
+                    $headingId = 'module-heading-' . $module->id;
+                    $moduleChecked = $selectedModules->contains($module->id);
+                    $selectedCount = $module->views->whereIn('id', $selectedViews)->count();
+                @endphp
+                <div class="card shadow-sm border-0 mb-3 overflow-hidden">
+                    <div class="card-header bg-white border-0 p-0" id="{{ $headingId }}">
+                        <h2 class="mb-0">
+                            <button class="btn w-100 text-left d-flex justify-content-between align-items-center px-3 py-3 border-0 rounded-0" type="button" data-toggle="collapse" data-target="#{{ $collapseId }}" aria-expanded="{{ $loop->first ? 'true' : 'false' }}" aria-controls="{{ $collapseId }}" style="background-color: var(--grobdi-slate-150); color: var(--grobdi-text-strong);">
+                                <span class="d-flex align-items-center">
+                                    <span class="toggle-icon mr-3" data-open="▲" data-closed="▼">{{ $loop->first ? '▲' : '▼' }}</span>
+                                    <span class="mr-2">📁</span>
+                                    <span class="font-weight-bold mb-0">{{ $module->name }}</span>
+                                </span>
+                                <span class="d-flex flex-column flex-sm-row align-items-sm-center">
+                                    <span class="badge badge-primary mb-1 mb-sm-0 mr-sm-2">{{ $module->views->count() }} vistas</span>
+                                    <span class="badge {{ $selectedCount ? 'badge-success' : 'badge-secondary' }}">Seleccionadas {{ $selectedCount }}</span>
+                                </span>
+                            </button>
+                        </h2>
+                    </div>
+                    <div id="{{ $collapseId }}" class="collapse {{ $loop->first ? 'show' : '' }}" aria-labelledby="{{ $headingId }}" data-parent="#modulesAccordion">
+                        <div class="card-body px-3 py-3" style="background-color: var(--grobdi-slate-100);">
+                            <div class="custom-control custom-checkbox mb-3">
+                                <input type="checkbox" class="custom-control-input" id="module-{{ $module->id }}" name="modules[]" value="{{ $module->id }}" {{ $moduleChecked ? 'checked' : '' }}>
+                                <label class="custom-control-label font-weight-bold" for="module-{{ $module->id }}">Incluir módulo completo</label>
+                            </div>
+                            <div class="row">
+                                @forelse($module->views as $view)
+                                    @php
+                                        $viewChecked = $selectedViews->contains($view->id);
+                                    @endphp
+                                    <div class="col-12 col-md-6 col-xl-4 mb-2">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="view-{{ $module->id }}-{{ $view->id }}" name="views[]" value="{{ $view->id }}" {{ $viewChecked ? 'checked' : '' }}>
+                                            <label class="custom-control-label" for="view-{{ $module->id }}-{{ $view->id }}">{{ $view->description }}</label>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="col-12">
+                                        <span class="text-muted">No hay vistas disponibles para este módulo.</span>
+                                    </div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+
+        <div class="d-flex justify-content-end mt-4">
+            <button type="submit" class="btn btn-success">💾 Guardar permisos</button>
+        </div>
     </form>
+@endsection
+
+@section('js')
+    <script>
+        $(function () {
+            $('#modulesAccordion').on('show.bs.collapse', function (event) {
+                $(event.target).prev('.card-header').find('.toggle-icon').text(function () {
+                    return $(this).data('open');
+                });
+            });
+            $('#modulesAccordion').on('hide.bs.collapse', function (event) {
+                $(event.target).prev('.card-header').find('.toggle-icon').text(function () {
+                    return $(this).data('closed');
+                });
+            });
+        });
+    </script>
 @endsection
