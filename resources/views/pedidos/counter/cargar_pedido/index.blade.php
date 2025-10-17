@@ -8,11 +8,16 @@
 @stop
 
 @php
-$role = auth()->user()->role->name;
-@endphp
-
-@php
-$role = auth()->user()->role->name;
+$user = auth()->user();
+$role = $user?->role->name;
+$canCreatePedido = $user?->can('cargarpedidos.create');
+$canDownloadWord = $user?->can('cargarpedidos.downloadWord');
+$canUpdateTurno = $user?->can('cargarpedidos.actualizarTurno');
+$canUploadFile = $user?->can('cargarpedidos.uploadfile');
+$canViewPedido = $user?->can('cargarpedidos.show');
+$canEditPedido = $user?->can('cargarpedidos.edit');
+$showOptionsColumn = $canUploadFile || $canViewPedido || $canEditPedido;
+$filtersColumnClass = $canDownloadWord ? 'col-lg-8 col-md-12' : 'col-12';
 @endphp
 
 @section('content')
@@ -26,10 +31,12 @@ $role = auth()->user()->role->name;
         </div>
     </div>
     <div class="card-body">
+        @if($canCreatePedido)
         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
             <a class="btn btn-success btn-sm" href="{{ route('cargarpedidos.create') }}"> <i class="fa fa-plus"></i>
                 Cargar datos</a>
         </div>
+        @endif
         <br>
         <div class="card border-success shadow-lg">
             <div class="card-header bg-success text-white">
@@ -37,7 +44,7 @@ $role = auth()->user()->role->name;
             </div>
             <div class="card-body bg-light">
                 <div class="row g-4">
-                    <div class="col-lg-8 col-md-12">
+                    <div class="{{ $filtersColumnClass }}">
                         <div class="card border-info shadow-sm h-100">
                             <div class="card-header bg-info text-white">
                                 <h6 class="card-title mb-0"><i class="fa fa-search"></i> Filtrar Pedidos</h6>
@@ -74,6 +81,7 @@ $role = auth()->user()->role->name;
                             </div>
                         </div>
                     </div>
+                    @if($canDownloadWord)
                     <div class="col-lg-4 col-md-12">
                         <div class="card border-warning shadow-sm h-100">
                             <div class="card-header bg-warning text-dark">
@@ -109,6 +117,7 @@ $role = auth()->user()->role->name;
                             </div>
                         </div>
                     </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -134,7 +143,9 @@ $role = auth()->user()->role->name;
                         <th width="200px">Receta</th>
                         <th width="200px">Zona</th>
                         <th width="200px">Usuario</th>
+                        @if($showOptionsColumn)
                         <th width="220px">Opciones</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -145,17 +156,21 @@ $role = auth()->user()->role->name;
                         <td>{{ $arr["customerName"] }}</td>
                         <td>{{ $arr["doctorName"] }}</td>
                         <td>{{ $arr["paymentStatus"] }}</td>
-                        <form action="{{ route('cargarpedidos.actualizarTurno',$arr->id) }}" method="POST">
-                            @csrf
-                            @method('PUT')
-                            <td>
-                                <select class="form-select form-select-sm" aria-label=".form-select-sm" name="turno" id="turno" onchange="this.form.submit()">
+                        <td>
+                            @if($canUpdateTurno)
+                            <form action="{{ route('cargarpedidos.actualizarTurno',$arr->id) }}" method="POST">
+                                @csrf
+                                @method('PUT')
+                                <select class="form-select form-select-sm" aria-label=".form-select-sm" name="turno" onchange="this.form.submit()">
                                     <option disabled>Cambiar turno</option>
-                                    <option value=0 {{ $arr->turno ===  0  ? 'selected' : '' }}>Mañana</option>
-                                    <option value=1 {{ $arr->turno ===  1  ? 'selected' : '' }}>Tarde</option>
+                                    <option value="0" {{ $arr->turno ===  0  ? 'selected' : '' }}>Mañana</option>
+                                    <option value="1" {{ $arr->turno ===  1  ? 'selected' : '' }}>Tarde</option>
                                 </select>
-                            </td>
-                        </form>
+                            </form>
+                            @else
+                                {{ $arr["turno"] == 0 ? 'Mañana' : 'Tarde' }}
+                            @endif
+                        </td>
                         <td class="align-middle" style="min-height: 80px;">
                             <div class="d-flex flex-column justify-content-center h-100">
                                 @php
@@ -194,19 +209,26 @@ $role = auth()->user()->role->name;
                         </td>
                         <td>{{ $arr->zone->name }}</td>
                         <td>{{ $arr->user->name }}</td>
+                        @if($showOptionsColumn)
                         <td>
-                            <form action="{{ route('cargarpedidos.destroy',$arr->id) }}" method="POST">
-                                <a class="btn btn-danger btn-sm" href="{{ route('cargarpedidos.uploadfile',$arr->id) }}"><i class="fa fa-upload"></i>Carga</a>
-                                <a class="btn btn-info btn-sm" href="{{ route('cargarpedidos.show',$arr->id) }}" target="_blank"><i class="fa fa-eye"></i> Ver</a>
-
-                                    <a class="btn btn-primary btn-sm"
-                                        href="{{ route('cargarpedidos.edit', $arr->id) }}"><i class="fa-pencil"></i>
-                                        Editar</a>
-
-                                    @csrf
-                                    @method('DELETE')
-                                </form>
-                            </td>
+                            <div class="btn-group btn-group-sm" role="group">
+                                @if($canUploadFile)
+                                <a class="btn btn-danger" href="{{ route('cargarpedidos.uploadfile',$arr->id) }}"><i class="fa fa-upload"></i> Carga</a>
+                                @endif
+                                @if($canViewPedido)
+                                <button type="button"
+                                        class="btn btn-info btn-show-order"
+                                        data-id="{{ $arr->id }}"
+                                        data-url="{{ route('cargarpedidos.show', $arr->id) }}">
+                                    <i class="fa fa-eye"></i> Ver
+                                </button>
+                                @endif
+                                @if($canEditPedido)
+                                <a class="btn btn-primary" href="{{ route('cargarpedidos.edit', $arr->id) }}"><i class="fa-pencil"></i> Editar</a>
+                                @endif
+                            </div>
+                        </td>
+                        @endif
                         </tr>
                     @endforeach
                 </tbody>
@@ -256,6 +278,26 @@ $role = auth()->user()->role->name;
     </div>
 </div>
 
+<div class="modal fade" id="orderDetailsModal" tabindex="-1" role="dialog" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content overflow-hidden">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="orderDetailsModalLabel">Detalles del pedido</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="order-details-content">
+                <div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Cargando...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @stop
 
 @section('css')
@@ -285,9 +327,10 @@ $role = auth()->user()->role->name;
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 <script>
     $(document).ready(function () {
-        const pedidoId = $(this).data('id');
         const modal = $('#deliveryStatesModal');
         const modalContent = $('#modal-content');
+        const orderModal = $('#orderDetailsModal');
+        const orderContent = $('#order-details-content');
         $('#miTabla').DataTable({
             language: {
                 url: 'https://cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json'
@@ -403,6 +446,40 @@ $role = auth()->user()->role->name;
                     toastr.error(xhr.responseJSON || 'No se pudieron cargar los estados del pedido.');
                     console.error(xhr.responseJSON);
 
+                }
+            });
+        });
+
+        $(document).on('click', '.btn-show-order', function () {
+            const url = $(this).data('url');
+
+            orderContent.html(`
+                <div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Cargando...</span>
+                    </div>
+                </div>
+            `);
+            orderModal.modal('show');
+
+            $.ajax({
+                url: url,
+                type: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function (response) {
+                    if (response && response.success) {
+                        orderContent.html(response.html);
+                        return;
+                    }
+
+                    orderContent.html('<p class="text-center my-3">No se pudieron cargar los detalles del pedido.</p>');
+                    toastr.error('No se pudieron cargar los detalles del pedido.');
+                },
+                error: function () {
+                    orderContent.html('<p class="text-center my-3">No se pudieron cargar los detalles del pedido.</p>');
+                    toastr.error('No se pudieron cargar los detalles del pedido.');
                 }
             });
         });
