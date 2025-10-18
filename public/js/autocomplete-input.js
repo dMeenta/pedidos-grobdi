@@ -113,7 +113,6 @@ function initAutocompleteInput({
                 url: apiUrl,
                 type: "GET",
                 data: {
-                    _token: "{{ csrf_token() }}",
                     q: query,
                 },
                 success: (data) => {
