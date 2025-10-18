@@ -2,18 +2,37 @@
     $visitadorasReport = $data['visitadorasReport'];
 @endphp
 <div class="row mb-2">
-    <div class="card card-outline card-dark col-8 col-sm-6 col-lg-4">
+    <div class="card card-outline card-dark col-6">
         <div class="card-body">
             <form id="visitadoras-filter">
-                <div class="form-group">
-                    <label>Rango de fecha:</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text">
-                                <i class="far fa-calendar-alt"></i>
-                            </span>
+                <div class="row">
+                    <div class="col-12 col-lg-6">
+                        <div class="form-group">
+                            <label for="visitadoras-start-date-input">
+                                Fecha Inicio</label>
+                            <div class="input-group date" data-target-input="nearest">
+                                <input class="form-control datetimepicker-input" type="date" name="fecha"
+                                    id="visitadoras-start-date-input"
+                                    value="{{ now()->startOfMonth()->format('Y-m-d') }}" required>
+                                <div class="input-group-append" data-target="#visitadoras-start-date-input">
+                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                </div>
+                            </div>
                         </div>
-                        <input type="text" class="form-control float-right" id="visitadoras-date-range-input">
+                    </div>
+                    <div class="col-12 col-lg-6">
+                        <div class="form-group">
+                            <label for="visitadoras-end-date-input">
+                                Fecha Fin</label>
+                            <div class="input-group date" data-target-input="nearest">
+                                <input class="form-control datetimepicker-input" type="date"
+                                    name="visitadoras-end-date-input" id="visitadoras-end-date-input"
+                                    value="{{ now()->format('Y-m-d') }}" required>
+                                <div class="input-group-append" data-target="#visitadoras-end-date-input">
+                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="row mb-2">
@@ -33,8 +52,7 @@
             </div>
         </div>
     </div>
-
-    <div class="col-4 col-sm-6 col-lg-8">
+    <div class="col-6">
         <div class="row">
             <div class="col-12">
                 <div class="card bg-danger">
@@ -129,7 +147,8 @@
                                     <td>{{ $visitadora['visitadora'] }}</td>
                                     <td class="text-center">S/ {{ $visitadora['total_amount'] }}</td>
                                     <td class="text-center"><span
-                                            class="badge bg-danger">{{ $visitadora['pedidos_percentage'] }}%</span></td>
+                                            class="badge bg-danger">{{ $visitadora['pedidos_percentage'] }}%</span>
+                                    </td>
                                     <td class="text-center">{{ $visitadora['total_pedidos'] }}</td>
                                 </tr>
                             @endforeach
@@ -151,21 +170,22 @@
 @push('partial-js')
     <script>
         const visitadorasTableBody = $('#visitadoras-table-body')
-        const visitadorasDateRangeInput = $('#visitadoras-date-range-input')
-        visitadorasDateRangeInput.daterangepicker({
-            startDate: moment().startOf('month'),
-            endDate: moment(),
-            locale: {
-                format: 'YYYY-MM-DD',
-                applyLabel: 'Aplicar',
-                cancelLabel: 'Cancelar',
-                daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
-                monthNames: [
-                    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-                    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-                ],
-                firstDay: 1
-            }
+        const visitadorasStartDateInput = $('#visitadoras-start-date-input')
+        const visitadorasEndDateInput = $('#visitadoras-end-date-input')
+
+        flatpickr('#visitadoras-start-date-input', {
+            altInput: true,
+            dateFormat: "Y-m-d",
+            altFormat: "d/m/Y",
+            locale: 'es',
+            maxDate: "today"
+        });
+        flatpickr('#visitadoras-end-date-input', {
+            altInput: true,
+            dateFormat: "Y-m-d",
+            altFormat: "d/m/Y",
+            locale: 'es',
+            maxDate: "today"
         });
 
         const visitadorasReport = @json($visitadorasReport);
@@ -229,9 +249,8 @@
 
         $('#visitadoras-filter').on('submit', function(e) {
             e.preventDefault();
-            const range = visitadorasDateRangeInput.val().split(' - ');
-            const start_date = range[0].split('/').reverse().join('-');
-            const end_date = range[1].split('/').reverse().join('-');
+            const start_date = visitadorasStartDateInput.val();
+            const end_date = visitadorasEndDateInput.val();
 
             $.ajax({
                 url: "{{ route('reports.ventas.visitadoras') }}",
