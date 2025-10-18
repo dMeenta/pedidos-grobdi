@@ -115,8 +115,8 @@
                 <div id="doctors-suggestions-list" class="list-group position-absolute overflow-auto border"
                     style="z-index: 1000; max-height: 200px; width: 100%;">
                 </div>
-                <input type="hidden" name="id-doctor" id="id-doctor"
-                    value="{{ old('id-doctor', $muestra->id_doctor ?? '') }}" />
+                <input type="hidden" name="id_doctor" id="id_doctor"
+                    value="{{ old('id_doctor', $muestra->id_doctor ?? '') }}" />
             </div>
 
             <!-- Campo para cantidad de muestras -->
@@ -159,7 +159,7 @@
             presentacionInfo.hide();
             const selectedClasificacionId = $('#clasificacion_id').val();
 
-            const doctorIdInput = $('#id-doctor');
+            const doctorIdInput = $('#id_doctor');
             const doctorNameInput = $('#name-query');
             initAutocompleteInput({
                 apiUrl: `{{ route('doctors.search') }}`,
