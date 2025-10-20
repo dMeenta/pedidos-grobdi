@@ -4,7 +4,7 @@
 
 @section('content_header')
 
-<!-- <h1>Pedidos</h1> -->
+    <!-- <h1>Pedidos</h1> -->
 @stop
 
 @php
@@ -98,23 +98,30 @@ $filtersColumnClass = $canDownloadWord ? 'col-lg-8 col-md-12' : 'col-12';
                                                 Mañana
                                             </label>
                                         </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="turno" id="turno1" value="1">
-                                            <label class="form-check-label text-danger fw-bold" for="turno1">
+                                    </div>
+                                    <div class="col-12 col-lg-4">
+                                        <div class="custom-control custom-radio">
+                                            <input class="custom-control-input custom-control-input-danger" type="radio"
+                                                name="turno" id="turno1" value="1">
+                                            <label class="custom-control-label text-warning fw-bold" for="turno1">
                                                 Tarde
                                             </label>
                                         </div>
                                     </div>
-                                    <div class="col-md-6 d-flex align-items-end">
-                                        @if(request()->get('fecha'))
-                                        <input type="hidden" value="{{ request()->get('fecha') }}" name="fecha">
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        @if (request()->get('fecha'))
+                                            <input type="hidden" value="{{ request()->get('fecha') }}" name="fecha">
                                         @else
-                                        <input type="hidden" value="{{ date('Y-m-d') }}" name="fecha">
+                                            <input type="hidden" value="{{ date('Y-m-d') }}" name="fecha">
                                         @endif
-                                        <button class="btn btn-primary w-100 shadow-sm" type="submit"><i class="fa fa-file-word"></i> Descargar</button>
+                                        <button class="btn btn-outline-dark w-100" type="submit"><i
+                                                class="fa fa-file-word"></i>
+                                            Descargar</button>
                                     </div>
-                                </form>
-                            </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
                     @endif
@@ -301,28 +308,28 @@ $filtersColumnClass = $canDownloadWord ? 'col-lg-8 col-md-12' : 'col-12';
 @stop
 
 @section('css')
-{{-- Add here extra stylesheets --}}
-{{--
-<link rel="stylesheet" href="/css/admin_custom.css"> --}}
-<style type="text/css">
-    .observaciones-cell {
-        max-width: 300px;
-        min-width: 150px;
-        white-space: normal;
-    }
+    <style type="text/css">
+        .observaciones-cell {
+            max-width: 300px;
+            min-width: 150px;
+            white-space: normal;
+        }
 
-    .observaciones-col {
-        width: 100%;
-        max-height: 90px;
-        overflow-y: auto;
-        overflow-x: hidden;
-        padding-right: 5px;
-        text-align: left;
-        box-sizing: border-box;
-    }
-</style>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+        .observaciones-col {
+            width: 100%;
+            max-height: 90px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 5px;
+            text-align: left;
+            box-sizing: border-box;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
 @stop
+
+@section('plugins.Flatpickr', true)
+
 @section('js')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 <script>
@@ -342,23 +349,82 @@ $filtersColumnClass = $canDownloadWord ? 'col-lg-8 col-md-12' : 'col-12';
             ] // Opciones de cantidad
         });
 
-        $(document).on('click', '.btn-show-details', function () {
-            const imgUrl = $(this).data('img');
-            const datetime = $(this).data('datetime');
-            const nombre = $(this).data('nombre')
-            const lat = $(this).data('lat');
-            const lng = $(this).data('lng');
+            const deliveryRecordsTbody = $('#delivery-record-tbody');
 
-            const detailsContent = $('#detailsDeliveryStateContent');
+            function openDeliveryRecords(pedidoId) {
+                tableShowloader(deliveryRecordsTbody, 7, 'historial de estados', "text-info");
 
-            detailsContent.html(`
-            <img src="${imgUrl}" class="img-fluid rounded mb-3" style="max-height:60vh;">
-                ${datetime ? `<p><strong>Fecha y hora:</strong> ${datetime}</p>` : `<p><strong>Nombre del receptor: </strong> ${nombre}</p>`}
-                ${lat && lng ? `<a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank">
-                        Ver ubicación de la foto
-                    </a>` : ''}`);
-            $('#deliveryPhotoModal').modal('show');
-        });
+                const modal = new bootstrap.Modal(document.getElementById('delivery-records-modal'));
+                modal.show();
+
+                $.ajax({
+                    url: "{{ route('pedidos.showDeliveryStates', ['id' => '__ID__']) }}".replace('__ID__',
+                        pedidoId),
+                    type: 'GET',
+                    success: function(response) {
+                        console.log(response);
+
+                        console.log(response.states.length);
+                        tableRenderRows(deliveryRecordsTbody, response.states,
+                            (i) => `
+                                <tr data-id="${i.id}">
+                                    <td class="align-content-center">${i.user}</td>
+                                    <td class="align-content-center">${i.state.toUpperCase()}</td>
+                                    <td class="align-content-center">${i.created_at_formatted}</td>
+                                    <td class="px-2 py-1 observaciones-cell">
+                                        <p class="observaciones-col">${i.observacion ?? ''}</p>
+                                    </td>
+                                    <td class="text-center align-content-center">
+                                        ${i.foto_domicilio ? 
+                                            `<button class="btn btn-info btn-sm btn-show-details" data-img="${i.foto_domicilio.url}" data-datetime="${i.foto_domicilio.datetime}" data-lat="${i.foto_domicilio.location.lat}" data-lng="${i.foto_domicilio.location.lng}">Ver</button>`
+                                        : '—'}
+                                    </td>
+                                    <td class="text-center align-content-center">
+                                        ${i.foto_entrega ? 
+                                            `<button class="btn btn-info btn-sm btn-show-details" data-img="${i.foto_entrega.url}" data-datetime="${i.foto_entrega.datetime}" data-lat="${i.foto_entrega.location.lat}" data-lng="${i.foto_entrega.location.lng}">Ver</button>`
+                                        : '—'}
+                                    </td>
+                                    <td class="text-center align-content-center">
+                                        ${i.receptor_info ? 
+                                            `<button class="btn btn-info btn-sm btn-show-details" data-img="${i.receptor_info.firma}" data-nombre="${i.receptor_info.nombre}">Ver</button>`
+                                        : '—'}
+                                    </td>
+                                </tr>`);
+                    },
+                    error: function(xhr) {
+                        const message = xhr.responseJSON?.message || xhr.statusText ||
+                            "Error desconocido";
+                        tableShowError(provinciasDetailPedidosByDepartamentoBody, 7, message);
+                    }
+                });
+            }
+
+            $(document).on('click', '.btn-show-delivery-records', function(e) {
+                openDeliveryRecords($(this).data('id'));
+            });
+
+            $(document).on('click', '.btn-show-details', function() {
+                const imgUrl = $(this).data('img');
+                const datetime = $(this).data('datetime');
+                const nombre = $(this).data('nombre')
+                const lat = $(this).data('lat');
+                const lng = $(this).data('lng');
+
+                const detailsContent = $('#detailsDeliveryStateContent');
+
+                detailsContent.html(
+                    `<img src="${imgUrl}" class="img-fluid rounded mb-3" style="max-height:60vh;">
+                            ${datetime ?
+                                `<p><strong>Fecha y hora:</strong> ${datetime}</p>` :
+                                `<p><strong>Nombre del receptor: </strong> ${nombre}</p>`
+                            }
+                            ${lat && lng ? 
+                                `<a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank">Ver ubicación de la foto</a>`:
+                                ''
+                            }`
+                );
+                $('#deliveryPhotoModal').modal('show');
+            });
 
         $('#detailsDeliveryState').on('click', function () {
             $(this).fadeOut();

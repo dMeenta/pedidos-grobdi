@@ -216,37 +216,42 @@ class EnrutamientoController extends Controller
         $doctorId = $request->doctor_id;
         $enrutamientoListaId = $request->enrutamientolista_id;
 
-        $row = VisitaDoctor::with('enrutamientolista')->where('doctor_id', $doctorId)
+        $enrutamientoLista = EnrutamientoLista::where('id', $enrutamientoListaId)->first();
+
+        $allowedStartDate = Carbon::parse($enrutamientoLista->fecha_inicio);
+        $allowedEndDate = Carbon::parse($enrutamientoLista->fecha_fin);
+
+        if ($dateSelected->lt($allowedStartDate) || $dateSelected->gt($allowedEndDate)) {
+            return response()->json(['success' => false, 'message' => 'La fecha seleccionada esta fuera del rango permitido.']);
+        }
+
+        $visitaDoctor = VisitaDoctor::where('doctor_id', $doctorId)
             ->where('enrutamientolista_id', $enrutamientoListaId)->first();
 
-        $allowedStartDate = Carbon::parse($row->enrutamientolista->fecha_inicio);
-        $allowedEndDate = Carbon::parse($row->enrutamientolista->fecha_fin);
-
-        if ($row) {
-            if ($row->estado_visita_id === 4) {
-                return response()->json(['success' => false, 'message' => 'El doctor ya fue visitado anteriormente.']);
-            }
-
-            if ($dateSelected->lt($allowedStartDate) || $dateSelected->gt($allowedEndDate)) {
-                return response()->json(['success' => false, 'message' => 'La fecha seleccionada esta fuera del rangoi permitido.']);
-            }
-
-            $row->estado_visita_id = 4;
-            $row->fecha = $date;
-            $row->save();
-            $message = 'Doctor marcado como visitado correctamente.';
-        } else {
-            $row = VisitaDoctor::create([
+        if (!$visitaDoctor) {
+            $visitaDoctor = VisitaDoctor::create([
                 'doctor_id' => $doctorId,
                 'enrutamientolista_id' => $enrutamientoListaId,
                 'fecha' => $date,
                 'estado_visita_id' => 4,
+                'created_by' => auth()->id(),
+                'updated_by' => auth()->id(),
             ]);
             $message = 'Visita registrada exitosamente.';
+        } else {
+            if ($visitaDoctor->estado_visita_id === 4) {
+                return response()->json(['success' => false, 'message' => 'El doctor ya fue visitado anteriormente.']);
+            }
+            $visitaDoctor->estado_visita_id = 4;
+            $visitaDoctor->fecha = $date;
+            $visitaDoctor->save();
+            $message = 'Doctor marcado como visitado correctamente.';
         }
+
         return response()->json([
             'success' => true,
             'message' => $message,
+            'data' => $visitaDoctor
         ]);
     }
 

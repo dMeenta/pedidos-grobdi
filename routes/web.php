@@ -60,7 +60,6 @@ use App\Http\Controllers\ReporteController;
 Auth::routes();
 Route::middleware(['check.permission'])->group(function () {
     Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-    Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
     //Modulo de Muestras
     Route::prefix('muestras')->group(function () {
@@ -243,7 +242,14 @@ Route::middleware(['check.permission'])->group(function () {
                 Route::get('tipo-doctor', [ReportsController::class, 'getTipoDoctorReport'])->name('reports.doctores.tipo-doctor');
             });
         });
+        Route::prefix('muestras')->group(function () {
+            Route::get('/', [ReportsController::class, 'muestrasView'])->name('reports.muestras');
+            Route::prefix('api/v1')->group(function () {
+                Route::get('muestras', [ReportsController::class, 'getMuestrasReport'])->name('reports.muestras.api');
+            });
+        });
     });
+
 });
 
     /*
@@ -287,7 +293,7 @@ Route::middleware(['check.permission'])->group(function () {
     //Crud tipo de cambio- EL PRINCIPAL ES RESUMEN-TIPO-CAMBIO!!!
     Route::resource('tipo_cambio', TipoCambioController::class);
     Route::get('/resumen-tipo-cambio', [TipoCambioController::class, 'resumenTipoCambio'])->name('tipo_cambio.resumen');
-    Route::delete('/tipo-cambio/{id}', [TipoCambioController::class, 'destroy'])->name('tipo_cambio.destroy');
+    // Route::delete('/tipo-cambio/{id?}', [TipoCambioController::class, 'destroy'])->name('tipo_cambio.destroy');
 
     //crud para merchandise
     Route::resource('merchandise', MerchandiseController::class);

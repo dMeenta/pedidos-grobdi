@@ -84,9 +84,9 @@
                                 <select class="badge bg-light border-0"
                                     style="padding-top: .35rem; padding-bottom: .35rem;"
                                     id="tipo-doctor-pie-chart-select">
-                                    <option value="total_amount">Ingresos Totales</option>
-                                    <option value="total_pedidos">Cantidad de Pedidos</option>
-                                    <option value="total_doctores">Total de Doctores</option>
+                                    <option value="0">Ingresos Totales</option>
+                                    <option value="1">Cantidad de Pedidos</option>
+                                    <option value="2">Total de Doctores</option>
                                 </select>
                             </div>
                         </div>
@@ -196,7 +196,6 @@
 @push('partial-js')
     <script>
         let tipoDoctorReport = @json($tipoDoctorReport);
-        const tipoDoctorPieChartSelect = $('#tipo-doctor-pie-chart-select');
         const tipoDoctorTableBody = $('#tipo-doctor-table-body');
         const tipoDoctorYearPicker = $('#tipo-doctor-year');
         tipoDoctorYearPicker.datepicker({
@@ -287,8 +286,20 @@
             tipoDoctorBarChartDatasets, 'bar', tipoDoctorBarChartOptions);
 
         const tipoDoctorPieChartDataset = [{
+            label: 'Ingresos',
             data: tipoDoctorReport.resume.tipos_resume.map(i => i.total_amount),
-            backgroundColor: tipoDoctorColorsByTipo
+            backgroundColor: tipoDoctorColorsByTipo,
+            hidden: false
+        }, {
+            label: 'Cantidad de pedidos',
+            data: tipoDoctorReport.resume.tipos_resume.map(i => i.total_pedidos),
+            backgroundColor: tipoDoctorColorsByTipo,
+            hidden: true
+        }, {
+            label: 'Cantidad de doctores',
+            data: tipoDoctorReport.resume.tipos_resume.map(i => i.total_doctores),
+            backgroundColor: tipoDoctorColorsByTipo,
+            hidden: true
         }]
 
         const tipoDoctorPieChartOptions = {
@@ -304,45 +315,38 @@
                 tooltip: {
                     callbacks: {
                         label: function(context) {
+                            const datasetIndex = context.datasetIndex;
                             let value = context.parsed;
-                            return 'Monto total: S/ ' + value.toLocaleString();
+                            return `${context.dataset.label}: ${datasetIndex === 0 ? 'S/ '+ getFormattedMoneyValue(value) : value}`;
                         }
                     }
                 }
             }
         };
 
-        tipoDoctorPieChart = createChart('#tipo-doctor-pie-chart', tipoDoctorTipos, tipoDoctorPieChartDataset, 'pie',
-            tipoDoctorPieChartOptions);
+        tipoDoctorPieChart = createChart('#tipo-doctor-pie-chart', tipoDoctorTipos, tipoDoctorPieChartDataset,
+            'pie', tipoDoctorPieChartOptions);
 
-        function tipoDoctorUpdatePieChart(tipos_resume, data) {
+        function tipoDoctorUpdatePieChart(tipos_resume) {
+            const bgColors = generateHslColors(tipos_resume);
             tipoDoctorPieChart.data.labels = tipos_resume.map(i => i.tipo_medico);
-            tipoDoctorPieChart.data.datasets[0].data = data;
-            tipoDoctorPieChart.data.datasets[0].backgroundColor = generateHslColors(tipos_resume.map(i => i.tipo_medico));
+            tipoDoctorPieChart.data.datasets[0].data = tipos_resume.map(i => i.total_amount);
+            tipoDoctorPieChart.data.datasets[1].data = tipos_resume.map(i => i.total_pedidos);
+            tipoDoctorPieChart.data.datasets[2].data = tipos_resume.map(i => i.total_doctores);
+
+            tipoDoctorPieChart.data.datasets.forEach(e => {
+                e.backgroundColor = bgColors;
+            });
+
             tipoDoctorPieChart.update();
             detectChartDataLength(tipoDoctorPieChart);
         }
 
-        tipoDoctorPieChartSelect.on('change', function(e) {
-            const optionSelected = $(this).val();
+        $('#tipo-doctor-pie-chart-select').on('change', function(e) {
+            const selectedIndex = parseInt($(this).val());
             $('#tipo-doctor-pie-chart-showing-label').text($(this).find('option:selected').text());
-            let data = tipoDoctorReport.resume.tipos_resume.map(i => i[optionSelected]);
 
-            const tooltipMessages = {
-                total_pedidos: 'Total de pedidos',
-                total_doctores: 'Total de doctores',
-                default: 'Monto total: S/',
-            };
-            const message = tooltipMessages[optionSelected] || tooltipMessages.default;
-
-            tipoDoctorPieChart.options.plugins.tooltip.callbacks.label = (context) => {
-                const value = context.parsed.toLocaleString();
-                return optionSelected === 'total_amount' ?
-                    `Monto total: S/ ${value}` :
-                    `${message}: ${value}`;
-            };
-
-            tipoDoctorUpdatePieChart(tipoDoctorReport.resume.tipos_resume, data);
+            updateActiveDataset(tipoDoctorPieChart, selectedIndex);
         });
 
         $('#tipo-doctor-filter').on('submit', function(e) {
@@ -379,7 +383,7 @@
         function updateGraphics(response) {
             $('#tipo-doctor-table-year-indicator').text(response.filters.year);
             tipoDoctorUpdateBarChart(tipoDoctorReport.resume.tipos_resume.map(t => t.tipo_medico), response.data);
-            tipoDoctorUpdatePieChart(response.resume.tipos_resume, response.resume.tipos_resume.map(i => i.total_amount));
+            tipoDoctorUpdatePieChart(response.resume.tipos_resume);
             tipoDoctorUpdateTable(response.resume);
         }
 

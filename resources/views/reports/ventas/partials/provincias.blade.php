@@ -260,9 +260,6 @@
 @push('partial-js')
     <script>
         const provinciasReport = @json($provinciasReport);
-        let provinciasUsableReport = {
-            ...provinciasReport
-        };
         const provinciasModalTotalPedidosCard = $('#provincias-modal-total-pedidos-card');
         const provinciasModalTotalAmountCard = $('#provincias-modal-total-amount-card');
         const provinciasDetailPedidosByDepartamentoBody = $('#provincias-detail-pedidos-by-departamento-body');
@@ -298,35 +295,49 @@
                 }
             }
         }
-        let provinciasTotalAmountChart = createChart('#provincias-total-amount-chart', provinciasReport.data
-            .map(i => i.provincia), provinciasTotalAmountChartDataset, 'bar', provinciasTotalAmountChartOptions);
+        const provinciasLabels = provinciasReport.data.map(i => i.provincia);
+        const provinciasColors = generateHslColors(provinciasReport.data);
 
-        const provinciasPercentagesChartDataset = [{
-            data: provinciasReport.data.map(i => getFormattedMoneyValue(i.percentage_amount)),
-            backgroundColor: generateHslColors(provinciasReport.data.map(i => i.provincia)),
-            borderColor: '#fff',
-            borderWidth: 2
-        }]
+        let provinciasTotalAmountChart = createChart('#provincias-total-amount-chart', provinciasLabels,
+            provinciasTotalAmountChartDataset, 'bar', provinciasTotalAmountChartOptions);
+
+        const provinciasPercentagesChartDatasets = [{
+                label: 'Porcentaje del monto total',
+                data: provinciasReport.data.map(i => i.percentage_amount),
+                borderColor: '#fff',
+                backgroundColor: provinciasColors,
+                borderWidth: 2,
+                hidden: false
+            },
+            {
+                label: 'Porcentaje de pedidos',
+                data: provinciasReport.data.map(i => i.percentage_pedidos),
+                borderColor: '#fff',
+                backgroundColor: provinciasColors,
+                borderWidth: 2,
+                hidden: true
+            }
+        ];
         const provinciasPercentagesChartOptions = {
             plugins: {
                 title: {
                     display: true,
-                    text: 'Porcentaje del monto por departamento'
+                    text: 'Porcentaje del monto total'
                 },
                 legend: {
                     position: 'bottom'
                 },
                 tooltip: {
                     callbacks: {
-                        label: function(ctx) {
-                            return ` Porcentaje del monto total: ${ctx.parsed}%`
+                        label: function(context) {
+                            return `${context.dataset.label}: ${context.parsed}%`
                         }
                     }
                 }
             }
         }
-        let provinciasPercentagesChart = createChart('#provincias-percentages-chart', provinciasReport.data
-            .map(i => i.provincia), provinciasPercentagesChartDataset, 'pie', provinciasPercentagesChartOptions);
+        let provinciasPercentagesChart = createChart('#provincias-percentages-chart', provinciasLabels,
+            provinciasPercentagesChartDatasets, 'pie', provinciasPercentagesChartOptions);
 
         const provinciasStartDate = $('#provincias-filter input[name="start_date"]');
         flatpickr('#provincias-filter input[name="start_date"]', {
@@ -355,40 +366,37 @@
                     end_date: endDate,
                 },
                 success: function(response) {
-                    provinciasUsableReport = response;
                     provinciasUpdateGraphics(response);
                 },
                 error: function(xhr) {
-                    const message = xhr.responseJSON?.message || xhr.statusText || "Error desconocido";
+                    const message = xhr.responseJSON?.message || xhr.statusText ||
+                        "Error desconocido";
                     toast(message, ToastIcon.ERROR);
                 }
             })
         });
 
         function provinciasUpdateGraphics(response) {
-            $('#provincias-start-date-indicator').text(new Date(response.filters.start_date).toLocaleDateString('es-PE'));
-            $('#provincias-end-date-indicator').text(new Date(response.filters.end_date).toLocaleDateString('es-PE'));
+            $('#provincias-start-date-indicator').text(new Date(response.filters.start_date).toLocaleDateString(
+                'es-PE'));
+            $('#provincias-end-date-indicator').text(new Date(response.filters.end_date).toLocaleDateString(
+                'es-PE'));
             $('#provincias-total-pedidos-header-label').text(response.general_stats.total_pedidos)
             $('#provincias-total-amount-header-label')
                 .text(getFormattedMoneyValue('S/ ' + getFormattedMoneyValue(response.general_stats.total_amount)))
             provinciasUpdateTable(response.data, response.general_stats);
-            provinciasUpdateCharts(
-                provinciasTotalAmountChart,
-                response.data.map(i => i.total_amount),
-                response.data.map(i => i.provincia),
-            );
-            provinciasUpdateCharts(
-                provinciasPercentagesChart,
-                response.data.map(i => i.total_amount),
-                response.data.map(i => i.provincia),
-                generateHslColors(response.data.map(i => i.provincia))
-            );
+
+            const newLabels = response.data.map(i => i.provincia);
+            const newColors = generateHslColors(response.data);
+
+            provinciasUpdateTotalAmountChart(response.data.map(i => i.total_amount), newLabels);
+            provinciasUpdatePercentagesChart(
+                [response.data.map(i => i.percentage_amount), response.data.map(i => i.percentage_pedidos)],
+                newColors, newLabels);
         }
 
         function provinciasUpdateTable(data, generalData) {
-            tableRenderRows(
-                provinciasDetailedTableBody,
-                data,
+            tableRenderRows(provinciasDetailedTableBody, data,
                 (i) => `
                 <tr>
                     <td>${i.provincia}</td>
@@ -412,44 +420,39 @@
             $('#provincias-tfooter-total-pedidos').text(generalData.total_pedidos);
         }
 
-        function provinciasUpdateCharts(chart, datasetData, labels, bgColors) {
-            chart.data.datasets[0].data = datasetData;
-            chart.data.labels = labels;
-            if (bgColors) {
-                chart.data.datasets[0].backgroundColor = bgColors;
+        function provinciasUpdateTotalAmountChart(datasetData, labels) {
+            provinciasTotalAmountChart.data.datasets[0].data = datasetData;
+            provinciasTotalAmountChart.data.labels = labels;
+            provinciasTotalAmountChart.update();
+            detectChartDataLength(provinciasTotalAmountChart);
+        }
+
+        function provinciasUpdatePercentagesChart(datasetData, bgColors, labels) {
+            if (datasetData.length !== 2) {
+                console.error('El gráfico necesita exactamente 2 datasets');
+                return;
             }
-            chart.update();
-            detectChartDataLength(chart);
+
+            provinciasPercentagesChart.data.datasets.forEach((ds, index) => {
+                ds.data = datasetData[index];
+                ds.backgroundColor = bgColors;
+            });
+
+            provinciasPercentagesChart.data.labels = labels;
+
+            provinciasPercentagesChart.update();
+            detectChartDataLength(provinciasPercentagesChart);
         }
 
         $('#provincias-percentages-depend-on-select').on('change', function(e) {
-            if (provinciasUsableReport.data.length < 1) {
-                return;
-            }
-            const value = Number.parseInt($(this).val());
-            $('#provincias-percentages-depend-on-label').text($(this).find('option:selected').text());
-            let dataset;
-            labels = provinciasUsableReport.data.map(i => i.provincia);
-            colors = generateHslColors(provinciasUsableReport.data);
-            switch (value) {
-                case 1:
-                    provinciasPercentagesChart.options.plugins.title.text = 'Porcentaje de pedidos por departamento'
-                    provinciasPercentagesChart.options.plugins.tooltip.callbacks.label = function(ctx) {
-                        return ` Porcentaje de los pedidos total: ${ctx.parsed}%`
-                    }
-                    dataset = provinciasUsableReport.data.map(i => i.percentage_pedidos);
-                    break;
-                default:
-                    provinciasPercentagesChart.options.plugins.title.text =
-                        'Porcentaje del monto por departamento'
-                    provinciasPercentagesChart.options.plugins.tooltip.callbacks.label = function(ctx) {
-                        return ` Porcentaje del monto total: ${ctx.parsed}%`
-                    }
-                    dataset = provinciasUsableReport.data.map(i => i.percentage_amount);
-                    break;
-            }
+            const selectedIndex = parseInt($(this).val());
 
-            provinciasUpdateCharts(provinciasPercentagesChart, dataset, labels, colors);
+            $('#provincias-percentages-depend-on-label').text($(this).find('option:selected').text());
+
+            const activeDataset = provinciasPercentagesChart.data.datasets[selectedIndex];
+            provinciasPercentagesChart.options.plugins.title.text = activeDataset.label;
+
+            updateActiveDataset(provinciasPercentagesChart, selectedIndex);
         });
 
         function openDetailsPedidosByDepartamento(departamento) {
@@ -511,8 +514,7 @@
 
         function provinciasUpdateDetailsPedidosByDepartamentoTable(data) {
             tableRenderRows(
-                provinciasDetailPedidosByDepartamentoBody,
-                data,
+                provinciasDetailPedidosByDepartamentoBody, data,
                 (i) => `
                 <tr>
                     <td class="text-center align-content-center">${i.id}</td>

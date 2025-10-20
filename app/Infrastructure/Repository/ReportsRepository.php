@@ -6,6 +6,7 @@ use App\Domain\Interfaces\ReportsRepositoryInterface;
 use App\Models\Departamento;
 use App\Models\Distrito;
 use App\Models\Doctor;
+use App\Models\Muestras;
 use App\Models\Pedidos;
 use App\Models\Provincia;
 use App\Models\VisitaDoctor;
@@ -303,5 +304,29 @@ class ReportsRepository implements ReportsRepositoryInterface
     {
         return Distrito::select('id', 'name', 'provincia_id')
             ->with(['provincia:id,name'])->get();
+    }
+
+    /* -------- Muestras -------- */
+    public function getRawMuestrasData(string $startDate, string $endDate): Collection
+    {
+        return Muestras::with([
+            'clasificacion:id,nombre_clasificacion,unidad_de_medida_id',
+            'clasificacion.unidadMedida:id,nombre_unidad_de_medida',
+            'clasificacionPresentacion:id,quantity',
+            'tipoMuestra:id,name'
+        ])->select([
+                    'id',
+                    'nombre_muestra',
+                    'cantidad_de_muestra',
+                    'precio',
+                    'tipo_frasco',
+                    'id_tipo_muestra',
+                    'clasificacion_id',
+                    'clasificacion_presentacion_id',
+                    'created_at'
+                ])->whereBetween('created_at', [$startDate, $endDate])
+            ->where('state', true)
+            ->orderBy('created_at', 'desc')
+            ->get();
     }
 }
