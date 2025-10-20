@@ -84,8 +84,18 @@ class CargarPedidosController extends Controller
     // Other methods can be moved to service similarly...
     // For brevity, keeping some here, but ideally move all logic to service.
 
-    public function show($pedido){
-        $pedido = Pedidos::find($pedido);
+    public function show(Request $request, $pedido){
+        $pedido = Pedidos::with(['detailpedidos', 'zone', 'user'])->findOrFail($pedido);
+
+        if ($request->ajax()) {
+            $html = view('pedidos.counter.cargar_pedido.partials.order-details', compact('pedido'))->render();
+
+            return response()->json([
+                'success' => true,
+                'html' => $html,
+            ]);
+        }
+
         return view('pedidos.counter.cargar_pedido.show', compact('pedido'));
     }
 

@@ -9,10 +9,23 @@ use Illuminate\Http\Request;
 
 class ViewController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $views = View::with('module')->get();
-        return view('ajustes.views.index', compact('views'));
+        $modules = Module::orderBy('name')->get();
+
+        $views = View::with('module')
+            ->orderBy('id')
+            ->when($request->filled('module_id'), function ($query) use ($request) {
+                $query->where('module_id', $request->module_id);
+            })
+            ->paginate(25)
+            ->withQueryString();
+
+        return view('ajustes.views.index', [
+            'views' => $views,
+            'modules' => $modules,
+            'selectedModule' => $request->module_id,
+        ]);
     }
 
     public function create()

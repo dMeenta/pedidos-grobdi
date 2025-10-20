@@ -3,87 +3,83 @@
 @section('title', 'Usuarios')
 
 @section('content_header')
-    <h1></h1>
+    <h1>👥 Gestión de Usuarios</h1>
 @stop
 
 @section('content')
-<div class="card mt-2">
-    <h2 class="card-header">Usuarios</h2>
-    <div class="card-body">
+<div class="card shadow-sm mt-2">
+    <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+        <h2 class="mb-2 mb-md-0">📋 Lista de usuarios</h2>
         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-            <a class="btn btn-success btn-sm" href="{{ route('usuarios.create') }}"> <i class="fa fa-plus"></i> Crear Usuario</a>
+            <a class="btn btn-success" href="{{ route('usuarios.create') }}">➕ Crear Usuario</a>
         </div>
-        <!-- <form action="{{ route('usuarios.index') }}" method="GET">
-            <div class="row">
-                <div class="col-xs-3 col-sm-3 col-md-3">
-                    <label for="fecha_inicio">Fecha de inicio:</label>
-                    <input class="form-control" type="date" name="fecha_inicio" id="fecha_inicio" required>
-                </div>
-                <div class="col-xs-3 col-sm-3 col-md-3">
-                    <label for="fecha_fin">Fecha de fin:</label>
-                    <input class="form-control" type="date" name="fecha_fin" id="fecha_fin" required>
-                </div>
-                <button type="submit" class="btn btn-outline-primary"><i class="fa fa-search"></i> Buscar</button>
-            </div>
-            @error('message')
-                <p style="color: red;">{{ $message }}</p>
-            @enderror
-        </form> -->
+    </div>
+    <div class="card-body">
         @session('success')
             <div class="alert alert-success" role="alert"> {{ $value }} </div>
         @endsession
-        <table class="table table-bordered table-striped mt-4">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Email</th>
-                    <th>Rol</th>
-                    <th>zonas</th>
-                    <th>Estado</th>
-                    <th>modificar</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-  
-            <tbody>
-            @forelse ($usuarios as $usuario)
-                <tr class={{ $usuario->active == 0 ? 'table-danger': ''}}>
-                    <td>{{ $usuario->name }}</td>
-                    <td>{{ $usuario->email }}</td>
-                    <td>{{ $usuario->role->name}}</td>
-                    <td>@forelse($usuario->zones as $zonas)
-                        {{ $zonas->name }}  
-                        @empty
-                        No hay zonas asignadas
-                        @endforelse
-                    </td>
-                    <td>{{ $usuario->active == 1 ? 'Activo': 'Inactivo'}}</td>
-                    <td>
-                        <a class="btn btn-primary btn-sm" href="{{ route('usuarios.edit',$usuario) }}"><i class="fa-solid fa-pen-to-square"></i> Actualizar</a>
-                    </td>
-                    <td>
-                        <form action="{{ route('usuarios.destroy',$usuario->id) }}" method="POST">
-                            @csrf
-                            @method('DELETE')
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover table-grobdi mb-0">
+                <thead>
+                    <tr>
+                        <th>👤 Nombre</th>
+                        <th>✉️ Email</th>
+                        <th>🛡️ Rol</th>
+                        <th>🗺️ Zonas</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center">Editar</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @forelse ($usuarios as $usuario)
+                    <tr class="{{ $usuario->active == 0 ? 'table-danger' : '' }}">
+                        <td class="align-middle">{{ $usuario->name }}</td>
+                        <td class="align-middle">{{ $usuario->email }}</td>
+                        <td class="align-middle">{{ $usuario->role->name }}</td>
+                        <td class="align-middle">
+                            @forelse($usuario->zones as $zonas)
+                                <span class="badge badge-info mr-1 mb-1">{{ $zonas->name }}</span>
+                            @empty
+                                <span class="text-muted">Sin zonas asignadas</span>
+                            @endforelse
+                        </td>
+                        <td class="align-middle text-center">
                             @if($usuario->active == 1)
-                                <button type="submit" class="btn btn-danger btn-sm">Inhabilitar</button>
+                                <span class="badge badge-success">Activo</span>
                             @else
-                                <button type="submit" class="btn btn-success btn-sm">Habilitar</button>
+                                <span class="badge badge-secondary">Inactivo</span>
                             @endif
-                        </form>
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="5">No hay información que mostrar</td>
-                </tr>
-            @endforelse
-            </tbody>
-  
-        </table>
-        
+                        </td>
+                        <td class="align-middle text-center">
+                            <a class="btn btn-primary btn-sm" href="{{ route('usuarios.edit', $usuario) }}">✏️ Actualizar</a>
+                        </td>
+                        <td class="align-middle text-center">
+                            <form action="{{ route('usuarios.destroy', $usuario->id) }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                @if($usuario->active == 1)
+                                    <button type="submit" class="btn btn-danger btn-sm">🚫 Inhabilitar</button>
+                                @else
+                                    <button type="submit" class="btn btn-success btn-sm">✅ Habilitar</button>
+                                @endif
+                            </form>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">No hay información que mostrar.</td>
+                    </tr>
+                @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
-</div> 
+    <div class="card-footer d-flex justify-content-between align-items-center flex-column flex-md-row">
+        <span class="text-muted mb-2 mb-md-0">Total: {{ $usuarios->total() }} usuarios</span>
+        {{ $usuarios->links() }}
+    </div>
+</div>
 @stop
 
 @section('css')

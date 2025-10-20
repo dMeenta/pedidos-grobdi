@@ -9,9 +9,23 @@ use Illuminate\Http\Request;
 
 class RolesController extends Controller
 {
-    public function index() {
-        $roles = Role::all();
-        return view('ajustes.roles.index',compact('roles'));
+    public function index(Request $request)
+    {
+        $roleOptions = Role::orderBy('name')->get(['id', 'name']);
+
+    $roles = Role::with(['views.module', 'modules'])
+            ->orderBy('name')
+            ->when($request->filled('role_id'), function ($query) use ($request) {
+                $query->where('id', $request->role_id);
+            })
+            ->paginate(25)
+            ->withQueryString();
+
+        return view('ajustes.roles.index', [
+            'roles' => $roles,
+            'roleOptions' => $roleOptions,
+            'selectedRole' => $request->role_id,
+        ]);
     }
     public function create()
     {
