@@ -7,14 +7,19 @@
 @stop
 
 @section('content')
+@can('enrutamiento.agregarlista')
 <div class="card mt-2">
     <div class="card-header">
         <div class="d-grid gap-2 d-md-flex justify-content-md-medium">
-            <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#itemModal">Agregar Nueva Semana</button>
+            @can('enrutamientolista.store')
+                <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#itemModal">Agregar Nueva Semana</button>
+            @endcan
         </div>
         <!-- Boton de doctores pendientes -->
         <div class="mb-3">
-            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalDoctoresPendientes">Doctores Pendientes</button>
+            @canany(['doctor.aprobarVisita','doctor.rechazarVisita'])
+                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalDoctoresPendientes">Doctores Pendientes</button>
+            @endcanany
         </div>
         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
         <a class="btn btn-primary btn-sm" href="{{ route('enrutamiento.index') }}"><i class="fa fa-arrow-left"></i> Atrás</a>
@@ -55,7 +60,9 @@
                         @endforeach
                     </td>
                     <td>
-                        <a class="btn btn-primary btn-sm" href="{{ route('enrutamientolista.doctores', $ruta_lista->id) }}"><i class=" fa fa-eye"></i> Ver lista</a>
+                        @can('enrutamientolista.doctores')
+                            <a class="btn btn-primary btn-sm" href="{{ route('enrutamientolista.doctores', $ruta_lista->id) }}"><i class=" fa fa-eye"></i> Ver lista</a>
+                        @endcan
                     </td>
                 </tr>
             @empty
@@ -69,6 +76,8 @@
     </div>
     </div>
 </div>
+@endcan
+@can('enrutamientolista.store')
 <div class="modal fade" id="itemModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -104,8 +113,9 @@
             </div>
         </div>
     </div>
-</div>
+@endcan
 
+@canany(['doctor.aprobarVisita','doctor.rechazarVisita'])
 <div class="modal fade" id="modalDoctoresPendientes" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
@@ -139,8 +149,12 @@
                                 <td>{{ $visita->doctor->distrito->name }}</td>
                                 <td>{{ $visita->fecha ?? 'Sin fecha' }}</td>
                                 <td>
-                                    <button class="btn btn-success btn-sm btn-aprobar" data-id="{{ $visita->id }}">Aprobar</button>
-                                    <button class="btn btn-danger btn-sm btn-rechazar" data-id="{{ $visita->id }}">Rechazar</button>
+                                    @can('doctor.aprobarVisita')
+                                        <button class="btn btn-success btn-sm btn-aprobar" data-id="{{ $visita->id }}">Aprobar</button>
+                                    @endcan
+                                    @can('doctor.rechazarVisita')
+                                        <button class="btn btn-danger btn-sm btn-rechazar" data-id="{{ $visita->id }}">Rechazar</button>
+                                    @endcan
                                 </td>
                             </tr>
                             @endforeach
@@ -150,7 +164,7 @@
             </div>
         </div>
     </div>
-</div>
+@endcanany
 @stop
 
 @section('css')

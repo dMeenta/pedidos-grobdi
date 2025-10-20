@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+@can('cargarpedidos.uploadfile')
 
 <div class="card mt-5">
   <h2 class="card-header">Actualizar pago del Pedido N° {{$pedido->orderId}}</h2>
@@ -168,6 +169,7 @@
         </div>
     </div>
 </div>
+    @endcan
 @stop
 
 @section('css')

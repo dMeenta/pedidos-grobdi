@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+@can('enrutamientolista.calendariovisitadora')
 <div class="row">
     <div class="col-sm-12">
         <div class="card">
@@ -34,6 +35,7 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                             </div>
                             <div class="modal-body" id="doctor-info">
+                                @can('rutas.guardarvisita')
                                 <form id="form-visita">
                                     <div id="info-doctor"></div>
 
@@ -59,6 +61,7 @@
                                         <button type="submit" class="btn btn-primary">Guardar Cambios</button>
                                     </div>
                                 </form>
+                                @endcan
                             </div>
                         </div>
                     </div>
@@ -67,6 +70,7 @@
         </div>
     </div>
 </div>
+@endcan
 @stop
 
 @section('css')

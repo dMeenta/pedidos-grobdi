@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+@can('doctor.edit')
 <div class="card mt-2">
   <h2 class="card-header">Editar Doctor</h2>
   <div class="card-body">
@@ -296,4 +297,5 @@
         });
     });
 </script>
+@endcan
 @stop

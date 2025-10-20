@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+@can($muestra ? 'muestras.edit' : 'muestras.create')
 <div class="container">
     <h1 class="text-center position-relative">
         <a class="position-absolute text-secondary" style="left: 0;" title="Volver"
@@ -141,6 +142,7 @@
         </div>
     </form>
 </div>
+@endcan
 
 
 @stop

@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+@can('pedidoslaboratorio.show')
 
 <div class="card mt-5">
   <h2 class="card-header">Detalles del Pedido</h2>
@@ -53,6 +54,7 @@
   </div>
 </div>
 
+@endcan
 @stop
 
 @section('css')

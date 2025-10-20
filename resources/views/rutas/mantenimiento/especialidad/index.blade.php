@@ -7,12 +7,15 @@
 @stop
 
 @section('content')
+@can('especialidad.index')
 <div class="row justify-content-md-center">
     <div class="col-sm-8">
         <div class="card mt-2">
             <div class="card-header">
                 <div class="d-grid gap-2 d-md-flex justify-content-md-medium">
-                    <a class="btn btn-success btn-sm" href="{{ route('especialidad.create') }}"> <i class="fa fa-plus"></i> Registrar datos</a>
+                    @can('especialidad.create')
+                        <a class="btn btn-success btn-sm" href="{{ route('especialidad.create') }}"> <i class="fa fa-plus"></i> Registrar datos</a>
+                    @endcan
                 </div>
             </div>
             <div class="card-body">
@@ -35,14 +38,18 @@
                                 <td>{{ $especia->name }}</td>
                                 <td>{{ $especia->description }}</td>
                                 <td>
-                                    <form action="{{ route('especialidad.destroy',$especia->id) }}" method="POST">
-                                        <a class="btn btn-primary btn-sm" href="{{ route('especialidad.edit',$especia->id) }}"><i class="fas fa-pen"></i> Editar</a>
-                         
-                                        @csrf
-                                        @method('DELETE')
-                            
-                                        <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Eliminar</button>
-                                    </form>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        @can('especialidad.edit')
+                                            <a class="btn btn-primary btn-sm" href="{{ route('especialidad.edit',$especia->id) }}"><i class="fas fa-pen"></i> Editar</a>
+                                        @endcan
+                                        @can('especialidad.destroy')
+                                            <form action="{{ route('especialidad.destroy',$especia->id) }}" method="POST" class="m-0">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Eliminar</button>
+                                            </form>
+                                        @endcan
+                                    </div>
                                 </td>
                             </tr>
                         @empty
@@ -62,6 +69,7 @@
 
     </div>
 </div>
+@endcan
 @stop
 
 @section('css')

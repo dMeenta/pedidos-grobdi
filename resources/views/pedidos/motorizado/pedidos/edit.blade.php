@@ -8,6 +8,7 @@
 
 @section('content')
 
+@can('pedidosmotorizado.updatePedidoByMotorizado')
 <div class="card">
     <div class="card-header text-bg-dark">
         <div class="d-flex justify-content-between align-items-end">
@@ -108,6 +109,11 @@
         </form>
     </div>
 </div>
+@else
+<div class="alert alert-danger" role="alert">
+    No tienes permiso para actualizar este pedido.
+</div>
+@endcan
 
 @stop
 
@@ -133,6 +139,7 @@
 @stop
 
 @section('js')
+@can('pedidosmotorizado.updatePedidoByMotorizado')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -392,4 +399,5 @@
         })
     };
 </script>
+@endcan
 @stop

@@ -2,6 +2,7 @@
 
 @section('title', 'Asignar Pedidos')
 @section('content')
+@can('asignarpedidos.index')
 <div class="card mt-5">
     <h2 class="card-header">Pedidos</h2>
     <div class="card-body">
@@ -96,7 +97,8 @@
         @enderror
         
   </div>
-</div> 
+</div>
+@endcan
 @stop
 @section('css')
     {{-- Add here extra stylesheets --}}

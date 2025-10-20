@@ -17,6 +17,7 @@
 @stop
 
 @section('content')
+    @can('reports.doctors')
     <div class="row">
         <div class="col-12">
             <div class="card card-danger card-tabs">
@@ -52,6 +53,7 @@
             </div>
         </div>
     </div>
+    @endcan
 @stop
 
 @section('plugins.Chartjs', true)

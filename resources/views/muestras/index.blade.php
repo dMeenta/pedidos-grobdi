@@ -6,11 +6,24 @@
 @stop
 
 @php
-$role = auth()->check() ? auth()->user()->role->name : null;
+$user = auth()->user();
+$role = $user?->role->name;
 $currentParams = request()->except(['page']);
+$canViewPricing = $user && (
+    $user->can('muestras.updatePrice') ||
+    $user->can('muestras.aproveJefeOperaciones') ||
+    $user->can('muestras.aproveJefeComercial')
+);
+$canApproveCoordinadora = $user && $user->can('muestras.aproveCoordinadora');
+$canApproveJefeComercial = $user && $user->can('muestras.aproveJefeComercial');
+$canApproveJefeOperaciones = $user && $user->can('muestras.aproveJefeOperaciones');
+$canApproveAny = $canApproveCoordinadora || $canApproveJefeComercial || $canApproveJefeOperaciones;
+$canManageTipoMuestra = $user && $user->can('muestras.updateTipoMuestra');
+$canEditPrice = $user && $user->can('muestras.updatePrice');
 @endphp
 
 @section('content')
+@can('muestras.index')
 <div class="container">
     @include('messages')
     <div class="d-flex flex-column flex-md-row justify-content-between">
@@ -21,9 +34,11 @@ $currentParams = request()->except(['page']);
                 <i class="fas fa-plus-circle mr-1"></i> Agregar Muestra
             </a>
             @endcan
+            @can('muestras.exportExcel')
             <a class="btn btn-s btn-outline-success my-1" href="{{ route('muestras.exportExcel') }}">
                 <i class="fas fa-file-excel mr-1"></i>Exportar Excel
             </a>
+            @endcan
         </div>
     </div>
     <hr>
@@ -132,16 +147,16 @@ $currentParams = request()->except(['page']);
                     <th>Tipo de Frasco</th>
                     <th>Tipo de Muestra</th>
                     <th>Cantidad</th>
-                    @if(in_array($role, ['admin', 'jefe-comercial' , 'contabilidad', 'jefe-operaciones']))
+                    @if($canViewPricing)
                     <th>Precio Por Unidad</th>
                     <th>Precio Total</th>
                     @endif
-                    @if(in_array($role, ['admin','coordinador-lineas','jefe-comercial','jefe-operaciones','supervisor']))
+                    @if($canApproveAny)
                     <th>Aprobar Muestra</th>
                     @endif
-                    @if(in_array($role, ['admin','laboratorio']))
+                    @can('muestras.markAsElaborated')
                     <th>Estado de Laboratorio</th>
-                    @endif
+                    @endcan
                     <th>Creado por</th>
                     <th>Doctor</th>
                     <th>Fecha y Hora acordada para la Entrega</th>
@@ -166,7 +181,7 @@ $currentParams = request()->except(['page']);
                     </td>
                     <td>{{ $muestra->tipo_frasco ?? 'No asignado' }}</td>
                     <td>
-                        @if(in_array($role, ['admin', 'coordinador-lineas','supervisor']) && !$muestra->aprobado_coordinadora && $muestra->state)
+                        @if($canManageTipoMuestra && !$muestra->aprobado_coordinadora && $muestra->state)
                         <div class="d-flex">
                             <select class="custom-select rounded-0 mr-2" name="tipo_muestra" data-id="{{ $muestra->id }}" data-original="{{ $muestra->tipoMuestra ? $muestra->tipoMuestra->id : '' }}" {{ $muestra->aprobado_coordinadora ? 'disabled' : '' }}>
                                 <option disabled {{ !$muestra->tipoMuestra ? 'selected' : '' }} value="0">Seleccione un tipo de muestra</option>
@@ -183,13 +198,13 @@ $currentParams = request()->except(['page']);
                         @endif
                     </td>
                     <td>{{ $muestra->cantidad_de_muestra }}</td>
-                    @if(in_array($role, ['admin', 'jefe-comercial' , 'contabilidad', 'jefe-operaciones']))
+                    @if($canViewPricing)
                     @php
                     $isPrecioNotSetted = empty($muestra->precio);
+                    $puedeEditarPrecio = $canEditPrice && !$muestra->aprobado_jefe_operaciones && $muestra->state;
                     @endphp
                     <td>
-                        @php $puedeEditarPrecio = !$muestra->aprobado_jefe_operaciones && in_array($role, ['admin', 'contabilidad']); @endphp
-                        @if ($puedeEditarPrecio && $muestra->state)
+                        @if ($puedeEditarPrecio)
                         <div class="d-flex align-items-center">
                             <input type="number"
                                 name="price-input"
@@ -212,45 +227,35 @@ $currentParams = request()->except(['page']);
                         {{ $muestra->precio && $muestra->cantidad_de_muestra ? 'S/ ' . number_format($muestra->precio * $muestra->cantidad_de_muestra, 2) : 'No asignado' }}
                     </td>
                     @endif
-                    @if(in_array($role, ['admin','coordinador-lineas','jefe-comercial','jefe-operaciones','supervisor']))
+                    @if($canApproveAny)
                     <td>
                         @php
-                        $rolesCheckbox = [
-                            'coordinador-lineas' => [
+                        $approvalOptions = [
+                            'muestras.aproveCoordinadora' => [
                                 'class' => 'coordinadora-checkbox',
                                 'checked' => $muestra->aprobado_coordinadora,
-                                'canApprove' => in_array($role, ['admin', 'coordinador-lineas','supervisor']) && $muestra->state,
                             ],
-                            'supervisor' => [
-                                'class' => 'coordinadora-checkbox',
-                                'checked' => $muestra->aprobado_coordinadora,
-                                'canApprove' => in_array($role, ['admin','supervisor']) && $muestra->state,
-                            ],
-                            'jefe-comercial' => [
+                            'muestras.aproveJefeComercial' => [
                                 'class' => 'jcomercial-checkbox',
                                 'checked' => $muestra->aprobado_jefe_comercial,
-                                'canApprove' => in_array($role, ['admin', 'jefe-comercial']) && $muestra->state,
                             ],
-                            'jefe-operaciones' => [
-                            'class' => 'joperaciones-checkbox',
-                            'checked' => $muestra->aprobado_jefe_operaciones,
-                            'canApprove' => in_array($role, ['admin', 'jefe-operaciones']) && $muestra->state,
+                            'muestras.aproveJefeOperaciones' => [
+                                'class' => 'joperaciones-checkbox',
+                                'checked' => $muestra->aprobado_jefe_operaciones,
                             ],
                         ];
-
-                        $config = $rolesCheckbox[$role] ?? null;
+                        $approvalDisabled = !$muestra->state || $muestra->tipoMuestra === null;
                         @endphp
-                        @foreach($rolesCheckbox as $rolKey => $config)
-                        @if($role === $rolKey || $role === 'admin')
-                        <input
-                            type="checkbox"
-                            style="width: 1.3em; height: 1.3em;"
-                            class="{{ $config['class'] }}"
-                            data-id="{{ $muestra->id }}"
-                            {{ $muestra->tipoMuestra === null ? 'disabled' : '' }}
-                            {{ $config['checked'] ? 'checked disabled' : '' }}
-                            {{ $config['canApprove'] ? '' : 'disabled' }}>
-                        @endif
+                        @foreach($approvalOptions as $permission => $option)
+                            @can($permission)
+                            <input
+                                type="checkbox"
+                                style="width: 1.3em; height: 1.3em;"
+                                class="{{ $option['class'] }}"
+                                data-id="{{ $muestra->id }}"
+                                {{ $approvalDisabled ? 'disabled' : '' }}
+                                {{ $option['checked'] ? 'checked disabled' : '' }}>
+                            @endcan
                         @endforeach
                     </td>
                     @endif
@@ -326,6 +331,7 @@ $currentParams = request()->except(['page']);
     {!! $muestras->appends(request()->except('page'))->links() !!}
 </div>
 </div>
+@endcan
 @stop
 
 @section('css')

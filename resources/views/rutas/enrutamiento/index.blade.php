@@ -7,10 +7,13 @@
 @stop
 
 @section('content')
+@can('enrutamiento.index')
 <div class="card mt-2">
     <div class="card-header">
         <div class="d-grid gap-2 d-md-flex justify-content-md-medium">
-            <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#itemModal">Agregar Nuevo Mes</button>
+            @can('enrutamiento.store')
+                <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#itemModal">Agregar Nuevo Mes</button>
+            @endcan
         </div>
     </div>
     <div class="card-body">
@@ -35,7 +38,9 @@
                     <td>{{ \Carbon\Carbon::parse($ruta->fecha)->locale('es')->monthName.', '. \Carbon\Carbon::parse($ruta->fecha)->year}}</td>
                     <td>{{ $ruta->zone->name }}</td>
                     <td>
-                        <a class="btn btn-primary btn-sm" href="{{ route('enrutamiento.agregarlista',$ruta->id) }}"><i class=" fa fa-plus"></i> Semanas</a>
+                        @can('enrutamiento.agregarlista')
+                            <a class="btn btn-primary btn-sm" href="{{ route('enrutamiento.agregarlista',$ruta->id) }}"><i class=" fa fa-plus"></i> Semanas</a>
+                        @endcan
                     </td>
                 </tr>
             @empty
@@ -48,6 +53,8 @@
         </table>
     </div>
 </div>
+@endcan
+@can('enrutamiento.store')
 <div class="modal fade" id="itemModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -71,6 +78,7 @@
         </div>
     </div>
 </div>
+@endcan
 @stop
 
 @section('css')

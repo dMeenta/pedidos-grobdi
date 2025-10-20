@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+@can('doctor.create')
 <div class="card mt-2">
   <h2 class="card-header">Registrar Doctor</h2>
   <div class="card-body">
@@ -234,9 +235,8 @@
         <button type="submit" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> Registrar</button>
     </form>
   
-  </div>
-</div>
-
+    </div>
+@endcan
 @stop
 
 @section('css')

@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+@can('ruta.mapa')
 
 @php
 function getDoctorStars($categoriaDoctor){
@@ -36,7 +37,7 @@ return 'white';
         <h3>No hay visitas pendientes para el día de hoy</h3>
     </div>
     @else
-    <div class="col-12 col-xl-3 px-0 overflow-y-scroll visita-list px-1" style="background-color: #dddfe2ff;">
+    <div class="col-12 col-xl-3 overflow-y-scroll visita-list px-1" style="background-color: #dddfe2ff;">
         @foreach ($data as $visita)
         <div data-id="{{ $visita->id }}" role="button"
             class="visita-btn d-flex justify-content-between align-items-center px-2 py-2 border shadow"
@@ -65,6 +66,7 @@ return 'white';
 
 @include('rutas.details')
 </div>
+@endcan
 
 @stop
 

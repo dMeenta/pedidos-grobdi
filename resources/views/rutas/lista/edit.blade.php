@@ -8,6 +8,7 @@
 @stop
 
 @section('content')
+@can('lista.edit')
 
 <div class="card">
     <div class="card-header">
@@ -71,6 +72,7 @@
         </div>
     </form>
 </div>
+@endcan
 @error('message')
 <p style="color: red;">{{ $message }}</p>
 @enderror

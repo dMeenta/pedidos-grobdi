@@ -56,9 +56,17 @@
                     </div>
                     <div id="{{ $collapseId }}" class="collapse {{ $loop->first ? 'show' : '' }}" aria-labelledby="{{ $headingId }}" data-parent="#modulesAccordion">
                         <div class="card-body px-3 py-3" style="background-color: var(--grobdi-slate-100);">
-                            <div class="custom-control custom-checkbox mb-3">
-                                <input type="checkbox" class="custom-control-input" id="module-{{ $module->id }}" name="modules[]" value="{{ $module->id }}" {{ $moduleChecked ? 'checked' : '' }}>
-                                <label class="custom-control-label font-weight-bold" for="module-{{ $module->id }}">Incluir módulo completo</label>
+                            <div class="d-flex flex-column flex-sm-row align-items-sm-center mb-3">
+                                <div class="custom-control custom-checkbox mr-sm-3 mb-2 mb-sm-0">
+                                    <input type="checkbox" class="custom-control-input module-checkbox" id="module-{{ $module->id }}" name="modules[]" value="{{ $module->id }}" data-module-id="{{ $module->id }}" {{ $moduleChecked ? 'checked' : '' }}>
+                                    <label class="custom-control-label font-weight-bold" for="module-{{ $module->id }}">Incluir módulo completo</label>
+                                </div>
+                                @if($module->views->isNotEmpty())
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input select-all-checkbox" id="select-all-{{ $module->id }}" data-module-id="{{ $module->id }}" {{ $selectedCount && $selectedCount === $module->views->count() ? 'checked' : '' }}>
+                                        <label class="custom-control-label font-weight-bold" for="select-all-{{ $module->id }}">Seleccionar todas las vistas</label>
+                                    </div>
+                                @endif
                             </div>
                             <div class="row">
                                 @forelse($module->views as $view)
@@ -67,7 +75,7 @@
                                     @endphp
                                     <div class="col-12 col-md-6 col-xl-4 mb-2">
                                         <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="view-{{ $module->id }}-{{ $view->id }}" name="views[]" value="{{ $view->id }}" {{ $viewChecked ? 'checked' : '' }}>
+                                            <input type="checkbox" class="custom-control-input view-checkbox" id="view-{{ $module->id }}-{{ $view->id }}" name="views[]" value="{{ $view->id }}" data-module-id="{{ $module->id }}" {{ $viewChecked ? 'checked' : '' }}>
                                             <label class="custom-control-label" for="view-{{ $module->id }}-{{ $view->id }}">{{ $view->description }}</label>
                                         </div>
                                     </div>
@@ -92,15 +100,60 @@
 @section('js')
     <script>
         $(function () {
-            $('#modulesAccordion').on('show.bs.collapse', function (event) {
+            const $accordion = $('#modulesAccordion');
+
+            function updateSelectAll(moduleId) {
+                const moduleSelector = '[data-module-id="' + moduleId + '"]';
+                const $views = $accordion.find('.view-checkbox' + moduleSelector);
+                const $selectAll = $accordion.find('.select-all-checkbox' + moduleSelector);
+
+                if (!$selectAll.length) {
+                    return;
+                }
+
+                const total = $views.length;
+                const checked = $views.filter(':checked').length;
+
+                if (total === 0) {
+                    $selectAll.prop({ checked: false, indeterminate: false });
+                    return;
+                }
+
+                if (checked === 0) {
+                    $selectAll.prop({ checked: false, indeterminate: false });
+                } else if (checked === total) {
+                    $selectAll.prop({ checked: true, indeterminate: false });
+                } else {
+                    $selectAll.prop({ checked: false, indeterminate: true });
+                }
+            }
+
+            $accordion.on('show.bs.collapse', function (event) {
                 $(event.target).prev('.card-header').find('.toggle-icon').text(function () {
                     return $(this).data('open');
                 });
             });
-            $('#modulesAccordion').on('hide.bs.collapse', function (event) {
+
+            $accordion.on('hide.bs.collapse', function (event) {
                 $(event.target).prev('.card-header').find('.toggle-icon').text(function () {
                     return $(this).data('closed');
                 });
+            });
+
+            $accordion.on('change', '.select-all-checkbox', function () {
+                const moduleId = $(this).data('module-id');
+                const isChecked = $(this).is(':checked');
+                const moduleSelector = '[data-module-id="' + moduleId + '"]';
+                $accordion.find('.view-checkbox' + moduleSelector).prop('checked', isChecked);
+                updateSelectAll(moduleId);
+            });
+
+            $accordion.on('change', '.view-checkbox', function () {
+                updateSelectAll($(this).data('module-id'));
+            });
+
+            $accordion.find('.select-all-checkbox').each(function () {
+                updateSelectAll($(this).data('module-id'));
             });
         });
     </script>

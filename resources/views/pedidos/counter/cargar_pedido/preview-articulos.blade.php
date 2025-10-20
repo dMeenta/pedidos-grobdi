@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+@can('cargarpedidos.preview-articulos')
 {{-- Handle case where $changes is a string (error message) --}}
 @php
     $errorMessage = false;
@@ -554,8 +555,9 @@
             </form>
         </div>
     </div>
-</div>
-@stop
+    </div>
+    @endcan
+    @stop
 
 @section('css')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">

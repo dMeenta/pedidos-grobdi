@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+@can('especialidad.create')
 
 <div class="card mt-5">
   <h2 class="card-header">Crear Especialidad</h2>
@@ -52,8 +53,9 @@
         <button type="submit" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> Registrar</button>
     </form>
   
-  </div>
+    </div>
 </div>
+@endcan
 
 @stop
 

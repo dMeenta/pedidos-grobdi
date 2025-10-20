@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+@can('rutasvisitadora.listadoctores')
     <p></p>
     <div class="row">
         <div class="col-sm-12">
@@ -15,9 +16,11 @@
                     <label>Lista de Doctores de: {{ $semana_ruta->lista->name }} ({{ $fecha_inicio }} al {{ $fecha_fin }})</label>
                 </div>
                 <div class="card-body">
+                    @can('rutasvisitadora.guardardoctor')
                     <div class="mb-3">
                         <button type="button" class="btn btn-success" data-toggle="modal" data-target="#crearDoctor">Agregar Doctor</button>
                     </div>
+                    @endcan
                     <div class="table table-responsive">
                         <table class="table" id="miTabla">
                             <thead>
@@ -50,11 +53,13 @@
                                     <td>{{ $visitadoctor->turno?'Tarde':'Mañana' }}</td>
                                     @if ($visitadoctor->estado_visita_id == 1)
                                         <td>
+                                            @can('rutasvisitadora.asignar')
                                             <button class="btn btn-success btn-asignar" 
                                                 data-id="{{ $visitadoctor->id }}" 
                                                 data-nombre="{{ $visitadoctor->doctor->name }}">
                                                 Asignar
                                             </button>
+                                            @endcan
                                         </td>
                                     @else
                                         <td></td>
@@ -69,6 +74,7 @@
         </div>
     </div>
 <!-- Modal -->
+@can('rutasvisitadora.asignar')
 <div class="modal fade" id="modalAsignar" tabindex="-1" aria-labelledby="modalAsignarLabel" aria-hidden="true">
     <div class="modal-dialog">
         <form id="formAsignar">
@@ -97,9 +103,12 @@
         </div>
         </form>
     </div>
+@endcan
+@endcan
 </div>
 <!-- Modal crear doctor -->
  <!-- Modal -->
+@can('rutasvisitadora.guardardoctor')
 <div class="modal fade" id="crearDoctor" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -237,6 +246,8 @@
         </div>
     </div>
 </div>
+@endcan
+@endcan
 @stop
 
 @section('css')

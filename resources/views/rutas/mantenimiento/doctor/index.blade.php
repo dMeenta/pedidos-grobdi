@@ -8,6 +8,7 @@
 @stop
 
 @section('content')
+@can('doctor.index')
 <div class="card mt-2">
     <div class="card-header bg-light border-bottom">
         <div class="d-flex justify-content-between align-items-center">
@@ -189,6 +190,7 @@
             </div>
         </div>
     </div>
+@endcan
 @endcan
 @stop
 

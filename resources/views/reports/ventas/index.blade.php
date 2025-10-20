@@ -18,6 +18,7 @@
 @stop
 
 @section('content')
+    @can('reports.ventas')
     <div class="card card-danger card-tabs">
         <div class="card-header p-0 pt-1">
             <ul class="nav nav-tabs" id="ventasTabs" role="tablist">
@@ -65,6 +66,7 @@
             </div>
         </div>
     </div>
+    @endcan
 @stop
 
 @section('plugins.Moment', true)

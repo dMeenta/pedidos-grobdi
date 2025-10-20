@@ -7,12 +7,15 @@
 @stop
 
 @section('content')
+@can('centrosalud.index')
 <div class="row justify-content-md-center">
     <div class="col-sm-10">
         <div class="card mt-2">
             <div class="card-header">
                 <div class="d-grid gap-2 d-md-flex justify-content-md-medium">
-                    <a class="btn btn-success btn-sm" href="{{ route('centrosalud.create') }}"> <i class="fa fa-plus"></i> Registrar datos</a>
+                    @can('centrosalud.create')
+                        <a class="btn btn-success btn-sm" href="{{ route('centrosalud.create') }}"> <i class="fa fa-plus"></i> Registrar datos</a>
+                    @endcan
                 </div>
             </div>
             <div class="card-body">
@@ -39,17 +42,22 @@
                                 <td>{{ $centrosa->adress }}</td>
                                 <td>{{ $centrosa->latitude }} - {{ $centrosa->longitude }}</td>
                                 <td>
-                                    <form action="{{ route('centrosalud.destroy',$centrosa->id) }}" method="POST">
-                                        <a class="btn btn-primary btn-xs" href="{{ route('centrosalud.edit',$centrosa->id) }}"><i class="fas fa-pen"></i> Editar</a>
-                         
-                                        @csrf
-                                        @method('DELETE')
-                                        @if($centrosa->state == 1)
-                                            <button type="submit" class="btn btn-danger btn-sm">Inhabilitar</button>
-                                        @else
-                                            <button type="submit" class="btn btn-success btn-sm">Habilitar</button>
-                                        @endif
-                                    </form>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        @can('centrosalud.edit')
+                                            <a class="btn btn-primary btn-xs" href="{{ route('centrosalud.edit',$centrosa->id) }}"><i class="fas fa-pen"></i> Editar</a>
+                                        @endcan
+                                        @can('centrosalud.destroy')
+                                            <form action="{{ route('centrosalud.destroy',$centrosa->id) }}" method="POST" class="m-0">
+                                                @csrf
+                                                @method('DELETE')
+                                                @if($centrosa->state == 1)
+                                                    <button type="submit" class="btn btn-danger btn-sm">Inhabilitar</button>
+                                                @else
+                                                    <button type="submit" class="btn btn-success btn-sm">Habilitar</button>
+                                                @endif
+                                            </form>
+                                        @endcan
+                                    </div>
                                 </td>
                             </tr>
                         @empty
@@ -65,6 +73,7 @@
         </div> 
     </div>
 </div>
+@endcan
 @stop
 
 @section('css')

@@ -844,12 +844,12 @@
     'url' => 'http://localhost',
     'frontend_url' => 'http://localhost:3000',
     'asset_url' => NULL,
-    'timezone' => 'America/Lima',
-    'locale' => 'es',
+    'timezone' => 'UTC',
+    'locale' => 'en',
     'fallback_locale' => 'en',
     'faker_locale' => 'en_US',
     'cipher' => 'AES-256-CBC',
-    'key' => 'base64:IdHOtLe6oP5Bvv6yc11dk05EH8NXaE8uGVGBp83RIL0=',
+    'key' => 'base64:isnQ/zlcrPmmS7F1zlFf1BN/7FrkbmhUtIkh+/fdjEM=',
     'previous_keys' => 
     array (
     ),
@@ -1044,8 +1044,8 @@
       'file' => 
       array (
         'driver' => 'file',
-        'path' => 'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\storage\\framework/cache/data',
-        'lock_path' => 'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\storage\\framework/cache/data',
+        'path' => 'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\storage\\framework/cache/data',
+        'lock_path' => 'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\storage\\framework/cache/data',
       ),
       'memcached' => 
       array (
@@ -1112,10 +1112,10 @@
         'driver' => 'mysql',
         'url' => NULL,
         'host' => '127.0.0.1',
-        'port' => '3306',
+        'port' => '3307',
         'database' => 'grobdi_db',
         'username' => 'root',
-        'password' => 'Grobdi123',
+        'password' => '12345',
         'unix_socket' => '',
         'charset' => 'utf8mb4',
         'collation' => 'utf8mb4_unicode_ci',
@@ -1132,10 +1132,10 @@
         'driver' => 'mariadb',
         'url' => NULL,
         'host' => '127.0.0.1',
-        'port' => '3306',
+        'port' => '3307',
         'database' => 'grobdi_db',
         'username' => 'root',
-        'password' => 'Grobdi123',
+        'password' => '12345',
         'unix_socket' => '',
         'charset' => 'utf8mb4',
         'collation' => 'utf8mb4_unicode_ci',
@@ -1152,10 +1152,10 @@
         'driver' => 'pgsql',
         'url' => NULL,
         'host' => '127.0.0.1',
-        'port' => '3306',
+        'port' => '3307',
         'database' => 'grobdi_db',
         'username' => 'root',
-        'password' => 'Grobdi123',
+        'password' => '12345',
         'charset' => 'utf8',
         'prefix' => '',
         'prefix_indexes' => true,
@@ -1167,10 +1167,10 @@
         'driver' => 'sqlsrv',
         'url' => NULL,
         'host' => '127.0.0.1',
-        'port' => '3306',
+        'port' => '3307',
         'database' => 'grobdi_db',
         'username' => 'root',
-        'password' => 'Grobdi123',
+        'password' => '12345',
         'charset' => 'utf8',
         'prefix' => '',
         'prefix_indexes' => true,
@@ -1217,7 +1217,7 @@
       'local' => 
       array (
         'driver' => 'local',
-        'root' => 'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\storage\\app/private',
+        'root' => 'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\storage\\app/private',
         'serve' => true,
         'throw' => false,
         'report' => false,
@@ -1225,7 +1225,7 @@
       'public' => 
       array (
         'driver' => 'local',
-        'root' => 'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\storage\\app/public',
+        'root' => 'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\storage\\app/public',
         'url' => 'http://localhost/storage',
         'visibility' => 'public',
         'throw' => false,
@@ -1247,7 +1247,7 @@
     ),
     'links' => 
     array (
-      'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\public\\storage' => 'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\storage\\app/public',
+      'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\public\\storage' => 'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\storage\\app/public',
     ),
   ),
   'imports' => 
@@ -1421,14 +1421,14 @@
       'single' => 
       array (
         'driver' => 'single',
-        'path' => 'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\storage\\logs/laravel.log',
+        'path' => 'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\storage\\logs/laravel.log',
         'level' => 'debug',
         'replace_placeholders' => true,
       ),
       'daily' => 
       array (
         'driver' => 'daily',
-        'path' => 'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\storage\\logs/laravel.log',
+        'path' => 'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\storage\\logs/laravel.log',
         'level' => 'debug',
         'days' => 14,
         'replace_placeholders' => true,
@@ -1493,7 +1493,7 @@
       ),
       'emergency' => 
       array (
-        'path' => 'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\storage\\logs/laravel.log',
+        'path' => 'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\storage\\logs/laravel.log',
       ),
     ),
   ),
@@ -1569,7 +1569,7 @@
       'theme' => 'default',
       'paths' => 
       array (
-        0 => 'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\resources\\views/vendor/mail',
+        0 => 'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\resources\\views/vendor/mail',
       ),
     ),
   ),
@@ -1782,7 +1782,7 @@
     'lifetime' => 120,
     'expire_on_close' => false,
     'encrypt' => false,
-    'files' => 'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\storage\\framework/sessions',
+    'files' => 'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\storage\\framework/sessions',
     'connection' => NULL,
     'table' => 'sessions',
     'store' => NULL,
@@ -1791,7 +1791,7 @@
       0 => 2,
       1 => 100,
     ),
-    'cookie' => 'sys_session',
+    'cookie' => 'laravel_session',
     'path' => '/',
     'domain' => NULL,
     'secure' => NULL,
@@ -1852,9 +1852,9 @@
   array (
     'paths' => 
     array (
-      0 => 'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\resources\\views',
+      0 => 'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\resources\\views',
     ),
-    'compiled' => 'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\storage\\framework\\views',
+    'compiled' => 'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\storage\\framework\\views',
   ),
   'dompdf' => 
   array (
@@ -1863,10 +1863,10 @@
     'convert_entities' => true,
     'options' => 
     array (
-      'font_dir' => 'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\storage\\fonts',
-      'font_cache' => 'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\storage\\fonts',
-      'temp_dir' => 'C:\\Users\\progr\\AppData\\Local\\Temp',
-      'chroot' => 'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi',
+      'font_dir' => 'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\storage\\fonts',
+      'font_cache' => 'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\storage\\fonts',
+      'temp_dir' => 'C:\\Users\\Rodrigo\\AppData\\Local\\Temp',
+      'chroot' => 'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi',
       'allowed_protocols' => 
       array (
         'data://' => 
@@ -1926,20 +1926,20 @@
   array (
     'plugins' => 
     array (
-      'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\vendor\\laravel-lang\\actions' => 
+      'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\vendor\\laravel-lang\\actions' => 
       array (
         0 => 'LaravelLang\\Actions\\Plugins\\Main',
       ),
-      'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\vendor\\laravel-lang\\attributes' => 
+      'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\vendor\\laravel-lang\\attributes' => 
       array (
         0 => 'LaravelLang\\Attributes\\Plugins\\Laravel',
         1 => 'LaravelLang\\Attributes\\Plugins\\Lumen',
       ),
-      'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\vendor\\laravel-lang\\http-statuses' => 
+      'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\vendor\\laravel-lang\\http-statuses' => 
       array (
         0 => 'LaravelLang\\HttpStatuses\\Plugins\\Main',
       ),
-      'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\vendor\\laravel-lang\\lang' => 
+      'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\vendor\\laravel-lang\\lang' => 
       array (
         0 => 'LaravelLang\\Lang\\Plugins\\Breeze\\Master',
         1 => 'LaravelLang\\Lang\\Plugins\\Breeze\\V2',
@@ -1961,11 +1961,11 @@
         17 => 'LaravelLang\\Lang\\Plugins\\UI\\Master',
         18 => 'LaravelLang\\Lang\\Plugins\\UI\\V4',
       ),
-      'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\vendor\\laravel-lang\\moonshine' => 
+      'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\vendor\\laravel-lang\\moonshine' => 
       array (
         0 => 'LaravelLang\\MoonShine\\Plugins\\V3',
       ),
-      'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\vendor\\laravel-lang\\starter-kits' => 
+      'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\vendor\\laravel-lang\\starter-kits' => 
       array (
         0 => 'LaravelLang\\StarterKits\\Plugins\\Livewire',
         1 => 'LaravelLang\\StarterKits\\Plugins\\React',
@@ -1974,32 +1974,32 @@
     ),
     'packages' => 
     array (
-      'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\vendor\\laravel-lang\\actions' => 
+      'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\vendor\\laravel-lang\\actions' => 
       array (
         'class' => 'LaravelLang\\Actions\\Plugin',
         'name' => 'laravel-lang/actions',
       ),
-      'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\vendor\\laravel-lang\\attributes' => 
+      'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\vendor\\laravel-lang\\attributes' => 
       array (
         'class' => 'LaravelLang\\Attributes\\Plugin',
         'name' => 'laravel-lang/attributes',
       ),
-      'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\vendor\\laravel-lang\\http-statuses' => 
+      'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\vendor\\laravel-lang\\http-statuses' => 
       array (
         'class' => 'LaravelLang\\HttpStatuses\\Plugin',
         'name' => 'laravel-lang/http-statuses',
       ),
-      'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\vendor\\laravel-lang\\lang' => 
+      'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\vendor\\laravel-lang\\lang' => 
       array (
         'class' => 'LaravelLang\\Lang\\Plugin',
         'name' => 'laravel-lang/lang',
       ),
-      'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\vendor\\laravel-lang\\moonshine' => 
+      'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\vendor\\laravel-lang\\moonshine' => 
       array (
         'class' => 'LaravelLang\\MoonShine\\Plugin',
         'name' => 'moonshine/moonshine',
       ),
-      'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\vendor\\laravel-lang\\starter-kits' => 
+      'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\vendor\\laravel-lang\\starter-kits' => 
       array (
         'class' => 'LaravelLang\\StarterKits\\Plugin',
         'name' => 'laravel-lang/starter-kits',
@@ -2007,7 +2007,7 @@
     ),
     'models' => 
     array (
-      'directory' => 'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\app',
+      'directory' => 'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\app',
     ),
     'map' => 
     array (
@@ -2755,7 +2755,7 @@
       array (
         'enabled' => true,
       ),
-      'helpers' => 'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\vendor/_laravel_lang',
+      'helpers' => 'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\vendor/_laravel_lang',
     ),
     'translators' => 
     array (
@@ -2908,7 +2908,7 @@
     ),
     'temporary_files' => 
     array (
-      'local_path' => 'C:\\Users\\progr\\Desktop\\proyectos\\sistema_grobdi\\storage\\framework/cache/laravel-excel',
+      'local_path' => 'C:\\Users\\Rodrigo\\PhpstormProjects\\Projects Grobdi\\pedidos-grobdi\\storage\\framework/cache/laravel-excel',
       'local_permissions' => 
       array (
       ),

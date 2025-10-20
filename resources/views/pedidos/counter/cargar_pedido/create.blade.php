@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+@can('cargarpedidos.create')
 <div class="card mt-2">
     <h2 class="card-header">Cargar Pedido</h2>
     <div class="card-body">
@@ -210,6 +211,7 @@
     @endif -->
 
     
+@endcan
 @stop
 
 @section('css')

@@ -22,6 +22,7 @@
 @stop
 
 @section('content')
+    @can('reports.rutas')
     <div class="card card-danger">
         <div class="card-header">
             <h5 class="mb-0"><i class="fas fa-chart-pie"></i> Reporte por Zonas</h5>
@@ -177,6 +178,7 @@
         </div>
     </div>
 
+    @endcan
 @stop
 
 @section('plugins.Chartjs', true)

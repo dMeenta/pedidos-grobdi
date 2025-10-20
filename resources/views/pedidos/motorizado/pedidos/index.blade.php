@@ -7,7 +7,13 @@
 <!-- <h1>Pedidos</h1> -->
 @stop
 
+@php
+$user = auth()->user();
+$canEditPedido = $user?->can('pedidosmotorizado.edit');
+@endphp
+
 @section('content')
+@can('pedidosmotorizado.index')
 <div class="card mt-3">
     <h2 class="card-header">
         Pedidos de la zona 
@@ -53,7 +59,9 @@
                         <th>Referencia</th>
                         <th>Turno</th>
                         <th width="150px">distrito</th>
+                        @if($canEditPedido)
                         <th width="120px">Opciones</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -69,7 +77,13 @@
                         <td>{{ $arr["reference"] }}</td>
                         <td>{{ $arr["turno"] == 0 ? "Mañana":"Tarde" }}</td>
                         <td>{{ $arr["district"] }}</td>
-                        <td><a class="btn btn-primary btn-sm" href="{{ route('pedidosmotorizado.edit',$arr->id) }}"><i class="fa-pencil"></i> Actualizar</a></td>
+                        @if($canEditPedido)
+                        <td>
+                            <a class="btn btn-primary btn-sm" href="{{ route('pedidosmotorizado.edit',$arr->id) }}">
+                                <i class="fa-pencil"></i> Actualizar
+                            </a>
+                        </td>
+                        @endif
                     </tr>
                     @endforeach
                 </tbody>
@@ -82,6 +96,7 @@
         @endif
     </div>
 </div>
+@endcan
 @stop
 
 @section('css')

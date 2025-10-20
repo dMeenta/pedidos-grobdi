@@ -1,3 +1,4 @@
+@can('rutas.detalledoctor')
 <div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="doctorModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
@@ -45,6 +46,7 @@
                         </div>
                     </li>
                     <li class="list-group-item">
+                        @can('rutasmapa.guardarvisita')
                         <form id="form-visita" method="POST" enctype="multipart/form-data">
                             <div class="row gap-1 gap-md-0 mb-2">
                                 <div class="col-12 col-md-6">
@@ -73,9 +75,11 @@
                                 </div>
                             </div>
                         </form>
+                        @endcan
                     </li>
                 </ul>
             </div>
         </div>
     </div>
 </div>
+@endcan

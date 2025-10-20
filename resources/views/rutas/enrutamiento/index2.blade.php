@@ -31,6 +31,7 @@
     </style>
 </head>
 <body>
+    @can('enrutamiento.agregarlista')
     <h1>Días del Mes</h1>
 
     <table>
@@ -59,5 +60,6 @@
             @endforeach
         </tbody>
     </table>
+    @endcan
 </body>
 </html>

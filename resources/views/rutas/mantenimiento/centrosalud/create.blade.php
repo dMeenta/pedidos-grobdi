@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+@can('centrosalud.create')
 
 <div class="card mt-5">
   <h2 class="card-header">Crear Centro de Salud</h2>
@@ -76,8 +77,9 @@
         <button type="submit" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> Registrar</button>
     </form>
   
-  </div>
+    </div>
 </div>
+@endcan
 
 @stop
 

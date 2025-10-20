@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+@can('enrutamientolista.doctores')
     <div class="row justify-content-md-center">
         <div class="col-12">
             <div class="card mt-2">
@@ -18,6 +19,7 @@
                     </div>
                 </div>
                 <div class="card-body">
+                    @can('enrutamientolista.doctoresupdate')
                     <div class="card card-danger">
                         <div class="card-header">
                             <h5 class="card-title">
@@ -54,6 +56,7 @@
                             </form>
                         </div>
                     </div>
+                    @endcan
                     @include('messages')
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                         <a class="btn btn-primary btn-sm" href="{{ route('enrutamiento.agregarlista', $id) }}"><i
@@ -97,6 +100,7 @@
                                                 </button>
                                             </td>
                                         @else
+                                            @can('enrutamientolista.doctoresupdate')
                                             <form action="{{ route('enrutamientolista.doctoresupdate', $doctor->id) }}"
                                                 method="POST">
                                                 @csrf
@@ -131,6 +135,7 @@
                                                 </td>
 
                                             </form>
+                                            @endcan
                                         @endif
 
                                     </tr>
@@ -157,6 +162,7 @@
             </div>
         </div>
     </div>
+@endcan
 @stop
 
 @section('plugins.Sweetalert2', true)

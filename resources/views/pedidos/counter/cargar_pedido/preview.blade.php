@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+@can('cargarpedidos.preview')
 <div class="card mt-2">
     <div class="card-header">
         <h2 class="mb-0">
@@ -317,6 +318,7 @@
         </div>
     </div>
 </div>
+@endcan
 @stop
 
 @section('css')

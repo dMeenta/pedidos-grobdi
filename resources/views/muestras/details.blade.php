@@ -1,5 +1,11 @@
 @php
-$role = auth()->check() ? auth()->user()->role->name : null;
+$user = auth()->user();
+$role = $user?->role->name;
+$canViewPricing = $user && (
+    $user->can('muestras.updatePrice') ||
+    $user->can('muestras.aproveJefeOperaciones') ||
+    $user->can('muestras.aproveJefeComercial')
+);
 @endphp
 
 <!-- Modal para mostrar los detalles de la muestra -->
@@ -39,7 +45,7 @@ $role = auth()->check() ? auth()->user()->role->name : null;
                                     </li>
                                     <li class="list-group-item"><strong>Tipo de muestra:</strong> <span id="tipo_muestra"></span></li>
                                     <li class="list-group-item"><strong>Cantidad:</strong> <span id="cantidad_muestra"></span></li>
-                                    @if(in_array($role, ['admin', 'jefe-comercial', 'contabilidad', 'jefe-operaciones']))
+                                    @if($canViewPricing)
                                     <li class="list-group-item">
                                         <strong class="align-self-center">Precio</strong>
                                         <ul>
@@ -98,7 +104,7 @@ $role = auth()->check() ? auth()->user()->role->name : null;
                     </div>
                 </div>
                 <div class="row">
-                    @if(in_array($role, ['admin', 'laboratorio']))
+                    @can('muestras.updateComentarioLab')
                     <div class="card card-danger w-100" style="border-radius: 10px;">
                         <div class="card-header">
                             <h5 class="card-title"><i class="fas fa-comment-dots mr-2"></i>Comentario del Laboratorio</h5>
@@ -120,7 +126,7 @@ $role = auth()->check() ? auth()->user()->role->name : null;
                     <div class="card w-100 px-2 py-3" style="border-radius: 10px;">
                         <p class="m-0 text-center"><strong>Comentario del Laboratorio: </strong><i id="comentario-laboratorio"></i></p>
                     </div>
-                    @endif
+                    @endcan
                 </div>
                 <div class="row" id="delete-reason-div">
                     <div class="card card-danger w-100" style="border-radius: 10px;">

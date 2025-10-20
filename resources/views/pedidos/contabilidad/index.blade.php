@@ -3,7 +3,14 @@
 @section('title', 'Pedidos')
 
 
+@php
+$user = auth()->user();
+$canDownloadExcel = $user?->can('pedidoscontabilidad.downloadExcel');
+$canUpdatePedido = $user?->can('pedidoscontabilidad.update');
+@endphp
+
 @section('content')
+@can('pedidoscontabilidad.index')
 <div class="card mt-5">
     <h2 class="card-header">Pedidos</h2>
     <div class="card-body">
@@ -22,11 +29,13 @@
                     <button type="submit" class="btn btn-outline-primary"><i class="fa fa-search"></i> Buscar</button>
                 </div>
                 <div class="col-xs-2 col-sm-2 col-md-2">
-                    @if(request()->get('fecha_inicio'))
-                        <a class="btn btn-outline-success btn-sm" href="{{ route('pedidoscontabilidad.downloadExcel',['fechainicio' => request()->get('fecha_inicio'),'fechafin' => request()->get('fecha_fin')]) }}"><i class="fa fa-file-word"></i> Descargar Excel</a>
-                    @else
-                        <a class="btn btn-outline-success btn-sm" href="{{ route('pedidoscontabilidad.downloadExcel',['fechainicio' => date('Y-m-d'),'fechafin' => date('Y-m-d')]) }}"><i class="fa fa-file-excel"></i> Descargar Excel</a>
-                    @endif
+                    @can('pedidoscontabilidad.downloadExcel')
+                        @if(request()->get('fecha_inicio'))
+                            <a class="btn btn-outline-success btn-sm" href="{{ route('pedidoscontabilidad.downloadExcel',['fechainicio' => request()->get('fecha_inicio'),'fechafin' => request()->get('fecha_fin')]) }}"><i class="fa fa-file-word"></i> Descargar Excel</a>
+                        @else
+                            <a class="btn btn-outline-success btn-sm" href="{{ route('pedidoscontabilidad.downloadExcel',['fechainicio' => date('Y-m-d'),'fechafin' => date('Y-m-d')]) }}"><i class="fa fa-file-excel"></i> Descargar Excel</a>
+                        @endif
+                    @endcan
                 </div>
             </div>
             @error('message')
@@ -45,7 +54,9 @@
                     <th>Estado de pago</th>
                     <th>Estado Contabilidad</th>
                     <th>Voucher</th>
+                    @if($canUpdatePedido)
                     <th width="120px">Opciones</th>
+                    @endif
                 </tr>
             </thead>
   
@@ -70,13 +81,16 @@
                             <span class="badge rounded-pill bg-success">Imagen</span>
                         @endif
                     </td>
+                    @if($canUpdatePedido)
                     <td>
                         <button type="button" class="btn btn-info" data-toggle="modal" data-target="#ModalPedido{{ $pedido->id }}">
                             <i class="fa fa-info"></i> Detalles
                         </button>
                     </td>
+                    @endif
                 </tr>
                 <!-- Modal -->
+                @if($canUpdatePedido)
                 <div class="modal fade" id="ModalPedido{{ $pedido->id }}" tabindex="-1" aria-labelledby="labelPedido{{ $pedido->id }}" aria-hidden="true">
                     <div class="modal-dialog modal-xl">
                         <form class="update-pedido-form" data-id="{{ $pedido->id }}">
@@ -165,9 +179,10 @@
                         </form>
                     </div>
                 </div>
+                @endif
             @empty
                 <tr>
-                    <td colspan="7">No hay información que mostrar</td>
+                    <td colspan="{{ $canUpdatePedido ? 7 : 6 }}">No hay información que mostrar</td>
                 </tr>
             @endforelse
             </tbody>
@@ -178,6 +193,7 @@
   </div>
 </div> 
 
+@endcan
 @stop
 
 @section('css')
@@ -198,6 +214,8 @@
                 '<"row"<"col-md-12"tr>>' +
                 '<"row mt-3"<"col-md-5"i><"col-md-7"p>>'
         });
+        const canUpdatePedido = @json($canUpdatePedido);
+        if (canUpdatePedido) {
         $('.update-pedido-form').on('submit', function (e) {
             e.preventDefault();
 
@@ -232,6 +250,7 @@
                 }
             });
         });
+        }
     });
     
 

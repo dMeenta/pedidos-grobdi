@@ -7,10 +7,13 @@
 @stop
 
 @section('content')
+@can('lista.index')
 <div class="card mt-2">
     <div class="card-header">
         <div class="d-grid gap-2 d-md-flex justify-content-md-medium">
-            <a class="btn btn-success btn-sm" href="{{ route('lista.create') }}"> <i class="fa fa-plus"></i> Registrar datos</a>
+            @can('lista.create')
+                <a class="btn btn-success btn-sm" href="{{ route('lista.create') }}"> <i class="fa fa-plus"></i> Registrar datos</a>
+            @endcan
         </div>
     </div>
     <div class="card-body">
@@ -40,7 +43,9 @@
                         @endforeach
                     </td>
                         <td>
+                        @can('lista.edit')
                         <a class="btn btn-primary btn-sm" href="{{ route('lista.edit',$lista->id) }}"><i class="fa-solid fa-pen-to-square"></i> Actualizar</a>
+                        @endcan
                         <!-- <form action="{{ route('lista.destroy',$lista->id) }}" method="POST">
                             @csrf
                             @method('DELETE')
@@ -62,6 +67,7 @@
         </table>
     </div>
 </div>
+@endcan
 
 @stop
 

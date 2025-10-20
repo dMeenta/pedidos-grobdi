@@ -10,7 +10,17 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 @stop
 
+@php
+$user = auth()->user();
+$canDownloadWord = $user?->can('pedidoslaboratorio.downloadWord');
+$canUpdatePedido = $user?->can('pedidoslaboratorio.update');
+$canShowPedido = $user?->can('pedidoslaboratorio.show');
+$cambioMasivoUrl = $canUpdatePedido ? route('pedidoslaboratorio.cambioMasivo') : null;
+$detalleUrlTemplate = $canShowPedido ? route('pedidoslaboratorio.show', ['pedidoslaboratorio' => '__ID__']) : null;
+@endphp
+
 @section('content')
+@can('pedidoslaboratorio.index')
 <div class="card mt-2">
     <h2 class="card-header">Pedidos</h2>
     <div class="card-body">
@@ -43,11 +53,13 @@
                     </select>
                 </div>
                 <div class="col-xs-1 col-sm-1 col-md-1  d-md-flex justify-content-md-end">
-                    @if(request()->get('fecha'))
-                        <a class="btn btn-outline-primary btn-sm" href="{{ route('pedidoslaboratorio.downloadWord',['fecha'=>request()->get('fecha'),'turno' => $turno]) }}"><i class="fa fa-file-word"></i> Descargar Word</a>
-                    @else
-                        <a class="btn btn-outline-primary btn-sm" href="{{ route('pedidoslaboratorio.downloadWord',['fecha'=>date('Y-m-d'),'turno' => $turno]) }}"><i class="fa fa-file-word"></i> Descargar Word</a>
-                    @endif
+                    @can('pedidoslaboratorio.downloadWord')
+                        @if(request()->get('fecha'))
+                            <a class="btn btn-outline-primary btn-sm" href="{{ route('pedidoslaboratorio.downloadWord',['fecha'=>request()->get('fecha'),'turno' => $turno]) }}"><i class="fa fa-file-word"></i> Descargar Word</a>
+                        @else
+                            <a class="btn btn-outline-primary btn-sm" href="{{ route('pedidoslaboratorio.downloadWord',['fecha'=>date('Y-m-d'),'turno' => $turno]) }}"><i class="fa fa-file-word"></i> Descargar Word</a>
+                        @endif
+                    @endcan
                 </div>
             </div>
             @error('message')
@@ -58,6 +70,7 @@
             <div class="alert alert-success" role="alert"> {{ $value }} </div>
         @endsession
         <!-- Botones de acción masiva -->
+        @can('pedidoslaboratorio.update')
         <div class="row mb-3">
             <div class="col-md-6">
                 <button type="button" class="btn btn-success" id="btnCambioMasivo" disabled>
@@ -65,24 +78,29 @@
                 </button>
             </div>
         </div>
+        @endcan
 
         <div class="table-responsive">
             <table class="table table-bordered table-striped mt-4" id="tablaPedidos">
                 <thead>
                     <tr>
+                        @if($canUpdatePedido)
                         <th width="50px">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="selectAll">
                                 <label class="form-check-label" for="selectAll">Todo</label>
                             </div>
                         </th>
+                        @endif
                         <th width="80px">Nro</th>
                         <th>Nro pedido</th>
                         <th>Cliente</th>
                         <th>Turno</th>
                         <th>Zona</th>
                         <th>Estado Producción</th>
+                        @if($canUpdatePedido)
                         <th>Actualizar estado</th>
+                        @endif
                         <th width="220px">Opciones</th>
                     </tr>
                 </thead>
@@ -90,6 +108,7 @@
                 <tbody>
                 @forelse ($pedidos as $pedido)
                     <tr>
+                        @if($canUpdatePedido)
                         <td>
                             <div class="form-check">
                                 <input class="form-check-input pedido-checkbox" type="checkbox" value="{{ $pedido->id }}" id="checkbox{{ $pedido->id }}" 
@@ -97,6 +116,7 @@
                                 <label class="form-check-label" for="checkbox{{ $pedido->id }}"></label>
                             </div>
                         </td>
+                        @endif
                         <td>{{ $pedido->nroOrder }}</td>
                         <td>{{ $pedido->orderId }}</td>
                         <td>{{ $pedido->customerName }}</td>
@@ -115,21 +135,23 @@
                             <span class="badge bg-warning">Pendiente</span>
                         @endif
                         </td>
+                        @if($canUpdatePedido)
                         <td>
-                        @if ($pedido->productionStatus === 0) 
-                            <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#estadoModal{{ $pedido->id }}">
-                                <i class="fa fa-edit"></i> Actualizar
-                            </button>
-                        @elseif ($pedido->productionStatus === 2)
-                            <button type="button" class="btn btn-outline-secondary btn-sm" data-toggle="modal" data-target="#estadoModal{{ $pedido->id }}">
-                                <i class="fa fa-eye"></i> Ver/Editar
-                            </button>
-                        @else
-                            <button type="button" class="btn btn-outline-secondary btn-sm" disabled>
-                                <i class="fa fa-eye"></i> Ver
-                            </button>
-                        @endif
+                            @if ($pedido->productionStatus === 0) 
+                                <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#estadoModal{{ $pedido->id }}">
+                                    <i class="fa fa-edit"></i> Actualizar
+                                </button>
+                            @elseif ($pedido->productionStatus === 2)
+                                <button type="button" class="btn btn-outline-secondary btn-sm" data-toggle="modal" data-target="#estadoModal{{ $pedido->id }}">
+                                    <i class="fa fa-eye"></i> Ver/Editar
+                                </button>
+                            @else
+                                <button type="button" class="btn btn-outline-secondary btn-sm" disabled>
+                                    <i class="fa fa-eye"></i> Ver
+                                </button>
+                            @endif
                         </td>
+                        @endif
                         <td>
                             @if ($pedido->receta)
                                 <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#imageModal{{ $pedido->id }}"><i class="fa fa-file-image"></i> Imagen
@@ -154,6 +176,7 @@
                             @endif
                             
                             <!-- Modal para actualizar estado -->
+                            @if($canUpdatePedido)
                             <div class="modal fade" id="estadoModal{{ $pedido->id }}" tabindex="-1" role="dialog" aria-labelledby="estadoModalLabel{{ $pedido->id }}" aria-hidden="true">
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
@@ -205,8 +228,11 @@
                                     </div>
                                 </div>
                             </div>
+                            @endif
                             
+                            @can('pedidoslaboratorio.show')
                             <button class="btn btn-secondary btn-sm btn-detalle" type="button"  data-id="{{ $pedido->id }}"><i class="fa fa-info"></i> Detalles</button>
+                            @endcan
                             <!-- <a class="btn btn-secondary btn-sm" href="{{ route('pedidoslaboratorio.show',$pedido->id) }}"><i class="fa fa-info"></i> Detalles</a> -->
                  
 
@@ -250,6 +276,7 @@
         </div>
         
         <!-- Modal para cambio masivo de estado -->
+        @can('pedidoslaboratorio.update')
         <div class="modal fade" id="cambioMasivoModal" tabindex="-1" role="dialog" aria-labelledby="cambioMasivoModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
@@ -307,6 +334,7 @@
                 </div>
             </div>
         </div>
+        @endcan
         
         <!-- Modal de detalles existente -->
         <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
@@ -326,6 +354,7 @@
         </div>
     </div>
 </div> 
+@endcan
 @stop
 
 @section('css')
@@ -392,7 +421,10 @@
 <script>
 
     $(document).ready(function () {
+        const cambioMasivoUrl = @json($cambioMasivoUrl);
+        const detalleUrlTemplate = @json($detalleUrlTemplate);
         
+        if (cambioMasivoUrl) {
         // Variables para manejo de selección masiva
         let pedidosSeleccionados = [];
         
@@ -514,7 +546,7 @@
             submitBtn.html('<i class="fa fa-spinner fa-spin"></i> Procesando...').prop('disabled', true);
             
             $.ajax({
-                url: '{{ route("pedidoslaboratorio.cambioMasivo") }}',
+                url: cambioMasivoUrl,
                 type: 'POST',
                 data: formDataObject,
                 success: function(response) {
@@ -581,13 +613,16 @@
             $('#pedidos_ids').val('');
             $('#listaPedidosSeleccionados').empty();
         });
+        }
         
         // Funcionalidad existente para mostrar detalles del pedido
+        if (detalleUrlTemplate) {
         $('.btn-detalle').click(function () {
             const id = $(this).data('id');
+            const detalleUrl = detalleUrlTemplate.replace('__ID__', id);
 
             $.ajax({
-                url: `/pedidoslaboratorio/${id}`,
+                url: detalleUrl,
                 type: 'GET',
                 success: function (pedido) {
                     $('#detalle-lista').empty();
@@ -693,6 +728,7 @@
                 }
             });
         });
+        }
         
         // Funcionalidad para mostrar/ocultar fecha de reprogramación
         $('[id^="productionStatus"]').change(function() {

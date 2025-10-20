@@ -21,6 +21,7 @@ $filtersColumnClass = $canDownloadWord ? 'col-lg-9 col-12' : 'col-12';
 @endphp
 
 @section('content')
+@can('cargarpedidos.index')
 <div class="card card-outline card-danger">
     <div class="card-header">
             <div class="d-flex justify-content-between align-items-center">
@@ -351,6 +352,7 @@ $filtersColumnClass = $canDownloadWord ? 'col-lg-9 col-12' : 'col-12';
     </div>
 </div>
 
+@endcan
 @stop
 
 @section('css')

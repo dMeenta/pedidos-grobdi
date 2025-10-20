@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+@can('centrosalud.edit')
 
 <div class="card mt-5">
   <h2 class="card-header">Actualizar Centro de Salud</h2>
@@ -76,8 +77,9 @@
         <button type="submit" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> Actualizar</button>
     </form>
   
-  </div>
+    </div>
 </div>
+@endcan
 
 @stop
 

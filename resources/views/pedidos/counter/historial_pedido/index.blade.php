@@ -1,6 +1,7 @@
 @extends('adminlte::page')
 
 @section('content')
+@can('historialpedidos.index')
 <div class="card mt-2">
     <h2 class="card-header">Pedidos</h2>
     <div class="card-body">
@@ -81,6 +82,7 @@
 
     </div>
 </div> 
+@endcan
 @stop
 
 @section('css')
