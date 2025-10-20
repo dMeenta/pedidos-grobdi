@@ -32,6 +32,7 @@ class Pedidos extends Model
         'observacion_laboratorio',
         'fecha_reprogramacion',
         'last_data_update',
+        'deliveryStatus',
         'status',
     ];
 
