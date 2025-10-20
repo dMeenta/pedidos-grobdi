@@ -135,8 +135,6 @@ class ReportsController extends Controller
     {
         $arrayTabs = [
             ['name' => 'resumen', 'icon' => 'fas fa-tablets'],
-            ['name' => 'operaciones', 'icon' => 'fas fa-capsules'],
-            ['name' => 'comercial', 'icon' => 'fas fa-syringe'],
         ];
 
         $data = $this->reportsService->rutas()->getMuestrasReport();

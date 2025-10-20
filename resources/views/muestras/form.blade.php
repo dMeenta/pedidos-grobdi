@@ -88,33 +88,33 @@
                     required {{ old('tipo_frasco', $muestra->tipo_frasco ?? '') == 'Frasco Muestra' ? 'disabled' : '' }}>
                     @if (
                             $muestra &&
-                            $muestra->clasificacion &&
-                            $muestra->clasificacion->presentaciones &&
-                            $muestra->tipo_frasco === 'Frasco Original'
-                        )
-                        @foreach ($muestra->clasificacion->presentaciones as $presentacion)
-                            <option value="{{ $presentacion->id }}" {{ old('clasificacion_presentacion_id', $muestra->clasificacion_presentacion_id ?? '') == $presentacion->id ? 'selected' : '' }}>
-                                {{ $presentacion->quantity }}
-                                {{ $muestra->unidadDeMedida->nombre_unidad_de_medida ?? '' }}
-                            </option>
-                        @endforeach
-                    @else
-                        <option disabled selected>Seleccione una clasificación para ver las opciones</option>
-                    @endif
-                </select>
+                                $muestra->clasificacion &&
+                                $muestra->clasificacion->presentaciones &&
+                                $muestra->tipo_frasco === 'Frasco Original')
+                            @foreach ($muestra->clasificacion->presentaciones as $presentacion)
+                                <option value="{{ $presentacion->id }}"
+                                    {{ old('clasificacion_presentacion_id', $muestra->clasificacion_presentacion_id ?? '') == $presentacion->id ? 'selected' : '' }}>
+                                    {{ $presentacion->quantity }}
+                                    {{ $muestra->unidadDeMedida->nombre_unidad_de_medida ?? '' }}
+                                </option>
+                            @endforeach
+                        @else
+                            <option disabled selected>Seleccione una clasificación para ver las opciones</option>
+                        @endif
+                    </select>
+                </div>
             </div>
-        </div>
-        <!-- Campo para el doctor -->
-        <div class="form-group position-relative">
-            <label for="name-query">Nombre del doctor</label>
-            <input type="text" id="name-query" name="name-query" class="form-control" autocomplete="off" required
-                value="{{ old('name-query', $muestra->doctor->name ?? '') }}" />
-            <div id="doctors-suggestions-list" class="list-group position-absolute overflow-auto border"
-                style="z-index: 1000; max-height: 200px; width: 100%;">
+            <!-- Campo para el doctor -->
+            <div class="form-group position-relative">
+                <label for="name-query">Nombre del doctor</label>
+                <input type="text" id="name-query" name="name-query" class="form-control" autocomplete="off" required
+                    value="{{ old('name-query', $muestra->doctor->name ?? '') }}" />
+                <div id="doctors-suggestions-list" class="list-group position-absolute overflow-auto border"
+                    style="z-index: 1000; max-height: 200px; width: 100%;">
+                </div>
+                <input type="hidden" name="id_doctor" id="id_doctor"
+                    value="{{ old('id_doctor', $muestra->id_doctor ?? '') }}" />
             </div>
-            <input type="hidden" name="id_doctor" id="id_doctor"
-                value="{{ old('id_doctor', $muestra->id_doctor ?? '') }}" />
-        </div>
 
         <!-- Campo para cantidad de muestras -->
         <div class="form-group">
@@ -157,15 +157,15 @@
         presentacionInfo.hide();
         const selectedClasificacionId = $('#clasificacion_id').val();
 
-        const doctorIdInput = $('#id_doctor');
-        const doctorNameInput = $('#name-query');
-        initAutocompleteInput({
-            apiUrl: `{{ route('doctors.search') }}`,
-            inputSelector: doctorNameInput,
-            listSelector: '#doctors-suggestions-list',
-            hiddenIdSelector: doctorIdInput,
-        });
-        const unidadMedidaInput = $('#unidad_de_medida');
+            const doctorIdInput = $('#id_doctor');
+            const doctorNameInput = $('#name-query');
+            initAutocompleteInput({
+                apiUrl: `{{ route('doctors.search') }}`,
+                inputSelector: doctorNameInput,
+                listSelector: '#doctors-suggestions-list',
+                hiddenIdSelector: doctorIdInput,
+            });
+            const unidadMedidaInput = $('#unidad_de_medida');
 
         const tipoFrascoSelect = $('#tipo_frasco');
         const clasificacionSelect = $('#clasificacion_id');
