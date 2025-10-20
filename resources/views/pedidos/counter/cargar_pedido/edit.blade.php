@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+@can('cargarpedidos.edit')
 
 <div class="card mt-5">
   <h2 class="card-header">Actualizar Pedido</h2>
@@ -19,6 +20,15 @@
     <form action="{{ route('cargarpedidos.update',$pedido->id) }}" method="POST">
         @csrf
         @method('PUT')
+        @php
+            $currentDeliveryStatus = old('deliveryStatus', $pedido->deliveryStatus);
+            $normalizedDeliveryStatus = is_string($currentDeliveryStatus) ? strtolower($currentDeliveryStatus) : 'pendiente';
+            if (!in_array($normalizedDeliveryStatus, ['pendiente', 'entregado'])) {
+                $normalizedDeliveryStatus = 'pendiente';
+            }
+            $deliveryStatusOptions = ['pendiente' => 'Pendiente', 'entregado' => 'Entregado'];
+            $isDeliveryLocked = $normalizedDeliveryStatus === 'entregado';
+        @endphp
   
         <div class="row">
 
@@ -129,6 +139,27 @@
                     <div class="form-text text-danger">{{ $message }}</div>
                 @enderror
             </div>
+            <div class="col-xs-3 col-sm-3 col-md-3">
+                <label for="deliveryStatus" class="form-label"><strong>Estado de entrega:</strong></label>
+                <select
+                    class="form-control @error('deliveryStatus') is-invalid @enderror"
+                    name="deliveryStatus"
+                    id="deliveryStatus"
+                    {{ $isDeliveryLocked ? 'disabled' : '' }}
+                >
+                    @foreach ($deliveryStatusOptions as $value => $label)
+                        <option value="{{ $value }}" {{ $normalizedDeliveryStatus === $value ? 'selected' : '' }}>
+                            {{ $label }}
+                        </option>
+                    @endforeach
+                </select>
+                @if($isDeliveryLocked)
+                    <input type="hidden" name="deliveryStatus" value="entregado">
+                @endif
+                @error('deliveryStatus')
+                    <div class="form-text text-danger">{{ $message }}</div>
+                @enderror
+            </div>
         </div>
         <br>
         <button type="submit" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> Actualizar</button>
@@ -137,6 +168,7 @@
   </div>
 </div>
 
+@endcan
 @stop
 
 @section('css')
