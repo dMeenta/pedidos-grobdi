@@ -17,122 +17,147 @@ $canUploadFile = $user?->can('cargarpedidos.uploadfile');
 $canViewPedido = $user?->can('cargarpedidos.show');
 $canEditPedido = $user?->can('cargarpedidos.edit');
 $showOptionsColumn = $canUploadFile || $canViewPedido || $canEditPedido;
-$filtersColumnClass = $canDownloadWord ? 'col-lg-8 col-md-12' : 'col-12';
+$filtersColumnClass = $canDownloadWord ? 'col-lg-9 col-12' : 'col-12';
 @endphp
 
 @section('content')
-<div class="card mt-2">
+<div class="card card-outline card-danger">
     <div class="card-header">
-        <div class="d-flex justify-content-between align-items-center">
-            <h2 class="mb-0">Pedidos del día: {{ request()->query('fecha')?request()->query('fecha'):date('Y-m-d') }}</h2>
-            @can('motorizado.viewFormHojaDeRuta')
-            <a href="{{ route('motorizado.viewFormHojaDeRuta') }}" class="btn btn-outline-success"><i class="fas fa-file-excel mr-1"></i>Descargar Hoja de Ruta del día</a>
-            @endcan
-        </div>
-    </div>
-    <div class="card-body">
-        @if($canCreatePedido)
-        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-            <a class="btn btn-success btn-sm" href="{{ route('cargarpedidos.create') }}"> <i class="fa fa-plus"></i>
-                Cargar datos</a>
-        </div>
-        @endif
-        <br>
-        <div class="card border-success shadow-lg">
-            <div class="card-header bg-success text-white">
-                <h5 class="card-title mb-0"><i class="fa fa-filter"></i> Filtros y Opciones</h5>
-            </div>
-            <div class="card-body bg-light">
-                <div class="row g-4">
-                    <div class="{{ $filtersColumnClass }}">
-                        <div class="card border-info shadow-sm h-100">
-                            <div class="card-header bg-info text-white">
-                                <h6 class="card-title mb-0"><i class="fa fa-search"></i> Filtrar Pedidos</h6>
-                            </div>
-                            <div class="card-body">
-                                <form action="{{ route('cargarpedidos.index') }}" method="GET">
-                                    <div class="row g-3 mb-3">
-                                        <div class="col-md-6">
-                                            <label for="filtro" class="form-label fw-bold text-success"><i class="fa fa-calendar-alt"></i> Tipo de Fecha</label>
-                                            <select name="filtro" class="form-control form-select-lg bg-light shadow-sm" style="width: 100%;">
-                                                <option value="deliveryDate">Fecha de Entrega</option>
-                                                <option value="created_at" {{ request()->query('filtro')=='created_at'?'selected':'' }}>Fecha de Registro</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="fecha" class="form-label fw-bold text-success"><i class="fa fa-calendar"></i> Fecha</label>
-                                            <input class="form-control form-control-lg bg-light shadow-sm" type="date" name="fecha" id="fecha" value="{{ request()->query('fecha')?request()->query('fecha'):date('Y-m-d') }}" required>
-                                        </div>
-                                    </div>
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label for="turno" class="form-label fw-bold text-success"><i class="fa fa-clock"></i> Turno</label>
-                                            <select name="turno" class="form-control form-select-lg bg-light shadow-sm" style="width: 100%;">
-                                                <option value="">Todos</option>
-                                                <option value="0" {{ request()->query('turno')=='0'?'selected':'' }}>Mañana</option>
-                                                <option value="1" {{ request()->query('turno')=='1'?'selected':'' }}>Tarde</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6 d-flex align-items-end">
-                                            <button type="submit" class="btn btn-success w-100 shadow-sm"><i class="fa fa-search"></i> Buscar</button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    @if($canDownloadWord)
-                    <div class="col-lg-4 col-md-12">
-                        <div class="card border-warning shadow-sm h-100">
-                            <div class="card-header bg-warning text-dark">
-                                <h6 class="card-title mb-0"><i class="fa fa-download"></i> Descargar Documento</h6>
-                            </div>
-                            <div class="card-body">
-                                <form action="{{ route('cargarpedidos.downloadWord') }}" method="POST" class="row g-3">
-                                    @csrf
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-bold text-warning"><i class="fa fa-clock"></i> Turno</label>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="turno" id="turno0" value="0" checked>
-                                            <label class="form-check-label text-success fw-bold" for="turno0">
-                                                Mañana
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-lg-4">
-                                        <div class="custom-control custom-radio">
-                                            <input class="custom-control-input custom-control-input-danger" type="radio"
-                                                name="turno" id="turno1" value="1">
-                                            <label class="custom-control-label text-warning fw-bold" for="turno1">
-                                                Tarde
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-12">
-                                        @if (request()->get('fecha'))
-                                            <input type="hidden" value="{{ request()->get('fecha') }}" name="fecha">
-                                        @else
-                                            <input type="hidden" value="{{ date('Y-m-d') }}" name="fecha">
-                                        @endif
-                                        <button class="btn btn-outline-dark w-100" type="submit"><i
-                                                class="fa fa-file-word"></i>
-                                            Descargar</button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">Pedidos del día:
+                    {{ request()->query('fecha') ? request()->query('fecha') : date('Y-m-d') }}
+                </h2>
+                <div>
+                    @can('motorizado.viewFormHojaDeRuta')
+                        <a href="{{ route('motorizado.viewFormHojaDeRuta') }}" class="btn btn-outline-success"><i
+                                class="fas fa-file-excel mr-1"></i>Descargar Hoja de Ruta del día</a>
+                    @endcan
+                    @if($canCreatePedido)
+                    <a class="btn btn-success" href="{{ route('cargarpedidos.create') }}"> <i class="fas fa-upload"></i>
+                        Cargar datos</a>
                     @endif
                 </div>
             </div>
         </div>
-        @error('message')
-        <div class="alert alert-danger mt-2 mb-2">
-            {{ $message }}
+    <div class="card-body">
+        <div class="row mb-2">
+            <div class="{{ $filtersColumnClass }}">
+                <div class="card card-danger h-100">
+                    <div class="card-header">
+                        <h6 class="card-title"><i class="fa fa-search"></i> Filtrar Pedidos</h6>
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ route('cargarpedidos.index') }}" method="GET">
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label for="filtro" class="form-label"><i class="fa fa-calendar-alt"></i> Tipo de
+                                        Fecha</label>
+                                    <select name="filtro" class="form-select shadow-sm" style="width: 100%;">
+                                        <option value="deliveryDate">Fecha de Entrega</option>
+                                        <option value="created_at"
+                                            {{ request()->query('filtro') == 'created_at' ? 'selected' : '' }}>
+                                            Fecha
+                                            de Registro</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="fecha"><i class="fa fa-calendar"></i>
+                                            Fecha</label>
+                                        <div class="input-group date shadow-sm" data-target-input="nearest">
+                                            <input class="form-control datetimepicker-input" type="date"
+                                                name="fecha" id="fecha"
+                                                value="{{ request()->query('fecha') ? request()->query('fecha') : date('Y-m-d') }}"
+                                                required>
+                                            <div class="input-group-append" data-target="#fecha">
+                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="turno" class="form-label"><i class="fa fa-clock"></i> Turno</label>
+                                    <select name="turno" class="form-select shadow-sm" style="width: 100%;">
+                                        <option value="">Todos</option>
+                                        <option value="0" {{ request()->query('turno') == '0' ? 'selected' : '' }}>
+                                            Mañana
+                                        </option>
+                                        <option value="1" {{ request()->query('turno') == '1' ? 'selected' : '' }}>
+                                            Tarde
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-outline-danger w-100 shadow-sm">
+                                        <i class="fa fa-search"></i> Buscar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            @if ($canDownloadWord)
+            <div class="col-12 col-lg-3">
+                <div class="card card-dark h-100">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0"><i class="fa fa-download"></i> Descargar Documento</h6>
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ route('cargarpedidos.downloadWord') }}" method="POST">
+                            @csrf
+                            <div class="row">
+                                <div class="col-12 col-lg-4">
+                                    <label class="form-label"><i class="fa fa-clock"></i>
+                                        Turno</label>
+                                </div>
+                                <div class="col-12 col-lg-4">
+                                    <div class="custom-control custom-radio">
+                                        <input class="custom-control-input custom-control-input-danger" type="radio"
+                                            name="turno" id="turno0" value="0" checked>
+                                        <label class="custom-control-label text-primary fw-bold" for="turno0">
+                                            Mañana
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-4">
+                                    <div class="custom-control custom-radio">
+                                        <input class="custom-control-input custom-control-input-danger" type="radio"
+                                            name="turno" id="turno1" value="1">
+                                        <label class="custom-control-label text-warning fw-bold" for="turno1">
+                                            Tarde
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    @if (request()->get('fecha'))
+                                        <input type="hidden" value="{{ request()->get('fecha') }}" name="fecha">
+                                    @else
+                                        <input type="hidden" value="{{ date('Y-m-d') }}" name="fecha">
+                                    @endif
+                                    <button class="btn btn-outline-dark w-100" type="submit"><i
+                                            class="fa fa-file-word"></i>
+                                        Descargar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            @endif
         </div>
-        @enderror
+        <div class="row">
+            <div class="col-12">
+                @error('message')
+                    <div class="alert alert-danger mt-2 mb-2">
+                        {{ $message }}
+                    </div>
+                @enderror
+            </div>
+        </div>
         <div class="table table-responsive">
             <table class="table table-striped table-hover table-grobdi" id="miTabla">
                 <thead>
@@ -181,59 +206,59 @@ $filtersColumnClass = $canDownloadWord ? 'col-lg-8 col-md-12' : 'col-12';
                         <td class="align-middle" style="min-height: 80px;">
                             <div class="d-flex flex-column justify-content-center h-100">
                                 @php
-                                    $estado = $arr->currentDeliveryState->state ?? 'Sin estado';
+                                    $estado = $arr['deliveryStatus'] ?? 'Sin estado';
 
                                     $color = match ($estado) {
-                                        'reprogramado' => 'bg-warning',
-                                        'entregado' => 'bg-success',
+                                        'Reprogramado' => 'bg-warning',
+                                        'Entregado' => 'bg-success',
                                         default => 'bg-dark',
                                     };
                                 @endphp
-                                <span class="badge {{ $color }} mb-2 text-wrap">{{ $estado }}</span>
+                                <span
+                                    class="badge {{ $color }} mb-2 text-wrap">{{ $estado }}</span>
                                 @can('pedidos.showDeliveryStates')
-                                <button class="btn btn-info btn-sm btn-show-delivery-states w-100"
+                                    <button class="btn btn-info btn-sm btn-show-delivery-records w-100"
                                         data-id="{{ $arr['id'] }}">
-                                    Historial
-                                </button>
+                                        Historial
+                                    </button>
                                 @endcan
                             </div>
                         </td>
                         <td>{{ $arr["district"] }}</td>
-                        <td>
-                            @if ( $arr["voucher"] == 0)
-                            <span class="badge rounded-pill bg-danger">Sin imagen</span>
-                            @else
-                            <span class="badge rounded-pill bg-success">Imagen</span>
-                            @endif
+                        <td class="text-center">
+                            @php
+                                $hasVoucher = $arr['voucher'] == 0;
+                            @endphp
+                            <span
+                                class="badge rounded-pill bg-{{ $hasVoucher ? 'danger' : 'success' }}">{{ $hasVoucher ? 'Sin Imagen' : 'Imagen' }}</span>
                         </td>
-                        <td>{{ $arr["productionStatus"] == true ? 'Realizado' : 'Pendiente' }}</td>
-                        <td>
-                            @if ( $arr["receta"] == 0)
-                            <span class="badge rounded-pill bg-danger">Sin imagen</span>
-                            @else
-                            <span class="badge rounded-pill bg-success">Imagen</span>
-                            @endif
+                        <td class="text-center">
+                            {{ $arr['productionStatus'] == true ? 'Realizado' : 'Pendiente' }}</td>
+                        <td class="text-center">
+                            @php
+                                $hasReceta = $arr['receta'] == 0;
+                            @endphp
+                            <span
+                                class="badge rounded-pill bg-{{ $hasReceta ? 'danger' : 'success' }}">{{ $hasReceta ? 'Sin Imagen' : 'Imagen' }}</span>
                         </td>
                         <td>{{ $arr->zone->name }}</td>
                         <td>{{ $arr->user->name }}</td>
                         @if($showOptionsColumn)
                         <td>
-                            <div class="btn-group btn-group-sm" role="group">
-                                @if($canUploadFile)
-                                <a class="btn btn-danger" href="{{ route('cargarpedidos.uploadfile',$arr->id) }}"><i class="fa fa-upload"></i> Carga</a>
-                                @endif
-                                @if($canViewPedido)
-                                <button type="button"
-                                        class="btn btn-info btn-show-order"
-                                        data-id="{{ $arr->id }}"
-                                        data-url="{{ route('cargarpedidos.show', $arr->id) }}">
-                                    <i class="fa fa-eye"></i> Ver
-                                </button>
-                                @endif
-                                @if($canEditPedido)
-                                <a class="btn btn-primary" href="{{ route('cargarpedidos.edit', $arr->id) }}"><i class="fa-pencil"></i> Editar</a>
-                                @endif
-                            </div>
+                            @if($canUploadFile)
+                            <a class="btn btn-danger w-100" href="{{ route('cargarpedidos.uploadfile',$arr->id) }}"><i class="fa fa-upload"></i> Carga</a>
+                            @endif
+                            @if($canViewPedido)
+                            <button type="button"
+                                    class="btn btn-info btn-show-order w-100 my-2"
+                                    data-id="{{ $arr->id }}"
+                                    data-url="{{ route('cargarpedidos.show', $arr->id) }}">
+                                <i class="fa fa-eye"></i> Ver
+                            </button>
+                            @endif
+                            @if($canEditPedido)
+                            <a class="btn btn-primary w-100" href="{{ route('cargarpedidos.edit', $arr->id) }}"><i class="fas fa-edit "></i> Editar</a>
+                            @endif
                         </td>
                         @endif
                         </tr>
@@ -254,8 +279,8 @@ $filtersColumnClass = $canDownloadWord ? 'col-lg-8 col-md-12' : 'col-12';
         @endif
     </div>
 </div>
-<div class="modal fade" id="deliveryStatesModal" tabindex="-1" role="dialog" aria-labelledby="deliveryStateModal"
-    aria-hidden="true">
+<div class="modal fade" id="delivery-records-modal" tabindex="-1" role="dialog"
+    aria-labelledby="delivery-records-modal" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
         <div class="modal-content overflow-hidden">
             <div class="modal-header bg-info">
@@ -264,7 +289,28 @@ $filtersColumnClass = $canDownloadWord ? 'col-lg-8 col-md-12' : 'col-12';
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body" id="modal-content">
+            <div class="modal-body">
+                <div class="table-responsive" style="height: 50dvh;">
+                    <table class="table table-head-fixed text-nowrap">
+                        <thead>
+                            <tr class="text-center">
+                                <th scope="col" rowspan="2" class="align-content-center">Usuario</th>
+                                <th scope="col" rowspan="2" class="align-content-center">Estado del pedido</th>
+                                <th scope="col" rowspan="2" class="align-content-center">Fecha del estado</th>
+                                <th scope="col" rowspan="2" class="align-content-center">Observaciones</th>
+                                <th scope="col" colspan="3" class="p-1 align-content-center">Evidencias</th>
+                            </tr>
+                            <tr class="text-center" class="p-0">
+                                <th scope="col" class="p-1">Domicilio</th>
+                                <th scope="col" class="p-1">Entrega del producto</th>
+                                <th scope="col" class="p-1">Receptor</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-center" id="delivery-record-tbody">
+                            @include('empty-table', ['dataLength' => 0, 'colspan' => 7])
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -332,12 +378,20 @@ $filtersColumnClass = $canDownloadWord ? 'col-lg-8 col-md-12' : 'col-12';
 
 @section('js')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+<script src="{{ asset('js/table-helpers.js') }}"></script>
 <script>
     $(document).ready(function () {
         const modal = $('#deliveryStatesModal');
         const modalContent = $('#modal-content');
         const orderModal = $('#orderDetailsModal');
         const orderContent = $('#order-details-content');
+        flatpickr('#fecha', {
+            altInput: true,
+            dateFormat: "Y-m-d",
+            altFormat: "d/m/Y",
+            locale: 'es',
+            maxDate: "today"
+        });
         $('#miTabla').DataTable({
             language: {
                 url: 'https://cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json'
