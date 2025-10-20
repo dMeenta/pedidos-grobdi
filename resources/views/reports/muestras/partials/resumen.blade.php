@@ -89,7 +89,8 @@
                     <canvas id="resume-tipo-muestras-chart" height="300px">
                     </canvas>
                     @include('empty-chart', [
-                        'dataLength' => $data['general_stats']['total_muestras'],
+                        'dataLength' => array_sum(
+                            array_column($data['general_stats']['by_tipo_muestra'], 'count')),
                     ])
                 </div>
             </div>
@@ -272,6 +273,8 @@
             maxDate: "today"
         });
         const data = @json($data);
+
+        console.log(data);
 
         const resumeTableForiginalBody = $('#resume-frasco-original-tbody');
         const resumeTableFmuestraBody = $('#resume-frasco-muestra-tbody');
