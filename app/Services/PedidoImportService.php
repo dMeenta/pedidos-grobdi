@@ -19,6 +19,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 
 class PedidoImportService
@@ -226,7 +227,31 @@ class PedidoImportService
     public function updatePedido($request, $id)
     {
         $pedidos = Pedidos::find($id);
+
+        if (!$pedidos) {
+            throw ValidationException::withMessages([
+                'pedido' => 'El pedido que intentas actualizar no existe.',
+            ]);
+        }
+
         $fecha = $pedidos->deliveryDate;
+        $existingDeliveryDate = $pedidos->deliveryDate instanceof Carbon
+            ? $pedidos->deliveryDate->format('Y-m-d')
+            : (string) $pedidos->deliveryDate;
+
+        $currentStatusNormalized = strtolower((string) ($pedidos->deliveryStatus ?? ''));
+        $newStatusRaw = $request->deliveryStatus ?? ($request['deliveryStatus'] ?? $pedidos->deliveryStatus);
+        $newStatusNormalized = strtolower((string) ($newStatusRaw ?? ''));
+
+        if (!in_array($newStatusNormalized, ['pendiente', 'entregado'], true)) {
+            $newStatusNormalized = $currentStatusNormalized ?: 'pendiente';
+        }
+
+        if ($currentStatusNormalized === 'entregado' && $newStatusNormalized !== 'entregado') {
+            throw ValidationException::withMessages([
+                'deliveryStatus' => 'No es posible modificar el estado de un pedido marcado como entregado.',
+            ]);
+        }
         
         // Access validated payload
         $address = $request->address ?? ($request['address'] ?? null);
@@ -243,7 +268,9 @@ class PedidoImportService
         $pedidos->id_doctor = $idDoctor;
         $pedidos->doctorName = $doctorName;
         
-        if($pedidos->deliveryDate !== $deliveryDateNew){
+        $deliveryDateChanged = $existingDeliveryDate !== $deliveryDateNew;
+
+        if($deliveryDateChanged){
             $pedidos->deliveryDate = $deliveryDateNew;
             $contador_registro = Pedidos::where('deliveryDate',$deliveryDateNew)->orderBy('nroOrder','desc')->first();
             $ultimo_nro = 0;
@@ -252,10 +279,16 @@ class PedidoImportService
             }
             $nroOrder = $ultimo_nro +1;
             $pedidos->nroOrder = $nroOrder;
-            $pedidos->deliveryStatus = "Reprogramado";
-            $pedidos->turno = 0;
+            if ($currentStatusNormalized !== 'entregado') {
+                $pedidos->deliveryStatus = $newStatusNormalized === 'entregado' ? 'Entregado' : 'Reprogramado';
+                $pedidos->turno = 0;
+            }
         }
         
+        if ($currentStatusNormalized !== 'entregado' && !$deliveryDateChanged) {
+            $pedidos->deliveryStatus = $newStatusNormalized === 'entregado' ? 'Entregado' : 'Pendiente';
+        }
+
         $pedidos->zone_id = $zoneId;
         $pedidos->user_id = Auth::user()->id;
         $pedidos->save();
