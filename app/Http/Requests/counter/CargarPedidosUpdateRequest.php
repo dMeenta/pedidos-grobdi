@@ -3,6 +3,7 @@
 namespace App\Http\Requests\counter;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CargarPedidosUpdateRequest extends FormRequest
 {
@@ -29,6 +30,7 @@ class CargarPedidosUpdateRequest extends FormRequest
             'address' => 'required|string|max:500',
             'district' => 'required|string|max:100',
             'zone_id' => 'required|exists:zones,id',
+            'deliveryStatus' => ['required','string', Rule::in(['pendiente','entregado','Pendiente','Entregado'])],
         ];
     }
 }
