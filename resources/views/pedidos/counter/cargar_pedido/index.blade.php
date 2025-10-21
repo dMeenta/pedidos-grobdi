@@ -361,7 +361,6 @@
                 dateFormat: "Y-m-d",
                 altFormat: "d/m/Y",
                 locale: 'es',
-                maxDate: "today"
             });
 
             $('#miTabla').DataTable({
