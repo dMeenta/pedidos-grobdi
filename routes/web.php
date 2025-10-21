@@ -52,7 +52,6 @@ use App\Http\Controllers\softlyn\MerchandiseController;
 use App\Http\Controllers\softlyn\CompraController;
 use App\Http\Controllers\softlyn\UtilController;
 
-use App\Http\Controllers\ReporteController;
 
 // use App\Http\Middleware\RoleMiddleware;
 
