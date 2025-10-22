@@ -274,8 +274,6 @@
         });
         const data = @json($data);
 
-        console.log(data);
-
         const resumeTableForiginalBody = $('#resume-frasco-original-tbody');
         const resumeTableFmuestraBody = $('#resume-frasco-muestra-tbody');
 

@@ -85,7 +85,6 @@
                     </div>
                     <div class="col-10 col-md-9 col-lg-8">
                         <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
-                            {{-- Pendientes --}}
                             <label
                                 class="btn {{ request('lab_state') == 'Pendiente' ? 'btn-info active' : 'btn-outline-secondary' }}">
                                 <input type="radio" name="lab_state" value="Pendiente"
@@ -93,7 +92,6 @@
                                     {{ request('lab_state') == 'Pendiente' ? 'checked' : '' }}>
                                 Pendientes
                             </label>
-                            {{-- Todas (sin lab_state) --}}
                             <label
                                 class="btn {{ request()->has('lab_state') ? 'btn-outline-secondary' : 'btn-info active' }}">
                                 <input type="radio" name="lab_state" value=""
@@ -101,9 +99,8 @@
                                     {{ !request()->has('lab_state') ? 'checked' : '' }}>
                                 Todas
                             </label>
-                            {{-- Elaboradas --}}
                             <label
-                                class=" btn {{ request('lab_state') == 'Elaborado' ? 'btn-info active' : 'btn-outline-secondary' }}">
+                                class="btn {{ request('lab_state') == 'Elaborado' ? 'btn-info active' : 'btn-outline-secondary' }}">
                                 <input type="radio" name="lab_state" value="Elaborado"
                                     onchange="document.getElementById('filterForm').submit();"
                                     {{ request('lab_state') == 'Elaborado' ? 'checked' : '' }}>
@@ -322,8 +319,7 @@
         @include('muestras.details')
     </div>
     <div class="d-flex justify-content-end mt-3">
-        {!! $muestras->appends(request()->except('page'))->links() !!}
-    </div>
+        {{ $muestras->appends(request()->query())->links() }}
     </div>
 @stop
 

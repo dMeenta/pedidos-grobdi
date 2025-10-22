@@ -3,12 +3,115 @@
 namespace App\Application\Services\Muestras;
 
 use App\Models\Muestras;
+use App\Models\TipoMuestra;
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
 class MuestrasService
 {
+
+    public function getFilteredMuestras(array $filters, User $user): array
+    {
+        $query = Muestras::with(['clasificacion.unidadMedida', 'tipoMuestra', 'doctor', 'clasificacionPresentacion'])
+            ->where('state', true);
+
+        // === Filtros por rol del usuario ===
+        if (in_array($user->role->name, ['admin', 'coordinador-lineas', 'supervisor'])) {
+            $tiposMuestra = TipoMuestra::get();
+        } else {
+            if ($user->hasRole('visitador')) {
+                $query->where('created_by', $user->id);
+            } elseif ($user->hasRole('jefe-comercial')) {
+                $query->where('aprobado_coordinadora', true);
+            } elseif ($user->hasRole('laboratorio')) {
+                $query->where([
+                    'aprobado_coordinadora' => true,
+                    'aprobado_jefe_comercial' => true,
+                    'aprobado_jefe_operaciones' => true
+                ]);
+            } elseif ($user->hasRole('jefe-operaciones')) {
+                $restrictedRange = $this->getLimitMuestrasShowed();
+
+                if ($restrictedRange) {
+                    [$start, $end] = $restrictedRange;
+                    $query->where(function ($q) use ($start, $end) {
+                        $q->where('created_at', '<', $start)
+                            ->orWhere('created_at', '>=', $end);
+                    });
+                }
+
+                $query->where([
+                    'aprobado_coordinadora' => true,
+                    'aprobado_jefe_comercial' => true
+                ]);
+            } else {
+                $query->where([
+                    'aprobado_coordinadora' => true,
+                    'aprobado_jefe_comercial' => true
+                ]);
+            }
+        }
+
+        // === Filtros de búsqueda ===
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('nombre_muestra', 'like', "%{$search}%")
+                    ->orWhereHas('doctor', function ($q2) use ($search) {
+                        $q2->where(DB::raw("CONCAT_WS(' ', name, first_lastname, second_lastname)"), 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        // === Filtro por rango de fechas ===
+        $query->whereBetween(
+            $filters['filter_by_date_field'],
+            [$filters['date_since'], $filters['date_to']]
+        );
+
+        // === Filtro por estado de laboratorio ===
+        if ($filters['lab_state'] !== null) {
+            $query->where('lab_state', $filters['lab_state']);
+        }
+
+        // === Ordenamiento ===
+        if ($filters['order_by'] === 'datetime_scheduled') {
+            $query->orderByRaw('CASE WHEN datetime_scheduled IS NULL THEN 0 ELSE 1 END ASC')
+                ->orderBy('datetime_scheduled', 'desc');
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        // === Paginación ===
+        $muestras = $query->paginate(10);
+
+        // === Preparar respuesta ===
+        $data = compact('muestras');
+
+        if ($tiposMuestra) {
+            $data['tiposMuestra'] = $tiposMuestra;
+        }
+
+        return $data;
+    }
+
+    private function getLimitMuestrasShowed()
+    {
+        $now = Carbon::now();
+
+        $startRestriction = $now->copy()->startOfWeek()->addDays(2)->setTime(14, 0, 0);
+        $endRestriction = $now->copy()->startOfWeek()->addDays(4)->setTime(12, 0, 0);
+
+        if ($now->between($startRestriction, $endRestriction)) {
+            return [$startRestriction, $endRestriction];
+        }
+
+        return null;
+    }
+
     public function create(array $data, $userId, $foto = null)
     {
         // Manejo de imagen

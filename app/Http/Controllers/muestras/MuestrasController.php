@@ -6,6 +6,7 @@ use App\Application\Services\Muestras\MuestrasService;
 use App\Exports\muestras\MuestrasExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\muestras\DisableMuestraRequest;
+use App\Http\Requests\muestras\FilterMuestrasRequest;
 use App\Http\Requests\muestras\StoreOrUpdateMuestraRequest;
 use App\Models\TipoMuestra;
 use App\Models\Muestras;
@@ -43,110 +44,14 @@ class MuestrasController extends Controller
 
     /* R - READ */
 
-    public function index(Request $request)
+    public function index(FilterMuestrasRequest $request)
     {
-        $user = Auth::user();
+        $user = $request->user();
+        $filters = $request->getFilters();
 
-        $query = Muestras::with(['clasificacion.unidadMedida', 'tipoMuestra', 'doctor', 'clasificacionPresentacion'])
-            ->where('state', true);
-
-        // Filtros por rol
-        if ($user->hasRole('admin') || $user->hasRole('coordinador-lineas') || $user->hasRole('supervisor')) {
-            $tiposMuestra = TipoMuestra::get();
-        } else if ($user->hasRole('visitador')) {
-            $query->where('created_by', $user->id);
-        } else if ($user->hasRole('jefe-comercial')) {
-            $query->where('aprobado_coordinadora', true);
-        } else if ($user->hasRole('laboratorio')) {
-            $query->where([
-                'aprobado_coordinadora' => true,
-                'aprobado_jefe_comercial' => true,
-                'aprobado_jefe_operaciones' => true
-            ]);
-        } else if ($user->hasRole('jefe-operaciones')) {
-            $restrictedRange = $this->getLimitMuestrasShowed();
-
-            if ($restrictedRange) {
-                [$start, $end] = $restrictedRange;
-                $query->where(function ($q) use ($start, $end) {
-                    $q->where('created_at', '<', $start)
-                        ->orWhere('created_at', '>=', $end);
-                });
-            }
-
-            $query->where([
-                'aprobado_coordinadora' => true,
-                'aprobado_jefe_comercial' => true
-            ]);
-        } else {
-            $query->where([
-                'aprobado_coordinadora' => true,
-                'aprobado_jefe_comercial' => true
-            ]);
-
-        }
-
-        if ($request->filled('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('nombre_muestra', 'like', "%{$search}%")
-                    ->orWhereHas('doctor', function ($q2) use ($search) {
-                        $q2->where(DB::raw("CONCAT_WS(' ', name, first_lastname, second_lastname)"), 'like', "%{$search}%");
-                    });
-            });
-        }
-
-        $filterBy = $request->filter_by_date && $request->filter_by_date === 'entrega' ? 'datetime_scheduled' : 'created_at';
-        $dateSince = Carbon::parse($request->date_since ?? now()->startOfMonth())->startOfDay();
-        $dateTo = Carbon::parse($request->date_to ?? now())->endOfDay();
-
-        $query->whereBetween($filterBy, [$dateSince, $dateTo]);
-
-        if ($request->filled('lab_state')) {
-            $estado = $request->lab_state === 'Elaborado' ? true : false;
-            $query->where('lab_state', $estado);
-        }
-
-        if ($request->filled('order_by')) {
-            switch (strtolower($request->order_by)) {
-                case 'fecha_entrega':
-                    $query->orderByRaw('CASE WHEN datetime_scheduled IS NULL THEN 0 ELSE 1 END ASC')
-                        ->orderBy('datetime_scheduled', 'desc');
-                    break;
-                default:
-                    $query->orderBy('created_at', 'desc');
-                    break;
-            }
-        } else {
-            $query->orderBy('created_at', 'desc');
-        }
-
-
-        // Paginar solo una vez al final
-        $muestras = $query->paginate(10)->appends($request->except('page'));
-
-        // Enviar datos a la vista
-        $data = ['muestras' => $muestras];
-
-        if (isset($tiposMuestra)) {
-            $data['tiposMuestra'] = $tiposMuestra;
-        }
+        $data = $this->service->getFilteredMuestras($filters, $user);
 
         return view('muestras.index', $data);
-    }
-
-    private function getLimitMuestrasShowed()
-    {
-        $now = Carbon::now();
-
-        $startRestriction = $now->copy()->startOfWeek()->addDays(2)->setTime(14, 0, 0);
-        $endRestriction = $now->copy()->startOfWeek()->addDays(4)->setTime(12, 0, 0);
-
-        if ($now->between($startRestriction, $endRestriction)) {
-            return [$startRestriction, $endRestriction];
-        }
-
-        return null;
     }
 
     // Mostrar detalles de una muestra por su ID
