@@ -6,6 +6,7 @@ use App\Http\Controllers\ajustes\UbigeoController;
 use App\Http\Controllers\ajustes\UsuariosController;
 use App\Http\Controllers\ajustes\ViewController;
 use App\Http\Controllers\pedidos\comercial\PedidosComercialController;
+use App\Http\Controllers\Visitadoras\MetasController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -75,19 +76,24 @@ Route::middleware(['check.permission'])->group(function () {
 
         Route::put('laboratorio/{id}/comentario', [MuestrasController::class, 'updateComentarioLab'])->name('muestras.updateComentarioLab');
         Route::put('laboratorio/{id}/state', [MuestrasController::class, 'markAsElaborated'])->name('muestras.markAsElaborated');
-    
+
         /* ---- CONTABILIDAD --- */
-    
+
         Route::put('/{id}/update-price', [MuestrasController::class, 'updatePrice'])->name('muestras.updatePrice');
-    
+
         /* ---- APROBACIONES --- */
-    
+
         //Coordinadora
         Route::put('/aprove-coordinador', [MuestrasController::class, 'aproveMuestraByCoordinadora'])->name('muestras.aproveCoordinadora');
         //Jefe Comercial
         Route::put('/aprove-jcomercial', [MuestrasController::class, 'aproveMuestraByJefeComercial'])->name('muestras.aproveJefeComercial');
         //Jefe de Operaciones
         Route::put('/aprove-joperaciones', [MuestrasController::class, 'aproveMuestraByJefeOperaciones'])->name('muestras.aproveJefeOperaciones');
+    });
+
+    Route::prefix('visitadoras')->group(function () {
+        Route::get("/metas", [MetasController::class, 'index'])->name('visitadoras.muestras');
+        Route::get("/metas/form", [MetasController::class, 'form'])->name('visitadoras.muestras.form');
     });
 
     Route::get('pedidoscomercial', [PedidosComercialController::class, 'index'])->name('pedidoscomercial.index');
@@ -105,7 +111,7 @@ Route::middleware(['check.permission'])->group(function () {
     Route::get('/cargarpedidos/{pedido}/uploadfile', [CargarPedidosController::class, 'uploadfile'])->name('cargarpedidos.uploadfile');
     Route::put('/cargarpedidos/cargarImagen/{id}', CargarPedidosController::class . '@cargarImagen')->name('cargarpedidos.cargarImagen');
     Route::put('/cargarpedidos/actualizarPago/{id}', CargarPedidosController::class . '@actualizarPago')->name('cargarpedidos.actualizarPago');
-    Route::put('/cargarpedidos/cargarImagenReceta/{id}',CargarPedidosController::class . '@cargarImagenReceta')->name('cargarpedidos.cargarImagenReceta');
+    Route::put('/cargarpedidos/cargarImagenReceta/{id}', CargarPedidosController::class . '@cargarImagenReceta')->name('cargarpedidos.cargarImagenReceta');
     Route::delete('cargarpedidos/eliminarFotoVoucher/{id}', CargarPedidosController::class . '@eliminarFotoVoucher')->name('cargarpedidos.eliminarFotoVoucher');
     Route::put('/cargarpedidos/actualizarTurno/{id}', CargarPedidosController::class . '@actualizarTurno')->name('cargarpedidos.actualizarTurno');
 
@@ -251,74 +257,74 @@ Route::middleware(['check.permission'])->group(function () {
 
 });
 
-    /*
-    EN REVISIÓN, REPORTES DE MUESTRAS PARA GERENCIA
-    */
+/*
+EN REVISIÓN, REPORTES DE MUESTRAS PARA GERENCIA
+*/
 
-    //GERENCIACONTROLLER
+//GERENCIACONTROLLER
 
-    // REVISION //
-    //Reporte gerencia - Clasificaciones
-    Route::get('/reporte', [gerenciaController::class, 'mostrarReporte'])->name('muestras.reporte');
+// REVISION //
+//Reporte gerencia - Clasificaciones
+Route::get('/reporte', [gerenciaController::class, 'mostrarReporte'])->name('muestras.reporte');
 
-    // REVISION //
-    //Reporte Gerencia frasco original
-    Route::get('/reporte/frasco-original', [gerenciaController::class, 'mostrarReporteFrascoOriginal'])->name('muestras.reporte.frasco-original');
+// REVISION //
+//Reporte Gerencia frasco original
+Route::get('/reporte/frasco-original', [gerenciaController::class, 'mostrarReporteFrascoOriginal'])->name('muestras.reporte.frasco-original');
 
-    // REVISION //
-    //Reporte Gerencia Frasco Muestra
-    Route::get('/reporte/frasco-muestra', [gerenciaController::class, 'mostrarReporteFrascoMuestra'])->name('muestras.reporte.frasco-muestra');
+// REVISION //
+//Reporte Gerencia Frasco Muestra
+Route::get('/reporte/frasco-muestra', [gerenciaController::class, 'mostrarReporteFrascoMuestra'])->name('muestras.reporte.frasco-muestra');
 
-    // REVISION //
-    //exportar pdf en Reportes
-    Route::get('reporte/PDF-frascoMuestra', [gerenciaController::class, 'exportarPDF'])->name('muestras.exportarPDF');
+// REVISION //
+//exportar pdf en Reportes
+Route::get('reporte/PDF-frascoMuestra', [gerenciaController::class, 'exportarPDF'])->name('muestras.exportarPDF');
 
-    // REVISION //
-    Route::get('reporte/PDF-frascoOriginal', [gerenciaController::class, 'exportarPDFFrascoOriginal'])->name('muestras.frasco.original.pdf');
+// REVISION //
+Route::get('reporte/PDF-frascoOriginal', [gerenciaController::class, 'exportarPDFFrascoOriginal'])->name('muestras.frasco.original.pdf');
 
 
-    //COTIZADOR GENERAL----------
-    //modulos del softlyn
-    //Administración
-    Route::resource('insumo_empaque', InsumoEmpaqueController::class);
-    // CRUDs separados para envases, material e insumos
-    Route::resource('envases', EnvaseController::class);
-    Route::resource('material', MaterialController::class);
-    Route::resource('insumos', InsumoController::class);
-    //Crud proveedores
-    Route::resource('proveedores', ProveedorController::class)->parameters([
-        'proveedores' => 'proveedor'
-    ]);
-    //Crud tipo de cambio- EL PRINCIPAL ES RESUMEN-TIPO-CAMBIO!!!
-    Route::resource('tipo_cambio', TipoCambioController::class);
-    Route::get('/resumen-tipo-cambio', [TipoCambioController::class, 'resumenTipoCambio'])->name('tipo_cambio.resumen');
-    // Route::delete('/tipo-cambio/{id?}', [TipoCambioController::class, 'destroy'])->name('tipo_cambio.destroy');
+//COTIZADOR GENERAL----------
+//modulos del softlyn
+//Administración
+Route::resource('insumo_empaque', InsumoEmpaqueController::class);
+// CRUDs separados para envases, material e insumos
+Route::resource('envases', EnvaseController::class);
+Route::resource('material', MaterialController::class);
+Route::resource('insumos', InsumoController::class);
+//Crud proveedores
+Route::resource('proveedores', ProveedorController::class)->parameters([
+    'proveedores' => 'proveedor'
+]);
+//Crud tipo de cambio- EL PRINCIPAL ES RESUMEN-TIPO-CAMBIO!!!
+Route::resource('tipo_cambio', TipoCambioController::class);
+Route::get('/resumen-tipo-cambio', [TipoCambioController::class, 'resumenTipoCambio'])->name('tipo_cambio.resumen');
+// Route::delete('/tipo-cambio/{id?}', [TipoCambioController::class, 'destroy'])->name('tipo_cambio.destroy');
 
-    //crud para merchandise
-    Route::resource('merchandise', MerchandiseController::class);
-    //Ruta para utiles
-    Route::resource('util', UtilController::class);
-    //crud compras
-    Route::resource('compras', CompraController::class);
-    // CRUD Guía de Ingreso
-    Route::resource('guia_ingreso', \App\Http\Controllers\softlyn\GuiaIngresoController::class);
-    // Ruta AJAX para obtener detalles de compra
-    Route::get('lotes/por-articulo/{articulo_id}', [\App\Http\Controllers\softlyn\GuiaIngresoController::class, 'getLotesPorArticulo'])->name('lotes.por_articulo');
-    Route::get('guia_ingreso/detalles-compra/{compra_id}', [\App\Http\Controllers\softlyn\GuiaIngresoController::class, 'getDetallesCompra'])->name('guia_ingreso.detalles_compra');
+//crud para merchandise
+Route::resource('merchandise', MerchandiseController::class);
+//Ruta para utiles
+Route::resource('util', UtilController::class);
+//crud compras
+Route::resource('compras', CompraController::class);
+// CRUD Guía de Ingreso
+Route::resource('guia_ingreso', \App\Http\Controllers\softlyn\GuiaIngresoController::class);
+// Ruta AJAX para obtener detalles de compra
+Route::get('lotes/por-articulo/{articulo_id}', [\App\Http\Controllers\softlyn\GuiaIngresoController::class, 'getLotesPorArticulo'])->name('lotes.por_articulo');
+Route::get('guia_ingreso/detalles-compra/{compra_id}', [\App\Http\Controllers\softlyn\GuiaIngresoController::class, 'getDetallesCompra'])->name('guia_ingreso.detalles_compra');
 
-    // Rutas estándar del CRUD
-    Route::resource('producto_final', ProductoFinalController::class);
+// Rutas estándar del CRUD
+Route::resource('producto_final', ProductoFinalController::class);
 
-    //crud volumen
-    Route::resource('volumen', VolumenController::class);
+//crud volumen
+Route::resource('volumen', VolumenController::class);
 
-    //Laboratorio 
-    Route::resource('bases', BaseController::class);
-    // Rutas adicionales para AJAX
-    /* Route::get('articulos/por-tipo', [CompraController::class, 'getArticulosByTipo'])
-        ->name('articulos.por-tipo');
-    */
+//Laboratorio 
+Route::resource('bases', BaseController::class);
+// Rutas adicionales para AJAX
+/* Route::get('articulos/por-tipo', [CompraController::class, 'getArticulosByTipo'])
+    ->name('articulos.por-tipo');
+*/
 
-    //contabilidad  marcará si el insumo es caro o no
-    Route::get('/insumo/marcar-caro', [InsumoController::class, 'marcarCaro'])->name('insumos.marcar-caro');
-    Route::post('/insumo/marcar-caro', [InsumoController::class, 'actualizarEsCaro'])->name('insumos.actualizar-es-caro');
+//contabilidad  marcará si el insumo es caro o no
+Route::get('/insumo/marcar-caro', [InsumoController::class, 'marcarCaro'])->name('insumos.marcar-caro');
+Route::post('/insumo/marcar-caro', [InsumoController::class, 'actualizarEsCaro'])->name('insumos.actualizar-es-caro');

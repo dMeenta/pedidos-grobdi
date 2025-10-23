@@ -25,7 +25,7 @@ class MetasController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function form()
     {
         return view('visitadoras.metas.form');
     }
