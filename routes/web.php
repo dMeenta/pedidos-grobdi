@@ -65,35 +65,35 @@ Route::middleware(['check.permission'])->group(function () {
     Route::prefix('muestras')->group(function () {
         Route::get("/", [MuestrasController::class, 'index'])->name('muestras.index');
         Route::get("/export", [MuestrasController::class, 'exportExcel'])->name('muestras.exportExcel');
-        Route::delete('/disable/{id}', [MuestrasController::class, 'disableMuestra'])->name('muestras.disable');
+        Route::delete('/disable/{muestra}', [MuestrasController::class, 'disableMuestra'])->name('muestras.disable');
         Route::get('/{id}', [MuestrasController::class, 'show'])->name('muestras.show');
         Route::get("create/form", [MuestrasController::class, 'create'])->name('muestras.create');
         Route::post("create/", [MuestrasController::class, 'store'])->name('muestras.store');
-        Route::get('edit/{id}', [MuestrasController::class, 'edit'])->name('muestras.edit');
-        Route::put('edit/{id}', [MuestrasController::class, 'update'])->name('muestras.update');
-        Route::put('edit/{id}/update-tipo-muestra', [MuestrasController::class, 'updateTipoMuestra'])->name('muestras.updateTipoMuestra');
-        Route::put('edit/{id}/update-fecha-hora-entrega', [MuestrasController::class, 'updateDateTimeScheduled'])->name('muestras.updateDateTimeScheduled');
+        Route::get('edit/{muestra}', [MuestrasController::class, 'edit'])->name('muestras.edit');
+        Route::put('edit/{muestra}', [MuestrasController::class, 'update'])->name('muestras.update');
+        Route::put('edit/{muestra}/update-tipo-muestra', [MuestrasController::class, 'updateTipoMuestra'])->name('muestras.updateTipoMuestra');
+        Route::put('edit/{muestra}/update-fecha-hora-entrega', [MuestrasController::class, 'updateDateTimeScheduled'])->name('muestras.updateDateTimeScheduled');
 
-        Route::put('laboratorio/{id}/comentario', [MuestrasController::class, 'updateComentarioLab'])->name('muestras.updateComentarioLab');
-        Route::put('laboratorio/{id}/state', [MuestrasController::class, 'markAsElaborated'])->name('muestras.markAsElaborated');
+        Route::put('laboratorio/{muestra}/comentario', [MuestrasController::class, 'updateComentarioLab'])->name('muestras.updateComentarioLab');
+        Route::put('laboratorio/{muestra}/state', [MuestrasController::class, 'markAsElaborated'])->name('muestras.markAsElaborated');
 
         /* ---- CONTABILIDAD --- */
-
-        Route::put('/{id}/update-price', [MuestrasController::class, 'updatePrice'])->name('muestras.updatePrice');
+        Route::put('/{muestra}/update-price', [MuestrasController::class, 'updatePrice'])->name('muestras.updatePrice');
 
         /* ---- APROBACIONES --- */
 
         //Coordinadora
-        Route::put('/aprove-coordinador', [MuestrasController::class, 'aproveMuestraByCoordinadora'])->name('muestras.aproveCoordinadora');
+        Route::put('/aprove-coordinador/{muestra}', [MuestrasController::class, 'aproveMuestraByCoordinadora'])->name('muestras.aproveCoordinadora');
         //Jefe Comercial
-        Route::put('/aprove-jcomercial', [MuestrasController::class, 'aproveMuestraByJefeComercial'])->name('muestras.aproveJefeComercial');
+        Route::put('/aprove-jcomercial/{muestra}', [MuestrasController::class, 'aproveMuestraByJefeComercial'])->name('muestras.aproveJefeComercial');
         //Jefe de Operaciones
-        Route::put('/aprove-joperaciones', [MuestrasController::class, 'aproveMuestraByJefeOperaciones'])->name('muestras.aproveJefeOperaciones');
+        Route::put('/aprove-joperaciones/{muestra}', [MuestrasController::class, 'aproveMuestraByJefeOperaciones'])->name('muestras.aproveJefeOperaciones');
     });
 
     Route::prefix('visitadoras')->group(function () {
-        Route::get("/metas", [MetasController::class, 'index'])->name('visitadoras.muestras');
-        Route::get("/metas/form", [MetasController::class, 'form'])->name('visitadoras.muestras.form');
+        Route::get("/metas", [MetasController::class, 'index'])->name('visitadoras.metas');
+        Route::get("/metas/form", [MetasController::class, 'form'])->name('visitadoras.metas.form');
+        Route::post('/metas/store', [MetasController::class, 'store'])->name('visitadoras.metas.store');
     });
 
     Route::get('pedidoscomercial', [PedidosComercialController::class, 'index'])->name('pedidoscomercial.index');
@@ -252,6 +252,10 @@ Route::middleware(['check.permission'])->group(function () {
             Route::prefix('api/v1')->group(function () {
                 Route::get('muestras', [ReportsController::class, 'getMuestrasReport'])->name('reports.muestras.api');
             });
+        });
+
+        Route::prefix('motorizados')->group(function () {
+            Route::get('/', [ReportsController::class, 'muestrasView'])->name('reports.motorizados');
         });
     });
 
