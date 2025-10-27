@@ -76,13 +76,13 @@ Route::middleware(['check.permission'])->group(function () {
 
         Route::put('laboratorio/{id}/comentario', [MuestrasController::class, 'updateComentarioLab'])->name('muestras.updateComentarioLab');
         Route::put('laboratorio/{id}/state', [MuestrasController::class, 'markAsElaborated'])->name('muestras.markAsElaborated');
-    
+
         /* ---- CONTABILIDAD --- */
-    
+
         Route::put('/{id}/update-price', [MuestrasController::class, 'updatePrice'])->name('muestras.updatePrice');
-    
+
         /* ---- APROBACIONES --- */
-    
+
         //Coordinadora
         Route::put('/aprove-coordinador', [MuestrasController::class, 'aproveMuestraByCoordinadora'])->name('muestras.aproveCoordinadora');
         //Jefe Comercial
@@ -167,6 +167,7 @@ Route::middleware(['check.permission'])->group(function () {
     Route::get('/enrutamiento/{id}', [EnrutamientoController::class, 'agregarLista'])->name('enrutamiento.agregarlista');
     Route::get('/enrutamientolista/{id}', [EnrutamientoController::class, 'DoctoresLista'])->name('enrutamientolista.doctores');
     Route::put('/enrutamientolista/doctor/{id}', [EnrutamientoController::class, 'DoctoresListaUpdate'])->name('enrutamientolista.doctoresupdate');
+    Route::post('/enrutamientolista/add-visita', [EnrutamientoController::class, 'addSpontaneousVisitaDoctor'])->name('visita.doctor.add.spontaneous');
     Route::post('/visitadoctornuevo/{id}/aprobar', [VisitaDoctorController::class, 'aprobar'])->name('doctor.aprobarVisita');
     Route::post('/visitadoctornuevo/{id}/rechazar', [VisitaDoctorController::class, 'rechazar'])->name('doctor.rechazarVisita');
     Route::resource('categoriadoctor', CategoriaDoctorController::class);
@@ -313,7 +314,7 @@ Route::middleware(['check.permission'])->group(function () {
     //crud volumen
     Route::resource('volumen', VolumenController::class);
 
-    //Laboratorio 
+    //Laboratorio
     Route::resource('bases', BaseController::class);
     // Rutas adicionales para AJAX
     /* Route::get('articulos/por-tipo', [CompraController::class, 'getArticulosByTipo'])
