@@ -22,7 +22,7 @@
                     </div>
                     <div class="card-body">
                         <div class="table table-responsive">
-                            <table class="table">
+                            <table class="table table-grobdi">
                                 <thead>
                                     <tr>
                                         <th>Nombre</th>
