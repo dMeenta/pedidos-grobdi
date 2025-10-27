@@ -44,6 +44,18 @@
                                 @endforeach
                             </select>
                         </div>
+                        <div class="col-md-4 col-lg-3">
+                            <label for="filtroEstado" class="form-label mb-1">Estado</label>
+                            <select id="filtroEstado" class="form-control">
+                                <option value="">Todos</option>
+                                @php
+                                    $estadosOpciones = collect($visitadoctores)->pluck('estado_visita.name')->unique()->filter();
+                                @endphp
+                                @foreach ($estadosOpciones as $estadoNombre)
+                                    <option value="{{ $estadoNombre }}">{{ $estadoNombre }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
                     <div class="table table-responsive table-grobdi">
                         <table class="table" id="miTabla">
@@ -68,7 +80,9 @@
                                     <td>{{ $categoriaDoctor ? $categoriaDoctor . ' - ' : '' }}{{ $doctor->name ?? 'Sin asignar' }}</td>
                                     <td>{{ optional($doctor->centrosalud)->name ?? '—' }}</td>
                                     <td>{{ optional($doctor->distrito)->name ?? '—' }}</td>
-                                    @if ( $visitadoctor->estado_visita->id  == 1)
+                                    @if ($visitadoctor->reprogramar == 1)
+                                        <td><span class="badge bg-secondary">Reprogramada</span></td>
+                                    @elseif ( $visitadoctor->estado_visita->id  == 1)
                                         <td><span class="badge bg-warning">{{ $visitadoctor->estado_visita->name }}</span></td>
                                     @elseif($visitadoctor->estado_visita->id == 5)
                                         <td><span class="badge bg-secondary">{{ $visitadoctor->estado_visita->name }}</span></td>
@@ -83,7 +97,19 @@
                                     @endif
                                     <td>{{ $visitadoctor->fecha ?? '—' }}</td>
                                     <td>{{ $visitadoctor->turno ? 'Tarde' : 'Mañana' }}</td>
-                                    @if ($visitadoctor->estado_visita_id == 1)
+                                    @if ($visitadoctor->reprogramar == 1)
+                                        <td></td>
+                                    @elseif ($visitadoctor->estado_visita->name == 'Asignado')
+                                        <td>
+                                            @can('rutasvisitadora.reprogramar')
+                                            <button class="btn btn-warning btn-reprogramar"
+                                                data-id="{{ $visitadoctor->id }}"
+                                                data-nombre="{{ $visitadoctor->doctor->name }}">
+                                                Reprogramar
+                                            </button>
+                                            @endcan
+                                        </td>
+                                    @elseif ($visitadoctor->estado_visita_id == 1)
                                         <td>
                                             @can('rutasvisitadora.asignar')
                                             <button class="btn btn-success btn-asignar"
@@ -105,6 +131,39 @@
             </div>
         </div>
     </div>
+<!-- Modal reprogramar visita -->
+@can('rutasvisitadora.reprogramar')
+<div class="modal fade" id="modalReprogramar" tabindex="-1" aria-labelledby="modalReprogramarLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form id="formReprogramar">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalReprogramarLabel">Reprogramar Visita</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="visitadoctor_id_reprogramar" name="visitadoctor_id_reprogramar">
+                <div class="mb-3">
+                    <label for="fecha_reprogramar" class="form-label">Nueva Fecha de Visita</label>
+                    <input type="date" class="form-control" id="fecha_reprogramar" name="fecha_reprogramar" min="{{ $fecha_inicio }}" max="{{ $fecha_fin }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="turno_reprogramar" class="form-label">Turno</label>
+                    <select class="form-control" name="turno_reprogramar" id="turno_reprogramar" required>
+                        <option value="0">Mañana</option>
+                        <option value="1">Tarde</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+        </form>
+    </div>
+</div>
+@endcan
+
 <!-- Modal asignar visita -->
 @can('rutasvisitadora.asignar')
 <div class="modal fade" id="modalAsignar" tabindex="-1" aria-labelledby="modalAsignarLabel" aria-hidden="true">
@@ -309,13 +368,25 @@
                 tabla.column(2).search(valor ? '^' + $.fn.dataTable.util.escapeRegex(valor) + '$' : '', true, false).draw();
             });
 
+            $('#filtroEstado').on('change', function () {
+                const valor = $(this).val();
+                tabla.column(3).search(valor ? '^' + $.fn.dataTable.util.escapeRegex(valor) + '$' : '', true, false).draw();
+            });
+
             // Abre modal y pasa el ID
             $('.btn-asignar').on('click', function () {
                 let id = $(this).data('id');
                 $('#visitadoctor_id').val(id);
                 $('#modalAsignar').modal('show');
             });
-            // Envía formulario por AJAX
+
+            // Abre modal reprogramar y pasa el ID
+            $('.btn-reprogramar').on('click', function () {
+                let id = $(this).data('id');
+                $('#visitadoctor_id_reprogramar').val(id);
+                $('#modalReprogramar').modal('show');
+            });
+            // Envía formulario por AJAX para asignar
             $('#formAsignar').on('submit', function (e) {
                 e.preventDefault();
 
@@ -340,7 +411,6 @@
                             timer: 1500
                         });
 
-                        // Opcional: recargar tabla o actualizar solo esa fila
                         setTimeout(() => location.reload(), 1500);
                     },
                     error: function (xhr) {
@@ -348,6 +418,44 @@
                             icon: 'error',
                             title: 'Error',
                             text: xhr.responseText || 'Ocurrió un error al guardar.'
+                        });
+                    }
+                });
+            });
+
+            // Envía formulario por AJAX para reprogramar
+            $('#formReprogramar').on('submit', function (e) {
+                e.preventDefault();
+
+                let formData = {
+                    _token: '{{ csrf_token() }}',
+                    id: $('#visitadoctor_id_reprogramar').val(),
+                    fecha: $('#fecha_reprogramar').val(),
+                    turno: $('#turno_reprogramar').val(),
+                    reprogramar: true
+                };
+
+                $.ajax({
+                    url: '{{ route("rutasvisitadora.reprogramar") }}', // Ruta backend (deberás crearla)
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        $('#modalReprogramar').modal('hide');
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Reprogramado correctamente',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+
+                        setTimeout(() => location.reload(), 1500);
+                    },
+                    error: function (xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: xhr.responseText || 'Ocurrió un error al reprogramar.'
                         });
                     }
                 });

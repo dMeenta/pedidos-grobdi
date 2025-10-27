@@ -363,4 +363,11 @@ class EnrutamientoController extends Controller
             ],
         ]);
     }
+
+    public function destroyVisitaDoctor($id)
+    {
+        $visitaDoctor = VisitaDoctor::findOrFail($id);
+        $visitaDoctor->delete();
+        return back()->with('success', 'Visita eliminada correctamente');
+    }
 }
