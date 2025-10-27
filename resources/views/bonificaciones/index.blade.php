@@ -15,7 +15,7 @@
                 </div>
                 <div class="bonificaciones-action-group d-flex gap-2">
                     <a class="btn btn-danger btn-lg px-4" href="{{ route('bonificaciones.configuracion') }}">Configurar meta</a>
-                    <a class="btn btn-primary btn-lg px-4" href="{{ route('bonificaciones.create') }}">Crear meta</a>
+                    <a class="btn btn-primary btn-lg px-4" href="{{ route('bonificaciones.create') }}">Nuevo mes</a>
                 </div>
             </div>
         </div>
