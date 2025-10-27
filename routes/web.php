@@ -58,6 +58,10 @@ use App\Http\Controllers\softlyn\UtilController;
 // use Auth;
 Auth::routes();
 Route::middleware(['check.permission'])->group(function () {
+    // Reprogramar visita doctor
+    Route::post('/rutasvisitadora/reprogramar', [\App\Http\Controllers\rutas\enrutamiento\RutasVisitadoraController::class, 'reprogramar'])
+        ->name('rutasvisitadora.reprogramar')
+        ->middleware('can:rutasvisitadora.reprogramar');
     Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
     //Modulo de Muestras
@@ -75,13 +79,13 @@ Route::middleware(['check.permission'])->group(function () {
 
         Route::put('laboratorio/{id}/comentario', [MuestrasController::class, 'updateComentarioLab'])->name('muestras.updateComentarioLab');
         Route::put('laboratorio/{id}/state', [MuestrasController::class, 'markAsElaborated'])->name('muestras.markAsElaborated');
-    
+
         /* ---- CONTABILIDAD --- */
-    
+
         Route::put('/{id}/update-price', [MuestrasController::class, 'updatePrice'])->name('muestras.updatePrice');
-    
+
         /* ---- APROBACIONES --- */
-    
+
         //Coordinadora
         Route::put('/aprove-coordinador', [MuestrasController::class, 'aproveMuestraByCoordinadora'])->name('muestras.aproveCoordinadora');
         //Jefe Comercial
@@ -94,6 +98,7 @@ Route::middleware(['check.permission'])->group(function () {
     Route::get('pedidoscomercial/export', [PedidosComercialController::class, 'export'])->name('pedidoscomercial.export');
 
     Route::get('/doctors/search', [DoctorController::class, 'showByNameLike'])->name('doctors.search');
+// ...existing code...
 
     //COUNTER
     Route::get('pedido/{id}/state', [PedidosController::class, 'showDeliveryStates'])->name('pedidos.showDeliveryStates');
@@ -166,6 +171,8 @@ Route::middleware(['check.permission'])->group(function () {
     Route::get('/enrutamiento/{id}', [EnrutamientoController::class, 'agregarLista'])->name('enrutamiento.agregarlista');
     Route::get('/enrutamientolista/{id}', [EnrutamientoController::class, 'DoctoresLista'])->name('enrutamientolista.doctores');
     Route::put('/enrutamientolista/doctor/{id}', [EnrutamientoController::class, 'DoctoresListaUpdate'])->name('enrutamientolista.doctoresupdate');
+    Route::delete('/enrutamientolista/doctor/{id}', [EnrutamientoController::class, 'destroyVisitaDoctor'])->name('enrutamientolista.doctoresdestroy');
+    Route::post('/enrutamientolista/add-visita', [EnrutamientoController::class, 'addSpontaneousVisitaDoctor'])->name('visita.doctor.add.spontaneous');
     Route::post('/visitadoctornuevo/{id}/aprobar', [VisitaDoctorController::class, 'aprobar'])->name('doctor.aprobarVisita');
     Route::post('/visitadoctornuevo/{id}/rechazar', [VisitaDoctorController::class, 'rechazar'])->name('doctor.rechazarVisita');
     Route::resource('categoriadoctor', CategoriaDoctorController::class);
@@ -312,7 +319,7 @@ Route::middleware(['check.permission'])->group(function () {
     //crud volumen
     Route::resource('volumen', VolumenController::class);
 
-    //Laboratorio 
+    //Laboratorio
     Route::resource('bases', BaseController::class);
     // Rutas adicionales para AJAX
     /* Route::get('articulos/por-tipo', [CompraController::class, 'getArticulosByTipo'])

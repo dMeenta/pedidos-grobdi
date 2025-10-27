@@ -23,7 +23,7 @@
                     <div class="alert alert-success" role="alert"> {{ $value }} </div>
                 @endsession
                 <div class="table table-responsive">
-                    <table id="miTabla" class="table table-bordered table-striped">
+                    <table id="miTabla" class="table table-bordered table-striped table-grobdi">
                         <thead>
                             <tr>
                                 <th>Nombre</th>
@@ -33,7 +33,7 @@
                                 <th>Opciones</th>
                             </tr>
                         </thead>
-              
+
                         <tbody>
                         @forelse ($centrosalud as $centrosa)
                             <tr class={{ $centrosa->state == 0 ? 'table-danger': ''}}>
@@ -44,16 +44,16 @@
                                 <td>
                                     <div class="d-flex flex-wrap gap-2">
                                         @can('centrosalud.edit')
-                                            <a class="btn btn-primary btn-xs" href="{{ route('centrosalud.edit',$centrosa->id) }}"><i class="fas fa-pen"></i> Editar</a>
+                                            <a class="btn btn-primary" href="{{ route('centrosalud.edit',$centrosa->id) }}"><i class="fas fa-pen"></i> Editar</a>
                                         @endcan
                                         @can('centrosalud.destroy')
                                             <form action="{{ route('centrosalud.destroy',$centrosa->id) }}" method="POST" class="m-0">
                                                 @csrf
                                                 @method('DELETE')
                                                 @if($centrosa->state == 1)
-                                                    <button type="submit" class="btn btn-danger btn-sm">Inhabilitar</button>
+                                                    <button type="submit" class="btn btn-danger">Inhabilitar</button>
                                                 @else
-                                                    <button type="submit" class="btn btn-success btn-sm">Habilitar</button>
+                                                    <button type="submit" class="btn btn-success">Habilitar</button>
                                                 @endif
                                             </form>
                                         @endcan
@@ -66,11 +66,11 @@
                             </tr>
                         @endforelse
                         </tbody>
-              
+
                     </table>
-                </div> 
+                </div>
             </div>
-        </div> 
+        </div>
     </div>
 </div>
 @endcan

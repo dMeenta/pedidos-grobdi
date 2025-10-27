@@ -13,7 +13,7 @@ class ViewSeeder extends Seeder
         DB::table('views')->truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        DB::statement(<<<'SQL'
+    DB::statement(<<<'SQL'
 INSERT INTO `views` (`id`, `url`, `is_menu`, `description`, `icon`, `state`, `module_id`, `created_at`, `updated_at`) VALUES
 (1,'views.index',1,'Vistas','fas fa-fw fa-eye',1,1,'2025-09-17 14:57:38','2025-09-17 14:57:38'),
 (2,'views.create',0,'Crear Vista',NULL,1,1,'2025-09-17 15:01:01','2025-09-17 15:01:01'),
@@ -63,7 +63,6 @@ INSERT INTO `views` (`id`, `url`, `is_menu`, `description`, `icon`, `state`, `mo
 (46,'doctor.edit',0,'Editar Doctor',NULL,1,4,'2025-09-18 19:54:58','2025-09-18 19:54:58'),
 (47,'doctor.update',0,'Actualizar doctor',NULL,1,4,'2025-09-18 19:55:25','2025-09-18 19:55:25'),
 (48,'doctor.cargadata',0,'Cargar excel de doctores',NULL,1,4,'2025-09-18 19:57:26','2025-09-23 17:27:23'),
-(141,'doctor.export',0,'Exportar doctores',NULL,1,4,'2025-10-16 00:00:00','2025-10-16 00:00:00'),
 (49,'doctor.destroy',0,'Inhabilitar / Habilitar Doctores',NULL,1,4,'2025-09-18 20:04:34','2025-09-18 20:04:34'),
 (50,'doctors.search',0,'Buscador de doctor',NULL,1,4,'2025-09-19 13:34:56','2025-09-19 13:34:56'),
 (51,'centrosalud.index',1,'Centro de salud','fas fa-fw fa-h-square',1,4,'2025-09-19 13:36:46','2025-09-19 13:36:46'),
@@ -91,7 +90,9 @@ INSERT INTO `views` (`id`, `url`, `is_menu`, `description`, `icon`, `state`, `mo
 (73,'enrutamientolista.doctoresupdate',0,'Asignar visita a doctor',NULL,1,4,'2025-09-19 17:47:24','2025-09-19 17:47:24'),
 (74,'enrutamientolista.store',0,'Crear semana y agregar doctores',NULL,1,4,'2025-09-19 17:48:32','2025-09-19 17:48:32'),
 (75,'enrutamientolista.doctores',0,'Listar doctores por semana',NULL,1,4,'2025-09-19 17:51:32','2025-09-19 17:51:32'),
-(76,'ruta.mapa',1,'Mapa de rutas','fa fa-map',1,4,'2025-09-19 19:45:22','2025-09-19 19:45:22'),
+-- Permiso para eliminar visita doctor
+(76,'enrutamientolista.doctoresdestroy',0,'Eliminar visita doctor',NULL,1,4,'2025-10-27 00:00:00','2025-10-27 00:00:00'),
+(142,'ruta.mapa',1,'Mapa de rutas','fa fa-map',1,4,'2025-09-19 19:45:22','2025-09-19 19:45:22'),
 (77,'rutas.detalledoctor',0,'Mostrar detalles del doctor',NULL,1,4,'2025-09-19 20:01:55','2025-09-19 20:01:55'),
 (78,'enrutamientolista.calendariovisitadora',1,'Calendario de rutas','fa fa-calendar',1,4,'2025-09-19 20:03:40','2025-09-19 20:03:40'),
 (79,'rutasvisitadora.ListarMisRutas',1,'Lista de rutas','fa fa-list',1,4,'2025-09-19 20:17:38','2025-09-19 20:17:38'),
@@ -155,7 +156,8 @@ INSERT INTO `views` (`id`, `url`, `is_menu`, `description`, `icon`, `state`, `mo
 (137,'reports.ventas.visitadoras',0,'Api para obtener el reporte de ventas por visitadora',NULL,1,9,'2025-09-25 13:13:47','2025-09-25 13:13:47'),
 (138,'reports.doctores.tipo-doctor',0,'Api para obtener el tipo de doctores',NULL,1,9,'2025-10-09 21:52:13','2025-10-09 21:52:13'),
 (139,'rutas.zones.distritos',0,'Api para obtener los distritos por zonas para reportes',NULL,1,9,'2025-10-10 13:27:07','2025-10-10 13:27:07'),
-(140,'reports.rutas.zones',0,'Obtener visita de doctores por filtros por zona y distritos',NULL,1,9,'2025-10-10 13:30:54','2025-10-10 13:30:54');
+(140,'reports.rutas.zones',0,'Obtener visita de doctores por filtros por zona y distritos',NULL,1,9,'2025-10-10 13:30:54','2025-10-10 13:30:54'),
+(141,'rutasvisitadora.reprogramar',0,'Reprogramar visita a doctor desde visitadora',NULL,1,4,'2025-10-27 00:00:00','2025-10-27 00:00:00');
 SQL);
     }
 }
