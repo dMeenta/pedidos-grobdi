@@ -210,7 +210,12 @@ INSERT INTO `roles_views` (`id`, `role_id`, `view_id`, `created_at`, `updated_at
 (194,1,30,NULL,NULL),
 (195,1,138,NULL,NULL),
 (196,1,139,NULL,NULL),
-(197,1,140,NULL,NULL);
+(197,1,140,NULL,NULL),
+(200,1,79,NULL,NULL),
+(201,1,80,NULL,NULL),
+(202,1,81,NULL,NULL),
+(203,1,82,NULL,NULL),
+(204,1,83,NULL,NULL);
 SQL);
     }
 }
