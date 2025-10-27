@@ -49,7 +49,13 @@
                             <select id="filtroEstado" class="form-control">
                                 <option value="">Todos</option>
                                 @php
-                                    $estadosOpciones = collect($visitadoctores)->pluck('estado_visita.name')->unique()->filter();
+                                    $estadosOpciones = collect($visitadoctores)->map(function ($visita) {
+                                        if ($visita->reprogramar == 1) {
+                                            return 'Reprogramada';
+                                        } else {
+                                            return $visita->estado_visita->name;
+                                        }
+                                    })->unique()->filter()->sort()->values();
                                 @endphp
                                 @foreach ($estadosOpciones as $estadoNombre)
                                     <option value="{{ $estadoNombre }}">{{ $estadoNombre }}</option>
