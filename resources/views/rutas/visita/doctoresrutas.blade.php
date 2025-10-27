@@ -21,21 +21,53 @@
                         <button type="button" class="btn btn-success" data-toggle="modal" data-target="#crearDoctor">Agregar Doctor</button>
                     </div>
                     @endcan
-                    <div class="table table-responsive">
+                    @php
+                        $centrosSaludOpciones = collect($centrosSaludFiltro ?? [])->filter();
+                        $distritosOpciones = collect($distritosFiltro ?? [])->filter();
+                    @endphp
+                    <div class="row mb-3">
+                        <div class="col-md-4 col-lg-3">
+                            <label for="filtroCentro" class="form-label mb-1">Centro de Salud</label>
+                            <select id="filtroCentro" class="form-control">
+                                <option value="">Todos</option>
+                                @foreach ($centrosSaludOpciones as $centro)
+                                    <option value="{{ $centro }}">{{ $centro }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-4 col-lg-3">
+                            <label for="filtroDistrito" class="form-label mb-1">Distrito</label>
+                            <select id="filtroDistrito" class="form-control">
+                                <option value="">Todos</option>
+                                @foreach ($distritosOpciones as $distritoNombre)
+                                    <option value="{{ $distritoNombre }}">{{ $distritoNombre }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table table-responsive table-grobdi">
                         <table class="table" id="miTabla">
                             <thead>
                                 <tr>
                                     <th>Nombre</th>
+                                    <th>Centro de Salud</th>
+                                    <th>Distrito</th>
                                     <th>Estado</th>
                                     <th>Fecha Visita</th>
                                     <th>Turno</th>
-                                    <th>Ver Doctores</th>
+                                    <th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($visitadoctores as $visitadoctor)
                                 <tr>
-                                    <td>{{ $visitadoctor->doctor->categoriadoctor->name }} - {{ $visitadoctor->doctor->name }}</td>
+                                    @php
+                                        $doctor = optional($visitadoctor->doctor);
+                                        $categoriaDoctor = optional($doctor->categoriadoctor)->name;
+                                    @endphp
+                                    <td>{{ $categoriaDoctor ? $categoriaDoctor . ' - ' : '' }}{{ $doctor->name ?? 'Sin asignar' }}</td>
+                                    <td>{{ optional($doctor->centrosalud)->name ?? '—' }}</td>
+                                    <td>{{ optional($doctor->distrito)->name ?? '—' }}</td>
                                     @if ( $visitadoctor->estado_visita->id  == 1)
                                         <td><span class="badge bg-warning">{{ $visitadoctor->estado_visita->name }}</span></td>
                                     @elseif($visitadoctor->estado_visita->id == 5)
@@ -49,13 +81,13 @@
                                     @else
                                         <td><span class="badge bg-primary">{{ $visitadoctor->estado_visita->name }}</span></td>
                                     @endif
-                                    <td>{{ $visitadoctor->fecha }}</td>
-                                    <td>{{ $visitadoctor->turno?'Tarde':'Mañana' }}</td>
+                                    <td>{{ $visitadoctor->fecha ?? '—' }}</td>
+                                    <td>{{ $visitadoctor->turno ? 'Tarde' : 'Mañana' }}</td>
                                     @if ($visitadoctor->estado_visita_id == 1)
                                         <td>
                                             @can('rutasvisitadora.asignar')
-                                            <button class="btn btn-success btn-asignar" 
-                                                data-id="{{ $visitadoctor->id }}" 
+                                            <button class="btn btn-success btn-asignar"
+                                                data-id="{{ $visitadoctor->id }}"
                                                 data-nombre="{{ $visitadoctor->doctor->name }}">
                                                 Asignar
                                             </button>
@@ -73,7 +105,7 @@
             </div>
         </div>
     </div>
-<!-- Modal -->
+<!-- Modal asignar visita -->
 @can('rutasvisitadora.asignar')
 <div class="modal fade" id="modalAsignar" tabindex="-1" aria-labelledby="modalAsignarLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -103,11 +135,9 @@
         </div>
         </form>
     </div>
-@endcan
-@endcan
 </div>
+@endcan
 <!-- Modal crear doctor -->
- <!-- Modal -->
 @can('rutasvisitadora.guardardoctor')
 <div class="modal fade" id="crearDoctor" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -212,11 +242,11 @@
                     <div class="form-group row">
                         <label class="col-2">Fecha de visita:</label>
                         <div class="col-4">
-                            <input 
-                                type="date" 
-                                class="form-control" 
-                                name="fecha_visita" 
-                                placeholder="Ingresar la fecha que fue visitado" 
+                            <input
+                                type="date"
+                                class="form-control"
+                                name="fecha_visita"
+                                placeholder="Ingresar la fecha que fue visitado"
                                 min="{{ $fecha_inicio }}"
                                 max="{{ $fecha_fin }}"
                             >
@@ -253,17 +283,30 @@
 @section('css')
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 @stop
-    
+
 @section('js')
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#miTabla').DataTable({
+            const tabla = $('#miTabla').DataTable({
                 language: {
                     url: 'https://cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json'
                 },
                 pageLength: 25, // 👈 Número por defecto (puedes cambiar a 25, 50, etc.)
-                lengthMenu: [ [10, 25, 50, -1], [10, 25, 50, "Todos"] ] // Opciones de cantidad
+                lengthMenu: [ [10, 25, 50, -1], [10, 25, 50, "Todos"] ], // Opciones de cantidad
+                columnDefs: [
+                    { orderable: false, targets: -1 }
+                ]
+            });
+
+            $('#filtroCentro').on('change', function () {
+                const valor = $(this).val();
+                tabla.column(1).search(valor ? '^' + $.fn.dataTable.util.escapeRegex(valor) + '$' : '', true, false).draw();
+            });
+
+            $('#filtroDistrito').on('change', function () {
+                const valor = $(this).val();
+                tabla.column(2).search(valor ? '^' + $.fn.dataTable.util.escapeRegex(valor) + '$' : '', true, false).draw();
             });
 
             // Abre modal y pasa el ID
@@ -417,5 +460,5 @@
             });
         });
     </script>
-    
+
 @stop

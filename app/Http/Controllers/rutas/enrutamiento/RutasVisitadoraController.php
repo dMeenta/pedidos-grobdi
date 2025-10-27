@@ -20,10 +20,14 @@ class RutasVisitadoraController extends Controller
     public function ListarMisRutas()
     {
         $primerDiaMes = Carbon::now()->startOfMonth()->toDateString();
-        $rutames = Enrutamiento::where('fecha', $primerDiaMes)->whereIn('zone_id', Auth::user()->zones->pluck('id'))->get();
-        foreach ($rutames as $ruta) {
-            $listas = EnrutamientoLista::where('enrutamiento_id', $ruta->id)->get();
-        }
+        $rutasMes = Enrutamiento::where('fecha', $primerDiaMes)
+            ->whereIn('zone_id', Auth::user()->zones->pluck('id'))
+            ->pluck('id');
+
+        $listas = EnrutamientoLista::with('lista')
+            ->whereIn('enrutamiento_id', $rutasMes)
+            ->get();
+
         return view('rutas.visita.misrutas', compact('listas'));
     }
     public function listadoctores($id)
@@ -34,9 +38,41 @@ class RutasVisitadoraController extends Controller
         $semana_ruta = $rutames;
         $dias = Day::all();
         $especialidades = Especialidad::all();
-        $visitadoctores = VisitaDoctor::where('enrutamientolista_id', $id)->get();
+        $visitadoctores = VisitaDoctor::where('enrutamientolista_id', $id)
+            ->with([
+                'doctor.categoriadoctor',
+                'doctor.centrosalud',
+                'doctor.distrito',
+                'estado_visita'
+            ])
+            ->get();
+
+        $centrosSaludFiltro = $visitadoctores
+            ->map(fn ($visita) => optional($visita->doctor->centrosalud)->name)
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
+
+        $distritosFiltro = $visitadoctores
+            ->map(fn ($visita) => optional($visita->doctor->distrito)->name)
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
+
         $distritos = Distrito::select('id', 'name')->where('provincia_id', 128)->orWhere('provincia_id', 67)->orderBy('name')->get();
-        return view('rutas.visita.doctoresrutas', compact('visitadoctores', 'fecha_inicio', 'fecha_fin', 'semana_ruta', 'especialidades', 'distritos', 'dias'));
+        return view('rutas.visita.doctoresrutas', compact(
+            'visitadoctores',
+            'fecha_inicio',
+            'fecha_fin',
+            'semana_ruta',
+            'especialidades',
+            'distritos',
+            'dias',
+            'centrosSaludFiltro',
+            'distritosFiltro'
+        ));
     }
     public function asignar(Request $request)
     {
