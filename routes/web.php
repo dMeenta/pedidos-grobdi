@@ -6,7 +6,6 @@ use App\Http\Controllers\ajustes\UbigeoController;
 use App\Http\Controllers\ajustes\UsuariosController;
 use App\Http\Controllers\ajustes\ViewController;
 use App\Http\Controllers\pedidos\comercial\PedidosComercialController;
-use App\Http\Controllers\Visitadoras\MetasController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -52,7 +51,9 @@ use App\Http\Controllers\softlyn\TipoCambioController;
 use App\Http\Controllers\softlyn\MerchandiseController;
 use App\Http\Controllers\softlyn\CompraController;
 use App\Http\Controllers\softlyn\UtilController;
-
+use App\Http\Controllers\Visitadoras\Metas\GoalNotReachedConfigController;
+use App\Http\Controllers\Visitadoras\Metas\MetasController;
+use App\Http\Controllers\Visitadoras\Metas\VisitorGoalController;
 
 // use App\Http\Middleware\RoleMiddleware;
 
@@ -92,15 +93,19 @@ Route::middleware(['check.permission'])->group(function () {
 
     Route::prefix('visitadoras')->group(function () {
         Route::get("/metas", [MetasController::class, 'index'])->name('visitadoras.metas');
-        Route::get("/metas/form", [MetasController::class, 'form'])->name('visitadoras.metas.form');
+        Route::get("/metas/crear", [MetasController::class, 'form'])->name('visitadoras.metas.form');
         Route::post('/metas/store', [MetasController::class, 'store'])->name('visitadoras.metas.store');
+        Route::post('/metas/details/{visitorGoalId}', [MetasController::class, 'getDataForChartByVisitorGoal'])->name('visitadoras.metas.details');
+        Route::post('/metas/not-reached-config/store', [GoalNotReachedConfigController::class, 'store'])->name('visitadoras.metas.not-reached-config.store');
+        Route::get('/metas/not-reached-config/active', [GoalNotReachedConfigController::class, 'showActive'])->name('visitadoras.metas.not-reached-config.active');
+        Route::put('/metas/update-debited-amount/{visitorGoal}', [VisitorGoalController::class, 'updateDebitedAmount'])->name('visitadoras.metas.update.debited-amount');
+
     });
 
     Route::get('pedidoscomercial', [PedidosComercialController::class, 'index'])->name('pedidoscomercial.index');
     Route::get('pedidoscomercial/export', [PedidosComercialController::class, 'export'])->name('pedidoscomercial.export');
 
     Route::get('/doctors/search', [DoctorController::class, 'showByNameLike'])->name('doctors.search');
-
     //COUNTER
     Route::get('pedido/{id}/state', [PedidosController::class, 'showDeliveryStates'])->name('pedidos.showDeliveryStates');
 
