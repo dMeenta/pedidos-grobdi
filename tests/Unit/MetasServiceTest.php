@@ -324,3 +324,46 @@ it('throws ModelNotFoundException when meta id does not exist', function () {
     $this->service->getListOfVisitorGoalByMetaId($nonExistentId);
 })->throws(ModelNotFoundException::class);
 
+it('permite crear metas para el mismo mes con distinto tipo de médico', function () {
+    // Primero, crea una meta para un tipo de médico en octubre 2025
+    $data1 = [
+        'month' => '2025-10',
+        'tipo_medico' => 'Prescriptor',
+        'is_general_goal' => true,
+        'goal_amount' => 1000,
+        'commission_percentage' => 5.0,
+    ];
+
+    $result1 = $this->service->create($data1);
+
+    expect($result1)->toBeInstanceOf(MonthlyVisitorGoal::class);
+    expect($result1->tipo_medico)->toBe('Prescriptor');
+
+    // Ahora, intenta crear otra meta en el mismo mes pero con otro tipo de médico
+    $data2 = [
+        'month' => '2025-10',
+        'tipo_medico' => 'Comprador',
+        'is_general_goal' => true,
+        'goal_amount' => 1200,
+        'commission_percentage' => 6.0,
+    ];
+
+    $result2 = $this->service->create($data2);
+
+    expect($result2)->toBeInstanceOf(MonthlyVisitorGoal::class);
+    expect($result2->tipo_medico)->toBe('Comprador');
+
+    // Verifica que ambas metas existen en la base de datos
+    $this->assertDatabaseHas('monthly_visitor_goals', [
+        'tipo_medico' => 'Prescriptor',
+        'start_date' => '2025-10-01',
+    ]);
+
+    $this->assertDatabaseHas('monthly_visitor_goals', [
+        'tipo_medico' => 'Comprador',
+        'start_date' => '2025-10-01',
+    ]);
+
+    // Asegura que son dos registros distintos
+    expect(MonthlyVisitorGoal::where('start_date', '2025-10-01')->count())->toBe(2);
+});
