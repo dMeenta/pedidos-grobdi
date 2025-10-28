@@ -21,8 +21,8 @@
                 <h2>¡El sistema fue raptado! 👹</h2>
                 <p>Por Los malditos de SysGrob 😈</p>
                 <div>
-                    <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExZHlocmptbTFiMXdraW55NGM5ZmdzNDB6NW8wd2l3bjViNTJkbDZjNCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/JpM42T4Mnd4FKWq74i/giphy.gif"
-                        alt="" class="h-100">
+                    <!-- <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExZHlocmptbTFiMXdraW55NGM5ZmdzNDB6NW8wd2l3bjViNTJkbDZjNCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/JpM42T4Mnd4FKWq74i/giphy.gif"
+                        alt="" class="h-100"> -->
                 </div>
             </div>
 
