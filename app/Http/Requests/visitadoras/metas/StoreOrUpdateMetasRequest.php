@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\visitadoras;
+namespace App\Http\Requests\visitadoras\metas;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -11,7 +11,7 @@ class StoreOrUpdateMetasRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
