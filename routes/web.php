@@ -51,7 +51,9 @@ use App\Http\Controllers\softlyn\TipoCambioController;
 use App\Http\Controllers\softlyn\MerchandiseController;
 use App\Http\Controllers\softlyn\CompraController;
 use App\Http\Controllers\softlyn\UtilController;
-
+use App\Http\Controllers\Visitadoras\Metas\GoalNotReachedConfigController;
+use App\Http\Controllers\Visitadoras\Metas\MetasController;
+use App\Http\Controllers\Visitadoras\Metas\VisitorGoalController;
 
 // use App\Http\Middleware\RoleMiddleware;
 
@@ -68,38 +70,46 @@ Route::middleware(['check.permission'])->group(function () {
     Route::prefix('muestras')->group(function () {
         Route::get("/", [MuestrasController::class, 'index'])->name('muestras.index');
         Route::get("/export", [MuestrasController::class, 'exportExcel'])->name('muestras.exportExcel');
-        Route::delete('/disable/{id}', [MuestrasController::class, 'disableMuestra'])->name('muestras.disable');
+        Route::delete('/disable/{muestra}', [MuestrasController::class, 'disableMuestra'])->name('muestras.disable');
         Route::get('/{id}', [MuestrasController::class, 'show'])->name('muestras.show');
         Route::get("create/form", [MuestrasController::class, 'create'])->name('muestras.create');
         Route::post("create/", [MuestrasController::class, 'store'])->name('muestras.store');
-        Route::get('edit/{id}', [MuestrasController::class, 'edit'])->name('muestras.edit');
-        Route::put('edit/{id}', [MuestrasController::class, 'update'])->name('muestras.update');
-        Route::put('edit/{id}/update-tipo-muestra', [MuestrasController::class, 'updateTipoMuestra'])->name('muestras.updateTipoMuestra');
-        Route::put('edit/{id}/update-fecha-hora-entrega', [MuestrasController::class, 'updateDateTimeScheduled'])->name('muestras.updateDateTimeScheduled');
+        Route::get('edit/{muestra}', [MuestrasController::class, 'edit'])->name('muestras.edit');
+        Route::put('edit/{muestra}', [MuestrasController::class, 'update'])->name('muestras.update');
+        Route::put('edit/{muestra}/update-tipo-muestra', [MuestrasController::class, 'updateTipoMuestra'])->name('muestras.updateTipoMuestra');
+        Route::put('edit/{muestra}/update-fecha-hora-entrega', [MuestrasController::class, 'updateDateTimeScheduled'])->name('muestras.updateDateTimeScheduled');
 
-        Route::put('laboratorio/{id}/comentario', [MuestrasController::class, 'updateComentarioLab'])->name('muestras.updateComentarioLab');
-        Route::put('laboratorio/{id}/state', [MuestrasController::class, 'markAsElaborated'])->name('muestras.markAsElaborated');
+        Route::put('laboratorio/{muestra}/comentario', [MuestrasController::class, 'updateComentarioLab'])->name('muestras.updateComentarioLab');
+        Route::put('laboratorio/{muestra}/state', [MuestrasController::class, 'markAsElaborated'])->name('muestras.markAsElaborated');
 
         /* ---- CONTABILIDAD --- */
-
-        Route::put('/{id}/update-price', [MuestrasController::class, 'updatePrice'])->name('muestras.updatePrice');
+        Route::put('/{muestra}/update-price', [MuestrasController::class, 'updatePrice'])->name('muestras.updatePrice');
 
         /* ---- APROBACIONES --- */
 
         //Coordinadora
-        Route::put('/aprove-coordinador', [MuestrasController::class, 'aproveMuestraByCoordinadora'])->name('muestras.aproveCoordinadora');
+        Route::put('/aprove-coordinador/{muestra}', [MuestrasController::class, 'aproveMuestraByCoordinadora'])->name('muestras.aproveCoordinadora');
         //Jefe Comercial
-        Route::put('/aprove-jcomercial', [MuestrasController::class, 'aproveMuestraByJefeComercial'])->name('muestras.aproveJefeComercial');
+        Route::put('/aprove-jcomercial/{muestra}', [MuestrasController::class, 'aproveMuestraByJefeComercial'])->name('muestras.aproveJefeComercial');
         //Jefe de Operaciones
-        Route::put('/aprove-joperaciones', [MuestrasController::class, 'aproveMuestraByJefeOperaciones'])->name('muestras.aproveJefeOperaciones');
+        Route::put('/aprove-joperaciones/{muestra}', [MuestrasController::class, 'aproveMuestraByJefeOperaciones'])->name('muestras.aproveJefeOperaciones');
+    });
+
+    Route::prefix('visitadoras')->group(function () {
+        Route::get("/metas", [MetasController::class, 'index'])->name('visitadoras.metas');
+        Route::get("/metas/crear", [MetasController::class, 'form'])->name('visitadoras.metas.form');
+        Route::post('/metas/store', [MetasController::class, 'store'])->name('visitadoras.metas.store');
+        Route::post('/metas/details/{visitorGoalId}', [MetasController::class, 'getDataForChartByVisitorGoal'])->name('visitadoras.metas.details');
+        Route::post('/metas/not-reached-config/store', [GoalNotReachedConfigController::class, 'store'])->name('visitadoras.metas.not-reached-config.store');
+        Route::get('/metas/not-reached-config/active', [GoalNotReachedConfigController::class, 'showActive'])->name('visitadoras.metas.not-reached-config.active');
+        Route::put('/metas/update-debited-amount/{visitorGoal}', [VisitorGoalController::class, 'updateDebitedAmount'])->name('visitadoras.metas.update.debited-amount');
+
     });
 
     Route::get('pedidoscomercial', [PedidosComercialController::class, 'index'])->name('pedidoscomercial.index');
     Route::get('pedidoscomercial/export', [PedidosComercialController::class, 'export'])->name('pedidoscomercial.export');
 
     Route::get('/doctors/search', [DoctorController::class, 'showByNameLike'])->name('doctors.search');
-// ...existing code...
-
     //COUNTER
     Route::get('pedido/{id}/state', [PedidosController::class, 'showDeliveryStates'])->name('pedidos.showDeliveryStates');
 
@@ -110,7 +120,7 @@ Route::middleware(['check.permission'])->group(function () {
     Route::get('/cargarpedidos/{pedido}/uploadfile', [CargarPedidosController::class, 'uploadfile'])->name('cargarpedidos.uploadfile');
     Route::put('/cargarpedidos/cargarImagen/{id}', CargarPedidosController::class . '@cargarImagen')->name('cargarpedidos.cargarImagen');
     Route::put('/cargarpedidos/actualizarPago/{id}', CargarPedidosController::class . '@actualizarPago')->name('cargarpedidos.actualizarPago');
-    Route::put('/cargarpedidos/cargarImagenReceta/{id}',CargarPedidosController::class . '@cargarImagenReceta')->name('cargarpedidos.cargarImagenReceta');
+    Route::put('/cargarpedidos/cargarImagenReceta/{id}', CargarPedidosController::class . '@cargarImagenReceta')->name('cargarpedidos.cargarImagenReceta');
     Route::delete('cargarpedidos/eliminarFotoVoucher/{id}', CargarPedidosController::class . '@eliminarFotoVoucher')->name('cargarpedidos.eliminarFotoVoucher');
     Route::put('/cargarpedidos/actualizarTurno/{id}', CargarPedidosController::class . '@actualizarTurno')->name('cargarpedidos.actualizarTurno');
 
@@ -170,6 +180,7 @@ Route::middleware(['check.permission'])->group(function () {
     Route::post('/enrutamientolista/store', [EnrutamientoController::class, 'Enrutamientolistastore'])->name('enrutamientolista.store');
     Route::get('/enrutamiento/{id}', [EnrutamientoController::class, 'agregarLista'])->name('enrutamiento.agregarlista');
     Route::get('/enrutamientolista/{id}', [EnrutamientoController::class, 'DoctoresLista'])->name('enrutamientolista.doctores');
+    Route::post('/enrutamientolista/add-visita', [EnrutamientoController::class, 'addSpontaneousVisitaDoctor'])->name('visita.doctor.add.spontaneous');
     Route::put('/enrutamientolista/doctor/{id}', [EnrutamientoController::class, 'DoctoresListaUpdate'])->name('enrutamientolista.doctoresupdate');
     Route::delete('/enrutamientolista/doctor/{id}', [EnrutamientoController::class, 'destroyVisitaDoctor'])->name('enrutamientolista.doctoresdestroy');
     Route::post('/enrutamientolista/add-visita', [EnrutamientoController::class, 'addSpontaneousVisitaDoctor'])->name('visita.doctor.add.spontaneous');
@@ -184,7 +195,7 @@ Route::middleware(['check.permission'])->group(function () {
     Route::post('guardar-visita', [EnrutamientoController::class, 'GuardarVisita'])->name('rutas.guardarvisita');
     Route::get('rutasvisitadora', [RutasVisitadoraController::class, 'ListarMisRutas'])->name('rutasvisitadora.ListarMisRutas');
     Route::get('rutasvisitadora/{id}', [RutasVisitadoraController::class, 'listadoctores'])->name('rutasvisitadora.listadoctores');
-    Route::post('/rutasvisitadora/asignar', action: [RutasVisitadoraController::class, 'asignar'])->name('rutasvisitadora.asignar');
+    Route::post('/rutasvisitadora/asignar', [RutasVisitadoraController::class, 'asignar'])->name('rutasvisitadora.asignar');
     Route::get('/rutasvisitadora/buscardoctor/{cmp}', [DoctorController::class, 'buscarCMP'])->name('rutasvisitadora.buscarcmpdoctor');
     Route::post('/rutasvisitadora/doctores', [DoctorController::class, 'guardarDoctorVisitador'])->name('rutasvisitadora.guardardoctor');
     Route::get('centrosaludbuscar', CentroSaludController::class . '@buscar')->name('centrosalud.buscar');
@@ -254,78 +265,82 @@ Route::middleware(['check.permission'])->group(function () {
                 Route::get('muestras', [ReportsController::class, 'getMuestrasReport'])->name('reports.muestras.api');
             });
         });
+
+        Route::prefix('motorizados')->group(function () {
+            Route::get('/', [ReportsController::class, 'muestrasView'])->name('reports.motorizados');
+        });
     });
 
 });
 
-    /*
-    EN REVISIÓN, REPORTES DE MUESTRAS PARA GERENCIA
-    */
+/*
+EN REVISIÓN, REPORTES DE MUESTRAS PARA GERENCIA
+*/
 
-    //GERENCIACONTROLLER
+//GERENCIACONTROLLER
 
-    // REVISION //
-    //Reporte gerencia - Clasificaciones
-    Route::get('/reporte', [gerenciaController::class, 'mostrarReporte'])->name('muestras.reporte');
+// REVISION //
+//Reporte gerencia - Clasificaciones
+Route::get('/reporte', [gerenciaController::class, 'mostrarReporte'])->name('muestras.reporte');
 
-    // REVISION //
-    //Reporte Gerencia frasco original
-    Route::get('/reporte/frasco-original', [gerenciaController::class, 'mostrarReporteFrascoOriginal'])->name('muestras.reporte.frasco-original');
+// REVISION //
+//Reporte Gerencia frasco original
+Route::get('/reporte/frasco-original', [gerenciaController::class, 'mostrarReporteFrascoOriginal'])->name('muestras.reporte.frasco-original');
 
-    // REVISION //
-    //Reporte Gerencia Frasco Muestra
-    Route::get('/reporte/frasco-muestra', [gerenciaController::class, 'mostrarReporteFrascoMuestra'])->name('muestras.reporte.frasco-muestra');
+// REVISION //
+//Reporte Gerencia Frasco Muestra
+Route::get('/reporte/frasco-muestra', [gerenciaController::class, 'mostrarReporteFrascoMuestra'])->name('muestras.reporte.frasco-muestra');
 
-    // REVISION //
-    //exportar pdf en Reportes
-    Route::get('reporte/PDF-frascoMuestra', [gerenciaController::class, 'exportarPDF'])->name('muestras.exportarPDF');
+// REVISION //
+//exportar pdf en Reportes
+Route::get('reporte/PDF-frascoMuestra', [gerenciaController::class, 'exportarPDF'])->name('muestras.exportarPDF');
 
-    // REVISION //
-    Route::get('reporte/PDF-frascoOriginal', [gerenciaController::class, 'exportarPDFFrascoOriginal'])->name('muestras.frasco.original.pdf');
+// REVISION //
+Route::get('reporte/PDF-frascoOriginal', [gerenciaController::class, 'exportarPDFFrascoOriginal'])->name('muestras.frasco.original.pdf');
 
 
-    //COTIZADOR GENERAL----------
-    //modulos del softlyn
-    //Administración
-    Route::resource('insumo_empaque', InsumoEmpaqueController::class);
-    // CRUDs separados para envases, material e insumos
-    Route::resource('envases', EnvaseController::class);
-    Route::resource('material', MaterialController::class);
-    Route::resource('insumos', InsumoController::class);
-    //Crud proveedores
-    Route::resource('proveedores', ProveedorController::class)->parameters([
-        'proveedores' => 'proveedor'
-    ]);
-    //Crud tipo de cambio- EL PRINCIPAL ES RESUMEN-TIPO-CAMBIO!!!
-    Route::resource('tipo_cambio', TipoCambioController::class);
-    Route::get('/resumen-tipo-cambio', [TipoCambioController::class, 'resumenTipoCambio'])->name('tipo_cambio.resumen');
-    // Route::delete('/tipo-cambio/{id?}', [TipoCambioController::class, 'destroy'])->name('tipo_cambio.destroy');
+//COTIZADOR GENERAL----------
+//modulos del softlyn
+//Administración
+Route::resource('insumo_empaque', InsumoEmpaqueController::class);
+// CRUDs separados para envases, material e insumos
+Route::resource('envases', EnvaseController::class);
+Route::resource('material', MaterialController::class);
+Route::resource('insumos', InsumoController::class);
+//Crud proveedores
+Route::resource('proveedores', ProveedorController::class)->parameters([
+    'proveedores' => 'proveedor'
+]);
+//Crud tipo de cambio- EL PRINCIPAL ES RESUMEN-TIPO-CAMBIO!!!
+Route::resource('tipo_cambio', TipoCambioController::class);
+Route::get('/resumen-tipo-cambio', [TipoCambioController::class, 'resumenTipoCambio'])->name('tipo_cambio.resumen');
+// Route::delete('/tipo-cambio/{id?}', [TipoCambioController::class, 'destroy'])->name('tipo_cambio.destroy');
 
-    //crud para merchandise
-    Route::resource('merchandise', MerchandiseController::class);
-    //Ruta para utiles
-    Route::resource('util', UtilController::class);
-    //crud compras
-    Route::resource('compras', CompraController::class);
-    // CRUD Guía de Ingreso
-    Route::resource('guia_ingreso', \App\Http\Controllers\softlyn\GuiaIngresoController::class);
-    // Ruta AJAX para obtener detalles de compra
-    Route::get('lotes/por-articulo/{articulo_id}', [\App\Http\Controllers\softlyn\GuiaIngresoController::class, 'getLotesPorArticulo'])->name('lotes.por_articulo');
-    Route::get('guia_ingreso/detalles-compra/{compra_id}', [\App\Http\Controllers\softlyn\GuiaIngresoController::class, 'getDetallesCompra'])->name('guia_ingreso.detalles_compra');
+//crud para merchandise
+Route::resource('merchandise', MerchandiseController::class);
+//Ruta para utiles
+Route::resource('util', UtilController::class);
+//crud compras
+Route::resource('compras', CompraController::class);
+// CRUD Guía de Ingreso
+Route::resource('guia_ingreso', \App\Http\Controllers\softlyn\GuiaIngresoController::class);
+// Ruta AJAX para obtener detalles de compra
+Route::get('lotes/por-articulo/{articulo_id}', [\App\Http\Controllers\softlyn\GuiaIngresoController::class, 'getLotesPorArticulo'])->name('lotes.por_articulo');
+Route::get('guia_ingreso/detalles-compra/{compra_id}', [\App\Http\Controllers\softlyn\GuiaIngresoController::class, 'getDetallesCompra'])->name('guia_ingreso.detalles_compra');
 
-    // Rutas estándar del CRUD
-    Route::resource('producto_final', ProductoFinalController::class);
+// Rutas estándar del CRUD
+Route::resource('producto_final', ProductoFinalController::class);
 
-    //crud volumen
-    Route::resource('volumen', VolumenController::class);
+//crud volumen
+Route::resource('volumen', VolumenController::class);
 
-    //Laboratorio
-    Route::resource('bases', BaseController::class);
-    // Rutas adicionales para AJAX
-    /* Route::get('articulos/por-tipo', [CompraController::class, 'getArticulosByTipo'])
-        ->name('articulos.por-tipo');
-    */
+//Laboratorio 
+Route::resource('bases', BaseController::class);
+// Rutas adicionales para AJAX
+/* Route::get('articulos/por-tipo', [CompraController::class, 'getArticulosByTipo'])
+    ->name('articulos.por-tipo');
+*/
 
-    //contabilidad  marcará si el insumo es caro o no
-    Route::get('/insumo/marcar-caro', [InsumoController::class, 'marcarCaro'])->name('insumos.marcar-caro');
-    Route::post('/insumo/marcar-caro', [InsumoController::class, 'actualizarEsCaro'])->name('insumos.actualizar-es-caro');
+//contabilidad  marcará si el insumo es caro o no
+Route::get('/insumo/marcar-caro', [InsumoController::class, 'marcarCaro'])->name('insumos.marcar-caro');
+Route::post('/insumo/marcar-caro', [InsumoController::class, 'actualizarEsCaro'])->name('insumos.actualizar-es-caro');

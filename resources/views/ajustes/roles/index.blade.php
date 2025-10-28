@@ -3,12 +3,12 @@
 @section('title', 'Roles')
 
 @section('content_header')
-    <h1>Sistema de control de roles</h1>
+    <h1>🥸 Gestión de roles</h1>
 @stop
 
 @section('content')
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
-        <a href="{{ route('roles.create') }}" class="btn btn-primary">➕ Nuevo Rol</a>
+        <a href="{{ route('roles.create') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Nuevo Rol</a>
     </div>
 
     <div class="card shadow-sm mb-4">
@@ -19,17 +19,20 @@
                         <label for="role_id" class="mb-1">Filtrar por rol</label>
                         <select name="role_id" id="role_id" class="form-control">
                             <option value="">Todos los roles</option>
-                            @foreach($roleOptions as $roleOption)
-                                <option value="{{ $roleOption->id }}" {{ (string)($selectedRole ?? '') === (string)$roleOption->id ? 'selected' : '' }}>
+                            @foreach ($roleOptions as $roleOption)
+                                <option value="{{ $roleOption->id }}"
+                                    {{ (string) ($selectedRole ?? '') === (string) $roleOption->id ? 'selected' : '' }}>
                                     {{ $roleOption->name }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
                     <div class="col-12 col-md-6 col-lg-7">
-                        <div class="d-flex flex-column flex-sm-row justify-content-center align-items-stretch">
-                            <button type="submit" class="btn btn-primary btn-block mb-2 mb-sm-0 mr-sm-3">🔍 Filtrar</button>
-                            <a href="{{ route('roles.index') }}" class="btn btn-outline-secondary btn-block">♻️ Limpiar</a>
+                        <div class="d-flex flex-column flex-sm-row justify-content-between"
+                            style="place-items: end; gap: 0.5rem;">
+                            <button type="submit" class="btn btn-primary btn-block">🔍
+                                Filtrar</button>
+                            <a href="{{ route('roles.index') }}" class="btn btn-outline-dark btn-block">♻️ Limpiar</a>
                         </div>
                     </div>
                 </div>
@@ -38,11 +41,17 @@
     </div>
 
     <div class="card shadow-sm">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <span class="mb-0 font-weight-bold">Lista de roles</span>
-            <span class="badge badge-primary">{{ $roles->total() }} registros</span>
+        <div class="card-header">
+            <div class="row">
+                <div class="col">
+                    <span class="fw-bold">Lista de roles</span>
+                </div>
+                <div class="col text-right">
+                    <span class="badge badge-primary text-md">{{ $roles->total() }} registros</span>
+                </div>
+            </div>
         </div>
-        <div class="card-body p-0">
+        <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-bordered table-striped table-hover table-grobdi mb-0">
                     <thead>
@@ -50,7 +59,7 @@
                             <th>Rol</th>
                             <th>Descripción</th>
                             <th>Permisos</th>
-                            <th class="text-center">Acciones</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -58,27 +67,33 @@
                             <tr>
                                 <td class="font-weight-bold">{{ $role->name }}</td>
                                 <td>{{ $role->description }}</td>
-                                <td>
+                                <td class="text-center">
                                     @if ($role->views->isEmpty() && $role->modules->isEmpty())
                                         <span class="text-muted">Sin permisos asignados</span>
                                     @else
-                                        <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#role-permissions-{{ $role->id }}">
+                                        <button type="button" class="btn btn-sm btn-outline-info fw-bold"
+                                            data-toggle="modal" data-target="#role-permissions-{{ $role->id }}">
                                             👁️ Ver permisos
                                         </button>
                                     @endif
                                 </td>
                                 <td class="text-center">
-                                    <a href="{{ route('roles.edit', $role) }}" class="btn btn-sm btn-warning mb-1">✏️ Editar</a>
-                                    <a href="{{ route('roles.permissions', $role) }}" class="btn btn-sm btn-info mb-1">🛡️ Permisos</a>
+                                    <a href="{{ route('roles.edit', $role) }}" class="btn btn-sm btn-warning w-75">✏️
+                                        Editar</a>
+                                    <a href="{{ route('roles.permissions', $role) }}"
+                                        class="btn btn-sm btn-info my-2 w-75">🛡️
+                                        Permisos</a>
                                     <form action="{{ route('roles.destroy', $role) }}" method="POST" class="d-inline">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar?')">🗑️ Eliminar</button>
+                                        <button type="submit" class="btn btn-sm btn-danger w-75"
+                                            onclick="return confirm('¿Eliminar?')">🗑️ Eliminar</button>
                                     </form>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="text-center text-muted py-4">No se encontraron roles para el filtro seleccionado.</td>
+                                <td colspan="4" class="text-center text-muted py-4">No se encontraron roles para el
+                                    filtro seleccionado.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -100,7 +115,6 @@
 
 @section('js')
 
-    <script>
-    </script>
-    
+    <script></script>
+
 @stop
