@@ -3,12 +3,12 @@
 @section('title', 'Roles')
 
 @section('content_header')
-    <h1>Sistema de control de roles</h1>
+    <h1>🥸 Gestión de roles</h1>
 @stop
 
 @section('content')
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
-        <a href="{{ route('roles.create') }}" class="btn btn-primary">➕ Nuevo Rol</a>
+        <a href="{{ route('roles.create') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Nuevo Rol</a>
     </div>
 
     <div class="card shadow-sm mb-4">
