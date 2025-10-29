@@ -246,7 +246,7 @@ Route::middleware(['check.permission'])->group(function () {
             Route::get('/', [ReportsController::class, 'ventasView'])->name('reports.ventas');
 
             Route::prefix('api/v1')->group(function () {
-                Route::get('general', [ReportsController::class, 'getGeneralReport'])->name('reports.ventas.general');
+                Route::get('general', [ReportsController::class, 'getVentasGeneralReport'])->name('reports.ventas.general');
                 Route::get('visitadoras', [ReportsController::class, 'getVisitadorasReport'])->name('reports.ventas.visitadoras');
                 Route::get('productos', [ReportsController::class, 'getProductosReport'])->name('reports.ventas.productos');
                 Route::get('provincias', [ReportsController::class, 'getProvinciasReport'])->name('reports.ventas.provincias');
@@ -265,7 +265,8 @@ Route::middleware(['check.permission'])->group(function () {
         Route::prefix('muestras')->group(function () {
             Route::get('/', [ReportsController::class, 'muestrasView'])->name('reports.muestras');
             Route::prefix('api/v1')->group(function () {
-                Route::get('muestras', [ReportsController::class, 'getMuestrasReport'])->name('reports.muestras.api');
+                Route::get('general', [ReportsController::class, 'getMuestrasGeneralReport'])->name('reports.muestras.general');
+                Route::get('doctors', [ReportsController::class, 'getMuestrasDoctorReport'])->name('reports.muestras.doctores');
             });
         });
 

@@ -338,7 +338,8 @@
         <div class="d-flex justify-content-end mt-3">
             {{ $muestras->appends(request()->query())->links() }}
         </div>
-    @stop
+    @endcan
+@stop
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('css/muestras/labora.css') }}">

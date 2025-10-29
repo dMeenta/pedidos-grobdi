@@ -18,6 +18,7 @@ class MuestrasService
         $query = Muestras::with(['clasificacion.unidadMedida', 'tipoMuestra', 'doctor', 'clasificacionPresentacion'])
             ->where('state', true);
 
+        $tiposMuestra = null;
         // === Filtros por rol del usuario ===
         if (in_array($user->role->name, ['admin', 'coordinador-lineas', 'supervisor'])) {
             $tiposMuestra = TipoMuestra::get();
