@@ -114,11 +114,11 @@ return [
         'enabled' => true,
         'mode' => 'fullscreen',
         'img' => [
-            'path' => 'images/logo_solo.png',
+            'path' => 'images/nave_espacial.png',
             'alt' => 'Grobdi Preloader Image',
             'effect' => 'animation__shake',
-            'width' => 80,
-            'height' => 80,
+            'width' => 160,
+            'height' => 500,
         ],
     ],
 
@@ -258,7 +258,7 @@ return [
         */
 
     'use_route_url' => false,
-    'dashboard_url' => '',
+    'dashboard_url' => '/',
     'logout_url' => 'logout',
     'login_url' => 'login',
     'register_url' => 'register',
