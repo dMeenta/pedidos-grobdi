@@ -28,12 +28,12 @@
             </div>
             <div class="ofrenda-container text-center">
                 <h2>¡El sistema fue raptado! <span class="ms-2 scary-span" style="text-shadow: none">👹</span></h2>
-                <p>Por los Malditos del SysGrob <span class="ms-2 scary-span" style="text-shadow: none">😈</span>
+                <p>Por los Malditos del SysGrob <span class="ms-2 scary-span text-xl" style="text-shadow: none">😈</span>
                 </p>
-                <div style="z-index: 2;">
+                <!-- <div style="z-index: 2;">
                     <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExZHlocmptbTFiMXdraW55NGM5ZmdzNDB6NW8wd2l3bjViNTJkbDZjNCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/JpM42T4Mnd4FKWq74i/giphy.gif"
                         alt="" class="h-100">
-                </div>
+                </div> -->
             </div>
 
             <span class="scary-span" style="top: 10%; left: 5%; filter: drop-shadow(0 0 10px #ffffffff);">🎃</span>
